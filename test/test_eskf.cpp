@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <random>
 #include "attitude_filter/eskf.hpp"
-#include "zaru.hpp"
-#include "sage_husa.hpp"
+#include "attitude_filter/zaru.hpp"
+#include "attitude_filter/sage_husa.hpp"
 
 // Test 1: predict() — zero angular rate for 1 second → quaternion stays at identity
 TEST(ESKFTest, PredictZeroRateStaysIdentity)
