@@ -132,6 +132,11 @@ void MavlinkBridge::send(const Eigen::Vector3d& a_cmd_NED, uint64_t timestamp_us
     // time_boot_ms: PX4 uses this for stale-command detection (> 500ms → OFFBOARD exits)
     const auto time_boot_ms = static_cast<uint32_t>(timestamp_us / 1000ULL);
 
+    // thrust_body: required by MAVLink c_library_v2 newer API.
+    // [0] = body-x thrust (unused), [1] = body-y thrust (unused),
+    // [2] = body-z thrust (positive = down in FRD; matches the scalar thrust field).
+    float thrust_body[3] = {0.0f, 0.0f, static_cast<float>(thrust)};
+
     mavlink_message_t msg;
     mavlink_msg_set_attitude_target_pack(
         system_id_,
@@ -145,7 +150,8 @@ void MavlinkBridge::send(const Eigen::Vector3d& a_cmd_NED, uint64_t timestamp_us
         body_roll_rate,
         body_pitch_rate,
         body_yaw_rate,
-        thrust);
+        thrust,
+        thrust_body);
 
     uint8_t buf[MAVLINK_MAX_PACKET_LEN];
     const uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
