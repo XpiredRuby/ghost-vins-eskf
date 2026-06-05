@@ -19,7 +19,8 @@ TEST(ESKFTest, PredictZeroRateStaysIdentity)
     }
 
     // With zero angular rate and zero biases, rotation must not drift
-    EXPECT_TRUE(eskf.getR_cam_to_NED().isApprox(Eigen::Matrix3d::Identity(), 1e-9));
+    bool rot_identity_1 = eskf.getR_cam_to_NED().isApprox(Eigen::Matrix3d::Identity(), 1e-9);
+    EXPECT_TRUE(rot_identity_1) << "Rotation matrix must stay identity after zero-rate predict";
     EXPECT_LT(eskf.getGyroBias().norm(),  1e-9);
     EXPECT_LT(eskf.getAccelBias().norm(), 1e-9);
 }
@@ -40,7 +41,8 @@ TEST(ESKFTest, UpdateGravityPerfectMeasurementReducesCovariance)
     const Eigen::Matrix<double,9,9> P_after  = eskf.getCovariance();
 
     // Zero innovation → state must not change
-    EXPECT_TRUE(eskf.getR_cam_to_NED().isApprox(Eigen::Matrix3d::Identity(), 1e-9));
+    bool rot_identity_2 = eskf.getR_cam_to_NED().isApprox(Eigen::Matrix3d::Identity(), 1e-9);
+    EXPECT_TRUE(rot_identity_2) << "Rotation matrix must stay identity after zero-innovation update";
     EXPECT_LT(eskf.getAccelBias().norm(), 1e-9);
     EXPECT_LT(eskf.getGyroBias().norm(),  1e-9);
 
@@ -55,12 +57,12 @@ TEST(ZARUTest, HMatrixExtractsGyroBiasLastBlock)
     const Eigen::Matrix<double,3,9> H = zaru.getH();
 
     // Columns 6-8: I3 — extracts delta_b_g (gyro bias)
-    EXPECT_TRUE(H.block<3,3>(0,6).isApprox(Eigen::Matrix3d::Identity()));
-        << "H last block (gyro bias, cols 6-8) must be I3";
+    bool h_gyro_ok = H.block<3,3>(0,6).isApprox(Eigen::Matrix3d::Identity());
+    EXPECT_TRUE(h_gyro_ok) << "H last block (gyro bias, cols 6-8) must be I3";
 
     // Columns 0-5: zero — must NOT touch delta_theta or delta_b_a
-    EXPECT_TRUE(H.block<3,6>(0,0).isZero());
-        << "H first 6 columns (attitude + accel bias) must be zero";
+    bool h_zero_ok = H.block<3,6>(0,0).isZero();
+    EXPECT_TRUE(h_zero_ok) << "H first 6 columns (attitude + accel bias) must be zero";
 }
 
 // Test 4: SageHusa — R stays positive definite after 100 random innovation updates
