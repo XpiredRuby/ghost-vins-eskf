@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "pronav.hpp"
+#include "guidance/pronav.hpp"
 
 // Test 1: Target ahead, drone closing — a_cmd nonzero and finite
 TEST(ProNavTest, ClosingTarget_NonzeroCommand) {
