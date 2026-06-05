@@ -55,11 +55,11 @@ TEST(ZARUTest, HMatrixExtractsGyroBiasLastBlock)
     const Eigen::Matrix<double,3,9> H = zaru.getH();
 
     // Columns 6-8: I3 — extracts delta_b_g (gyro bias)
-    EXPECT_TRUE(H.block<3,3>(0,6).isApprox(Eigen::Matrix3d::Identity()))
+    EXPECT_TRUE(H.block<3,3>(0,6).isApprox(Eigen::Matrix3d::Identity()));
         << "H last block (gyro bias, cols 6-8) must be I3";
 
     // Columns 0-5: zero — must NOT touch delta_theta or delta_b_a
-    EXPECT_TRUE(H.block<3,6>(0,0).isZero())
+    EXPECT_TRUE(H.block<3,6>(0,0).isZero());
         << "H first 6 columns (attitude + accel bias) must be zero";
 }
 
