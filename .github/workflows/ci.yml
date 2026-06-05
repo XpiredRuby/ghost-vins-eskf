@@ -1,0 +1,77 @@
+name: GHOST CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─── Job 1: build all src/ targets and run unit tests ────────────────────────
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y cmake libeigen3-dev libgtest-dev
+
+      - name: Build
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel
+
+      - name: Run unit tests
+        run: |
+          cd build
+          ctest --output-on-failure
+
+  # ─── Job 2: NIS gate — Attitude Filter (gravity update only) ─────────────────
+  # nis_camera_zaru.csv is deliberately NOT gated here.
+  # ZARU fires at 1 Hz on a static platform only — it is not valid for a dynamic
+  # rosbag chi²(3) gate. Merging ZARU NIS into the gravity stream creates a
+  # bimodal distribution that would break the gate on an otherwise healthy filter.
+  nis_gate_attitude:
+    runs-on: ubuntu-22.04
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python and scipy
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y python3 python3-pip
+          pip3 install scipy
+
+      - name: NIS gate — Attitude Filter (gravity update)
+        run: |
+          python3 analysis/nis_validation.py \
+            --log logs/nis_camera_gravity.csv \
+            --dof 3 --confidence 0.95 --fail-on-violation
+
+  # ─── Job 3: NIS gate — Target Tracking Filter ────────────────────────────────
+  nis_gate_target:
+    runs-on: ubuntu-22.04
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python and scipy
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y python3 python3-pip
+          pip3 install scipy
+
+      - name: NIS gate — Target Tracking Filter
+        run: |
+          python3 analysis/nis_validation.py \
+            --log logs/nis_target_tracker.csv \
+            --dof 3 --confidence 0.95 --fail-on-violation
