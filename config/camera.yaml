@@ -1,0 +1,88 @@
+# ── config/camera.yaml ─────────────────────────────────────────────────────────
+# IMX296 global shutter camera parameters
+# Source: GHOST_V10.md §Vision Pipeline, §Full System Architecture
+#
+# Intrinsic parameters are PLACEHOLDERS — they must be replaced with values
+# from a physical camera calibration run (Phase 2 exit: reprojection error < 0.5px).
+# Any intrinsic value below marked "# CALIBRATE" is NOT a real measurement.
+
+sensor:
+  model:      IMX296_global_shutter
+  interface:  CSI
+  # Native full-frame resolution (GHOST_V10.md: "IMX296 Global Shutter — 1456×1088 native")
+  width_px:   1456
+  height_px:  1088
+  # Exposure bounded to prevent motion blur on moving RC car
+  # GHOST_V10.md §Vision Pipeline: "Exposure: < 3ms to prevent motion blur"
+  max_exposure_ms: 3.0
+  # Gain is increased to compensate for short exposure on dim scenes
+  auto_gain: true
+
+decimation:
+  # GHOST_V10.md: "Full frame → decimate ÷2 → 728×544 (always)"
+  factor:   2
+  width_px:  728
+  height_px: 544
+  # K_decimated = K_intrinsic / 2  (fx, fy, cx, cy all divided by 2)
+  # GHOST_V10.md: "K_decimated = K_intrinsic / 2"
+  # Do NOT use K_intrinsic directly on the decimated frame — depth will be reported at 2× actual.
+  # K_decimated is computed at runtime by dividing intrinsics below by the decimation factor.
+
+timestamp:
+  # Hardware strobe sync — eliminates V4L2 userspace timestamp error of 15–40ms
+  # GHOST_V10.md: "IMX296 Strobe pin → GPIO22 ISR → CLOCK_MONOTONIC at shutter-open"
+  # GHOST_V10.md FMEA: "V4L2 timestamps at userspace buffer arrival — 15–40ms late, variable"
+  strobe_gpio:    22               # GPIO22 ISR latches CLOCK_MONOTONIC at shutter-open
+  clock_source:   CLOCK_MONOTONIC  # same timebase as ICM-42688-P DRDY ISR
+  max_jitter_us:  50               # GHOST_V10.md: "< 50μs jitter" — verified in Phase 1
+
+# ── Camera intrinsics ─────────────────────────────────────────────────────────
+# ALL values below are PLACEHOLDERS. Replace with output from camera calibration
+# (e.g. ROS2 camera_calibration package or OpenCV calibrateCamera).
+# Phase 2 exit criterion: reprojection error < 0.5px (GHOST_V10.md §Phase 2)
+intrinsics:
+  # Full-frame (1456×1088) intrinsics — calibrate at native resolution
+  fx: 0.0    # CALIBRATE — focal length x [pixels]
+  fy: 0.0    # CALIBRATE — focal length y [pixels]
+  cx: 0.0    # CALIBRATE — principal point x [pixels]
+  cy: 0.0    # CALIBRATE — principal point y [pixels]
+
+  distortion:
+    # Radial + tangential distortion coefficients (OpenCV model)
+    k1: 0.0  # CALIBRATE
+    k2: 0.0  # CALIBRATE
+    p1: 0.0  # CALIBRATE
+    p2: 0.0  # CALIBRATE
+
+# ── ROI (Region of Interest) — Tier 2 detection ──────────────────────────────
+# GHOST_V10.md: "Tier 2: crop 300×300 ROI at predicted pixel"
+# ROI projection MUST use K_decimated (not K_intrinsic) and subtract crop origin from cx, cy
+roi:
+  width_px:   300
+  height_px:  300
+  # GHOST_V10.md: "ROI offset: roi.x -= crop_origin.x from cx, cy before PnP"
+  # Projection function receives K_decimated with crop origin subtracted — never raw K_intrinsic
+
+# ── AprilTag ──────────────────────────────────────────────────────────────────
+apriltag:
+  family:          36h11        # GHOST_V10.md: "AprilTag 36h11 tag0, 10cm×10cm"
+  tag_id:          0
+  tag_size_m:      0.10         # 10 cm physical side length — GHOST_V10.md §Hardware
+
+  # Operating envelope (GHOST_V10.md §Vision Pipeline)
+  # All demos constrained to these bounds — not assumptions
+  operating_envelope:
+    range_min_m:         0.5    # closer than this: detection unreliable
+    range_max_m:         3.0    # beyond this: tag subtends < required pixels
+    max_oblique_angle_deg: 45   # oblique detection beyond 45° unreliable
+    min_illumination_lux:  50   # minimum scene illumination
+
+  # Detection rate targets (GHOST_V10.md §Vision Pipeline)
+  target_fps_decimated_frame: 25   # ≥ 25fps on full decimated 728×544 frame
+  target_fps_roi_frame:       45   # ≥ 45fps on 300×300 ROI crop
+
+# ── Optical flow ──────────────────────────────────────────────────────────────
+optical_flow:
+  # GHOST_V10.md: "LK optical flow between detections"
+  method:  lucas_kanade
+  enabled: true
