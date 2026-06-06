@@ -152,6 +152,12 @@ void ImuNode::watchdogLoop() {
     Eigen::Vector3d accel;
     Eigen::Vector3d gyro;
 
+    // Issue 3 fix: track whether we were in a fault state on the previous
+    // iteration so we can publish data=false exactly once when the fault clears.
+    // Without this, eskf_node::faultCallback never receives data=false and
+    // imu_fault_ becomes a permanent one-way latch.
+    bool prev_faulted = false;
+
     while (running_.load()) {
         try {
             // Blocks until DRDY rising edge on GPIO27
@@ -199,6 +205,18 @@ void ImuNode::watchdogLoop() {
             auto fault_msg = std_msgs::msg::Bool{};
             fault_msg.data = true;
             fault_pub_->publish(fault_msg);
+            prev_faulted = true;
+
+        } else if (prev_faulted) {
+            // Fault cleared: sensors agree again.  Publish data=false exactly
+            // once so eskf_node can re-enable the gravity update.
+            // Without this publish, eskf_node::imu_fault_ is a permanent latch.
+            RCLCPP_INFO(this->get_logger(),
+                "IMU watchdog fault cleared — sensors agree again.");
+            auto fault_msg = std_msgs::msg::Bool{};
+            fault_msg.data = false;
+            fault_pub_->publish(fault_msg);
+            prev_faulted = false;
         }
     }
 }

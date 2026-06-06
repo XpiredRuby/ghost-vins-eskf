@@ -76,10 +76,6 @@ private:
     rclcpp::Time    last_imu_stamp_;
     bool            first_imu_{true};
 
-    // Timestamp of last ZARU fire, used to compute elapsed for shouldUpdate()
-    rclcpp::Time    last_zaru_stamp_;
-    bool            first_zaru_{true};
-
     // Watchdog fault flag — set by /ghost/imu/fault subscriber
     bool imu_fault_{false};
 
@@ -97,10 +93,11 @@ private:
     // ── Parameters ────────────────────────────────────────────────────────────
     double sigma_g_;               // gyro process noise  [rad/s/√Hz]
     double sigma_a_;               // accel process noise [m/s²/√Hz]
-    double gravity_m_per_s2_;      // 9.81 m/s²
+    double gravity_m_per_s2_;      // local gravity reference [m/s²]
     double accel_gate_m_per_s2_;   // gravity update gate (|‖a‖−g| ≤ this)
     double arw_deg_per_sqrthz_;    // Allan Variance ARW for ZARU R_zaru
     double gyro_static_threshold_; // ZARU fires only when ‖ω‖ < this [rad/s]
+    double zaru_rate_hz_;          // ZARU timer rate; used in zaruTimerCallback
 };
 
 }  // namespace ghost

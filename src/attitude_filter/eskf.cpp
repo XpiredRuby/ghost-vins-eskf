@@ -8,7 +8,8 @@ ESKF::ESKF()
     , P_(Eigen::Matrix<double,9,9>::Identity() * 0.1)
     , Q_(Eigen::Matrix<double,9,9>::Zero())
     , initialized_(false)
-    , sigma_accel_meas_(0.3)
+    , sigma_accel_meas_(0.3)   // overridden by setSigmaAccelMeas() from filter.yaml
+    , gravity_(9.81)            // overridden by setGravity() from filter.yaml
 {}
 
 void ESKF::initialize(const Eigen::Quaterniond& q_init)
@@ -33,6 +34,23 @@ void ESKF::setProcessNoise(double sigma_a, double sigma_g)
     Q_.block<3,3>(3,3) = Eigen::Matrix3d::Identity() * (sigma_a * sigma_a);
     // Gyro bias random walk
     Q_.block<3,3>(6,6) = Eigen::Matrix3d::Identity() * (sigma_g * sigma_g);
+}
+
+void ESKF::setSigmaAccelMeas(double sigma)
+{
+    sigma_accel_meas_ = sigma;
+}
+
+void ESKF::setInitialCovariance(const Eigen::Matrix<double,9,9>& P0)
+{
+    // Overrides the Identity×0.1 default written by initialize().
+    // Called after initialize() so the node-configured P₀ takes effect.
+    P_ = P0;
+}
+
+void ESKF::setGravity(double g_m_per_s2)
+{
+    gravity_ = g_m_per_s2;
 }
 
 void ESKF::predict(const Eigen::Vector3d& omega_m,
@@ -71,9 +89,9 @@ void ESKF::updateGravity(const Eigen::Vector3d& accel_m)
 {
     if (!initialized_) return;
 
-    const Eigen::Matrix3d R     = q_.toRotationMatrix();   // R_cam_to_NED
-    const Eigen::Vector3d g_NED(0.0, 0.0, 9.81);
-    const Eigen::Vector3d g_pred = R.transpose() * g_NED;  // expected gravity in camera frame
+    const Eigen::Matrix3d R     = q_.toRotationMatrix();       // R_cam_to_NED
+    const Eigen::Vector3d g_NED(0.0, 0.0, gravity_);          // site-specific g
+    const Eigen::Vector3d g_pred = R.transpose() * g_NED;     // expected gravity in camera frame
 
     const Eigen::Vector3d y = accel_m - g_pred;  // innovation
 

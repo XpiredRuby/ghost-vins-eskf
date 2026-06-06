@@ -11,39 +11,77 @@ EskfNode::EskfNode(const rclcpp::NodeOptions& options)
     : rclcpp::Node("eskf_node", options)
 {
     // ── Declare parameters — mirror config/filter.yaml key hierarchy ──────────
-    this->declare_parameter("eskf.process_noise.sigma_g_rad_per_s_per_sqrthz", 4.887e-5);
-    this->declare_parameter("eskf.process_noise.sigma_a_m_per_s2_per_sqrthz",  2.5e-3);
-    this->declare_parameter("eskf.gravity_update.sigma_accel_meas_m_per_s2",   0.30);
-    this->declare_parameter("eskf.gravity_magnitude_m_per_s2",                 9.81);
-    this->declare_parameter("eskf.zaru.arw_deg_per_sqrthz",                    0.0028);
-    this->declare_parameter("eskf.zaru.accel_gate_m_per_s2",                   0.5);
-    this->declare_parameter("eskf.zaru.rate_hz",                               1.0);
-    this->declare_parameter("eskf.zaru.gyro_static_threshold_rps",             0.01);
+    declare_parameter("eskf.process_noise.sigma_g_rad_per_s_per_sqrthz", 4.887e-5);
+    declare_parameter("eskf.process_noise.sigma_a_m_per_s2_per_sqrthz",  2.5e-3);
+    // Issue 2: was declared but never read — now read and applied via setSigmaAccelMeas()
+    declare_parameter("eskf.gravity_update.sigma_accel_meas_m_per_s2",   0.30);
+    declare_parameter("eskf.gravity_magnitude_m_per_s2",                  9.81);
+    declare_parameter("eskf.zaru.arw_deg_per_sqrthz",                     0.0028);
+    declare_parameter("eskf.zaru.accel_gate_m_per_s2",                    0.5);
+    declare_parameter("eskf.zaru.rate_hz",                                 1.0);
+    declare_parameter("eskf.zaru.gyro_static_threshold_rps",               0.01);
+    // Issue 5: initial_covariance parameters — were in filter.yaml but never loaded
+    declare_parameter("eskf.initial_covariance.delta_theta_rad",     0.1);
+    declare_parameter("eskf.initial_covariance.delta_b_a_m_per_s2",  0.05);
+    declare_parameter("eskf.initial_covariance.delta_b_g_rad_per_s", 1.0e-3);
 
     // ── Read parameters ───────────────────────────────────────────────────────
-    sigma_g_ = this->get_parameter(
+    sigma_g_ = get_parameter(
         "eskf.process_noise.sigma_g_rad_per_s_per_sqrthz").as_double();
-    sigma_a_ = this->get_parameter(
+    sigma_a_ = get_parameter(
         "eskf.process_noise.sigma_a_m_per_s2_per_sqrthz").as_double();
-    gravity_m_per_s2_ = this->get_parameter(
+    const double sigma_accel_meas = get_parameter(
+        "eskf.gravity_update.sigma_accel_meas_m_per_s2").as_double();
+    gravity_m_per_s2_ = get_parameter(
         "eskf.gravity_magnitude_m_per_s2").as_double();
-    accel_gate_m_per_s2_ = this->get_parameter(
+    accel_gate_m_per_s2_ = get_parameter(
         "eskf.zaru.accel_gate_m_per_s2").as_double();
-    arw_deg_per_sqrthz_ = this->get_parameter(
+    arw_deg_per_sqrthz_ = get_parameter(
         "eskf.zaru.arw_deg_per_sqrthz").as_double();
-    gyro_static_threshold_ = this->get_parameter(
+    gyro_static_threshold_ = get_parameter(
         "eskf.zaru.gyro_static_threshold_rps").as_double();
+    zaru_rate_hz_ = get_parameter("eskf.zaru.rate_hz").as_double();
 
-    const double zaru_rate_hz = this->get_parameter("eskf.zaru.rate_hz").as_double();
+    const double sig_theta = get_parameter(
+        "eskf.initial_covariance.delta_theta_rad").as_double();
+    const double sig_ba    = get_parameter(
+        "eskf.initial_covariance.delta_b_a_m_per_s2").as_double();
+    const double sig_bg    = get_parameter(
+        "eskf.initial_covariance.delta_b_g_rad_per_s").as_double();
 
     // ── Configure and initialize ESKF ─────────────────────────────────────────
-    eskf_.setProcessNoise(sigma_a_, sigma_g_);
+    // Issue 6: initialize() first (sets q_, b_g_, b_a_, P_=I×0.1),
+    //          then override Q_, sigma_accel_meas_, gravity_, and P₀.
     eskf_.initialize(Eigen::Quaterniond::Identity());
+    eskf_.setProcessNoise(sigma_a_, sigma_g_);
 
-    RCLCPP_INFO(this->get_logger(),
+    // Issue 2: apply the configurable measurement noise for the gravity update
+    eskf_.setSigmaAccelMeas(sigma_accel_meas);
+
+    // Issue 8: apply configurable local gravity so updateGravity() innovation
+    //          and the platform-static gate use the same reference
+    eskf_.setGravity(gravity_m_per_s2_);
+
+    // Issue 5: build a block-diagonal P₀ from filter.yaml sigma values and
+    //          override the hardcoded Identity×0.1 default
+    {
+        Eigen::Matrix<double,9,9> P0 = Eigen::Matrix<double,9,9>::Zero();
+        P0.block<3,3>(0,0) = Eigen::Matrix3d::Identity() * (sig_theta * sig_theta);
+        P0.block<3,3>(3,3) = Eigen::Matrix3d::Identity() * (sig_ba    * sig_ba);
+        P0.block<3,3>(6,6) = Eigen::Matrix3d::Identity() * (sig_bg    * sig_bg);
+        eskf_.setInitialCovariance(P0);
+    }
+
+    // Issue 1: construct ZARU with the configured rate and accel gate so that
+    //          shouldUpdate() and getR() use the correct values.
+    //          Default-constructed zaru_ used rate_hz=1.0 and accel_gate=0.5
+    //          regardless of what filter.yaml specifies.
+    zaru_ = ZARU(zaru_rate_hz_, accel_gate_m_per_s2_);
+
+    RCLCPP_INFO(get_logger(),
         "ESKF initialized. sigma_g=%.2e rad/s/√Hz, sigma_a=%.2e m/s²/√Hz, "
-        "gravity=%.3f m/s²",
-        sigma_g_, sigma_a_, gravity_m_per_s2_);
+        "gravity=%.3f m/s², sigma_accel_meas=%.3f m/s²",
+        sigma_g_, sigma_a_, gravity_m_per_s2_, sigma_accel_meas);
 
     // ── Subscriptions ─────────────────────────────────────────────────────────
     imu_sub_ = this->create_subscription<sensor_msgs::msg::Imu>(
@@ -68,15 +106,18 @@ EskfNode::EskfNode(const rclcpp::NodeOptions& options)
         "/ghost/eskf/R_cam_to_ned", rclcpp::SensorDataQoS());
 
     // ── ZARU timer at configured rate ─────────────────────────────────────────
-    const auto zaru_period = std::chrono::duration<double>(1.0 / zaru_rate_hz);
-    zaru_timer_ = this->create_wall_timer(
+    // Issue 4: elapsed_s in zaruTimerCallback uses 1.0/zaru_rate_hz_ (not now()-stamp),
+    // so the timer is the sole rate controller. The wall timer period must match
+    // zaru_rate_hz_ exactly for that to be correct.
+    const auto zaru_period = std::chrono::duration<double>(1.0 / zaru_rate_hz_);
+    zaru_timer_ = create_wall_timer(
         std::chrono::duration_cast<std::chrono::nanoseconds>(zaru_period),
         [this]() { zaruTimerCallback(); });
 
-    RCLCPP_INFO(this->get_logger(),
+    RCLCPP_INFO(get_logger(),
         "EskfNode ready. ZARU at %.1f Hz, gyro_static_thr=%.4f rad/s, "
         "accel_gate=%.2f m/s²",
-        zaru_rate_hz, gyro_static_threshold_, accel_gate_m_per_s2_);
+        zaru_rate_hz_, gyro_static_threshold_, accel_gate_m_per_s2_);
 }
 
 // ── IMU callback — predict() + optional gravity update ───────────────────────
@@ -155,27 +196,29 @@ void EskfNode::faultCallback(const std_msgs::msg::Bool::ConstSharedPtr& msg)
 
 void EskfNode::zaruTimerCallback()
 {
-    if (!eskf_.isInitialized()) { return; }
+    // Issue 7: eskf_.initialize() is called unconditionally in EskfNode constructor
+    // before spin() starts — isInitialized() is always true here.  Removed the
+    // dead guard so the code correctly reflects its invariants.
 
-    // Gate 1: IMU fault active — ZARU still valid (tripod is static regardless)
-    // but skip if primary IMU data has never arrived
+    // Gate 1: skip if no IMU data has arrived yet (last_omega_m_ is still zero)
     if (first_imu_) { return; }
 
     // Gate 2: platform must be angularly static
-    // GHOST_V10.md: ZARU fires only on static tripod — if gyro norm is large,
-    // a vibration or bump is happening; skip this cycle
+    // GHOST_V10.md: ZARU fires only on static tripod — large gyro norm means
+    // vibration or a bump is occurring; skip this cycle.
     if (last_omega_m_.norm() >= gyro_static_threshold_) {
-        RCLCPP_DEBUG(this->get_logger(),
+        RCLCPP_DEBUG(get_logger(),
             "ZARU skipped: gyro_norm=%.4f rad/s >= threshold=%.4f",
             last_omega_m_.norm(), gyro_static_threshold_);
         return;
     }
 
-    // Gate 3: ZARU::shouldUpdate — checks timing interval and accel gate
-    // GHOST_V10.md: "Gate: suspend if |accel_norm - 9.81| > 0.5 m/s²"
-    const double elapsed_s = first_zaru_
-        ? 1.0  // force fire on very first ZARU tick after startup
-        : (this->now() - last_zaru_stamp_).seconds();
+    // Gate 3: accel gate via ZARU::shouldUpdate.
+    // Issue 4: wall timer already controls the 1/zaru_rate_hz_ period; passing
+    // 1.0/zaru_rate_hz_ always satisfies shouldUpdate's timing condition so the
+    // timer is the sole rate controller and ns-level jitter cannot silently skip
+    // a ZARU cycle.  shouldUpdate() then acts as an accel-only gate.
+    const double elapsed_s = 1.0 / zaru_rate_hz_;
 
     if (!zaru_.shouldUpdate(elapsed_s, last_accel_m_)) {
         return;
@@ -194,10 +237,7 @@ void EskfNode::zaruTimerCallback()
     // GHOST_V10.md: "ZARU NIS logged separately — not valid for dynamic chi²(3) gate"
     eskf_.applyUpdate(H, y, R);
 
-    last_zaru_stamp_ = this->now();
-    first_zaru_      = false;
-
-    RCLCPP_DEBUG(this->get_logger(),
+    RCLCPP_DEBUG(get_logger(),
         "ZARU fired: gyro_bias=[%.4f, %.4f, %.4f] rad/s",
         eskf_.getGyroBias().x(),
         eskf_.getGyroBias().y(),

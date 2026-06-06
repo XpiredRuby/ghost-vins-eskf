@@ -25,6 +25,24 @@ public:
     Eigen::Matrix<double,9,9> getCovariance()   const;
 
     void setProcessNoise(double sigma_a, double sigma_g);
+
+    // ── Post-initialize configuration setters ─────────────────────────────────
+    // Call after initialize() to apply values loaded from config/filter.yaml.
+    // (initialize() sets P_ to Identity×0.1 and sigma_accel_meas_ to 0.3 as
+    //  safe defaults; these setters override those defaults with YAML values.)
+
+    // Override the gravity-update measurement noise (σ_accel_meas, m/s²).
+    // Affects R_meas = σ² × I₃ inside updateGravity().
+    void setSigmaAccelMeas(double sigma);
+
+    // Override the initial error-state covariance P₀.
+    // Replaces the Identity×0.1 default set by initialize().
+    void setInitialCovariance(const Eigen::Matrix<double,9,9>& P0);
+
+    // Override the gravity reference used in updateGravity().
+    // Replaces the hardcoded 9.81 m/s² with the site-specific value.
+    void setGravity(double g_m_per_s2);
+
     bool isInitialized() const;
 
 private:
@@ -35,7 +53,8 @@ private:
     Eigen::Matrix<double,9,9> Q_;    // process noise
 
     bool   initialized_;
-    double sigma_accel_meas_;   // accelerometer noise for gravity update R_meas
+    double sigma_accel_meas_;   // measurement noise for gravity update R_meas [m/s²]
+    double gravity_;            // local gravity reference [m/s²], default 9.81
     std::ofstream nis_log_;     // opened once in initialize(), kept open
 
     Eigen::Matrix3d skew(const Eigen::Vector3d& v) const;
