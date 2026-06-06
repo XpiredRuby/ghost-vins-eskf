@@ -36,6 +36,7 @@ set(GHOST_CORE_SOURCES
     src/target_tracker/cv_filter.cpp
     src/target_tracker/ctrv_filter.cpp
     src/guidance/pronav.cpp
+    src/imu_driver/icm42688p.cpp
 )
 
 if(MAVLINK_FOUND)
