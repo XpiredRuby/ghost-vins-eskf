@@ -12,6 +12,13 @@ public:
                  double dt);
     void updateGravity(const Eigen::Vector3d& accel_m);
 
+    // Generic measurement update — used by ZARU and any future sensor.
+    // Applies Joseph-form KF update with the provided H, innovation y, and R.
+    // State injection order: delta_theta → q_, delta_b_a → b_a_, delta_b_g → b_g_.
+    void applyUpdate(const Eigen::Matrix<double,3,9>& H,
+                     const Eigen::Vector3d&           y,
+                     const Eigen::Matrix3d&           R);
+
     Eigen::Matrix3d           getR_cam_to_NED() const;
     Eigen::Vector3d           getGyroBias()     const;
     Eigen::Vector3d           getAccelBias()    const;

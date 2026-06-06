@@ -110,6 +110,31 @@ void ESKF::updateGravity(const Eigen::Vector3d& accel_m)
     logNIS(static_cast<double>(y.transpose() * S_inv * y));
 }
 
+void ESKF::applyUpdate(const Eigen::Matrix<double,3,9>& H,
+                        const Eigen::Vector3d&           y,
+                        const Eigen::Matrix3d&           R)
+{
+    if (!initialized_) return;
+
+    const Eigen::Matrix3d S     = H * P_ * H.transpose() + R;
+    const Eigen::Matrix<double,9,3> K = P_ * H.transpose() * S.inverse();
+    const Eigen::Matrix<double,9,1> delta_x = K * y;
+
+    const Eigen::Vector3d delta_theta = delta_x.head<3>();
+    const Eigen::Quaterniond dq(1.0,
+                                0.5 * delta_theta.x(),
+                                0.5 * delta_theta.y(),
+                                0.5 * delta_theta.z());
+    q_   = (q_ * dq).normalized();
+    b_a_ += delta_x.segment<3>(3);
+    b_g_ += delta_x.segment<3>(6);
+
+    // Joseph stabilized form
+    const Eigen::Matrix<double,9,9> IKH =
+        Eigen::Matrix<double,9,9>::Identity() - K * H;
+    P_ = IKH * P_ * IKH.transpose() + K * R * K.transpose();
+}
+
 Eigen::Matrix3d           ESKF::getR_cam_to_NED() const { return q_.toRotationMatrix(); }
 Eigen::Vector3d           ESKF::getGyroBias()     const { return b_g_; }
 Eigen::Vector3d           ESKF::getAccelBias()    const { return b_a_; }
