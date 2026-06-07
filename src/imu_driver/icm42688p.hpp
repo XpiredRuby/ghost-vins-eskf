@@ -52,12 +52,16 @@ public:
     // Block until the next DRDY rising edge on GPIO17, then execute a single
     // 14-byte SPI burst read covering TEMP_DATA1 → GYRO_DATA_Z0.
     //
-    // accel_mps2: accelerometer [m/s²], sensor body frame X/Y/Z
-    // gyro_rps:   gyroscope    [rad/s], sensor body frame X/Y/Z
-    //
-    // TODO: connect to ESKF input once ROS2 node is written
-    //       (pass accel_mps2 and gyro_rps into ESKF::predict())
-    void readBlocking(Eigen::Vector3d& accel_mps2, Eigen::Vector3d& gyro_rps);
+    // accel_mps2:      accelerometer [m/s²], sensor body frame X/Y/Z
+    // gyro_rps:        gyroscope    [rad/s], sensor body frame X/Y/Z
+    // hw_timestamp_ns: CLOCK_MONOTONIC nanoseconds latched by the GPIO kernel
+    //                  interrupt handler at the exact hardware rising edge.
+    //                  Use this — not this->now() — for IMU message stamps.
+    //                  Add the ImuNode::mono_to_realtime_offset_ns_ to convert
+    //                  to CLOCK_REALTIME for ROS2 Time construction.
+    void readBlocking(Eigen::Vector3d& accel_mps2,
+                      Eigen::Vector3d& gyro_rps,
+                      uint64_t&        hw_timestamp_ns);
 
     // Release all file descriptors. Safe to call even if initialize() was not called.
     void close();

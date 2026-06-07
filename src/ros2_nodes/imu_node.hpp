@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <cstdint>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -36,8 +37,9 @@ namespace ghost {
 //
 // Lifecycle:
 //   1. Construct node (declares parameters, creates publishers).
-//   2. Call initialize() once after node construction to open hardware
-//      and start reader threads. Hardware is never touched in the constructor.
+//   2. Call initialize() once after node construction to open hardware,
+//      compute the CLOCK_MONOTONIC→REALTIME offset, and start reader threads.
+//      Hardware is never touched in the constructor.
 //   3. spin() or spin_some() as normal.
 //   4. Destructor joins threads and closes hardware.
 //
@@ -55,8 +57,9 @@ public:
     explicit ImuNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
     ~ImuNode() override;
 
-    // Open hardware (SPI, I2C, GPIO), configure both IMUs, and start reader
-    // threads. Must be called exactly once after construction, before spinning.
+    // Open hardware (SPI, I2C, GPIO), compute CLOCK_MONOTONIC→REALTIME offset,
+    // configure both IMUs, and start reader threads. Must be called exactly once
+    // after construction, before spinning.
     // Throws std::runtime_error if any hardware step fails.
     void initialize();
 
@@ -74,10 +77,31 @@ private:
 
     // Build a sensor_msgs::msg::Imu from accel + gyro vectors.
     // Orientation covariance is set to -1 (unknown) — ESKF computes attitude.
+    // gyro_var  : diagonal of angular_velocity_covariance [(rad/s)²]
+    // accel_var : diagonal of linear_acceleration_covariance [(m/s²)²]
     static sensor_msgs::msg::Imu buildImuMsg(
         const std_msgs::msg::Header& header,
         const Eigen::Vector3d& accel_mps2,
-        const Eigen::Vector3d& gyro_rps);
+        const Eigen::Vector3d& gyro_rps,
+        double gyro_var,
+        double accel_var);
+
+    // ── Datasheet noise density constants ─────────────────────────────────────
+    // Variance per sample = (noise_spectral_density)² × ODR_Hz.
+    // Used to populate sensor_msgs::Imu covariance matrices.
+    // Verify against Allan Variance characterisation after Phase 1 bringup.
+
+    // ICM-42688-P (DS-000347 §3) at ±2000 dps / ±16g, 1000 Hz ODR:
+    //   Gyro  NSD = 0.0028 °/s/√Hz → (0.0028 × π/180)² × 1000 = 2.38e-6 (rad/s)²
+    //   Accel NSD ≈  70 μg/√Hz     → (70e-6 × 9.80665)² × 1000 = 4.72e-4 (m/s²)²
+    static constexpr double kIcmGyroVar  = 2.38e-6;   // (rad/s)²
+    static constexpr double kIcmAccelVar = 4.72e-4;   // (m/s²)²
+
+    // MPU-6050 (PS-MPU-6000A §6) at ±1000 dps / ±8g, 400 Hz ODR:
+    //   Gyro  NSD ≈ 0.005 °/s/√Hz   → (0.005 × π/180)² × 400 = 3.05e-6 (rad/s)²
+    //   Accel NSD ≈  400 μg/√Hz     → (400e-6 × 9.80665)² × 400 = 6.15e-3 (m/s²)²
+    static constexpr double kMpuGyroVar  = 3.05e-6;   // (rad/s)²
+    static constexpr double kMpuAccelVar = 6.15e-3;   // (m/s²)²
 
     // ── Hardware drivers ──────────────────────────────────────────────────────
     std::unique_ptr<ICM42688P> icm_;
@@ -96,10 +120,25 @@ private:
     // ── Cross-thread primary IMU data (primary → watchdog for agreement check) ──
     // Protected by primary_mutex_. Watchdog thread reads this to call
     // MPU6050::checkAgreement() without blocking the primary thread.
+    //
+    // NOTE: ICM42688P::close() and MPU6050::close() write gpio_line_fd_ / spi_fd_
+    // from the destructor thread while reader threads may be reading those fds to
+    // populate pollfd::fd. This is technically a C++ data race on a non-atomic int.
+    // On ARM64 (Raspberry Pi 4B), 4-byte aligned stores are naturally atomic at the
+    // hardware level, making this safe in practice. The correct fix is an eventfd for
+    // cooperative shutdown signaling. Closing the fd to wake poll() is the standard
+    // Linux embedded driver idiom and works correctly on all ARM64 Linux kernels.
     mutable std::mutex  primary_mutex_;
     Eigen::Vector3d     shared_primary_accel_{Eigen::Vector3d::Zero()};
     Eigen::Vector3d     shared_primary_gyro_{Eigen::Vector3d::Zero()};
     bool                primary_data_valid_{false};
+
+    // ── Clock offset — CLOCK_MONOTONIC → CLOCK_REALTIME conversion ───────────
+    // GPIO DRDY timestamps are CLOCK_MONOTONIC (latched by kernel interrupt
+    // handler). ROS2 Time uses CLOCK_REALTIME. The offset is computed once at
+    // initialize() and applied in both reader thread loops.
+    // Changes slowly (NTP adjustments); recomputing at startup is sufficient.
+    int64_t mono_to_realtime_offset_ns_{0};
 
     // ── Parameters ────────────────────────────────────────────────────────────
     std::string spi_device_;

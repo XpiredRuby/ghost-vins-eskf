@@ -4,6 +4,9 @@
 #include "imu_driver/icm42688p.hpp"
 #include "imu_driver/mpu6050.hpp"
 
+#include <cerrno>      // errno
+#include <cstring>     // std::strerror
+#include <ctime>       // clock_gettime, CLOCK_REALTIME, CLOCK_MONOTONIC
 #include <stdexcept>
 #include <string>
 
@@ -69,8 +72,10 @@ ImuNode::ImuNode(const rclcpp::NodeOptions& options)
 ImuNode::~ImuNode() {
     running_.store(false);
 
-    // Threads are blocked on DRDY poll(). Signal them to wake by closing the
-    // hardware — readBlocking() will throw, the catch in each loop exits.
+    // Threads are blocked on DRDY poll(). Closing the hardware fd causes
+    // poll() to return with POLLNVAL, waking the thread so it can check
+    // running_ == false and exit. See note in imu_node.hpp regarding the
+    // ARM64 fd data-race analysis.
     if (icm_) { icm_->close(); }
     if (mpu_) { mpu_->close(); }
 
@@ -98,6 +103,34 @@ void ImuNode::initialize() {
     mpu_->initialize();
     RCLCPP_INFO(this->get_logger(), "MPU-6050 OK (WHO_AM_I = 0x68)");
 
+    // ── Compute CLOCK_MONOTONIC → CLOCK_REALTIME offset ──────────────────────
+    // GPIO v2 DRDY event timestamps are CLOCK_MONOTONIC (latched by the kernel
+    // interrupt handler at the exact hardware edge). ROS2 Time uses CLOCK_REALTIME.
+    // The two clocks differ by a near-constant offset. We measure it once here
+    // by issuing back-to-back clock_gettime() calls to minimise the cross-clock
+    // measurement error (on a PREEMPT_RT kernel this is < 1 μs).
+    // The offset is applied in both reader thread loops to convert each hardware
+    // DRDY timestamp to a correct ROS2 wall-clock Time value.
+    {
+        struct timespec rt{}, mono{};
+        if (::clock_gettime(CLOCK_REALTIME, &rt) < 0) {
+            throw std::runtime_error(
+                "ImuNode: clock_gettime(CLOCK_REALTIME) failed while computing "
+                "the MONOTONIC→REALTIME offset: " + std::string(std::strerror(errno)));
+        }
+        if (::clock_gettime(CLOCK_MONOTONIC, &mono) < 0) {
+            throw std::runtime_error(
+                "ImuNode: clock_gettime(CLOCK_MONOTONIC) failed while computing "
+                "the MONOTONIC→REALTIME offset: " + std::string(std::strerror(errno)));
+        }
+        mono_to_realtime_offset_ns_ =
+            (static_cast<int64_t>(rt.tv_sec)   * 1'000'000'000LL + rt.tv_nsec)
+          - (static_cast<int64_t>(mono.tv_sec) * 1'000'000'000LL + mono.tv_nsec);
+    }
+    RCLCPP_INFO(this->get_logger(),
+        "CLOCK_MONOTONIC→REALTIME offset: %lld ns",
+        static_cast<long long>(mono_to_realtime_offset_ns_));
+
     // Start reader threads
     running_.store(true);
     primary_thread_  = std::thread(&ImuNode::primaryLoop,  this);
@@ -113,36 +146,57 @@ void ImuNode::initialize() {
 void ImuNode::primaryLoop() {
     Eigen::Vector3d accel;
     Eigen::Vector3d gyro;
+    uint64_t        hw_ts_ns = 0;
 
-    while (running_.load()) {
-        try {
-            // Blocks until DRDY rising edge on GPIO17 (PREEMPT_RT < 50μs jitter)
-            icm_->readBlocking(accel, gyro);
-        } catch (const std::exception& e) {
-            if (!running_.load()) { break; }  // normal shutdown path
+    // Outer catch: any exception from publish(), get_logger(), get_clock(), or
+    // other ROS2 calls that escapes the inner hardware-error catch would otherwise
+    // propagate out of the thread function and call std::terminate(). Log it and
+    // exit cleanly so the destructor can join the thread.
+    try {
+        while (running_.load()) {
+            try {
+                // Blocks until DRDY rising edge on GPIO17 (PREEMPT_RT < 50μs jitter).
+                // hw_ts_ns is CLOCK_MONOTONIC nanoseconds latched by the kernel
+                // interrupt handler — the true measurement time.
+                icm_->readBlocking(accel, gyro, hw_ts_ns);
+            } catch (const std::exception& e) {
+                if (!running_.load()) { break; }  // normal shutdown path
+                RCLCPP_ERROR(this->get_logger(),
+                    "ICM-42688-P read error: %s", e.what());
+                continue;
+            }
+
+            // Share latest reading with watchdog thread for agreement check.
+            {
+                std::lock_guard<std::mutex> lock(primary_mutex_);
+                shared_primary_accel_ = accel;
+                shared_primary_gyro_  = gyro;
+                primary_data_valid_   = true;
+            }
+
+            // Stamp using the hardware DRDY timestamp (CLOCK_MONOTONIC) converted
+            // to CLOCK_REALTIME via the offset computed in initialize().
+            // This eliminates the SPI transfer latency (~12 μs at 10 MHz) and
+            // PREEMPT_RT scheduler jitter (≤50 μs) that this->now() would add,
+            // making the ESKF predict() dt accurate to within the kernel ISR latency.
+            auto header = std_msgs::msg::Header{};
+            header.frame_id = "imu_link";
+            header.stamp    = rclcpp::Time(
+                static_cast<int64_t>(hw_ts_ns) + mono_to_realtime_offset_ns_);
+
+            primary_pub_->publish(
+                buildImuMsg(header, accel, gyro, kIcmGyroVar, kIcmAccelVar));
+        }
+    } catch (const std::exception& e) {
+        if (running_.load()) {
             RCLCPP_ERROR(this->get_logger(),
-                "ICM-42688-P read error: %s", e.what());
-            continue;
+                "primaryLoop: unexpected exception — thread exiting: %s", e.what());
         }
-
-        // TODO: wire primary IMU output directly into ESKF once filter node is written.
-        //       Call eskf_->predict(gyro, accel, dt) here using the hardware-timestamped
-        //       CLOCK_MONOTONIC time from the DRDY ISR (not this->now()).
-
-        // Share latest reading with watchdog thread for agreement check
-        {
-            std::lock_guard<std::mutex> lock(primary_mutex_);
-            shared_primary_accel_ = accel;
-            shared_primary_gyro_  = gyro;
-            primary_data_valid_   = true;
+    } catch (...) {
+        if (running_.load()) {
+            RCLCPP_ERROR(this->get_logger(),
+                "primaryLoop: unknown exception — thread exiting.");
         }
-
-        // Publish /ghost/imu/primary
-        auto header = std_msgs::msg::Header{};
-        header.stamp    = this->now();
-        header.frame_id = "imu_link";
-
-        primary_pub_->publish(buildImuMsg(header, accel, gyro));
     }
 }
 
@@ -151,72 +205,90 @@ void ImuNode::primaryLoop() {
 void ImuNode::watchdogLoop() {
     Eigen::Vector3d accel;
     Eigen::Vector3d gyro;
+    uint64_t        hw_ts_ns = 0;
 
-    // Issue 3 fix: track whether we were in a fault state on the previous
-    // iteration so we can publish data=false exactly once when the fault clears.
-    // Without this, eskf_node::faultCallback never receives data=false and
-    // imu_fault_ becomes a permanent one-way latch.
+    // Track whether we were in a fault state on the previous iteration so we
+    // can publish data=false exactly once when the fault clears.
+    // Without this, eskf_node::imu_fault_ becomes a permanent one-way latch.
     bool prev_faulted = false;
 
-    while (running_.load()) {
-        try {
-            // Blocks until DRDY rising edge on GPIO27
-            mpu_->readBlocking(accel, gyro);
-        } catch (const std::exception& e) {
-            if (!running_.load()) { break; }  // normal shutdown path
+    // Outer catch: same rationale as primaryLoop(). publish(), get_logger(), and
+    // get_clock() can throw; without this the thread would call std::terminate().
+    try {
+        while (running_.load()) {
+            try {
+                // Blocks until DRDY rising edge on GPIO27
+                mpu_->readBlocking(accel, gyro, hw_ts_ns);
+            } catch (const std::exception& e) {
+                if (!running_.load()) { break; }  // normal shutdown path
+                RCLCPP_ERROR(this->get_logger(),
+                    "MPU-6050 read error: %s", e.what());
+                continue;
+            }
+
+            // Stamp using the hardware DRDY timestamp (CLOCK_MONOTONIC converted
+            // to CLOCK_REALTIME). Consistent with primaryLoop() stamping so
+            // timestamp deltas between the two IMU streams are meaningful.
+            auto header = std_msgs::msg::Header{};
+            header.frame_id = "imu_link_watchdog";
+            header.stamp    = rclcpp::Time(
+                static_cast<int64_t>(hw_ts_ns) + mono_to_realtime_offset_ns_);
+
+            watchdog_pub_->publish(
+                buildImuMsg(header, accel, gyro, kMpuGyroVar, kMpuAccelVar));
+
+            // Agreement check — requires at least one primary reading to be available
+            Eigen::Vector3d ref_accel;
+            Eigen::Vector3d ref_gyro;
+            bool            valid = false;
+            {
+                std::lock_guard<std::mutex> lock(primary_mutex_);
+                valid     = primary_data_valid_;
+                ref_accel = shared_primary_accel_;
+                ref_gyro  = shared_primary_gyro_;
+            }
+
+            if (!valid) { continue; }  // primary not yet running
+
+            // GHOST_V10.md: "100ms moving window on attitude disagreement.
+            // Transient spikes (vibration) clear in < 100ms — no false fault.
+            // Primary (ICM-42688-P) always trusted — MPU-6050 fault = warning only."
+            const bool agreed = mpu_->checkAgreement(
+                ref_accel, ref_gyro, accel_threshold_mps2_, gyro_threshold_rps_);
+
+            if (!agreed) {
+                RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
+                    "IMU watchdog FAULT: persistent disagreement > 100 ms "
+                    "(accel_thr=%.3f m/s², gyro_thr=%.4f rad/s). "
+                    "Primary ICM-42688-P continues as trusted source.",
+                    accel_threshold_mps2_, gyro_threshold_rps_);
+
+                auto fault_msg = std_msgs::msg::Bool{};
+                fault_msg.data = true;
+                fault_pub_->publish(fault_msg);
+                prev_faulted = true;
+
+            } else if (prev_faulted) {
+                // Fault cleared: sensors agree again.  Publish data=false exactly
+                // once so eskf_node can re-enable the gravity update.
+                // Without this publish, eskf_node::imu_fault_ is a permanent latch.
+                RCLCPP_INFO(this->get_logger(),
+                    "IMU watchdog fault cleared — sensors agree again.");
+                auto fault_msg = std_msgs::msg::Bool{};
+                fault_msg.data = false;
+                fault_pub_->publish(fault_msg);
+                prev_faulted = false;
+            }
+        }
+    } catch (const std::exception& e) {
+        if (running_.load()) {
             RCLCPP_ERROR(this->get_logger(),
-                "MPU-6050 read error: %s", e.what());
-            continue;
+                "watchdogLoop: unexpected exception — thread exiting: %s", e.what());
         }
-
-        // Publish /ghost/imu/watchdog
-        auto header = std_msgs::msg::Header{};
-        header.stamp    = this->now();
-        header.frame_id = "imu_link_watchdog";
-
-        watchdog_pub_->publish(buildImuMsg(header, accel, gyro));
-
-        // Agreement check — requires at least one primary reading to be available
-        Eigen::Vector3d ref_accel;
-        Eigen::Vector3d ref_gyro;
-        bool            valid = false;
-        {
-            std::lock_guard<std::mutex> lock(primary_mutex_);
-            valid     = primary_data_valid_;
-            ref_accel = shared_primary_accel_;
-            ref_gyro  = shared_primary_gyro_;
-        }
-
-        if (!valid) { continue; }  // primary not yet running
-
-        // GHOST_V10.md: "100ms moving window on attitude disagreement.
-        // Transient spikes (vibration) clear in < 100ms — no false fault.
-        // Primary (ICM-42688-P) always trusted — MPU-6050 fault = warning only."
-        const bool agreed = mpu_->checkAgreement(
-            ref_accel, ref_gyro, accel_threshold_mps2_, gyro_threshold_rps_);
-
-        if (!agreed) {
-            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
-                "IMU watchdog FAULT: persistent disagreement > 100 ms "
-                "(accel_thr=%.3f m/s², gyro_thr=%.4f rad/s). "
-                "Primary ICM-42688-P continues as trusted source.",
-                accel_threshold_mps2_, gyro_threshold_rps_);
-
-            auto fault_msg = std_msgs::msg::Bool{};
-            fault_msg.data = true;
-            fault_pub_->publish(fault_msg);
-            prev_faulted = true;
-
-        } else if (prev_faulted) {
-            // Fault cleared: sensors agree again.  Publish data=false exactly
-            // once so eskf_node can re-enable the gravity update.
-            // Without this publish, eskf_node::imu_fault_ is a permanent latch.
-            RCLCPP_INFO(this->get_logger(),
-                "IMU watchdog fault cleared — sensors agree again.");
-            auto fault_msg = std_msgs::msg::Bool{};
-            fault_msg.data = false;
-            fault_pub_->publish(fault_msg);
-            prev_faulted = false;
+    } catch (...) {
+        if (running_.load()) {
+            RCLCPP_ERROR(this->get_logger(),
+                "watchdogLoop: unknown exception — thread exiting.");
         }
     }
 }
@@ -226,7 +298,9 @@ void ImuNode::watchdogLoop() {
 sensor_msgs::msg::Imu ImuNode::buildImuMsg(
     const std_msgs::msg::Header& header,
     const Eigen::Vector3d& accel_mps2,
-    const Eigen::Vector3d& gyro_rps)
+    const Eigen::Vector3d& gyro_rps,
+    double gyro_var,
+    double accel_var)
 {
     sensor_msgs::msg::Imu msg;
     msg.header = header;
@@ -239,12 +313,25 @@ sensor_msgs::msg::Imu ImuNode::buildImuMsg(
     msg.linear_acceleration.y = accel_mps2.y();
     msg.linear_acceleration.z = accel_mps2.z();
 
-    // Orientation is unknown — ESKF computes it from IMU integration.
-    // REP-145: covariance[0] = -1 signals "orientation not available".
+    // REP-145: orientation_covariance[0] = -1 signals orientation not available.
+    // ESKF computes attitude from IMU integration — no orientation in raw messages.
     msg.orientation_covariance[0] = -1.0;
 
-    // Leave angular_velocity_covariance and linear_acceleration_covariance as
-    // zero (unknown). Set from Allan Variance ARW after Phase 1 characterisation.
+    // Diagonal noise covariance from datasheet noise spectral density at the
+    // configured ODR: variance = NSD² × ODR_Hz. Off-diagonal elements are zero
+    // (axes assumed uncorrelated). The caller passes sensor-specific constants
+    // (kIcmGyroVar / kIcmAccelVar for the primary, kMpuGyroVar / kMpuAccelVar
+    // for the watchdog). Verify against Allan Variance after Phase 1 bringup.
+    //
+    // Covariance layout: row-major 3×3 stored as std::array<double,9>.
+    // Diagonal indices: [0]=XX, [4]=YY, [8]=ZZ.
+    msg.angular_velocity_covariance[0] = gyro_var;
+    msg.angular_velocity_covariance[4] = gyro_var;
+    msg.angular_velocity_covariance[8] = gyro_var;
+
+    msg.linear_acceleration_covariance[0] = accel_var;
+    msg.linear_acceleration_covariance[4] = accel_var;
+    msg.linear_acceleration_covariance[8] = accel_var;
 
     return msg;
 }

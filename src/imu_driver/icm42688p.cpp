@@ -34,7 +34,9 @@ void ICM42688P::initialize() {
     configureDevice();
 }
 
-void ICM42688P::readBlocking(Eigen::Vector3d& accel_mps2, Eigen::Vector3d& gyro_rps) {
+void ICM42688P::readBlocking(Eigen::Vector3d& accel_mps2,
+                             Eigen::Vector3d& gyro_rps,
+                             uint64_t&        hw_timestamp_ns) {
     // ── Wait for DRDY rising edge ─────────────────────────────────────────────
     // poll() allows a timeout so a stuck DRDY line is detected rather than hanging
     // the guidance thread forever. At 1000 Hz, a 200 ms timeout = 200 missed edges.
@@ -53,12 +55,17 @@ void ICM42688P::readBlocking(Eigen::Vector3d& accel_mps2, Eigen::Vector3d& gyro_
             " ms. Check GPIO17 wiring and that ICM-42688-P WHO_AM_I = 0x47.");
     }
 
-    // Consume the event — mandatory before the next poll() call
+    // Consume the edge event — mandatory before the next poll() call.
+    // event.timestamp_ns is CLOCK_MONOTONIC nanoseconds latched by the kernel GPIO
+    // interrupt handler at the exact hardware edge — this is the true measurement time.
+    // Propagated to the caller so the IMU message stamp uses this value instead of
+    // a post-read this->now() call, which adds ≥50 μs software jitter at 1000 Hz.
     struct gpio_v2_line_event event{};
     if (::read(gpio_line_fd_, &event, sizeof(event)) != static_cast<ssize_t>(sizeof(event))) {
         throw std::runtime_error(
             "ICM42688P: failed to read GPIO edge event: " + std::string(std::strerror(errno)));
     }
+    hw_timestamp_ns = event.timestamp_ns;
 
     // ── 14-byte SPI burst: TEMP_DATA1 (0x1D) → GYRO_DATA_Z0 (0x2A) ──────────
     // Layout (DS-000347 §14):
@@ -93,9 +100,6 @@ void ICM42688P::readBlocking(Eigen::Vector3d& accel_mps2, Eigen::Vector3d& gyro_
     gyro_rps.y() = static_cast<double>(raw_gy) * GYRO_SCALE_RPS;
     gyro_rps.z() = static_cast<double>(raw_gz) * GYRO_SCALE_RPS;
 
-    // TODO: connect to ESKF input once ROS2 node is written
-    //       Pass accel_mps2 and gyro_rps into ESKF::predict(gyro_rps, accel_mps2, dt)
-    //       Timestamp from CLOCK_MONOTONIC should be latched at DRDY ISR, not here.
 }
 
 void ICM42688P::close() {
@@ -193,13 +197,13 @@ void ICM42688P::configureDevice() {
     writeRegister(REG_INT_CONFIG1, 0x00);
 
     // 4. Gyroscope: ±2000 dps, 1000 Hz ODR
-    //    GYRO_CONFIG0 [6:5] GYRO_FS_SEL = 000 (±2000 dps)
+    //    GYRO_CONFIG0 [7:5] GYRO_FS_SEL = 000 (±2000 dps)  → sensitivity 16.4 LSB/dps
     //    GYRO_CONFIG0 [3:0] GYRO_ODR    = 0110 (1 kHz)
     //    GHOST_V10.md: "ICM-42688-P ... ODR: 1000Hz"
     writeRegister(REG_GYRO_CONFIG0, 0x06);
 
     // 5. Accelerometer: ±16g, 1000 Hz ODR
-    //    ACCEL_CONFIG0 [6:5] ACCEL_FS_SEL = 000 (±16g)
+    //    ACCEL_CONFIG0 [7:5] ACCEL_FS_SEL = 000 (±16g)      → sensitivity 2048 LSB/g
     //    ACCEL_CONFIG0 [3:0] ACCEL_ODR    = 0110 (1 kHz)
     writeRegister(REG_ACCEL_CONFIG0, 0x06);
 

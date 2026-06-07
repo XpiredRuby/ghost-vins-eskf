@@ -44,7 +44,9 @@ void MPU6050::initialize() {
     configureDevice();
 }
 
-void MPU6050::readBlocking(Eigen::Vector3d& accel_mps2, Eigen::Vector3d& gyro_rps) {
+void MPU6050::readBlocking(Eigen::Vector3d& accel_mps2,
+                           Eigen::Vector3d& gyro_rps,
+                           uint64_t&        hw_timestamp_ns) {
     // ── Wait for DRDY rising edge ─────────────────────────────────────────────
     struct pollfd pfd{};
     pfd.fd     = gpio_line_fd_;
@@ -61,12 +63,15 @@ void MPU6050::readBlocking(Eigen::Vector3d& accel_mps2, Eigen::Vector3d& gyro_rp
             " ms. Check GPIO27 wiring and that MPU-6050 WHO_AM_I = 0x68.");
     }
 
-    // Consume the edge event — required before the next poll() call
+    // Consume the edge event — required before the next poll() call.
+    // event.timestamp_ns is CLOCK_MONOTONIC nanoseconds latched by the kernel
+    // GPIO interrupt handler at the exact hardware edge.
     struct gpio_v2_line_event event{};
     if (::read(gpio_line_fd_, &event, sizeof(event)) != static_cast<ssize_t>(sizeof(event))) {
         throw std::runtime_error(
             "MPU6050: failed to read GPIO edge event: " + std::string(std::strerror(errno)));
     }
+    hw_timestamp_ns = event.timestamp_ns;
 
     // ── 14-byte I2C burst: ACCEL_XOUT_H (0x3B) → GYRO_ZOUT_L (0x48) ─────────
     // Layout (RM-MPU-6000A-00 §4.17):
@@ -208,9 +213,12 @@ void MPU6050::openGPIO() {
 
 void MPU6050::configureDevice() {
     // 1. Wake device from sleep — default state after power-on is SLEEP=1
-    //    PWR_MGMT_1 = 0x00: SLEEP=0, CLKSEL=0 (internal 8 MHz oscillator)
-    writeRegister(REG_PWR_MGMT_1, 0x00);
-    ::usleep(10000);  // wait 10 ms for oscillator to stabilize
+    //    PWR_MGMT_1 = 0x01: SLEEP=0, CLKSEL=001 (X-axis gyroscope PLL reference)
+    //    RM-MPU-6000A §8.1: "It is highly recommended to configure the device to
+    //    use one of the gyroscope references as the clock source."
+    //    CLKSEL=0 (internal 8 MHz RC oscillator) is less stable and less accurate.
+    writeRegister(REG_PWR_MGMT_1, 0x01);
+    ::usleep(10000);  // wait 10 ms for gyro PLL to lock
 
     // 2. Verify WHO_AM_I = 0x68
     const uint8_t who = readRegister(REG_WHO_AM_I);

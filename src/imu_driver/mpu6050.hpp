@@ -55,9 +55,13 @@ public:
     // 14-byte I2C burst read from ACCEL_XOUT_H (0x3B) through GYRO_ZOUT_L (0x48).
     // Stores result internally for use by checkAgreement().
     //
-    // accel_mps2: accelerometer [m/s²], sensor body frame X/Y/Z
-    // gyro_rps:   gyroscope    [rad/s], sensor body frame X/Y/Z
-    void readBlocking(Eigen::Vector3d& accel_mps2, Eigen::Vector3d& gyro_rps);
+    // accel_mps2:      accelerometer [m/s²], sensor body frame X/Y/Z
+    // gyro_rps:        gyroscope    [rad/s], sensor body frame X/Y/Z
+    // hw_timestamp_ns: CLOCK_MONOTONIC nanoseconds latched by the GPIO kernel
+    //                  interrupt handler at the exact hardware rising edge.
+    void readBlocking(Eigen::Vector3d& accel_mps2,
+                      Eigen::Vector3d& gyro_rps,
+                      uint64_t&        hw_timestamp_ns);
 
     // Compare last MPU-6050 reading against reference values from ICM-42688-P.
     // Sets the internal fault flag if disagreement exceeds either threshold
