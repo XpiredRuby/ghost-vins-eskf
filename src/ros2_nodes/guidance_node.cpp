@@ -10,7 +10,7 @@ namespace ghost {
 GuidanceNode::GuidanceNode(const rclcpp::NodeOptions& options)
     : rclcpp::Node("guidance_node", options)
 {
-    // ── Declare parameters ────────────────────────────────────────────────────
+    // ── Declare parameters — mirror config/guidance.yaml key hierarchy ────────
     this->declare_parameter("guidance.N",            3.0);
     this->declare_parameter("guidance.r_cutoff_m",   1.5);
     this->declare_parameter("guidance.K_sim",        1.0);
@@ -24,18 +24,19 @@ GuidanceNode::GuidanceNode(const rclcpp::NodeOptions& options)
     const double K_sim      = this->get_parameter("guidance.K_sim").as_double();
     const std::string host  = this->get_parameter("guidance.mavlink_host").as_string();
     const int port          = static_cast<int>(this->get_parameter("guidance.mavlink_port").as_int());
-    const double rate_hz    = this->get_parameter("guidance.rate_hz").as_double();
+    rate_hz_                = this->get_parameter("guidance.rate_hz").as_double();
 
     // ── Construct guidance objects ────────────────────────────────────────────
     pronav_ = ProNav(N, r_cutoff, K_sim);
 
-    // MavlinkBridge opens the UDP socket in its constructor; throws on failure
+    // MavlinkBridge opens the UDP socket in its constructor; throws on failure.
+    // The exception is caught in main() — do not suppress it here.
     bridge_ = std::make_unique<MavlinkBridge>(host, static_cast<uint16_t>(port));
 
     RCLCPP_INFO(this->get_logger(),
         "GuidanceNode: N=%.1f, r_cutoff=%.2f m, K_sim=%.4f, "
         "MAVLink → %s:%d, %.0f Hz",
-        N, r_cutoff, K_sim, host.c_str(), port, rate_hz);
+        N, r_cutoff, K_sim, host.c_str(), port, rate_hz_);
 
     // ── Subscriptions ─────────────────────────────────────────────────────────
     const auto sensor_qos = rclcpp::SensorDataQoS();
@@ -47,12 +48,12 @@ GuidanceNode::GuidanceNode(const rclcpp::NodeOptions& options)
             targetPoseCallback(msg);
         });
 
-    target_vel_sub_ = this->create_subscription<
-        geometry_msgs::msg::TwistWithCovarianceStamped>(
-        "/ghost/tracker/velocity", sensor_qos,
-        [this](const geometry_msgs::msg::TwistWithCovarianceStamped::ConstSharedPtr& msg) {
-            targetVelocityCallback(msg);
-        });
+    // NOTE: /ghost/tracker/velocity is intentionally NOT subscribed here.
+    // TPN ProNav computes its closing velocity V_c by finite-differencing
+    // the received NED positions internally (V_c = -delta_x_rel_dot).
+    // The Kalman-filtered tracker velocity is not required for TPN.
+    // If a future guidance law (BiasPN, APN) needs tracker velocity, add the
+    // subscription back and extend ProNav::compute() accordingly.
 
     occluded_sub_ = this->create_subscription<std_msgs::msg::Bool>(
         "/ghost/tracker/occluded",
@@ -76,8 +77,8 @@ GuidanceNode::GuidanceNode(const rclcpp::NodeOptions& options)
     accel_pub_ = this->create_publisher<geometry_msgs::msg::AccelStamped>(
         "/ghost/guidance/a_cmd", sensor_qos);
 
-    // ── Guidance timer — 30 Hz ────────────────────────────────────────────────
-    const auto period = std::chrono::duration<double>(1.0 / rate_hz);
+    // ── Guidance timer — rate_hz_ Hz ──────────────────────────────────────────
+    const auto period = std::chrono::duration<double>(1.0 / rate_hz_);
     guidance_timer_ = this->create_wall_timer(
         std::chrono::duration_cast<std::chrono::nanoseconds>(period),
         [this]() { guidanceTimerCallback(); });
@@ -85,13 +86,19 @@ GuidanceNode::GuidanceNode(const rclcpp::NodeOptions& options)
 
 // ── Destructor ────────────────────────────────────────────────────────────────
 // MavlinkBridge owns the UDP socket; its destructor closes it.
-// unique_ptr destruction happens automatically here — explicit only for logging.
+// Send a zero command before that so PX4 SITL has a chance to exit OFFBOARD
+// cleanly. Use steady_clock so time_boot_ms is a valid monotonic value that
+// PX4 will not immediately discard as stale (timestamp=0 would appear ~boot
+// seconds old, exceeding the 500ms stale threshold and causing PX4 to drop
+// the packet before processing the zero command).
 
 GuidanceNode::~GuidanceNode()
 {
-    // Send a zero command before shutdown so PX4 SITL exits OFFBOARD cleanly
     if (bridge_ && bridge_->isOpen()) {
-        bridge_->send(Eigen::Vector3d::Zero(), 0);
+        const uint64_t ts_us = static_cast<uint64_t>(
+            std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count());
+        bridge_->send(Eigen::Vector3d::Zero(), ts_us);
     }
     RCLCPP_INFO(this->get_logger(), "GuidanceNode shut down — zero command sent.");
 }
@@ -106,15 +113,6 @@ void GuidanceNode::targetPoseCallback(
         msg->pose.pose.position.y,
         msg->pose.pose.position.z};
     target_pose_valid_ = true;
-}
-
-void GuidanceNode::targetVelocityCallback(
-    const geometry_msgs::msg::TwistWithCovarianceStamped::ConstSharedPtr& msg)
-{
-    v_target_NED_ = {
-        msg->twist.twist.linear.x,
-        msg->twist.twist.linear.y,
-        msg->twist.twist.linear.z};
 }
 
 void GuidanceNode::occludedCallback(const std_msgs::msg::Bool::ConstSharedPtr& msg)
@@ -141,22 +139,33 @@ void GuidanceNode::dronePoseCallback(
     drone_pose_valid_ = true;
 }
 
-// ── guidanceTimerCallback — 30 Hz ────────────────────────────────────────────
+// ── guidanceTimerCallback — rate_hz_ Hz ──────────────────────────────────────
 
 void GuidanceNode::guidanceTimerCallback()
 {
-    const rclcpp::Time now = this->now();
+    // ── Compute dt using steady_clock — monotonic, no epoch overflow ──────────
+    // Use std::chrono::steady_clock rather than this->now() (CLOCK_REALTIME).
+    // this->now().nanoseconds() is seconds since Unix epoch 1970; dividing to
+    // milliseconds and casting to uint32_t overflows at ~49 days post-epoch,
+    // producing a wrapped time_boot_ms that PX4 cannot interpret correctly.
+    // steady_clock gives microseconds from process start — a valid time_boot_ms.
+    const auto now_steady = std::chrono::steady_clock::now();
 
-    // ── Compute dt ────────────────────────────────────────────────────────────
     if (first_tick_) {
         first_tick_     = false;
-        last_tick_time_ = now;
+        last_tick_time_ = now_steady;
         return;
     }
-    const double dt = (now - last_tick_time_).seconds();
-    last_tick_time_ = now;
 
-    if (dt <= 0.0 || dt > 0.5) { return; }  // guard against timer skew
+    const double dt = std::chrono::duration<double>(now_steady - last_tick_time_).count();
+    last_tick_time_ = now_steady;
+
+    // Guard: drop samples with non-positive or excessively large dt.
+    // Upper bound = 4 × nominal period: generous enough to survive a missed
+    // tick but tight enough to reject pathological scheduler stalls that would
+    // produce a near-zero finite-difference LOS rate (delta_x_rel_dot ≈ 0
+    // despite real target motion) and a misleading zero command.
+    if (dt <= 0.0 || dt > 4.0 / rate_hz_) { return; }
 
     // ── Zero command path — occlusion or stale data ───────────────────────────
     Eigen::Vector3d a_cmd = Eigen::Vector3d::Zero();
@@ -171,6 +180,22 @@ void GuidanceNode::guidanceTimerCallback()
         //   Terminal coast: range < r_cutoff → a_cmd = [0,0,0]
         //   K_sim applied to XY only — raw drone altitude for Z
         a_cmd = pronav_.compute(x_target_NED_, x_drone_NED_, dt);
+
+        // ── NaN / Inf guard ───────────────────────────────────────────────────
+        // If the tracker publishes a non-finite position (e.g., degenerate
+        // AprilTag pose), ProNav's finite difference and cross-product chain
+        // silently produces NaN in a_cmd and permanently contaminates
+        // prev_delta_x_rel_. Detect early, reset state, and send zero.
+        if (!a_cmd.allFinite()) {
+            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
+                "ProNav::compute() returned non-finite a_cmd "
+                "(target=[%.3f,%.3f,%.3f] drone=[%.3f,%.3f,%.3f]) — "
+                "resetting ProNav and sending zero.",
+                x_target_NED_.x(), x_target_NED_.y(), x_target_NED_.z(),
+                x_drone_NED_.x(), x_drone_NED_.y(), x_drone_NED_.z());
+            pronav_.reset();
+            a_cmd = Eigen::Vector3d::Zero();
+        }
     }
 
     // ── MAVLink send ──────────────────────────────────────────────────────────
@@ -180,18 +205,19 @@ void GuidanceNode::guidanceTimerCallback()
     //       See src/mavlink_bridge/mavlink_bridge.hpp for the mapping rationale.
     if (bridge_ && bridge_->isOpen()) {
         const uint64_t timestamp_us = static_cast<uint64_t>(
-            now.nanoseconds() / 1000ULL);
+            std::chrono::duration_cast<std::chrono::microseconds>(
+                now_steady.time_since_epoch()).count());
         bridge_->send(a_cmd, timestamp_us);
     }
 
     // ── Publish /ghost/guidance/a_cmd for logging and debug ──────────────────
+    // Stamp with ROS2 wall time for bag playback and visualisation compatibility.
     geometry_msgs::msg::AccelStamped accel_msg;
-    accel_msg.header.stamp    = now;
+    accel_msg.header.stamp    = this->now();
     accel_msg.header.frame_id = "ned";
-    accel_msg.accel.linear.x  = a_cmd.x();
-    accel_msg.accel.linear.y  = a_cmd.y();
-    accel_msg.accel.linear.z  = a_cmd.z();
-    // Angular acceleration is not commanded by ProNav
+    accel_msg.accel.linear.x  = a_cmd.x();   // North [m/s²]
+    accel_msg.accel.linear.y  = a_cmd.y();   // East  [m/s²]
+    accel_msg.accel.linear.z  = a_cmd.z();   // Down  [m/s²]
     accel_msg.accel.angular.x = 0.0;
     accel_msg.accel.angular.y = 0.0;
     accel_msg.accel.angular.z = 0.0;
@@ -212,7 +238,14 @@ int main(int argc, char* argv[]) {
 
     // SingleThreadedExecutor: all ProNav and MAVLink calls on one thread.
     // ProNav::compute() is not thread-safe; do not use MultiThreadedExecutor.
-    rclcpp::spin(std::make_shared<ghost::GuidanceNode>());
+    try {
+        rclcpp::spin(std::make_shared<ghost::GuidanceNode>());
+    } catch (const std::exception& e) {
+        // MavlinkBridge constructor throws std::runtime_error if socket() or
+        // fcntl() fail — log via the static logger before rclcpp::shutdown().
+        RCLCPP_FATAL(rclcpp::get_logger("guidance_node"),
+            "Fatal error during GuidanceNode startup: %s", e.what());
+    }
 
     rclcpp::shutdown();
     return 0;

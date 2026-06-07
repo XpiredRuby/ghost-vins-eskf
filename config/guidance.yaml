@@ -1,0 +1,48 @@
+# config/guidance.yaml
+#
+# GuidanceNode runtime parameters — loaded via ROS2 parameter server.
+# Pass to the node at launch:
+#   ros2 run ghost guidance_node --ros-args --params-file config/guidance.yaml
+#
+# GHOST_V10.md references are noted inline.
+
+guidance:
+  # ── ProNav (True Proportional Navigation) ────────────────────────────────
+  # GHOST_V10.md §ProNav:
+  #   a_cmd = N · (Omega × V_c)
+  #   where Omega = (delta_x_rel × delta_x_rel_dot) / range²
+
+  N: 3.0
+  # Navigation gain [-].
+  # Typical TPN values: 3–5. Higher N → more aggressive turn, larger
+  # acceleration commands, more sensitive to LOS rate noise.
+  # TUNE: validate in Gazebo SITL before live RC car runs.
+
+  r_cutoff_m: 1.5
+  # Terminal coast range [m]. When range < r_cutoff_m, ProNav returns
+  # zero acceleration — avoids singularity and protects the camera/tripod.
+  # TUNE: set to max expected measurement noise + intercept geometry margin.
+
+  K_sim: 1.0
+  # Sim-to-reality spatial scale factor [-] applied to XY coordinates only
+  # (never Z). K_sim = L_gazebo / L_physical.
+  # Default 1.0 for real hardware (no scaling). Override for Gazebo SITL
+  # if the simulated arena dimensions differ from the physical test area.
+
+  # ── MAVLink delivery ──────────────────────────────────────────────────────
+  mavlink_host: "127.0.0.1"
+  # UDP destination host for PX4 SITL MAVLink stream.
+  # "127.0.0.1" for localhost SITL; replace with companion computer IP for
+  # hardware-in-the-loop or real flight.
+
+  mavlink_port: 14540
+  # UDP destination port [1–65535]. PX4 SITL default OFFBOARD port is 14540.
+  # Verify with: grep -r "14540" <px4-src>/ROMFS/px4fmu_common/init.d-posix/
+
+  # ── Guidance loop ─────────────────────────────────────────────────────────
+  rate_hz: 30.0
+  # Guidance loop update rate [Hz].
+  # Must not exceed the tracker output rate (also 30 Hz); matching them
+  # ensures every guidance tick has a fresh position measurement available.
+  # dt guard threshold = 4 / rate_hz (allows up to 4 missed ticks before
+  # the sample is discarded as stale).
