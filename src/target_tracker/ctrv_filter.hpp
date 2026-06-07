@@ -28,17 +28,8 @@ public:
     void setSingularityGuard(double eps_rad_per_s);
 
 private:
-    Eigen::VectorXd x_;   // 5-state: [px, py, v, psi, psi_dot]
-    Eigen::MatrixXd P_;   // 5x5 covariance
-    Eigen::MatrixXd Q_;   // 5x5 process noise
-    Eigen::MatrixXd R_;   // 2x2 measurement noise
-    bool   initialized_;
-    double sigma_a_;
-    double sigma_psi_dot_;
-    double singularity_guard_eps_{1e-4};   // loaded from filter.yaml via setSingularityGuard()
-    std::ofstream nis_log_;                // opened once in initialize(), kept open
-
-    // UKF compile-time constants (alpha=0.001, kappa=0, beta=2, n=5)
+    // ── UKF compile-time constants (alpha=0.001, kappa=0, beta=2, n=5) ─────────
+    // Declared first so the fixed-size member types below can use kN_ / kNSigma_.
     static constexpr int    kN_      = 5;
     static constexpr int    kNSigma_ = 2 * kN_ + 1;   // 11 sigma points
     static constexpr double kAlpha_  = 0.001;
@@ -49,8 +40,23 @@ private:
     static constexpr double kWc0_    = kWm0_ + (1.0 - kAlpha_ * kAlpha_ + kBeta_);
     static constexpr double kWi_     = 1.0 / (2.0 * (kN_ + kLambda_));
 
-    // Fixed-size sigma point buffers — zero per-call heap allocation
     using State5d = Eigen::Matrix<double, kN_, 1>;
+
+    // ── State — all fixed-size; zero heap allocation on the predict/update path ─
+    // (previously Eigen::VectorXd / Eigen::MatrixXd, which heap-allocate on every
+    //  assignment such as x_ = x_pred and P_ = P_pred inside predict()/update().)
+    State5d                   x_;   // 5-state: [px, py, v, psi, psi_dot]
+    Eigen::Matrix<double,5,5> P_;   // 5x5 covariance
+    Eigen::Matrix<double,5,5> Q_;   // 5x5 process noise
+    Eigen::Matrix<double,2,2> R_;   // 2x2 measurement noise
+
+    bool   initialized_;
+    double sigma_a_;
+    double sigma_psi_dot_;
+    double singularity_guard_eps_{1e-4};   // loaded from filter.yaml via setSingularityGuard()
+    std::ofstream nis_log_;                // opened once in initialize(), kept open
+
+    // Fixed-size sigma point buffers — zero per-call heap allocation
     Eigen::Matrix<double, kN_, kNSigma_> sigma_buf_;        // [5 x 11] current sigma pts
     Eigen::Matrix<double, kN_, kNSigma_> sigma_pred_buf_;   // [5 x 11] propagated
     Eigen::Matrix<double, 2,   kNSigma_> z_sigma_buf_;      // [2 x 11] projected to meas space

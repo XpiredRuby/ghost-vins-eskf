@@ -3,10 +3,10 @@
 #include <cmath>
 
 CTRVFilter::CTRVFilter()
-    : x_(Eigen::VectorXd::Zero(5))
-    , P_(Eigen::MatrixXd::Identity(5, 5))
-    , Q_(Eigen::MatrixXd::Zero(5, 5))
-    , R_(Eigen::MatrixXd::Identity(2, 2))
+    : x_(State5d::Zero())
+    , P_(Eigen::Matrix<double,5,5>::Identity())
+    , Q_(Eigen::Matrix<double,5,5>::Zero())
+    , R_(Eigen::Matrix<double,2,2>::Identity())
     , initialized_(false)
     , sigma_a_(1.0)
     , sigma_psi_dot_(0.1)
@@ -205,7 +205,12 @@ void CTRVFilter::update(const Eigen::Vector2d& z_pos)
     // UKF lacks an explicit H matrix, so the Joseph form does not apply directly.
     // Explicit symmetrization prevents floating-point rounding from accumulating
     // into an asymmetric P_ over many update cycles.
-    P_ = 0.5 * (P_ + P_.transpose());
+    //
+    // .eval() is REQUIRED: P_.transpose() aliases P_, and Eigen does not insert a
+    // temporary for transpose inside a coefficient-wise sum. Without .eval(), the
+    // column-major assignment overwrites P_(j,i) before reading it for P_(i,j),
+    // producing an asymmetric, incorrect result — the opposite of the intent.
+    P_ = 0.5 * (P_ + P_.transpose().eval());
 
     logNIS(static_cast<double>(innov.transpose() * S_inv * innov));
 }

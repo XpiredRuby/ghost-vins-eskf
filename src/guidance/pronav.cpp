@@ -18,6 +18,16 @@ Eigen::Vector3d ProNav::compute(
     const Eigen::Vector3d& x_drone_NED,
     double dt)
 {
+    // Step 0: Defensive dt guard. The LOS-rate finite difference at Step 5 divides
+    // by dt; a non-positive or NaN dt would yield ±inf/NaN that then contaminates
+    // prev_delta_x_rel_ for all subsequent calls. The guidance node already gates
+    // dt, but ProNav is a reusable component and must not divide by a bad dt.
+    // The !(dt > 0.0) form also rejects NaN (NaN > 0.0 is false). Return zero
+    // without mutating state so the last valid finite-difference baseline survives.
+    if (!(dt > 0.0)) {
+        return Eigen::Vector3d::Zero();
+    }
+
     // Step 1: Apply K_sim to XY only — Z forced to zero exactly
     Eigen::Vector3d x_target_scaled;
     x_target_scaled.x() = K_sim_ * x_target_NED.x();

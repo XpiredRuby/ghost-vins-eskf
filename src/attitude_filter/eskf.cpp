@@ -82,7 +82,19 @@ void ESKF::predict(const Eigen::Vector3d& omega_m,
     const Eigen::Matrix<double,9,9> Phi =
         Eigen::Matrix<double,9,9>::Identity() + F * dt;
 
-    P_ = Phi * P_ * Phi.transpose() + Q_;
+    // Discretize the continuous process-noise spectral density over this step.
+    // setProcessNoise() builds Q_ from sigma_g [rad/s/√Hz] and sigma_a [m/s²/√Hz]
+    // (spectral densities — see config/filter.yaml). The discrete-time process
+    // noise over the interval dt is Q_d = Q_c · dt. Omitting the dt factor injects
+    // 1/dt× too much noise (≈1000× at the 1000 Hz ESKF rate), leaving the filter
+    // chronically under-confident and starving bias convergence.
+    P_ = Phi * P_ * Phi.transpose() + Q_ * dt;
+
+    // Enforce covariance symmetry. Phi·P·Phiᵀ is symmetric in exact arithmetic,
+    // but floating-point rounding accumulates asymmetry across the 1000 Hz predict
+    // loop between the sparse gravity (vision-rate) and ZARU (1 Hz) updates.
+    // .eval() forces the transpose into a temporary to avoid Eigen self-aliasing.
+    P_ = 0.5 * (P_ + P_.transpose().eval());
 }
 
 void ESKF::updateGravity(const Eigen::Vector3d& accel_m)
