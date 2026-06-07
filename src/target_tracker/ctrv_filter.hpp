@@ -17,15 +17,26 @@ public:
     void setProcessNoise(double sigma_a, double sigma_psi_dot);
     void setMeasurementNoise(double sigma_r);
 
+    // Override the hardcoded P₀ written by initialize() with YAML-loaded values.
+    void setInitialCovariance(double sigma_pos_m,
+                              double sigma_vel_m_per_s,
+                              double sigma_psi_rad,
+                              double sigma_psi_dot_rad_per_s);
+
+    // Override the singularity guard threshold loaded from filter.yaml.
+    // Controls both ctrvPredictSingle() branch point and (via tracker_node) useCTRV().
+    void setSingularityGuard(double eps_rad_per_s);
+
 private:
     Eigen::VectorXd x_;   // 5-state: [px, py, v, psi, psi_dot]
     Eigen::MatrixXd P_;   // 5x5 covariance
     Eigen::MatrixXd Q_;   // 5x5 process noise
     Eigen::MatrixXd R_;   // 2x2 measurement noise
-    bool initialized_;
+    bool   initialized_;
     double sigma_a_;
     double sigma_psi_dot_;
-    std::ofstream nis_log_;   // opened once in initialize(), kept open
+    double singularity_guard_eps_{1e-4};   // loaded from filter.yaml via setSingularityGuard()
+    std::ofstream nis_log_;                // opened once in initialize(), kept open
 
     // UKF compile-time constants (alpha=0.001, kappa=0, beta=2, n=5)
     static constexpr int    kN_      = 5;

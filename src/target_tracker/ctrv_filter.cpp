@@ -10,6 +10,7 @@ CTRVFilter::CTRVFilter()
     , initialized_(false)
     , sigma_a_(1.0)
     , sigma_psi_dot_(0.1)
+    , singularity_guard_eps_(1e-4)   // overridden by setSingularityGuard() from filter.yaml
     , sigma_buf_(Eigen::Matrix<double, kN_, kNSigma_>::Zero())
     , sigma_pred_buf_(Eigen::Matrix<double, kN_, kNSigma_>::Zero())
     , z_sigma_buf_(Eigen::Matrix<double, 2, kNSigma_>::Zero())
@@ -32,7 +33,8 @@ void CTRVFilter::initialize(const Eigen::Vector2d& pos_init, double v_init, doub
     P_(4, 4) = 0.1;   // psi_dot — 0.316 rad/s std dev
 
     if (!nis_log_.is_open()) {
-        nis_log_.open("logs/nis_target_tracker.csv", std::ios::app);
+        // CTRV NIS is chi²(2) — separate file from CV (chi²(3)) so CI gates each correctly.
+        nis_log_.open("logs/nis_ctrv_tracker.csv", std::ios::app);
     }
 
     initialized_ = true;
@@ -49,6 +51,26 @@ void CTRVFilter::setMeasurementNoise(double sigma_r)
     R_ = Eigen::Matrix2d::Identity() * (sigma_r * sigma_r);
 }
 
+void CTRVFilter::setSingularityGuard(double eps_rad_per_s)
+{
+    singularity_guard_eps_ = eps_rad_per_s;
+}
+
+void CTRVFilter::setInitialCovariance(double sigma_pos_m,
+                                      double sigma_vel_m_per_s,
+                                      double sigma_psi_rad,
+                                      double sigma_psi_dot_rad_per_s)
+{
+    // Overrides the hardcoded P₀ written by initialize() with YAML-configured values.
+    // Call after initialize() and before the first predict()/update().
+    P_.setZero();
+    P_(0,0) = sigma_pos_m             * sigma_pos_m;
+    P_(1,1) = sigma_pos_m             * sigma_pos_m;
+    P_(2,2) = sigma_vel_m_per_s       * sigma_vel_m_per_s;
+    P_(3,3) = sigma_psi_rad           * sigma_psi_rad;
+    P_(4,4) = sigma_psi_dot_rad_per_s * sigma_psi_dot_rad_per_s;
+}
+
 CTRVFilter::State5d CTRVFilter::ctrvPredictSingle(
     const Eigen::Ref<const State5d>& x, double dt) const
 {
@@ -58,7 +80,7 @@ CTRVFilter::State5d CTRVFilter::ctrvPredictSingle(
     const double psi     = x(3);
     const double psi_dot = x(4);
 
-    if (std::abs(psi_dot) < 1e-4) {
+    if (std::abs(psi_dot) < singularity_guard_eps_) {
         // Singularity guard — revert to CV straight-line equations
         xp(0) += v * std::cos(psi) * dt;
         xp(1) += v * std::sin(psi) * dt;
@@ -180,6 +202,10 @@ void CTRVFilter::update(const Eigen::Vector2d& z_pos)
     const Eigen::Vector2d innov = z_pos - z_pred;
     x_ += K * innov;
     P_ -= K * S * K.transpose();
+    // UKF lacks an explicit H matrix, so the Joseph form does not apply directly.
+    // Explicit symmetrization prevents floating-point rounding from accumulating
+    // into an asymmetric P_ over many update cycles.
+    P_ = 0.5 * (P_ + P_.transpose());
 
     logNIS(static_cast<double>(innov.transpose() * S_inv * innov));
 }

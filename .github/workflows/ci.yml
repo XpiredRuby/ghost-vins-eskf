@@ -55,8 +55,9 @@ jobs:
             --log logs/nis_camera_gravity.csv \
             --dof 3 --confidence 0.95 --fail-on-violation
 
-  # ─── Job 3: NIS gate — Target Tracking Filter ────────────────────────────────
-  nis_gate_target:
+  # ─── Job 3: NIS gate — CV Target Tracking Filter (chi²(3)) ──────────────────
+  # CV filter measures 3D position [px, py, pz] → innovation is chi²(3)-distributed.
+  nis_gate_cv:
     runs-on: ubuntu-22.04
     needs: build
 
@@ -70,8 +71,33 @@ jobs:
           sudo apt-get install -y python3 python3-pip
           pip3 install scipy
 
-      - name: NIS gate — Target Tracking Filter
+      - name: NIS gate — CV Filter (dof=3)
         run: |
           python3 analysis/nis_validation.py \
-            --log logs/nis_target_tracker.csv \
+            --log logs/nis_cv_tracker.csv \
             --dof 3 --confidence 0.95 --fail-on-violation
+
+  # ─── Job 4: NIS gate — CTRV Target Tracking Filter (chi²(2)) ────────────────
+  # CTRV filter measures 2D position [px, py] → innovation is chi²(2)-distributed.
+  # chi²(2, 0.95) = 5.991 vs chi²(3, 0.95) = 7.815 — separate gate mandatory.
+  # Using dof=3 for CTRV would silently pass NIS values in (5.991, 7.815] that
+  # indicate filter inconsistency.
+  nis_gate_ctrv:
+    runs-on: ubuntu-22.04
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python and scipy
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y python3 python3-pip
+          pip3 install scipy
+
+      - name: NIS gate — CTRV Filter (dof=2)
+        run: |
+          python3 analysis/nis_validation.py \
+            --log logs/nis_ctrv_tracker.csv \
+            --dof 2 --confidence 0.95 --fail-on-violation

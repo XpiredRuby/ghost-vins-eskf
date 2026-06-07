@@ -90,6 +90,13 @@ cv_filter:
     pos_m:       0.10    # initial position uncertainty [m] — TUNE
     vel_m_per_s: 0.50    # initial velocity uncertainty [m/s] — TUNE
 
+  # ── NIS Logging (CV filter — chi²(3)) ─────────────────────────────────────
+  # CV NIS is 3-DOF: 3D position measurement [px, py, pz]
+  nis:
+    log_file:   logs/nis_cv_tracker.csv
+    dof:        3       # chi²(3) — 3D position measurement (H is 3×6)
+    confidence: 0.95    # GHOST_V10.md — spec-mandated value
+
 # ── CTRV Filter (Constant Turn Rate and Velocity, 5-state UKF) ─────────────
 ctrv_filter:
   # State: [p_x, p_y, v, psi, psi_dot]^T
@@ -106,7 +113,19 @@ ctrv_filter:
     psi_rad:            0.30    # ~17° initial heading uncertainty — TUNE
     psi_dot_rad_per_s:  0.10    # TUNE
 
+  # ── NIS Logging (CTRV filter — chi²(2)) ───────────────────────────────────
+  # CTRV NIS is 2-DOF: 2D position measurement [px, py] — DIFFERENT from CV (3-DOF).
+  # Separate file required so the CI gate applies the correct chi² threshold per filter.
+  # Using chi²(3) threshold on chi²(2) NIS silently passes inconsistent filter runs
+  # (values in (5.991, 7.815] pass the gate but should be flagged).
+  nis:
+    log_file:   logs/nis_ctrv_tracker.csv
+    dof:        2       # chi²(2) — 2D position measurement (h(x) = [px, py])
+    confidence: 0.95    # GHOST_V10.md — spec-mandated value
+
   # Singularity guard — GHOST_V10.md: "|psi_dot| < epsilon → revert to CV equations"
+  # This value is loaded by tracker_node and passed to both CTRVFilter::setSingularityGuard()
+  # and used as the useCTRV() model-selection threshold — they must stay identical.
   singularity_guard_threshold_rad_per_s: 1.0e-4   # GHOST_V10.md — spec-mandated value
 
   ukf:
@@ -115,8 +134,7 @@ ctrv_filter:
     kappa: 0
     beta:  2
 
-# ── Shared NIS parameters (target tracking) ──────────────────────────────────
-target_tracker_nis:
-  log_file:   logs/nis_target_tracker.csv
-  dof:        3       # chi²(3) — GHOST_V10.md §NIS-Gated CI
-  confidence: 0.95    # GHOST_V10.md — spec-mandated value
+# NOTE: per-filter NIS parameters are now embedded within cv_filter.nis and
+# ctrv_filter.nis above.  Each filter has a distinct log file and DOF because
+# CV measures 3D position (chi²(3)) and CTRV measures 2D position (chi²(2)).
+# The CI pipeline runs two separate NIS gate jobs — see .github/workflows/ci.yml.

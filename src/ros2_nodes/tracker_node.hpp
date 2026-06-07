@@ -117,7 +117,19 @@ private:
 
     // ── Parameters ────────────────────────────────────────────────────────────
     double occlusion_timeout_s_;
-    static constexpr double kPsiDotThreshold = 1e-4;  // CTRV singularity guard
+
+    // Model-selection threshold — loaded from filter.yaml and passed to
+    // CTRVFilter::setSingularityGuard() so the two values stay in sync.
+    double psi_dot_threshold_{1e-4};
+
+    // Cached initial covariance sigmas — applied via setInitialCovariance() right
+    // after each filter's initialize() call so filter.yaml values take effect.
+    double cv_p0_pos_{0.10};
+    double cv_p0_vel_{0.50};
+    double ctrv_p0_pos_{0.10};
+    double ctrv_p0_vel_{0.50};
+    double ctrv_p0_psi_{0.30};
+    double ctrv_p0_psidot_{0.10};
 };
 
 }  // namespace ghost

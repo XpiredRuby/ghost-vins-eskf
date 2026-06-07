@@ -25,6 +25,19 @@ TrackerNode::TrackerNode(const rclcpp::NodeOptions& options)
     this->declare_parameter("tracker.occlusion_timeout_s",    0.5);
     this->declare_parameter("tracker.coast_predict_rate_hz",  30.0);
 
+    // CV initial covariance — previously hardcoded in CVFilter; now YAML-configurable
+    this->declare_parameter("cv_filter.initial_covariance.pos_m",       0.10);
+    this->declare_parameter("cv_filter.initial_covariance.vel_m_per_s", 0.50);
+
+    // CTRV initial covariance
+    this->declare_parameter("ctrv_filter.initial_covariance.pos_m",              0.10);
+    this->declare_parameter("ctrv_filter.initial_covariance.vel_m_per_s",        0.50);
+    this->declare_parameter("ctrv_filter.initial_covariance.psi_rad",            0.30);
+    this->declare_parameter("ctrv_filter.initial_covariance.psi_dot_rad_per_s",  0.10);
+
+    // Singularity guard — drives both CTRV internal branch and useCTRV() model selection
+    this->declare_parameter("ctrv_filter.singularity_guard_threshold_rad_per_s", 1.0e-4);
+
     // ── Read parameters ───────────────────────────────────────────────────────
     const double singer_alpha   = this->get_parameter(
         "cv_filter.process_noise.singer_alpha").as_double();
@@ -43,6 +56,26 @@ TrackerNode::TrackerNode(const rclcpp::NodeOptions& options)
     occlusion_timeout_s_ = this->get_parameter("tracker.occlusion_timeout_s").as_double();
     const double coast_rate_hz = this->get_parameter("tracker.coast_predict_rate_hz").as_double();
 
+    // CV P₀ from YAML
+    const double cv_p0_pos = this->get_parameter(
+        "cv_filter.initial_covariance.pos_m").as_double();
+    const double cv_p0_vel = this->get_parameter(
+        "cv_filter.initial_covariance.vel_m_per_s").as_double();
+
+    // CTRV P₀ from YAML
+    const double ctrv_p0_pos     = this->get_parameter(
+        "ctrv_filter.initial_covariance.pos_m").as_double();
+    const double ctrv_p0_vel     = this->get_parameter(
+        "ctrv_filter.initial_covariance.vel_m_per_s").as_double();
+    const double ctrv_p0_psi     = this->get_parameter(
+        "ctrv_filter.initial_covariance.psi_rad").as_double();
+    const double ctrv_p0_psidot  = this->get_parameter(
+        "ctrv_filter.initial_covariance.psi_dot_rad_per_s").as_double();
+
+    // Singularity guard — same value used by CTRVFilter internally and by useCTRV()
+    psi_dot_threshold_ = this->get_parameter(
+        "ctrv_filter.singularity_guard_threshold_rad_per_s").as_double();
+
     // ── Configure filters ─────────────────────────────────────────────────────
     // CV Singer model: sigma_a² = 2 * alpha * a_max² / 3
     // GHOST_V10.md: "Q_target from Singer model: sigma_a² = 2·alpha·a_max²/3"
@@ -53,10 +86,23 @@ TrackerNode::TrackerNode(const rclcpp::NodeOptions& options)
     ctrv_.setProcessNoise(ctrv_sigma_a, ctrv_sigma_psi_dot);
     ctrv_.setMeasurementNoise(ctrv_sigma_r);
 
+    // Singularity guard: keep CTRV internal branch threshold and model-selection threshold in sync
+    ctrv_.setSingularityGuard(psi_dot_threshold_);
+
+    // Cache initial covariance sigmas — applied immediately after each filter's
+    // initialize() call in apriltagCallback(), since initialize() resets P_.
+    cv_p0_pos_      = cv_p0_pos;
+    cv_p0_vel_      = cv_p0_vel;
+    ctrv_p0_pos_    = ctrv_p0_pos;
+    ctrv_p0_vel_    = ctrv_p0_vel;
+    ctrv_p0_psi_    = ctrv_p0_psi;
+    ctrv_p0_psidot_ = ctrv_p0_psidot;
+
     RCLCPP_INFO(this->get_logger(),
         "TrackerNode configured. CV sigma_a=%.4f m/s², CTRV sigma_a=%.4f m/s² "
-        "sigma_psi_dot=%.4f rad/s, occlusion_timeout=%.2f s, coast=%.0f Hz",
-        cv_sigma_a, ctrv_sigma_a, ctrv_sigma_psi_dot,
+        "sigma_psi_dot=%.4f rad/s, psi_dot_guard=%.2e rad/s, "
+        "occlusion_timeout=%.2f s, coast=%.0f Hz",
+        cv_sigma_a, ctrv_sigma_a, ctrv_sigma_psi_dot, psi_dot_threshold_,
         occlusion_timeout_s_, coast_rate_hz);
 
     // ── Subscriptions ─────────────────────────────────────────────────────────
@@ -129,24 +175,46 @@ void TrackerNode::apriltagCallback(
         msg->pose.position.y,
         msg->pose.position.z);
     const Eigen::Vector3d pos_NED = R_cam_to_ned_ * pos_cam;
+    const rclcpp::Time stamp(msg->header.stamp);
+
+    // ── Predict to measurement timestamp before update ────────────────────────
+    // Finding 1: without this predict(), the innovation z - Hx̂ is computed
+    // against the state predicted to the last coast-timer tick (up to 33ms stale).
+    // At 2 m/s RC car speed that is a 66mm error — 3× the measurement noise σ_r.
+    // After this call, last_predict_time_ = stamp so the next coast timer tick
+    // correctly computes the residual dt (now - stamp), not the full interval.
+    if (!first_predict_) {
+        const double dt = (stamp - last_predict_time_).seconds();
+        if (dt > 0.0 && dt < 1.0) {
+            if (cv_.isInitialized())   { cv_.predict(dt);   }
+            if (ctrv_.isInitialized()) { ctrv_.predict(dt); }
+            last_predict_time_ = stamp;
+        }
+    }
 
     // ── Initialize filters on first detection ────────────────────────────────
     if (!cv_.isInitialized()) {
         cv_.initialize(pos_NED);
+        // Apply YAML-configured P₀ immediately; initialize() sets a hardcoded default.
+        cv_.setInitialCovariance(cv_p0_pos_, cv_p0_vel_);
         RCLCPP_INFO(this->get_logger(),
-            "CVFilter initialized at NED [%.3f, %.3f, %.3f] m",
-            pos_NED.x(), pos_NED.y(), pos_NED.z());
+            "CVFilter initialized at NED [%.3f, %.3f, %.3f] m (P₀: pos=%.2f m, vel=%.2f m/s)",
+            pos_NED.x(), pos_NED.y(), pos_NED.z(), cv_p0_pos_, cv_p0_vel_);
     }
     if (!ctrv_.isInitialized()) {
         const Eigen::Vector2d pos_xy(pos_NED.x(), pos_NED.y());
         ctrv_.initialize(pos_xy, /*v_init=*/0.0, /*psi_init=*/0.0);
+        // Apply YAML-configured P₀ immediately; initialize() sets a hardcoded default.
+        ctrv_.setInitialCovariance(ctrv_p0_pos_, ctrv_p0_vel_,
+                                   ctrv_p0_psi_, ctrv_p0_psidot_);
         RCLCPP_INFO(this->get_logger(),
-            "CTRVFilter initialized at NED [%.3f, %.3f] m",
-            pos_NED.x(), pos_NED.y());
+            "CTRVFilter initialized at NED [%.3f, %.3f] m "
+            "(P₀: pos=%.2f m, vel=%.2f m/s, psi=%.2f rad, psi_dot=%.2f rad/s)",
+            pos_NED.x(), pos_NED.y(),
+            ctrv_p0_pos_, ctrv_p0_vel_, ctrv_p0_psi_, ctrv_p0_psidot_);
     }
 
     // ── Measurement update on both filters ────────────────────────────────────
-    // predict() is handled by the 30 Hz coast timer; update() is called here.
     cv_.update(pos_NED);
     ctrv_.update(Eigen::Vector2d(pos_NED.x(), pos_NED.y()));
 
@@ -160,7 +228,6 @@ void TrackerNode::apriltagCallback(
         occluded_ = false;
     }
 
-    const rclcpp::Time stamp(msg->header.stamp);
     publishState(stamp);
 }
 
@@ -225,7 +292,7 @@ bool TrackerNode::useCTRV() const
     // GHOST_V10.md: "CV vs CTRV by lower NIS on rosbag — not intuition"
     // This runtime check is the coarse selector; fine tuning via NIS comparison.
     const double psi_dot = ctrv_.getState()(4);
-    return std::abs(psi_dot) > kPsiDotThreshold;
+    return std::abs(psi_dot) > psi_dot_threshold_;
 }
 
 // ── publishState ──────────────────────────────────────────────────────────────
@@ -237,13 +304,15 @@ void TrackerNode::publishState(const rclcpp::Time& stamp)
     // ── Position and velocity in NED ──────────────────────────────────────────
     Eigen::Vector3d pos_NED(0.0, 0.0, 0.0);
     Eigen::Vector3d vel_NED(0.0, 0.0, 0.0);
-    Eigen::MatrixXd pos_cov;  // 3x3 position covariance
-    Eigen::MatrixXd vel_cov;  // 3x3 velocity covariance
+    Eigen::Matrix3d pos_cov = Eigen::Matrix3d::Zero();
+    Eigen::Matrix3d vel_cov = Eigen::Matrix3d::Zero();
 
     if (use_ctrv && ctrv_.isInitialized()) {
         // CTRV state: [px, py, v, psi, psi_dot]
-        const Eigen::VectorXd x = ctrv_.getState();
-        const Eigen::MatrixXd P = ctrv_.getCovariance();
+        const Eigen::VectorXd x = ctrv_.getState();   // 5×1 dynamic (CTRVFilter unchanged)
+        // Cast 5×5 dynamic P to fixed-size so the Jacobian product is fully fixed-size
+        // and the result assigns directly to Eigen::Matrix3d vel_cov without a runtime check.
+        const Eigen::Matrix<double,5,5> P = ctrv_.getCovariance();
 
         const double v   = x(2);
         const double psi = x(3);
@@ -253,18 +322,29 @@ void TrackerNode::publishState(const rclcpp::Time& stamp)
         // Velocity: decompose speed into NED components using heading
         vel_NED = {v * std::cos(psi), v * std::sin(psi), 0.0};
 
-        // 3x3 position covariance from 5x5 P — take the [px, py] block
-        pos_cov = Eigen::Matrix3d::Zero();
+        // 3×3 position covariance — extract [px, py] block from 5×5 P
+        pos_cov.setZero();
         pos_cov.topLeftCorner<2, 2>() = P.topLeftCorner<2, 2>();
 
-        // Velocity covariance: approximate from v and psi variances
-        // P(2,2) = var(v), P(3,3) = var(psi) — use speed variance as diagonal
-        vel_cov = Eigen::Matrix3d::Identity() * P(2, 2);
+        // Velocity covariance — propagate through the Jacobian of [v·cos(ψ), v·sin(ψ), 0]
+        // with respect to the full CTRV state [px, py, v, ψ, ψ̇] (3×5 Jacobian):
+        //   J(0,2) = cos(ψ)       J(0,3) = -v·sin(ψ)   ← d(vN)/d(v), d(vN)/d(ψ)
+        //   J(1,2) = sin(ψ)       J(1,3) =  v·cos(ψ)   ← d(vE)/d(v), d(vE)/d(ψ)
+        //   all other entries zero (including row 2 — vDown = 0)
+        // Captures heading variance σ_ψ² (dominant at speed) + v-ψ cross-correlation.
+        // The old approximation (P(2,2)·I₃) ignored σ_ψ²; at v=2 m/s, σ_ψ=0.3 rad,
+        // the ψ contribution (v²·σ_ψ² = 0.36 m²/s²) is 18× larger than σ_v².
+        Eigen::Matrix<double,3,5> J_vel = Eigen::Matrix<double,3,5>::Zero();
+        J_vel(0, 2) =  std::cos(psi);
+        J_vel(0, 3) = -v * std::sin(psi);
+        J_vel(1, 2) =  std::sin(psi);
+        J_vel(1, 3) =  v * std::cos(psi);
+        vel_cov = J_vel * P * J_vel.transpose();   // (3×5)·(5×5)·(5×3) → Matrix3d, all fixed
 
     } else if (cv_.isInitialized()) {
         // CV state: [px, py, pz, vx, vy, vz]
-        const Eigen::VectorXd x = cv_.getState();
-        const Eigen::MatrixXd P = cv_.getCovariance();
+        const Eigen::Matrix<double,6,1> x = cv_.getState();     // fixed-size, zero heap
+        const Eigen::Matrix<double,6,6> P = cv_.getCovariance(); // fixed-size, zero heap
 
         pos_NED = {x(0), x(1), x(2)};
         vel_NED = {x(3), x(4), x(5)};
