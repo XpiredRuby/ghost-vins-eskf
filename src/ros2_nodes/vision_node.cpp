@@ -45,7 +45,7 @@ extern "C" {
 #include <Eigen/Geometry>
 
 // ── ROS2 ──────────────────────────────────────────────────────────────────────
-#include <geometry_msgs/msg/quaternion.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
 #include <rclcpp/rclcpp.hpp>
 
