@@ -79,6 +79,17 @@ if(LIBCAMERA_FOUND AND APRILTAG_FOUND)
     message(STATUS
         "libcamera ${LIBCAMERA_VERSION} and apriltag ${APRILTAG_VERSION} found "
         "— building vision_node")
+
+    # vision_node is itself a ROS2 node (rclcpp::Node) and publishes
+    # geometry_msgs/PoseStamped and sensor_msgs/Image, so it needs rclcpp and
+    # those message packages. These find_package() calls live here (not only in
+    # the GHOST_BUILD_ROS2_NODES block below) because vision_node has its own
+    # libcamera/apriltag gate and may be built independently of that toggle.
+    # find_package() is idempotent, so a second call inside the toggle is harmless.
+    find_package(rclcpp        REQUIRED)
+    find_package(geometry_msgs REQUIRED)
+    find_package(sensor_msgs   REQUIRED)
+
     add_executable(vision_node
         src/ros2_nodes/vision_node.cpp
     )
@@ -89,6 +100,9 @@ if(LIBCAMERA_FOUND AND APRILTAG_FOUND)
     )
     target_link_libraries(vision_node PRIVATE
         ghost_core
+        rclcpp::rclcpp
+        ${geometry_msgs_TARGETS}
+        ${sensor_msgs_TARGETS}
         ${LIBCAMERA_LIBRARIES}
         ${APRILTAG_LIBRARIES}
     )
