@@ -102,12 +102,16 @@ if(LIBCAMERA_FOUND AND APRILTAG_FOUND)
     # Link the newly built libcamera 0.3.2 explicitly. pkg_check_modules'
     # ${LIBCAMERA_LIBRARIES} resolves to the older Ubuntu-packaged libcamera,
     # so we point directly at the /usr/local build instead.
+    # apriltag: link by plain name so the linker resolves -lapriltag from the
+    # system/library path. pkg_check_modules' ${APRILTAG_LIBRARIES} can come back
+    # empty (it exports only the bare name without a usable path), which drops
+    # symbols like matd_destroy at link time.
     target_link_libraries(vision_node PRIVATE
         ghost_core
         rclcpp::rclcpp
         ${geometry_msgs_TARGETS}
         ${sensor_msgs_TARGETS}
-        ${APRILTAG_LIBRARIES}
+        apriltag
         /usr/local/lib/aarch64-linux-gnu/libcamera.so
         /usr/local/lib/aarch64-linux-gnu/libcamera-base.so
     )
