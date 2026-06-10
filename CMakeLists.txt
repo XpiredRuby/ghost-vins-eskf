@@ -95,16 +95,21 @@ if(LIBCAMERA_FOUND AND APRILTAG_FOUND)
     )
     target_include_directories(vision_node PRIVATE
         ${CMAKE_SOURCE_DIR}/src
+        /usr/local/include/libcamera
         ${LIBCAMERA_INCLUDE_DIRS}
         ${APRILTAG_INCLUDE_DIRS}
     )
+    # Link the newly built libcamera 0.3.2 explicitly. pkg_check_modules'
+    # ${LIBCAMERA_LIBRARIES} resolves to the older Ubuntu-packaged libcamera,
+    # so we point directly at the /usr/local build instead.
     target_link_libraries(vision_node PRIVATE
         ghost_core
         rclcpp::rclcpp
         ${geometry_msgs_TARGETS}
         ${sensor_msgs_TARGETS}
-        ${LIBCAMERA_LIBRARIES}
         ${APRILTAG_LIBRARIES}
+        /usr/local/lib/aarch64-linux-gnu/libcamera.so
+        /usr/local/lib/aarch64-linux-gnu/libcamera-base.so
     )
     target_compile_options(vision_node PRIVATE ${LIBCAMERA_CFLAGS_OTHER})
 else()
