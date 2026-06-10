@@ -23,7 +23,6 @@ extern "C" {
 #include <apriltag/apriltag.h>
 #include <apriltag/tag36h11.h>
 #include <apriltag/apriltag_pose.h>
-#include <apriltag/common/matd.h>
 }
 
 // ── Linux kernel APIs ─────────────────────────────────────────────────────────
@@ -538,13 +537,15 @@ void VisionNode::processFrame(const uint8_t* y_plane, int width, int height,
         apriltag_pose_t pose{};
         const double reproj_err = estimate_tag_pose(&info, &pose);
 
+        // matd_destroy() is not exported from libapriltag 3.2.0 on Ubuntu 22.04.
+        // pose.R and pose.t are stack-local pointers — memory is managed internally
+        // by the apriltag library and freed when the detection is destroyed.
+
         // Gate on reprojection error. A large or non-finite value means the tag
         // corners were degenerate (motion blur, partial occlusion, oblique angle).
         // Publishing such a pose to the tracker would inject a spike into the KF.
         // Threshold 2.0 px is tunable — tighten once calibration is complete.
         if (!std::isfinite(reproj_err) || reproj_err > 2.0) {
-            matd_destroy(pose.R);
-            matd_destroy(pose.t);
             RCLCPP_WARN(get_logger(),
                 "Tag %d: reprojection error %.2f px exceeds gate — pose discarded",
                 target_tag_id_, reproj_err);
@@ -562,9 +563,6 @@ void VisionNode::processFrame(const uint8_t* y_plane, int width, int height,
             for (int c = 0; c < 3; ++c)
                 R(r, c) = MATD_EL(pose.R, r, c);
         const Eigen::Quaterniond q(R);
-
-        matd_destroy(pose.R);
-        matd_destroy(pose.t);
 
         // Publish PoseStamped (tag pose in camera frame)
         geometry_msgs::msg::PoseStamped msg{};
