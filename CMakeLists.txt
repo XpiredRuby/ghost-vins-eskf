@@ -111,7 +111,7 @@ if(LIBCAMERA_FOUND AND APRILTAG_FOUND)
         rclcpp::rclcpp
         ${geometry_msgs_TARGETS}
         ${sensor_msgs_TARGETS}
-        apriltag
+        /usr/lib/aarch64-linux-gnu/libapriltag.so
         /usr/local/lib/aarch64-linux-gnu/libcamera.so
         /usr/local/lib/aarch64-linux-gnu/libcamera-base.so
     )
