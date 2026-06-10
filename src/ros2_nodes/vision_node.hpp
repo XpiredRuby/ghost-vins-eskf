@@ -11,6 +11,11 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <sensor_msgs/msg/image.hpp>
 
+// Forward-declare libcamera::Request so the requestCompleted slot can be
+// declared with the exact type libcamera's Signal API requires, without
+// pulling the full libcamera headers into this header.
+namespace libcamera { class Request; }
+
 namespace ghost {
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -59,6 +64,11 @@ public:
 
 private:
     // ── Camera callback (called from libcamera internal thread) ───────────────
+    // requestCompleted slot — libcamera's Signal API requires an object pointer
+    // and a member function pointer (it does not accept a bare lambda). This
+    // thin slot forwards to onFrameReady(); see vision_node.cpp.
+    void onFrameReadySlot(libcamera::Request* request);
+
     // Forward-declared to avoid pulling libcamera headers into this header.
     // Defined in the .cpp after the libcamera-guarded include block.
     void onFrameReady(void* request_ptr);

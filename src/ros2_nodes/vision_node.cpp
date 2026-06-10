@@ -343,10 +343,10 @@ void VisionNode::initialize()
     // libcamera signals are invoked from the camera manager's internal thread.
     // We do all heavy work (AprilTag detection) directly in the callback since
     // the single-threaded ROS2 executor is not involved here.
-    cam_->camera->requestCompleted.connect(
-        [this](libcamera::Request* req) {
-            onFrameReady(static_cast<void*>(req));
-        });
+    // libcamera 0.3.2's Signal::connect() requires an object pointer + member
+    // function pointer; it does not accept a bare lambda. onFrameReadySlot()
+    // forwards to onFrameReady().
+    cam_->camera->requestCompleted.connect(this, &VisionNode::onFrameReadySlot);
 
     // ── 8. Apply exposure control and start capture ───────────────────────────
     // GHOST_V10.md §Vision Pipeline: "Exposure: < 3ms to prevent motion blur"
@@ -407,6 +407,17 @@ void VisionNode::strobeThread()
             // completely stalled; in that case timestamps are the least concern.
         }
     }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// onFrameReadySlot — libcamera requestCompleted slot (object+member fn pointer).
+// Thin forwarder so the header can stay free of libcamera includes (onFrameReady
+// takes void* and is the implementation; this slot supplies the typed signature
+// that libcamera::Signal::connect() requires).
+// ─────────────────────────────────────────────────────────────────────────────
+void VisionNode::onFrameReadySlot(libcamera::Request* request)
+{
+    onFrameReady(static_cast<void*>(request));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
