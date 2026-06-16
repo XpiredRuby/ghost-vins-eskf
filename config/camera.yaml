@@ -42,10 +42,10 @@ timestamp:
 # Phase 2 exit criterion: reprojection error < 0.5px (GHOST_V10.md §Phase 2)
 intrinsics:
   # Full-frame (1456×1088) intrinsics — calibrate at native resolution
-  fx: 0.0    # CALIBRATE — focal length x [pixels]
-  fy: 0.0    # CALIBRATE — focal length y [pixels]
-  cx: 0.0    # CALIBRATE — principal point x [pixels]
-  cy: 0.0    # CALIBRATE — principal point y [pixels]
+  fx: 700.0    # CALIBRATE — focal length x [pixels]
+  fy: 700.0    # CALIBRATE — focal length y [pixels]
+  cx: 364.0    # CALIBRATE — principal point x [pixels]
+  cy: 272.0    # CALIBRATE — principal point y [pixels]
 
   distortion:
     # Radial + tangential distortion coefficients (OpenCV model)
