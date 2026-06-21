@@ -1,5 +1,7 @@
 # GHOST — GPS-Denied Hardware Occlusion-Survivable Tracker
-
+> **Current spec:** This project has pivoted to **GHOST V12 - USB Webcam Baseline**.  
+> The active architecture is documented in [`GHOST_V12_USB_WEBCAM.md`](./GHOST_V12_USB_WEBCAM.md).  
+> `GHOST_V10.md` is retained as a legacy reference. The IMX296/global-shutter camera path is now optional future work, not the baseline.
 > A dual-filter GPS-denied target tracker running on a Raspberry Pi 4B: a 9-state attitude ESKF stabilizes the camera platform frame while a CV/CTRV kinematic filter tracks an RC car and coasts through occlusions using its own velocity estimate.
 
 **Author:** Vinayak Manoj Nair — Texas A&M University, B.S. Aerospace Engineering (Dec 2026)  

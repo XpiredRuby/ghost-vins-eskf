@@ -1,3 +1,8 @@
+> **Legacy spec:** V10 is archived for historical reference.  
+> The current project direction is **GHOST V12 - USB Webcam Baseline**, documented in [`GHOST_V12_USB_WEBCAM.md`](./GHOST_V12_USB_WEBCAM.md).  
+> IMX296 CSI/global-shutter hardware is now optional future work, not the baseline.
+
+---
 # GHOST — GPS-Denied Hardware Occlusion-Survivable Tracker
 
 **Owner:** Vinayak Manoj Nair
