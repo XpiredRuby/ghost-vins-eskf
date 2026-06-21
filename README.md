@@ -1,4 +1,6 @@
 # GHOST — GPS-Denied Hardware Occlusion-Survivable Tracker
+
+> **Current working demo:** `tools/ghost_live_apriltag.py` runs the USB webcam + AprilTag live browser overlay at `http://<pi-ip>:8081`.
 > **Current spec:** This project has pivoted to **GHOST V12 - USB Webcam Baseline**.  
 > The active architecture is documented in [`GHOST_V12_USB_WEBCAM.md`](./GHOST_V12_USB_WEBCAM.md).  
 > `GHOST_V10.md` is retained as a legacy reference. The IMX296/global-shutter camera path is now optional future work, not the baseline.
