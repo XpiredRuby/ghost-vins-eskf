@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // vision_node.cpp
-// GHOST §Vision Pipeline — IMX296 global shutter camera, AprilTag 36h11 detection
+// GHOST §Vision Pipeline — USB UVC baseline (V12); libcamera path = optional IMX296 upgrade
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Dependency guards: emit a descriptive #error rather than cryptic link failures
@@ -8,7 +8,7 @@
 
 #if !__has_include(<libcamera/libcamera.h>)
 #  error "libcamera not found. Install with: sudo apt install libcamera-dev"\
-         "  and ensure the Pi BSP repository is enabled (see GHOST_V10.md §Setup)."
+         "  (optional IMX296 CSI upgrade path — see GHOST_V12_USB_WEBCAM.md §Optional Hardware Upgrade)."
 #endif
 
 #if !__has_include(<apriltag/apriltag.h>)
@@ -97,6 +97,7 @@ VisionNode::VisionNode(const rclcpp::NodeOptions& options)
     declare_parameter("roi.width_px",                 300);
     declare_parameter("roi.height_px",                300);
     declare_parameter("timestamp.strobe_gpio",        22);
+    declare_parameter("timestamp.strobe_enabled",     false);  // V12: false — OOSM baseline
     declare_parameter("sensor.max_exposure_ms",       3.0);
     declare_parameter("intrinsics.fx",                0.0);
     declare_parameter("intrinsics.fy",                0.0);
@@ -126,18 +127,17 @@ VisionNode::VisionNode(const rclcpp::NodeOptions& options)
     const double cy_native = get_parameter("intrinsics.cy").as_double();
 
     // ── Calibration guard ─────────────────────────────────────────────────────
-    // GHOST_V10.md §Vision Pipeline: Phase 2 exit criterion is reprojection < 0.5px.
-    // Refusing to start prevents silent garbage pose output with zero focal length.
+    // GHOST_V12 §Vision Pipeline: Phase 2 exit criterion is reprojection < 0.5 px.
     if (fx_native == 0.0 || fy_native == 0.0) {
         RCLCPP_ERROR(get_logger(),
             "Camera not calibrated — run calibration first. "
             "intrinsics.fx and/or intrinsics.fy are 0.0 in config/camera.yaml. "
-            "See GHOST_V10.md §Camera Calibration.");
+            "See GHOST_V12_USB_WEBCAM.md §Development Phases — Phase 2.");
         throw std::runtime_error("vision_node: camera not calibrated");
     }
 
-    // ── K_decimated = K_intrinsic / decimation_factor ─────────────────────────
-    // GHOST_V10.md: "using K_intrinsic directly on the decimated frame reports 2× depth"
+    // ── K_scaled = K_intrinsic / decimation_factor ────────────────────────────
+    // GHOST_V12: using unscaled K on a decimated frame reports wrong depth
     const double df = static_cast<double>(dec_factor);
     fx_dec_ = fx_native / df;
     fy_dec_ = fy_native / df;
@@ -216,11 +216,10 @@ void VisionNode::initialize()
     apriltag_detector_add_family(at_->detector, at_->family);
     RCLCPP_INFO(get_logger(), "AprilTag detector ready (36h11, tag size %.2f m)", tag_size_m_);
 
-    // ── 2. GPIO22 strobe thread ───────────────────────────────────────────────
-    // Open GPIO character device and request GPIO22 as input with rising-edge event.
-    // The kernel latches CLOCK_MONOTONIC when the edge fires — that timestamp is
-    // accurate to ~1 µs, eliminating the 15–40 ms V4L2 buffer-arrival skew.
-    {
+    // ── 2. Optional GPIO strobe thread (IMX296 Phase 5 upgrade only) ──────────
+    // V12 baseline: camera–IMU sync via V4L2 timestamp + ESKF OOSM — skip when disabled.
+    const bool strobe_enabled = get_parameter("timestamp.strobe_enabled").as_bool();
+    if (strobe_enabled) {
         int chip_fd = open("/dev/gpiochip0", O_RDWR | O_CLOEXEC);
         if (chip_fd < 0) {
             throw std::runtime_error("vision_node: cannot open /dev/gpiochip0 for strobe GPIO");
@@ -238,12 +237,18 @@ void VisionNode::initialize()
         }
         close(chip_fd);
         strobe_gpio_fd_ = req.fd;
+
+        strobe_running_.store(true, std::memory_order_relaxed);
+        strobe_thread_ = std::thread(&VisionNode::strobeThread, this);
+        RCLCPP_INFO(get_logger(),
+            "GPIO strobe ISR enabled on GPIO%d (IMX296 optional upgrade path)",
+            strobe_gpio_);
+    } else {
+        RCLCPP_INFO(get_logger(),
+            "GPIO strobe disabled — V12 baseline uses V4L2 timestamp + ESKF OOSM");
     }
 
-    strobe_running_.store(true, std::memory_order_relaxed);
-    strobe_thread_ = std::thread(&VisionNode::strobeThread, this);
-
-    // ── 3. libcamera — open camera ────────────────────────────────────────────
+    // ── 3. libcamera — open camera (optional IMX296 CSI upgrade backend) ────
     cam_->manager = std::make_unique<libcamera::CameraManager>();
     if (cam_->manager->start() != 0) {
         throw std::runtime_error("vision_node: libcamera CameraManager::start() failed");
@@ -349,7 +354,7 @@ void VisionNode::initialize()
     cam_->camera->requestCompleted.connect(this, &VisionNode::onFrameReadySlot);
 
     // ── 8. Apply exposure control and start capture ───────────────────────────
-    // GHOST_V10.md §Vision Pipeline: "Exposure: < 3ms to prevent motion blur"
+    // GHOST_V12 §Vision Pipeline: "Exposure as short as practicable" (rolling shutter)
     // AeEnable and ExposureTime are contradictory: when AE is enabled, the ISP
     // pipeline owns ExposureTime and silently overrides any value we set, defeating
     // the 3ms motion-blur cap.  Fix: disable AE and use fixed exposure.
@@ -375,11 +380,9 @@ void VisionNode::initialize()
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// strobeThread — latches GPIO22 rising-edge kernel timestamp
-// GHOST_V10.md: "IMX296 Strobe pin → GPIO22 ISR → CLOCK_MONOTONIC at shutter-open"
-// The kernel fills gpio_v2_line_event.timestamp_ns with CLOCK_REALTIME by default;
-// on PREEMPT_RT kernels this is within ~2 µs of CLOCK_MONOTONIC, which is acceptable
-// for the ≤1ms IMU integration window.
+// strobeThread — optional IMX296 Phase 5 upgrade: GPIO rising-edge kernel timestamp
+// GHOST_V10.md (legacy): "IMX296 Strobe pin → GPIO22 ISR → CLOCK_MONOTONIC at shutter-open"
+// GHOST_V12 baseline does not require this thread (timestamp.strobe_enabled: false).
 // ─────────────────────────────────────────────────────────────────────────────
 void VisionNode::strobeThread()
 {
@@ -470,9 +473,7 @@ void VisionNode::onFrameReady(void* request_ptr)
 void VisionNode::processFrame(const uint8_t* y_plane, int width, int height,
                                uint64_t timestamp_us)
 {
-    // ── Tier 1: crop 300×300 ROI from centre of decimated frame ──────────────
-    // GHOST_V10.md §Vision Pipeline: "300×300 px ROI centred on the frame (Tier 1)"
-    // Tier 2 (ROI at predicted pixel) is a tracker-feedback upgrade — TODO.
+    // GHOST_V12 §Vision Pipeline: Tier 1 ROI centred on frame; Tier 2 at predicted pixel — TODO.
     const int roi_x0 = std::max(0, (width  - roi_width_)  / 2);
     const int roi_y0 = std::max(0, (height - roi_height_) / 2);
     const int roi_w  = std::min(roi_width_,  width  - roi_x0);
@@ -567,7 +568,7 @@ void VisionNode::processFrame(const uint8_t* y_plane, int width, int height,
         // Publish PoseStamped (tag pose in camera frame)
         geometry_msgs::msg::PoseStamped msg{};
         if (timestamp_us > 0) {
-            // Hardware-latched strobe timestamp — convert µs → ROS2 Time
+            // Optional strobe timestamp (IMX296 upgrade); else downstream uses now()
             msg.header.stamp = rclcpp::Time(
                 static_cast<int64_t>(timestamp_us * 1000ULL));  // ns
         } else {
@@ -588,10 +589,7 @@ void VisionNode::processFrame(const uint8_t* y_plane, int width, int height,
         break;  // only the first detection of the target ID is used
     }
 
-    // TODO: add optical flow computation here for Filter 2 velocity measurement
-    // GHOST_V10.md §Filter 2: optical flow provides velocity measurement when tag
-    // is partially occluded. Lucas-Kanade sparse optical flow on Y plane, projected
-    // to NED velocity using K_decimated and ESKF-estimated range.
+    // TODO: optical flow — GHOST_V12 §Vision Pipeline
 
     if (!published_any) {
         RCLCPP_DEBUG(get_logger(), "No tag %d detected in this frame", target_tag_id_);
