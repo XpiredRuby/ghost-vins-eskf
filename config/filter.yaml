@@ -1,6 +1,6 @@
 # ── config/filter.yaml ─────────────────────────────────────────────────────────
 # Tuning parameters for both GNC filters
-# Source: GHOST_V10.md §GNC Mathematics, §IMU Driver, §NIS-Gated CI Pipeline
+# Source: GHOST_V12_USB_WEBCAM.md §GNC Mathematics (see GHOST_V10.md for legacy detail)
 #
 # Values derived from spec are noted with their source.
 # Values marked "# TUNE" must be set after Allan Variance and RC car characterization runs.

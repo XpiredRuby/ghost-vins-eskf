@@ -1,6 +1,7 @@
 # ── config/imu.yaml ────────────────────────────────────────────────────────────
 # IMU hardware parameters for GHOST camera platform (static tripod)
-# Source: GHOST_V10.md §IMU Driver, ICM-42688-P datasheet DS-000347
+# Source: GHOST_V12_USB_WEBCAM.md §IMU Driver; ICM-42688-P datasheet DS-000347
+# Legacy IMU detail: GHOST_V10.md §IMU Driver
 #
 # IMPORTANT: All noise values must be confirmed from a 4-hour Allan Variance run
 # before Phase 3. Values marked "# MEASURE" are datasheet-typical placeholders only.
@@ -30,10 +31,11 @@ icm42688p:
     full_scale_g:                16     # ±16 g configured for RC car floor scenario
 
   timestamp:
-    # Strobe ISR (not this IMU's DRDY) provides camera-IMU alignment
-    # See camera.yaml for strobe_gpio configuration
+    # V12 baseline: camera-IMU alignment via measured vision latency + ESKF OOSM rollback
+    # (see config/camera.yaml timestamp.oosm_rollback_enabled)
+    # Optional future work: IMX296 strobe GPIO — camera.yaml strobe_enabled: true
     clock_source:     CLOCK_MONOTONIC   # latched at DRDY interrupt edge
-    max_jitter_us:    50                # GHOST_V10.md: "PREEMPT_RT < 50μs" (FMEA, Phase 1 exit)
+    max_jitter_us:    50                # GHOST_V12: PREEMPT_RT < 50 μs (FMEA, Phase 1 exit)
 
 # ── Watchdog IMU: MPU-6050 ───────────────────────────────────────────────────
 mpu6050:

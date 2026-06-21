@@ -1,88 +1,98 @@
 # ── config/camera.yaml ─────────────────────────────────────────────────────────
-# IMX296 global shutter camera parameters
-# Source: GHOST_V10.md §Vision Pipeline, §Full System Architecture
+# USB UVC webcam parameters (V12 baseline)
+# Source: GHOST_V12_USB_WEBCAM.md §Vision Pipeline, §Hardware
 #
-# Intrinsic parameters are PLACEHOLDERS — they must be replaced with values
-# from a physical camera calibration run (Phase 2 exit: reprojection error < 0.5px).
+# Intrinsic parameters are PLACEHOLDERS — replace with values from a physical
+# calibration run (Phase 2 exit: reprojection error < 0.5 px).
 # Any intrinsic value below marked "# CALIBRATE" is NOT a real measurement.
 
 sensor:
-  model:      IMX296_global_shutter
-  interface:  CSI
-  # Native full-frame resolution (GHOST_V10.md: "IMX296 Global Shutter — 1456×1088 native")
-  width_px:   1456
-  height_px:  1088
-  # Exposure bounded to prevent motion blur on moving RC car
-  # GHOST_V10.md §Vision Pipeline: "Exposure: < 3ms to prevent motion blur"
-  max_exposure_ms: 3.0
-  # Gain is increased to compensate for short exposure on dim scenes
+  model:      USB_UVC_webcam
+  interface:  UVC                    # V4L2 userspace capture
+  v4l2_device: /dev/video0          # default UVC node — verify with v4l2-ctl --list-devices
+  # Baseline capture resolution (GHOST_V12_USB_WEBCAM.md: "640×480 @ 30 fps baseline")
+  width_px:   640
+  height_px:  480
+  pixel_format: MJPEG               # prefer MJPEG for USB bandwidth; YUYV also supported
+  target_fps: 30
+  # Rolling-shutter UVC: exposure as short as practicable; RC car speed limited (VV-26)
+  max_exposure_ms: 10.0
   auto_gain: true
 
 decimation:
-  # GHOST_V10.md: "Full frame → decimate ÷2 → 728×544 (always)"
-  factor:   2
-  width_px:  728
-  height_px: 544
-  # K_decimated = K_intrinsic / 2  (fx, fy, cx, cy all divided by 2)
-  # GHOST_V10.md: "K_decimated = K_intrinsic / 2"
-  # Do NOT use K_intrinsic directly on the decimated frame — depth will be reported at 2× actual.
-  # K_decimated is computed at runtime by dividing intrinsics below by the decimation factor.
+  # Optional downscale if capturing above processing budget (e.g. 1280×720 native)
+  # factor: 1 → no decimation; K_scaled = K_intrinsic at capture resolution
+  factor:   1
+  width_px:  640                      # must match effective processing resolution
+  height_px: 480
+  # K_scaled = K_intrinsic / factor (fx, fy, cx, cy all divided by factor when factor > 1)
+  # Do NOT use full-resolution K on a decimated frame — depth will be wrong.
 
 timestamp:
-  # Hardware strobe sync — eliminates V4L2 userspace timestamp error of 15–40ms
-  # GHOST_V10.md: "IMX296 Strobe pin → GPIO22 ISR → CLOCK_MONOTONIC at shutter-open"
-  # GHOST_V10.md FMEA: "V4L2 timestamps at userspace buffer arrival — 15–40ms late, variable"
-  strobe_gpio:    22               # GPIO22 ISR latches CLOCK_MONOTONIC at shutter-open
-  clock_source:   CLOCK_MONOTONIC  # same timebase as ICM-42688-P DRDY ISR
-  max_jitter_us:  50               # GHOST_V10.md: "< 50μs jitter" — verified in Phase 1
+  # V12 baseline: V4L2 buffer timestamp + ESKF OOSM rollback (measured latency)
+  # GHOST_V12_USB_WEBCAM.md: "measure pipeline latency in Phase 2; do NOT assume"
+  source:              v4l2_buffer_timestamp
+  oosm_rollback_enabled: true
+  pipeline_latency_ms: null           # MEASURE in Phase 2 — feeds OOSM buffer sizing
+  clock_source:        CLOCK_MONOTONIC  # same timebase as ICM-42688-P DRDY ISR
+
+  # Optional future work — IMX296 global shutter hardware sync (Phase 5, not baseline)
+  # GHOST_V12_USB_WEBCAM.md §Optional Hardware Upgrade; legacy detail in GHOST_V10.md
+  strobe_enabled:  false
+  strobe_gpio:     22                 # GPIO22 ISR — only when strobe_enabled: true
 
 # ── Camera intrinsics ─────────────────────────────────────────────────────────
 # ALL values below are PLACEHOLDERS. Replace with output from camera calibration
 # (e.g. ROS2 camera_calibration package or OpenCV calibrateCamera).
-# Phase 2 exit criterion: reprojection error < 0.5px (GHOST_V10.md §Phase 2)
+# Calibrate at the resolution used for AprilTag detection (640×480 baseline).
 intrinsics:
-  # Full-frame (1456×1088) intrinsics — calibrate at native resolution
-  fx: 700.0    # CALIBRATE — focal length x [pixels]
-  fy: 700.0    # CALIBRATE — focal length y [pixels]
-  cx: 364.0    # CALIBRATE — principal point x [pixels]
-  cy: 272.0    # CALIBRATE — principal point y [pixels]
+  fx: 500.0    # CALIBRATE — focal length x [pixels] at capture resolution
+  fy: 500.0    # CALIBRATE — focal length y [pixels]
+  cx: 320.0    # CALIBRATE — principal point x [pixels]
+  cy: 240.0    # CALIBRATE — principal point y [pixels]
 
   distortion:
-    # Radial + tangential distortion coefficients (OpenCV model)
     k1: 0.0  # CALIBRATE
     k2: 0.0  # CALIBRATE
     p1: 0.0  # CALIBRATE
     p2: 0.0  # CALIBRATE
 
 # ── ROI (Region of Interest) — Tier 2 detection ──────────────────────────────
-# GHOST_V10.md: "Tier 2: crop 300×300 ROI at predicted pixel"
-# ROI projection MUST use K_decimated (not K_intrinsic) and subtract crop origin from cx, cy
+# GHOST_V12_USB_WEBCAM.md: "Tier 2: 300×300 ROI at predicted pixel"
+# ROI projection MUST use K_scaled (not unscaled K) and subtract crop origin from cx, cy
 roi:
   width_px:   300
   height_px:  300
-  # GHOST_V10.md: "ROI offset: roi.x -= crop_origin.x from cx, cy before PnP"
-  # Projection function receives K_decimated with crop origin subtracted — never raw K_intrinsic
 
 # ── AprilTag ──────────────────────────────────────────────────────────────────
 apriltag:
-  family:          36h11        # GHOST_V10.md: "AprilTag 36h11 tag0, 10cm×10cm"
+  family:          36h11
   tag_id:          0
-  tag_size_m:      0.10         # 10 cm physical side length — GHOST_V10.md §Hardware
+  tag_size_m:      0.10         # 10 cm physical side length
 
-  # Operating envelope (GHOST_V10.md §Vision Pipeline)
-  # All demos constrained to these bounds — not assumptions
   operating_envelope:
-    range_min_m:         0.5    # closer than this: detection unreliable
-    range_max_m:         3.0    # beyond this: tag subtends < required pixels
-    max_oblique_angle_deg: 45   # oblique detection beyond 45° unreliable
-    min_illumination_lux:  50   # minimum scene illumination
+    range_min_m:         0.5
+    range_max_m:         3.0
+    max_oblique_angle_deg: 45
+    min_illumination_lux:  50
 
-  # Detection rate targets (GHOST_V10.md §Vision Pipeline)
-  target_fps_decimated_frame: 25   # ≥ 25fps on full decimated 728×544 frame
-  target_fps_roi_frame:       45   # ≥ 45fps on 300×300 ROI crop
+  # Detection rate targets (GHOST_V12_USB_WEBCAM.md §Vision Pipeline)
+  target_fps_full_frame: 20    # ≥ 20 fps on 640×480 UVC baseline (Pi 4B)
+  target_fps_roi_frame:  30    # ≥ 30 fps on 300×300 ROI crop
 
 # ── Optical flow ──────────────────────────────────────────────────────────────
 optical_flow:
-  # GHOST_V10.md: "LK optical flow between detections"
   method:  lucas_kanade
   enabled: true
+
+# ── Optional IMX296 CSI upgrade profile (future work — not loaded by default) ─
+# Uncomment and swap sensor block above when pursuing Phase 5 global-shutter upgrade.
+# See GHOST_V10.md §Vision Pipeline for IMX296-specific parameters.
+# imx296_upgrade:
+#   model: IMX296_global_shutter
+#   interface: CSI
+#   width_px: 1456
+#   height_px: 1088
+#   decimation_factor: 2
+#   strobe_enabled: true
+#   strobe_gpio: 22

@@ -61,8 +61,9 @@ target_link_libraries(ghost_core PUBLIC
 )
 
 # ── vision_node — standalone executable (optional, Pi-only) ───────────────────
-# Requires libcamera (camera driver) and apriltag (tag detection).
-# Install on Raspberry Pi OS:  sudo apt install libcamera-dev libapriltag-dev
+# V12 baseline target: USB UVC via V4L2. Current source uses libcamera (IMX296 CSI
+# optional upgrade path). Requires apriltag. Install on Pi: libapriltag-dev; for
+# libcamera path: libcamera-dev.
 #
 # vision_node.cpp is NOT added to ghost_core — it has hard ROS2 and hardware
 # dependencies that must not infect the portable GNC library.

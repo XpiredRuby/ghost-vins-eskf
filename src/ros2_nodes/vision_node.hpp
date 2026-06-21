@@ -21,45 +21,40 @@ namespace ghost {
 // ─────────────────────────────────────────────────────────────────────────────
 // VisionNode
 //
-// ROS2 Humble node that captures frames from the IMX296 global shutter camera
-// via the direct libcamera API, detects AprilTag 36h11 tags, estimates 3D pose,
-// and publishes detections for the target tracker node.
+// ROS2 Humble node: AprilTag 36h11 detection and 3D pose estimation.
 //
-// GHOST_V10.md §Vision Pipeline:
-//   Capture at 728×544 (decimated from 1456×1088 native resolution).
-//   Hardware timestamp via GPIO22 strobe ISR — eliminates V4L2 15–40ms latency.
-//   Two-tier detection: full decimated frame (Tier 1) or 300×300 ROI (Tier 2).
-//   K_decimated = K_intrinsic / 2  (ALL four intrinsic params divided by 2).
+// GHOST_V12_USB_WEBCAM.md §Vision Pipeline — baseline target:
+//   USB UVC webcam via V4L2 (/dev/video0), 640×480 MJPEG @ ~30 fps.
+//   Camera–IMU sync: V4L2 buffer timestamp + ESKF OOSM rollback (measured latency).
+//
+// Current implementation note:
+//   This file retains the libcamera + optional GPIO strobe code path from the
+//   legacy IMX296 CSI design (GHOST_V10.md). That path is optional Phase 5
+//   future work — not required for V12 USB UVC baseline bring-up.
 //
 // Publication layout:
 //   /ghost/vision/apriltag_pose  geometry_msgs/msg/PoseStamped
-//       Tag pose in camera frame, hardware-timestamped at shutter-open.
-//   /ghost/vision/debug_image    sensor_msgs/msg/Image
-//       Annotated mono8 frame at 5 Hz — for debugging only, not consumed by tracker.
+//   /ghost/vision/debug_image    sensor_msgs/msg/Image (5 Hz debug only)
 //
 // Refuses to start if camera intrinsics in config/camera.yaml are still 0.0
 // (uncalibrated). Run camera calibration first (Phase 2 exit criterion).
 //
 // Parameters (from config/camera.yaml via ROS2 parameter server):
-//   decimation.width_px                  int    728
-//   decimation.height_px                 int    544
-//   decimation.factor                    int    2
-//   roi.width_px                         int    300
-//   roi.height_px                        int    300
-//   timestamp.strobe_gpio                int    22
-//   sensor.max_exposure_ms               double 3.0
-//   intrinsics.fx, fy, cx, cy           double 0.0   — MUST be calibrated
-//   intrinsics.distortion.k1,k2,p1,p2   double 0.0   — MUST be calibrated
-//   apriltag.tag_size_m                  double 0.10
-//   apriltag.tag_id                      int    0
+//   decimation.width_px, decimation.height_px, decimation.factor
+//   roi.width_px, roi.height_px
+//   timestamp.strobe_gpio, timestamp.strobe_enabled  (strobe: optional upgrade only)
+//   sensor.max_exposure_ms
+//   intrinsics.fx, fy, cx, cy — MUST be calibrated at capture resolution
+//   apriltag.tag_size_m, apriltag.tag_id
 // ─────────────────────────────────────────────────────────────────────────────
 class VisionNode : public rclcpp::Node {
 public:
     explicit VisionNode(const rclcpp::NodeOptions& options = rclcpp::NodeOptions{});
     ~VisionNode() override;
 
-    // Open libcamera, configure stream, allocate buffers, arm strobe ISR,
-    // and start capture loop. Throws std::runtime_error on hardware failure.
+    // Open camera backend, configure stream, allocate buffers.
+    // Optional: arm GPIO strobe ISR when timestamp.strobe_enabled (IMX296 Phase 5 upgrade).
+    // Throws std::runtime_error on hardware failure.
     void initialize();
 
 private:
@@ -77,9 +72,9 @@ private:
     void processFrame(const uint8_t* y_plane, int width, int height,
                       uint64_t timestamp_us);
 
-    // ── GPIO22 strobe thread — latches CLOCK_MONOTONIC at shutter-open ───────
-    // GHOST_V10.md: "V4L2 timestamps at userspace buffer arrival — 15–40ms late"
-    // Fix: IMX296 Strobe → GPIO22 ISR latches CLOCK_MONOTONIC at shutter-open.
+    // ── Optional GPIO strobe thread (IMX296 Phase 5 upgrade only) ───────────
+    // GHOST_V12: baseline uses V4L2 timestamp + ESKF OOSM — strobe not required.
+    // GHOST_V10.md (legacy): IMX296 Strobe → GPIO22 ISR at shutter-open.
     void strobeThread();
 
     // ── Debug image timer — 5 Hz ──────────────────────────────────────────────
@@ -125,8 +120,8 @@ private:
     // ── Debug timer ───────────────────────────────────────────────────────────
     rclcpp::TimerBase::SharedPtr debug_timer_;
 
-    // ── Calibrated intrinsics (K_decimated = K_intrinsic / decimation_factor) ─
-    // GHOST_V10.md: "K_decimated = K/2 — using K_intrinsic reports 2× depth"
+    // ── Calibrated intrinsics (K_scaled = K_intrinsic / decimation_factor) ───
+    // GHOST_V12: scale K for capture/decimation resolution — wrong K → wrong depth
     double fx_dec_{0.0}, fy_dec_{0.0};
     double cx_dec_{0.0}, cy_dec_{0.0};
 

@@ -1,5 +1,11 @@
 # GHOST — GPS-Denied Hardware Occlusion-Survivable Tracker
 
+> **Legacy document (V10).** This spec describes the original CSI/IMX296 global-shutter camera
+> architecture. The project has pivoted to a USB UVC webcam baseline.
+> **Current spec:** [GHOST_V12_USB_WEBCAM.md](GHOST_V12_USB_WEBCAM.md)
+> IMX296, global shutter, and GPIO22 strobe timing content here is retained as optional
+> future-work reference only — not required for baseline bring-up.
+
 **Owner:** Vinayak Manoj Nair
 **University:** Texas A&M University — B.S. Aerospace Engineering (Dec 2026)
 **Target Roles:** GNC Engineer · Autonomy Engineer · Navigation Engineer
