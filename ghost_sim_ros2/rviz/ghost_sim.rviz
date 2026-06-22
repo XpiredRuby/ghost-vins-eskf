@@ -1,0 +1,67 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 0.5
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Name: Floor Grid
+      Plane: XY
+      Reference Frame: ghost_floor
+      Value: true
+    - Class: rviz_default_plugins/Marker
+      Enabled: true
+      Marker Topic: /ghost/sim/target_marker
+      Name: Sim Truth Marker
+      Namespaces:
+        ghost_truth: true
+      Queue Size: 10
+      Value: true
+    - Class: rviz_default_plugins/Marker
+      Enabled: true
+      Marker Topic: /ghost/tracker/target_marker
+      Name: Tracker Marker
+      Namespaces:
+        ghost_tracker: true
+      Queue Size: 10
+      Value: true
+    - Class: rviz_default_plugins/Odometry
+      Color: 25; 255; 0
+      Enabled: true
+      Keep: 200
+      Name: Tracker Odometry
+      Position Tolerance: 0.1
+      Shape: Arrow
+      Topic:
+        Value: /ghost/tracker/target_odom
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 18; 18; 18
+    Fixed Frame: ghost_floor
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 5
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0
+      Name: Current View
+      Pitch: 1.2
+      Target Frame: ghost_floor
+      Yaw: 0.75
+Window Geometry:
+  Height: 900
+  Width: 1200

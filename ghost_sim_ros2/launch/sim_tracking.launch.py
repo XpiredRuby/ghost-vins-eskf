@@ -58,5 +58,12 @@ def generate_launch_description():
                 output="screen",
                 parameters=[{"out": log_out}],
             ),
+            Node(
+                package="ghost_sim_ros2",
+                executable="gazebo_bridge",
+                name="ghost_gazebo_bridge",
+                output="screen",
+                parameters=[],
+            ),
         ]
     )

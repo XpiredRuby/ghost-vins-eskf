@@ -12,6 +12,8 @@ setup(
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
         (f"share/{package_name}", ["package.xml"]),
         (f"share/{package_name}/launch", glob("launch/*.launch.py")),
+        (f"share/{package_name}/rviz", glob("rviz/*.rviz")),
+        (f"share/{package_name}/analysis", glob("analysis/*.py")),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
@@ -24,6 +26,7 @@ setup(
             "synthetic_measurements = ghost_sim_ros2.synthetic_measurements:main",
             "cv_tracker = ghost_sim_ros2.cv_tracker:main",
             "evidence_logger = ghost_sim_ros2.evidence_logger:main",
+            "gazebo_bridge = ghost_sim_ros2.gazebo_bridge:main",
         ],
     },
 )

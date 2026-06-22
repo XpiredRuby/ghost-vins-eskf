@@ -115,7 +115,7 @@ class CvTracker(Node):
         S = H @ self.P @ H.T + R
 
         try:
-            nis = float(innovation.T @ np.linalg.inv(S) @ innovation)
+            nis = float((innovation.T @ np.linalg.inv(S) @ innovation)[0, 0])
         except np.linalg.LinAlgError:
             self.get_logger().warn("Skipping update: singular innovation covariance")
             return
@@ -203,9 +203,12 @@ def main():
     node = CvTracker()
     try:
         rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":
