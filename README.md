@@ -1,15 +1,72 @@
 # GHOST — GPS-Denied Hardware Occlusion-Survivable Tracker
 
-> **Current working demo:** `tools/ghost_live_apriltag.py` runs the USB webcam + AprilTag live browser overlay at `http://<pi-ip>:8081`.
-> **Current spec:** This project has pivoted to **GHOST V12 - USB Webcam Baseline**.  
-> The active architecture is documented in [`GHOST_V12_USB_WEBCAM.md`](./GHOST_V12_USB_WEBCAM.md).  
-> `GHOST_V10.md` is retained as a legacy reference. The IMX296/global-shutter camera path is now optional future work, not the baseline.
-> A dual-filter GPS-denied target tracker running on a Raspberry Pi 4B: a 9-state attitude ESKF stabilizes the camera platform frame while a CV/CTRV kinematic filter tracks an RC car and coasts through occlusions using its own velocity estimate.
+> **Current baseline:** GHOST V12 — USB webcam + ROS2 synthetic tracking pipeline.  
+> **Current working demo:** no-hardware ROS2 tracking simulation with CSV logging, tracker sweep evidence, and Gazebo/PX4-facing bridge topics.  
+> **Camera demo:** `tools/ghost_live_apriltag_pose_calibrated.py` runs the USB webcam + calibrated AprilTag live browser overlay at `http://<pi-ip>:8081`.  
+> **Spec:** [`GHOST_V12_USB_WEBCAM.md`](./GHOST_V12_USB_WEBCAM.md). `GHOST_V10.md` is retained as legacy reference.
 
 **Author:** Vinayak Manoj Nair — Texas A&M University, B.S. Aerospace Engineering (Dec 2026)  
-**Repo:** `ghost-vins-eskf` | **Status:** 20 engineering flaws documented and fixed — code complete
+**Repo:** `ghost-vins-eskf`  
+**Status:** V12 no-hardware ROS2 demo complete; camera validation and IMU watchdog are next hardware-bound phases.
 
----
+## Current Evidence
+
+### ROS2 Synthetic Tracking
+
+![GHOST tracking evidence](analysis/ghost_tracking_evidence.png)
+
+### Tracker Sweep
+
+![Tracker sweep summary](analysis/tracker_sweep_summary.png)
+
+## What Works Now
+
+- USB webcam bring-up and browser live stream
+- AprilTag detection and calibrated pose viewer
+- Camera calibration workflow
+- ROS2 Jazzy synthetic target measurement publisher
+- 2D constant-velocity Kalman tracker
+- Occlusion/dropout coasting simulation
+- CSV evidence logging
+- Offline tracker parameter sweep
+- Gazebo/PX4-facing bridge topics:
+  - `/ghost/gazebo/target_pose`
+  - `/ghost/gazebo/target_twist`
+  - `/ghost/px4/target_setpoint`
+
+## No-Hardware Demo
+
+The current software-only pipeline runs without camera, AprilTag print, IMU, Gazebo, or PX4 hardware:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+cd ~/ghost_ws
+colcon build --packages-select ghost_sim_ros2
+source install/setup.bash
+ros2 launch ghost_sim_ros2 sim_tracking.launch.py
+```
+
+Expected ROS2 topics:
+
+```text
+/ghost/vision/target_pose
+/ghost/tracker/target_odom
+/ghost/gazebo/target_pose
+/ghost/gazebo/target_twist
+/ghost/px4/target_setpoint
+/ghost/sim/target_truth
+```
+
+Full runbook: [`docs/NO_HARDWARE_DEMO.md`](docs/NO_HARDWARE_DEMO.md)
+
+## Hardware Next
+
+The remaining project work is hardware validation:
+
+1. Print the 10 cm `tag36h11` AprilTag and validate real range/pose.
+2. Publish real webcam AprilTag measurements into ROS2.
+3. Wire and characterize the MPU-6050 watchdog.
+4. Add final real-world validation plots and demo video.
 
 ## Architecture
 
