@@ -15,16 +15,16 @@ class CvTracker(Node):
         super().__init__("ghost_cv_tracker")
 
         self.declare_parameter("frame_id", "ghost_floor")
-        self.declare_parameter("process_accel_std_mps2", 0.8)
-        self.declare_parameter("default_measurement_std_m", 0.05)
+        self.declare_parameter("process_accel_std_mps2", 1.4)
+        self.declare_parameter("default_measurement_std_m", 0.08)
         self.declare_parameter("stale_timeout_s", 0.5)
-        self.declare_parameter("gate_chi2_95_2d", 5.991)
+        self.declare_parameter("gate_chi2_2d", 9.210)
 
         self.frame_id = str(self.get_parameter("frame_id").value)
         self.process_accel_std = float(self.get_parameter("process_accel_std_mps2").value)
         self.default_measurement_std = float(self.get_parameter("default_measurement_std_m").value)
         self.stale_timeout_s = float(self.get_parameter("stale_timeout_s").value)
-        self.gate_chi2 = float(self.get_parameter("gate_chi2_95_2d").value)
+        self.gate_chi2 = float(self.get_parameter("gate_chi2_2d").value)
 
         self.x = np.zeros((4, 1), dtype=float)  # [x, y, vx, vy]
         self.P = np.eye(4, dtype=float) * 1e3
@@ -33,6 +33,8 @@ class CvTracker(Node):
         self.last_meas_time = None
         self.last_nis = math.nan
         self.last_update_accepted = False
+        self.rejected_count = 0
+        self.last_reject_log_time = 0.0
 
         self.sub = self.create_subscription(
             PoseWithCovarianceStamped,
@@ -121,7 +123,14 @@ class CvTracker(Node):
         self.last_nis = nis
         if nis > self.gate_chi2:
             self.last_update_accepted = False
-            self.get_logger().warn(f"Rejected measurement by NIS gate: {nis:.2f}")
+            self.rejected_count += 1
+            now = self.now_sec()
+            if now - self.last_reject_log_time > 5.0:
+                self.get_logger().warn(
+                    f"Rejected measurement by NIS gate: {nis:.2f} "
+                    f"(total rejected={self.rejected_count})"
+                )
+                self.last_reject_log_time = now
             return
 
         K = self.P @ H.T @ np.linalg.inv(S)
