@@ -35,6 +35,12 @@ Optional:
 ros2 launch ghost_sim_ros2 sim_tracking.launch.py noise_std_m:=0.04 dropout_duration_s:=5.0
 ```
 
+Strict validation mode with visible NIS gate rejections:
+
+```bash
+ros2 launch ghost_sim_ros2 sim_tracking.launch.py warn_on_reject:=true gate_chi2_2d:=9.210
+```
+
 This starts:
 
 - `ghost_synthetic_measurements`

@@ -15,16 +15,18 @@ class CvTracker(Node):
         super().__init__("ghost_cv_tracker")
 
         self.declare_parameter("frame_id", "ghost_floor")
-        self.declare_parameter("process_accel_std_mps2", 1.4)
-        self.declare_parameter("default_measurement_std_m", 0.08)
+        self.declare_parameter("process_accel_std_mps2", 2.0)
+        self.declare_parameter("default_measurement_std_m", 0.10)
         self.declare_parameter("stale_timeout_s", 0.5)
-        self.declare_parameter("gate_chi2_2d", 9.210)
+        self.declare_parameter("gate_chi2_2d", 16.0)
+        self.declare_parameter("warn_on_reject", False)
 
         self.frame_id = str(self.get_parameter("frame_id").value)
         self.process_accel_std = float(self.get_parameter("process_accel_std_mps2").value)
         self.default_measurement_std = float(self.get_parameter("default_measurement_std_m").value)
         self.stale_timeout_s = float(self.get_parameter("stale_timeout_s").value)
         self.gate_chi2 = float(self.get_parameter("gate_chi2_2d").value)
+        self.warn_on_reject = bool(self.get_parameter("warn_on_reject").value)
 
         self.x = np.zeros((4, 1), dtype=float)  # [x, y, vx, vy]
         self.P = np.eye(4, dtype=float) * 1e3
@@ -126,10 +128,14 @@ class CvTracker(Node):
             self.rejected_count += 1
             now = self.now_sec()
             if now - self.last_reject_log_time > 5.0:
-                self.get_logger().warn(
+                msg = (
                     f"Rejected measurement by NIS gate: {nis:.2f} "
                     f"(total rejected={self.rejected_count})"
                 )
+                if self.warn_on_reject:
+                    self.get_logger().warn(msg)
+                else:
+                    self.get_logger().debug(msg)
                 self.last_reject_log_time = now
             return
 

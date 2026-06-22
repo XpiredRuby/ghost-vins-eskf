@@ -12,6 +12,7 @@ def generate_launch_description():
     process_accel_std_mps2 = LaunchConfiguration("process_accel_std_mps2")
     default_measurement_std_m = LaunchConfiguration("default_measurement_std_m")
     gate_chi2_2d = LaunchConfiguration("gate_chi2_2d")
+    warn_on_reject = LaunchConfiguration("warn_on_reject")
     log_out = LaunchConfiguration("log_out")
 
     return LaunchDescription(
@@ -20,9 +21,10 @@ def generate_launch_description():
             DeclareLaunchArgument("noise_std_m", default_value="0.025"),
             DeclareLaunchArgument("dropout_start_s", default_value="12.0"),
             DeclareLaunchArgument("dropout_duration_s", default_value="3.0"),
-            DeclareLaunchArgument("process_accel_std_mps2", default_value="1.4"),
-            DeclareLaunchArgument("default_measurement_std_m", default_value="0.08"),
-            DeclareLaunchArgument("gate_chi2_2d", default_value="9.210"),
+            DeclareLaunchArgument("process_accel_std_mps2", default_value="2.0"),
+            DeclareLaunchArgument("default_measurement_std_m", default_value="0.10"),
+            DeclareLaunchArgument("gate_chi2_2d", default_value="16.0"),
+            DeclareLaunchArgument("warn_on_reject", default_value="false"),
             DeclareLaunchArgument("log_out", default_value="~/ghost_logs/sim_tracking.csv"),
             Node(
                 package="ghost_sim_ros2",
@@ -48,6 +50,7 @@ def generate_launch_description():
                         "process_accel_std_mps2": process_accel_std_mps2,
                         "default_measurement_std_m": default_measurement_std_m,
                         "gate_chi2_2d": gate_chi2_2d,
+                        "warn_on_reject": warn_on_reject,
                     }
                 ],
             ),
