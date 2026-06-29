@@ -7,7 +7,7 @@
 
 **Author:** Vinayak Manoj Nair — Texas A&M University, B.S. Aerospace Engineering (Dec 2026)  
 **Repo:** `ghost-vins-eskf`  
-**Status:** V12 no-hardware ROS2 demo complete; camera validation and IMU watchdog are next hardware-bound phases.
+**Status:** V12 no-hardware ROS2 demo complete; MPU-6050 ROS2 watchdog validated on Raspberry Pi; camera validation remains.
 
 ## Current Evidence
 
@@ -29,6 +29,7 @@
 - Occlusion/dropout coasting simulation
 - CSV evidence logging
 - Offline tracker parameter sweep
+- MPU-6050 I2C watchdog ROS2 node with real bump-detection evidence
 - Gazebo/PX4-facing bridge topics:
   - `/ghost/gazebo/target_pose`
   - `/ghost/gazebo/target_twist`
@@ -65,8 +66,7 @@ The remaining project work is hardware validation:
 
 1. Print the 10 cm `tag36h11` AprilTag and validate real range/pose.
 2. Publish real webcam AprilTag measurements into ROS2.
-3. Wire and characterize the MPU-6050 watchdog.
-4. Add final real-world validation plots and demo video.
+3. Add final real-world validation plots and demo video.
 
 ## Architecture
 
@@ -286,3 +286,5 @@ Twenty implementation flaws were identified and corrected during development:
 | Underground navigation | Shield AI Nova 2 — vision-only target tracking in tunnels |
 | Ship deck landing | Shield AI V-BAT — kinematic target model for moving deck |
 | EW-jammed environments | GPS spoofed/denied — vision + kinematic fallback |
+
+
