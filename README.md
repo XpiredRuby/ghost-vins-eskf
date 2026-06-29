@@ -60,6 +60,10 @@ Expected ROS2 topics:
 
 Full runbook: [`docs/NO_HARDWARE_DEMO.md`](docs/NO_HARDWARE_DEMO.md)
 
+Integrated hardware/software demo: [ghost_sim_ros2/docs/FULL_INTEGRATED_DEMO.md](ghost_sim_ros2/docs/FULL_INTEGRATED_DEMO.md)
+
+    ros2 launch ghost_sim_ros2 ghost_full_demo.launch.py
+
 ## Hardware Next
 
 The remaining project work is hardware validation:
@@ -286,5 +290,3 @@ Twenty implementation flaws were identified and corrected during development:
 | Underground navigation | Shield AI Nova 2 — vision-only target tracking in tunnels |
 | Ship deck landing | Shield AI V-BAT — kinematic target model for moving deck |
 | EW-jammed environments | GPS spoofed/denied — vision + kinematic fallback |
-
-
