@@ -27,6 +27,7 @@ setup(
             "cv_tracker = ghost_sim_ros2.cv_tracker:main",
             "mh_tracker = ghost_sim_ros2.mh_tracker:main",
             "mh_monitor = ghost_sim_ros2.mh_monitor:main",
+            "mh_web_dashboard = ghost_sim_ros2.mh_web_dashboard:main",
             "evidence_logger = ghost_sim_ros2.evidence_logger:main",
             "gazebo_bridge = ghost_sim_ros2.gazebo_bridge:main",
             "imu_watchdog = ghost_sim_ros2.imu_watchdog:main",
