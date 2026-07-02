@@ -1,50 +1,90 @@
-# GHOST — GPS-Denied Hardware Occlusion-Survivable Tracker
+# GHOST — Vision-Only AprilTag Occlusion Tracking Prototype
 
-> **Current baseline:** GHOST-MH live prototype — USB webcam + calibrated AprilTag pose + ROS2 Jazzy + bounded multi-hypothesis occlusion tracker.  
-> **Current working demo:** one-command background launcher starts camera evidence, GHOST-MH tracker, terminal monitor, and browser operator console.  
-> **Operator console:** `http://<pi-ip>:8090` shows live camera, top-down probability map, ranked future hypotheses, covariance ellipses, latency indicators, and tracker health.  
-> **Camera-only view:** `http://<pi-ip>:8081` shows the calibrated AprilTag detector overlay.  
-> **Critical review roadmap:** [`docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md`](docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md).
+**Current implemented system:** V1 — Vision-Only Heuristic Hypothesis Bank for AprilTag Occlusion Tracking.
 
-**Author:** Vinayak Manoj Nair — Texas A&M University, B.S. Aerospace Engineering (Dec 2026)  
-**Repo:** `ghost-vins-eskf`  
-**Status:** Live GHOST-MH hardware demo working on Raspberry Pi. Next milestone is replay, baseline comparison, validation metrics, event timeline, and automatic report export.
+This repository currently contains a working ROS2 Jazzy hardware/software prototype that uses a USB webcam, calibrated AprilTag pose, and a heuristic bank of motion hypotheses to maintain bounded future paths during temporary visual occlusion.
 
-## Current Evidence
+The current live system is **not yet** a formal MHT, formal IMM, active VINS stack, or deployed strapdown IMU + ESKF fusion system. Those are planned roadmap stages and should not be treated as implemented V1 capabilities.
 
-### Live GHOST-MH Hardware Demo
+**Author:** Vinayak Manoj Nair — Texas A&M University, B.S. Aerospace Engineering  
+**Repository:** `ghost-vins-eskf`  
+**Current status:** V1 live vision-only prototype works; validation and estimator upgrades remain open.
 
-The current live system runs on the Raspberry Pi with a USB webcam and 10 cm AprilTag target. It publishes calibrated target pose into ROS2, runs the GHOST-MH probability tracker, and serves a combined browser operator console.
+---
 
-### ROS2 Synthetic Tracking
+## Roadmap and Scope
 
-![GHOST tracking evidence](analysis/ghost_tracking_evidence.png)
+| Version | Status | Scope |
+|---|---|---|
+| V1 | Current | Vision-only calibrated AprilTag occlusion tracker with a heuristic hypothesis bank |
+| V2 | Planned | Formal IMM estimator with likelihood-weighted mode probability updates |
+| V3 | Planned | Strapdown IMU + ESKF camera/platform stabilization and VINS-style fusion |
 
-### Tracker Sweep
+### V1 Current Scope
 
-![Tracker sweep summary](analysis/tracker_sweep_summary.png)
+V1 uses:
 
-## What Works Now
+- USB webcam or camera stream
+- Camera calibration
+- AprilTag pose measurement
+- ROS2 topic `/ghost/vision/target_pose`
+- Heuristic hypothesis bank for occlusion futures
+- Browser dashboard and terminal monitor
+- Trial recorder and generated reports
 
-- USB webcam bring-up and browser live stream
-- AprilTag detection and calibrated pose viewer
-- Camera calibration workflow
-- Real camera pose publisher into `/ghost/vision/target_pose`
-- GHOST-MH bounded multi-hypothesis tracker
-- Ranked probabilistic future paths during occlusion
-- Safe reset after max occlusion horizon instead of infinite hallucination
-- Combined browser operator console on port `8090`
-- Terminal monitor and background service-style launcher
-- ROS2 Jazzy synthetic target measurement publisher
-- 2D constant-velocity Kalman tracker baseline
-- Occlusion/dropout coasting simulation
-- CSV evidence logging
-- Offline tracker parameter sweep
-- MPU-6050 I2C watchdog ROS2 node with real bump-detection evidence
-- Gazebo/PX4-facing bridge topics:
-  - `/ghost/gazebo/target_pose`
-  - `/ghost/gazebo/target_twist`
-  - `/ghost/px4/target_setpoint`
+V1 does **not** currently claim:
+
+- active strapdown IMU fusion
+- active ESKF camera-platform stabilization
+- formal IMM mode mixing
+- formal MHT data association
+- ground-truth validated RMSE
+- tagless real-world target tracking
+
+---
+
+## Why the Repository Name Mentions VINS/ESKF
+
+The original architecture targets a GPS-denied vision-inertial tracking system. The repository name reflects that long-term direction. The current deployed software is intentionally smaller: a vision-only V1 prototype built first to prove the live camera → ROS2 → tracker → dashboard → logger pipeline before adding estimator complexity.
+
+This is deliberate sequencing, not a claim that VINS/ESKF is already complete.
+
+---
+
+## Current Live System
+
+```text
+USB webcam / camera
+        |
+        v
+calibrated AprilTag pose script
+        |
+        v
+/ghost/vision/target_pose
+        |
+        v
+ghost_sim_ros2.mh_tracker
+        |
+        +--> /ghost/tracker_mh/target_odom
+        +--> /ghost/tracker_mh/futures_json
+        +--> /ghost/tracker_mh/status
+        |
+        v
+trial recorder + dashboard + monitor
+```
+
+The current tracker maintains ranked heuristic futures such as:
+
+- stationary/hover
+- constant velocity
+- acceleration
+- braking
+- lateral motion
+- coordinated turn
+
+These are V1 heuristic hypotheses, not a validated formal IMM estimator yet.
+
+---
 
 ## Live Hardware Demo
 
@@ -72,153 +112,94 @@ Open the operator console from a browser on the same network:
 http://<pi-ip>:8090
 ```
 
-The camera-only feed remains available at:
+The camera-only feed is available at:
 
 ```text
 http://<pi-ip>:8081
 ```
 
-## No-Hardware Demo
+When using an SSH tunnel, use:
 
-The software-only pipeline runs without camera, AprilTag print, IMU, Gazebo, or PX4 hardware:
+```text
+http://127.0.0.1:8090
+http://127.0.0.1:8081
+```
+
+---
+
+## Build
 
 ```bash
 source /opt/ros/jazzy/setup.bash
 cd ~/ghost_ws
 colcon build --packages-select ghost_sim_ros2
 source install/setup.bash
-ros2 launch ghost_sim_ros2 sim_tracking.launch.py
 ```
-
-Expected ROS2 topics:
-
-```text
-/ghost/vision/target_pose
-/ghost/tracker/target_odom
-/ghost/gazebo/target_pose
-/ghost/gazebo/target_twist
-/ghost/px4/target_setpoint
-/ghost/sim/target_truth
-```
-
-Full runbook: [`docs/NO_HARDWARE_DEMO.md`](docs/NO_HARDWARE_DEMO.md)
-
-Integrated hardware/software demo: [ghost_sim_ros2/docs/FULL_INTEGRATED_DEMO.md](ghost_sim_ros2/docs/FULL_INTEGRATED_DEMO.md)
-
-```bash
-ros2 launch ghost_sim_ros2 ghost_full_demo.launch.py
-```
-
-## Critical Review / Next Research Milestone
-
-The strongest current criticism is not that the tracker fails. The current criticism is that a live demo is not yet enough evidence for a research-grade claim.
-
-The next milestone is documented here:
-
-[`docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md`](docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md)
-
-Priority upgrades:
-
-1. Trial recording and replay mode.
-2. Baseline comparison: last-seen hold vs constant velocity vs GHOST-MH.
-3. Ground-truth validation metrics: RMSE, 95th percentile error, top-1/top-3 occlusion coverage.
-4. Event timeline: visible, occluded, hypothesis split, reacquired, reset.
-5. Automatic Markdown/PDF demo report export.
-6. Probability heatmap and latency waterfall.
-7. Tagless tracking mode after AprilTag validation is complete.
-
-## Hardware Next
-
-The remaining hardware validation work is:
-
-1. Run repeated measured-grid AprilTag trials and compute pose RMSE.
-2. Record dynamic occlusion trials with known reappearance locations.
-3. Compare GHOST-MH against baseline trackers.
-4. Add final real-world validation plots and demo video.
-
-## Architecture
-
-```text
-┌─────────────────────────────────────────────────────────────────────┐
-│                     CAMERA PLATFORM (static tripod)                 │
-│                                                                     │
-│  [ICM-42688-P]──SPI 1000Hz + DRDY ISR──┐                           │
-│  [MPU-6050]────I2C  400Hz + DRDY ISR──┤                           │
-│  [IMX296 CSI]──728×544 decimated───────┤                           │
-│  [IMX296 Strobe]──GPIO22 HW timestamp──┘                           │
-│                            │                                        │
-│                    ┌───────▼────────┐                               │
-│                    │  Raspberry Pi  │                               │
-│                    │     4B 4GB     │                               │
-│                    └───────┬────────┘                               │
-└───────────────────────────┼─────────────────────────────────────────┘
-                            │
-         ┌──────────────────┼──────────────────┐
-         │                  │                  │
-         ▼                  ▼                  ▼
-  ┌─────────────┐   ┌──────────────┐   ┌──────────────┐
-  │  FILTER 1   │   │  FILTER 2    │   │   GUIDANCE   │
-  │  9-state    │   │  CV / CTRV   │   │   ProNav TPN │
-  │  ESKF       │──▶│  UKF         │──▶│  a_cmd (NED) │
-  │  1000 Hz    │   │  vision Hz   │   │              │
-  │             │   │ [px,py,v,    │   └──────┬───────┘
-  │ q_cam       │   │  psi,ψ̇]     │          │
-  │ b_a  b_g    │   │              │          │ UDP MAVLink
-  └─────────────┘   └──────────────┘          │ port 14540
-         ▲                  ▲                  ▼
-         │                  │        ┌──────────────────┐
-     IMU only          AprilTag      │  PX4 SITL +      │
-    (no camera)       + opt-flow     │  Gazebo Fortress  │
-                                     │  (laptop)        │
-                                     └──────────────────┘
-```
-
-**Target:** RC car or hand-moved target with 10 cm × 10 cm AprilTag 36h11 on a flat floor.  
-**Occlusion:** Target moves behind an object. GHOST-MH predicts bounded probabilistic futures and resets after the configured validity horizon.
 
 ---
 
-## Hardware
+## Current Evidence and Known Limitations
 
-| Component        | Part                                  | Role                              |
-|------------------|---------------------------------------|-----------------------------------|
-| Compute          | Raspberry Pi 4B 4GB                   | Runs both filters at full rate    |
-| Camera           | USB webcam / IMX296 Global Shutter    | AprilTag detection + pose source  |
-| Primary IMU      | ICM-42688-P SPI breakout              | Future 1000 Hz attitude ESKF input |
-| Watchdog IMU     | MPU-6050 I2C breakout                 | 100 ms disagreement fault flag    |
-| RC Car / target  | 1:20 scale or hand-moved tag board    | Tracked target                    |
-| AprilTag         | 36h11 tag0, 10 cm × 10 cm laminated   | Vision measurement source         |
-| Occlusion object | Shoebox / board / wall segment        | Occlusion test scenario           |
+### What works now
 
-**Budget target: ~$190 total.** No GPS. Optional future guidance closes over UDP MAVLink to PX4 SITL.
+- Camera live stream
+- Calibrated AprilTag detection
+- ROS2 target pose publishing
+- Vision-only heuristic occlusion tracker
+- Bounded future-path visualization
+- Browser dashboard
+- Terminal monitor
+- Trial recorder
+- Automatic trial logs/reports
+
+### Known limitations
+
+- Stationary hidden target behavior needs a dedicated stationary-hold gate.
+- Current trial metrics are self-consistency/reacquisition checks, not independent ground truth.
+- Existing stationary AprilTag logs show low-frequency colored pose noise, not white pixel noise.
+- A measured-grid validation set is still required before real RMSE claims.
+- The V1 heuristic bank must be compared against constant-velocity baselines over repeated nonlinear trials.
+- V2 IMM and V3 IMU/ESKF work must remain additive until validated.
 
 ---
 
-## The Two Filters
+## Validation Status
 
-### Filter 1 — 9-State Attitude ESKF (`src/attitude_filter/`)
+Current empirical stationary logs show that live AprilTag pose noise is dominated by low-frequency colored drift rather than independent white Gaussian pixel noise. Therefore:
 
-Runs at **1000 Hz**, driven by the ICM-42688-P IMU over SPI.
+- first-order pinhole covariance is useful as a reference only;
+- empirical covariance may include colored noise and setup drift;
+- CRLB calculations must be labeled as white-noise diagnostic bounds unless a colored-noise model is added;
+- IMM likelihoods should not be trusted on live data until measurement noise is characterized under controlled conditions.
 
-Estimates the camera platform's orientation as a quaternion (`q_cam`) plus accelerometer bias (`b_a`) and gyro bias (`b_g`). The output rotation matrix `R_cam_to_NED` is used by Filter 2 to convert AprilTag detections from camera frame into NED world coordinates.
+---
 
-**Three update mechanisms:**
+## V1 Exit Criteria
 
-- **Gravity update** — uses the accelerometer reading as a gravity direction measurement when the platform is not accelerating. Produces NIS logged to `logs/nis_camera_gravity.csv`.
-- **ZARU (Zero Angular Rate Update)** — fires at 1 Hz on a static platform; treats the absence of angular rate as a pseudo-measurement to correct gyro bias.
-- **Sage-Husa adaptive noise** — recursively updates the measurement noise estimate R̂ with a forgetting factor of 0.98; enforces positive definiteness via eigenvalue floor.
+V1 is not considered portfolio-ready until the checklist in [`docs/V1_EXIT_CRITERIA.md`](docs/V1_EXIT_CRITERIA.md) is satisfied.
 
-### Filter 2 — Target Tracker
+High-level V1 gates:
 
-The original design contains CV/CTRV filters. The current live ROS2 demo additionally includes `ghost_sim_ros2.mh_tracker`, a bounded multi-hypothesis probability tracker that subscribes to `/ghost/vision/target_pose` and publishes:
+1. Documentation scope correction
+2. Stationary noise characterization
+3. Stationary-hold fix implementation
+4. Independent ground-truth grid validation
+5. Nonlinear trial suite
+6. Complexity justification against constant velocity
+7. Contribution weighting/reframing in docs
 
-```text
-/ghost/tracker_mh/target_odom
-/ghost/tracker_mh/futures_json
-/ghost/tracker_mh/status
-```
+---
 
-During occlusion, the live tracker maintains ranked future hypotheses such as constant velocity, braking/hovering, lateral motion, turning, and acceleration. It does not claim hidden-state certainty.
+## Planned Software Phases
+
+1. Scope/docs correction
+2. Noise analysis tooling
+3. Stationary-hold gate as a tested standalone module
+4. Measurement covariance pipeline
+5. Observability and CRLB module
+6. Formal IMM estimator in simulation
+7. Statistical comparison harness and requirements traceability
+8. Hardware/Pi validation runs
 
 ---
 
@@ -227,9 +208,8 @@ During occlusion, the live tracker maintains ranked future hypotheses such as co
 ```text
 ghost-vins-eskf/
 ├── README.md
-├── GHOST_V10.md                          # Legacy design document
-├── GHOST_V12_USB_WEBCAM.md               # USB webcam design document
 ├── docs/
+│   ├── V1_EXIT_CRITERIA.md
 │   ├── NO_HARDWARE_DEMO.md
 │   └── CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md
 ├── ghost_sim_ros2/
@@ -237,7 +217,8 @@ ghost-vins-eskf/
 │   │   ├── cv_tracker.py
 │   │   ├── mh_tracker.py
 │   │   ├── mh_monitor.py
-│   │   └── mh_web_dashboard.py
+│   │   ├── mh_web_dashboard.py
+│   │   └── trial_recorder.py
 │   └── analysis/
 │       ├── ghost_mh_engine.py
 │       ├── ghost_mh_calibrated.py
@@ -247,23 +228,14 @@ ghost-vins-eskf/
 │   ├── ghost_stop_bg.sh
 │   └── ghost_status_bg.sh
 ├── src/
-│   ├── attitude_filter/
+│   ├── attitude_filter/        # legacy/planned V3 direction unless wired into live V1
 │   ├── target_tracker/
 │   └── guidance/
-├── analysis/
-├── test/
-└── logs/                                 # Runtime-generated — not committed
+└── logs/                       # runtime-generated; not committed
 ```
 
 ---
 
-## Build
+## Engineering Framing
 
-> Requires: ROS2 Jazzy for the live Python demo. Legacy C++ components require CMake ≥ 3.16, Eigen3, and Google Test.
-
-```bash
-source /opt/ros/jazzy/setup.bash
-cd ~/ghost_ws
-colcon build --packages-select ghost_sim_ros2
-source install/setup.bash
-```
+GHOST V1 does not see through occlusion. It maintains bounded, ranked, physically plausible hypotheses until measurement returns. The goal is not false certainty; the goal is honest probabilistic tracking with logs, baselines, and validation evidence.
