@@ -30,6 +30,10 @@ check_one mh_monitor
 check_one mh_web_dashboard
 
 echo
+echo "Listening ports 8081/8090:"
+ss -ltnp 2>/dev/null | grep -E ':(8081|8090)\b' || echo "No 8081/8090 listeners found"
+
+echo
 echo "ROS topics:"
 source /opt/ros/jazzy/setup.bash
 ros2 topic list | grep ghost || true
