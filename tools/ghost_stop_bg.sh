@@ -12,7 +12,7 @@ stop_one() {
     if kill -0 "$pid" 2>/dev/null; then
       echo "Stopping $name pid=$pid"
       kill "$pid" 2>/dev/null || true
-      sleep 0.3
+      sleep 1.0
       if kill -0 "$pid" 2>/dev/null; then
         kill -9 "$pid" 2>/dev/null || true
       fi
@@ -27,6 +27,7 @@ stop_one() {
 
 stop_one camera
 stop_one mh_tracker
+stop_one trial_recorder
 stop_one mh_monitor
 stop_one mh_web_dashboard
 
