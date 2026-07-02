@@ -14,7 +14,7 @@ from analysis.ghost_mh_calibrated import CalibratedModeBankTracker
 from analysis.ghost_mh_mode_bank import mode_bank
 
 
-class GhostMHTrackerNode:
+class GhostMHTrackerNode(Node):
     """Live ROS2 wrapper for the calibrated GHOST-MH probability tracker.
 
     Input:
@@ -26,8 +26,6 @@ class GhostMHTrackerNode:
         /ghost/tracker_mh/status        std_msgs/String human-readable status
     """
 
-
-class GhostMHTrackerNode(Node):
     def __init__(self) -> None:
         super().__init__("ghost_mh_tracker")
 
