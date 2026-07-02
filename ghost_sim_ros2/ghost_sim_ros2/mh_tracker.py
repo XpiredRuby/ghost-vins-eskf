@@ -7,13 +7,14 @@ import rclpy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
+from rclpy.qos import QoSProfile
 from std_msgs.msg import String
 
 from analysis.ghost_mh_calibrated import CalibratedModeBankTracker
 from analysis.ghost_mh_mode_bank import mode_bank
 
 
-class GhostMHTrackerNode(Node):
+class GhostMHTrackerNode:
     """Live ROS2 wrapper for the calibrated GHOST-MH probability tracker.
 
     Input:
@@ -25,6 +26,8 @@ class GhostMHTrackerNode(Node):
         /ghost/tracker_mh/status        std_msgs/String human-readable status
     """
 
+
+class GhostMHTrackerNode(Node):
     def __init__(self) -> None:
         super().__init__("ghost_mh_tracker")
 
@@ -34,14 +37,14 @@ class GhostMHTrackerNode(Node):
         self.declare_parameter("status_topic", "/ghost/tracker_mh/status")
         self.declare_parameter("frame_id", "camera")
         self.declare_parameter("child_frame_id", "ghost_target_mh")
-        self.declare_parameter("tick_hz", 20.0)
-        self.declare_parameter("measurement_timeout_s", 0.25)
+        self.declare_parameter("tick_hz", 30.0)
+        self.declare_parameter("measurement_timeout_s", 0.30)
         self.declare_parameter("measurement_std_m", 0.04)
         self.declare_parameter("max_occlusion_s", 3.0)
         self.declare_parameter("max_workspace_range_m", 5.0)
         self.declare_parameter("top_n", 5)
         self.declare_parameter("future_horizon_s", 1.5)
-        self.declare_parameter("future_dt_s", 0.25)
+        self.declare_parameter("future_dt_s", 0.10)
         self.declare_parameter("accel_temperature", 0.30)
 
         self.input_topic = str(self.get_parameter("input_topic").value)
@@ -66,18 +69,24 @@ class GhostMHTrackerNode(Node):
 
         self.latest_xy: tuple[float, float] | None = None
         self.latest_stamp_s: float | None = None
+        self.latest_arrival_s: float | None = None
         self.last_tick_s: float | None = None
         self.last_log_s: float = 0.0
+        self.measurement_count: int = 0
+        self.sequence: int = 0
 
+        # Depth-1 QoS is intentional for live tracking: use the newest sample and
+        # do not let old camera measurements build up in the ROS queue.
+        live_qos = QoSProfile(depth=1)
         self.sub = self.create_subscription(
             PoseWithCovarianceStamped,
             self.input_topic,
             self.on_measurement,
-            10,
+            live_qos,
         )
-        self.odom_pub = self.create_publisher(Odometry, self.odom_topic, 10)
-        self.futures_pub = self.create_publisher(String, self.futures_topic, 10)
-        self.status_pub = self.create_publisher(String, self.status_topic, 10)
+        self.odom_pub = self.create_publisher(Odometry, self.odom_topic, live_qos)
+        self.futures_pub = self.create_publisher(String, self.futures_topic, live_qos)
+        self.status_pub = self.create_publisher(String, self.status_topic, live_qos)
 
         period = 1.0 / max(self.tick_hz, 1.0)
         self.timer = self.create_timer(period, self.on_timer)
@@ -85,21 +94,30 @@ class GhostMHTrackerNode(Node):
         self.get_logger().info(
             "GHOST-MH tracker listening on "
             f"{self.input_topic}; publishing {self.odom_topic}, "
-            f"{self.futures_topic}; timeout={self.measurement_timeout_s:.2f}s"
+            f"{self.futures_topic}; tick={self.tick_hz:.1f}Hz; "
+            f"timeout={self.measurement_timeout_s:.2f}s; future_dt={self.future_dt_s:.2f}s"
         )
 
     def now_s(self) -> float:
         return self.get_clock().now().nanoseconds * 1e-9
 
     def on_measurement(self, msg: PoseWithCovarianceStamped) -> None:
+        now = self.now_s()
         x = float(msg.pose.pose.position.x)
         y = float(msg.pose.pose.position.y)
         if not math.isfinite(x) or not math.isfinite(y):
             return
         if x < 0.0 or math.hypot(x, y) > float(self.get_parameter("max_workspace_range_m").value):
             return
+
+        msg_stamp_s = float(msg.header.stamp.sec) + 1e-9 * float(msg.header.stamp.nanosec)
+        if msg_stamp_s <= 0.0 or abs(now - msg_stamp_s) > 30.0:
+            msg_stamp_s = now
+
         self.latest_xy = (x, y)
-        self.latest_stamp_s = self.now_s()
+        self.latest_stamp_s = msg_stamp_s
+        self.latest_arrival_s = now
+        self.measurement_count += 1
 
     def on_timer(self) -> None:
         now = self.now_s()
@@ -107,7 +125,7 @@ class GhostMHTrackerNode(Node):
             self.last_tick_s = now
             return
 
-        dt = max(1e-3, min(0.2, now - self.last_tick_s))
+        dt = max(1e-3, min(0.15, now - self.last_tick_s))
         self.last_tick_s = now
 
         measurement = None
@@ -161,13 +179,24 @@ class GhostMHTrackerNode(Node):
         self.odom_pub.publish(msg)
 
     def publish_futures(self, now: float, visible: bool, measurement_age_s: float, estimate: Any) -> None:
+        self.sequence += 1
+        rx_latency_s = math.inf
+        if self.latest_stamp_s is not None and self.latest_arrival_s is not None:
+            rx_latency_s = self.latest_arrival_s - self.latest_stamp_s
+
         payload: dict[str, Any] = {
+            "sequence": self.sequence,
             "stamp_s": now,
             "visible": visible,
             "measurement_age_s": finite_or_none(measurement_age_s),
+            "measurement_rx_latency_s": finite_or_none(rx_latency_s),
+            "measurement_count": self.measurement_count,
             "initialized": bool(estimate.initialized),
             "frame_id": self.frame_id,
             "top_n": self.top_n,
+            "tick_hz": self.tick_hz,
+            "future_horizon_s": self.future_horizon_s,
+            "future_dt_s": self.future_dt_s,
             "estimate": None,
             "hypotheses": [],
         }
@@ -202,7 +231,7 @@ class GhostMHTrackerNode(Node):
         self.futures_pub.publish(String(data=json.dumps(payload, separators=(",", ":"))))
 
     def publish_status(self, now: float, visible: bool, measurement_age_s: float, estimate: Any) -> None:
-        if now - self.last_log_s < 0.5:
+        if now - self.last_log_s < 0.25:
             return
         self.last_log_s = now
 
