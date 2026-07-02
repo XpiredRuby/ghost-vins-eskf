@@ -32,6 +32,7 @@ setup(
             "evidence_logger = ghost_sim_ros2.evidence_logger:main",
             "gazebo_bridge = ghost_sim_ros2.gazebo_bridge:main",
             "imu_watchdog = ghost_sim_ros2.imu_watchdog:main",
+            "stationary_noise_analysis = analysis.stationary_noise_analysis:main",
         ],
     },
 )
