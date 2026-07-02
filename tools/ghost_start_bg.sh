@@ -21,6 +21,7 @@ stop_one() {
 
 stop_one camera
 stop_one mh_tracker
+stop_one trial_recorder
 stop_one mh_monitor
 stop_one mh_web_dashboard
 
@@ -33,10 +34,11 @@ start_one() {
   echo $! > "$PID_DIR/${name}.pid"
 }
 
-start_one camera "source /opt/ros/jazzy/setup.bash; source ~/ghost_venv/bin/activate; python ~/ghost_live_apriltag_pose_calibrated.py --device /dev/video0 --tag-size 0.10"
-start_one mh_tracker "source /opt/ros/jazzy/setup.bash; cd ~/ghost_ws; source install/setup.bash; ros2 run ghost_sim_ros2 mh_tracker"
-start_one mh_monitor "source /opt/ros/jazzy/setup.bash; cd ~/ghost_ws; source install/setup.bash; ros2 run ghost_sim_ros2 mh_monitor"
-start_one mh_web_dashboard "source /opt/ros/jazzy/setup.bash; cd ~/ghost_ws; source install/setup.bash; ros2 run ghost_sim_ros2 mh_web_dashboard"
+start_one camera "source /opt/ros/jazzy/setup.bash; source ~/ghost_venv/bin/activate; exec python ~/ghost_live_apriltag_pose_calibrated.py --device /dev/video0 --tag-size 0.10"
+start_one mh_tracker "source /opt/ros/jazzy/setup.bash; cd ~/ghost_ws; source install/setup.bash; exec ros2 run ghost_sim_ros2 mh_tracker"
+start_one trial_recorder "source /opt/ros/jazzy/setup.bash; cd ~/ghost_ws; source install/setup.bash; exec ros2 run ghost_sim_ros2 trial_recorder"
+start_one mh_monitor "source /opt/ros/jazzy/setup.bash; cd ~/ghost_ws; source install/setup.bash; exec ros2 run ghost_sim_ros2 mh_monitor"
+start_one mh_web_dashboard "source /opt/ros/jazzy/setup.bash; cd ~/ghost_ws; source install/setup.bash; exec ros2 run ghost_sim_ros2 mh_web_dashboard"
 
 sleep 2
 
@@ -44,6 +46,7 @@ echo
 echo "GHOST started."
 echo "Camera viewer:      http://192.168.1.142:8081"
 echo "Visual dashboard:  http://192.168.1.142:8090"
+echo "Trial logs:        ~/ghost_logs/trials/<timestamp>/"
 echo
 echo "Check status: ~/ghost_status.sh"
 echo "Stop all:     ~/ghost_stop.sh"
