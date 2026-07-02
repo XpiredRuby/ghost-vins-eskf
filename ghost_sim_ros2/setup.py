@@ -28,6 +28,7 @@ setup(
             "mh_tracker = ghost_sim_ros2.mh_tracker:main",
             "mh_monitor = ghost_sim_ros2.mh_monitor:main",
             "mh_web_dashboard = ghost_sim_ros2.mh_web_dashboard:main",
+            "trial_recorder = ghost_sim_ros2.trial_recorder:main",
             "evidence_logger = ghost_sim_ros2.evidence_logger:main",
             "gazebo_bridge = ghost_sim_ros2.gazebo_bridge:main",
             "imu_watchdog = ghost_sim_ros2.imu_watchdog:main",
