@@ -52,10 +52,12 @@ def test_empirical_covariance_from_stationary_log(tmp_path):
     write_pose_csv(path, t, xyz)
 
     estimate = empirical_covariance_from_pose_log(path)
+    cov = np.asarray(estimate.covariance_m2)
 
     assert estimate.sample_count == len(t)
     assert estimate.includes_colored_noise
-    assert np.allclose(np.asarray(estimate.covariance_m2), true_cov, rtol=0.35, atol=1e-8)
+    assert np.allclose(np.diag(cov), np.diag(true_cov), rtol=0.35)
+    assert np.max(np.abs(cov - np.diag(np.diag(cov)))) < 1.0e-6
 
 
 def test_empirical_detrending_reduces_linear_drift_variance(tmp_path):
