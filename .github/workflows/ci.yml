@@ -35,7 +35,8 @@ jobs:
       - name: Run Python unit tests
         run: |
           cd ghost_sim_ros2
-          python3 -m pytest test
+          python3 -m pip install -e .
+          python3 -m pytest -q test
 
   # ─── Job 2: NIS gate — Attitude Filter (gravity update only) ─────────────────
   # nis_camera_zaru.csv is deliberately NOT gated here.
