@@ -15,7 +15,7 @@ setup(
         (f"share/{package_name}/rviz", glob("rviz/*.rviz")),
         (f"share/{package_name}/analysis", glob("analysis/*.py")),
     ],
-    install_requires=["setuptools"],
+    install_requires=["setuptools", "numpy"],
     zip_safe=True,
     maintainer="Vinayak Manoj Nair",
     maintainer_email="vinayak@example.com",
@@ -32,6 +32,7 @@ setup(
             "evidence_logger = ghost_sim_ros2.evidence_logger:main",
             "gazebo_bridge = ghost_sim_ros2.gazebo_bridge:main",
             "imu_watchdog = ghost_sim_ros2.imu_watchdog:main",
+            "stationary_noise_analysis = analysis.stationary_noise_analysis:main",
         ],
     },
 )
