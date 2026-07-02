@@ -1,15 +1,20 @@
 # GHOST — GPS-Denied Hardware Occlusion-Survivable Tracker
 
-> **Current baseline:** GHOST V12 — USB webcam + ROS2 synthetic tracking pipeline.  
-> **Current working demo:** no-hardware ROS2 tracking simulation with CSV logging, tracker sweep evidence, and Gazebo/PX4-facing bridge topics.  
-> **Camera demo:** `tools/ghost_live_apriltag_pose_calibrated.py` runs the USB webcam + calibrated AprilTag live browser overlay at `http://<pi-ip>:8081`.  
-> **Spec:** [`GHOST_V12_USB_WEBCAM.md`](./GHOST_V12_USB_WEBCAM.md). `GHOST_V10.md` is retained as legacy reference.
+> **Current baseline:** GHOST-MH live prototype — USB webcam + calibrated AprilTag pose + ROS2 Jazzy + bounded multi-hypothesis occlusion tracker.  
+> **Current working demo:** one-command background launcher starts camera evidence, GHOST-MH tracker, terminal monitor, and browser operator console.  
+> **Operator console:** `http://<pi-ip>:8090` shows live camera, top-down probability map, ranked future hypotheses, covariance ellipses, latency indicators, and tracker health.  
+> **Camera-only view:** `http://<pi-ip>:8081` shows the calibrated AprilTag detector overlay.  
+> **Critical review roadmap:** [`docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md`](docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md).
 
 **Author:** Vinayak Manoj Nair — Texas A&M University, B.S. Aerospace Engineering (Dec 2026)  
 **Repo:** `ghost-vins-eskf`  
-**Status:** V12 no-hardware ROS2 demo complete; MPU-6050 ROS2 watchdog validated on Raspberry Pi; camera validation remains.
+**Status:** Live GHOST-MH hardware demo working on Raspberry Pi. Next milestone is replay, baseline comparison, validation metrics, event timeline, and automatic report export.
 
 ## Current Evidence
+
+### Live GHOST-MH Hardware Demo
+
+The current live system runs on the Raspberry Pi with a USB webcam and 10 cm AprilTag target. It publishes calibrated target pose into ROS2, runs the GHOST-MH probability tracker, and serves a combined browser operator console.
 
 ### ROS2 Synthetic Tracking
 
@@ -24,8 +29,14 @@
 - USB webcam bring-up and browser live stream
 - AprilTag detection and calibrated pose viewer
 - Camera calibration workflow
+- Real camera pose publisher into `/ghost/vision/target_pose`
+- GHOST-MH bounded multi-hypothesis tracker
+- Ranked probabilistic future paths during occlusion
+- Safe reset after max occlusion horizon instead of infinite hallucination
+- Combined browser operator console on port `8090`
+- Terminal monitor and background service-style launcher
 - ROS2 Jazzy synthetic target measurement publisher
-- 2D constant-velocity Kalman tracker
+- 2D constant-velocity Kalman tracker baseline
 - Occlusion/dropout coasting simulation
 - CSV evidence logging
 - Offline tracker parameter sweep
@@ -35,9 +46,41 @@
   - `/ghost/gazebo/target_twist`
   - `/ghost/px4/target_setpoint`
 
+## Live Hardware Demo
+
+Start the live system on the Raspberry Pi:
+
+```bash
+~/ghost_start.sh
+```
+
+Check process health:
+
+```bash
+~/ghost_status.sh
+```
+
+Stop everything:
+
+```bash
+~/ghost_stop.sh
+```
+
+Open the operator console from a browser on the same network:
+
+```text
+http://<pi-ip>:8090
+```
+
+The camera-only feed remains available at:
+
+```text
+http://<pi-ip>:8081
+```
+
 ## No-Hardware Demo
 
-The current software-only pipeline runs without camera, AprilTag print, IMU, Gazebo, or PX4 hardware:
+The software-only pipeline runs without camera, AprilTag print, IMU, Gazebo, or PX4 hardware:
 
 ```bash
 source /opt/ros/jazzy/setup.bash
@@ -62,19 +105,40 @@ Full runbook: [`docs/NO_HARDWARE_DEMO.md`](docs/NO_HARDWARE_DEMO.md)
 
 Integrated hardware/software demo: [ghost_sim_ros2/docs/FULL_INTEGRATED_DEMO.md](ghost_sim_ros2/docs/FULL_INTEGRATED_DEMO.md)
 
-    ros2 launch ghost_sim_ros2 ghost_full_demo.launch.py
+```bash
+ros2 launch ghost_sim_ros2 ghost_full_demo.launch.py
+```
+
+## Critical Review / Next Research Milestone
+
+The strongest current criticism is not that the tracker fails. The current criticism is that a live demo is not yet enough evidence for a research-grade claim.
+
+The next milestone is documented here:
+
+[`docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md`](docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md)
+
+Priority upgrades:
+
+1. Trial recording and replay mode.
+2. Baseline comparison: last-seen hold vs constant velocity vs GHOST-MH.
+3. Ground-truth validation metrics: RMSE, 95th percentile error, top-1/top-3 occlusion coverage.
+4. Event timeline: visible, occluded, hypothesis split, reacquired, reset.
+5. Automatic Markdown/PDF demo report export.
+6. Probability heatmap and latency waterfall.
+7. Tagless tracking mode after AprilTag validation is complete.
 
 ## Hardware Next
 
-The remaining project work is hardware validation:
+The remaining hardware validation work is:
 
-1. Print the 10 cm `tag36h11` AprilTag and validate real range/pose.
-2. Publish real webcam AprilTag measurements into ROS2.
-3. Add final real-world validation plots and demo video.
+1. Run repeated measured-grid AprilTag trials and compute pose RMSE.
+2. Record dynamic occlusion trials with known reappearance locations.
+3. Compare GHOST-MH against baseline trackers.
+4. Add final real-world validation plots and demo video.
 
 ## Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────┐
 │                     CAMERA PLATFORM (static tripod)                 │
 │                                                                     │
@@ -97,9 +161,9 @@ The remaining project work is hardware validation:
   │  9-state    │   │  CV / CTRV   │   │   ProNav TPN │
   │  ESKF       │──▶│  UKF         │──▶│  a_cmd (NED) │
   │  1000 Hz    │   │  vision Hz   │   │              │
-  │             │   │              │   └──────┬───────┘
-  │ q_cam       │   │ [px,py,v,    │          │
-  │ b_a  b_g    │   │  psi,ψ̇]     │          │ UDP MAVLink
+  │             │   │ [px,py,v,    │   └──────┬───────┘
+  │ q_cam       │   │  psi,ψ̇]     │          │
+  │ b_a  b_g    │   │              │          │ UDP MAVLink
   └─────────────┘   └──────────────┘          │ port 14540
          ▲                  ▲                  ▼
          │                  │        ┌──────────────────┐
@@ -109,8 +173,8 @@ The remaining project work is hardware validation:
                                      └──────────────────┘
 ```
 
-**Target:** RC car with 10 cm × 10 cm AprilTag 36h11 on a flat floor.  
-**Occlusion:** Car drives behind a shoebox → Filter 2 coasts on velocity prediction. IMU plays no role in car motion; it only detects camera platform disturbances.
+**Target:** RC car or hand-moved target with 10 cm × 10 cm AprilTag 36h11 on a flat floor.  
+**Occlusion:** Target moves behind an object. GHOST-MH predicts bounded probabilistic futures and resets after the configured validity horizon.
 
 ---
 
@@ -119,14 +183,14 @@ The remaining project work is hardware validation:
 | Component        | Part                                  | Role                              |
 |------------------|---------------------------------------|-----------------------------------|
 | Compute          | Raspberry Pi 4B 4GB                   | Runs both filters at full rate    |
-| Camera           | innomaker IMX296 Global Shutter (CSI) | AprilTag detection + optical flow |
-| Primary IMU      | ICM-42688-P SPI breakout              | 1000 Hz attitude ESKF input       |
+| Camera           | USB webcam / IMX296 Global Shutter    | AprilTag detection + pose source  |
+| Primary IMU      | ICM-42688-P SPI breakout              | Future 1000 Hz attitude ESKF input |
 | Watchdog IMU     | MPU-6050 I2C breakout                 | 100 ms disagreement fault flag    |
-| RC Car           | 1:20 scale, flat roof                 | Tracked target                    |
+| RC Car / target  | 1:20 scale or hand-moved tag board    | Tracked target                    |
 | AprilTag         | 36h11 tag0, 10 cm × 10 cm laminated   | Vision measurement source         |
-| Occlusion object | Shoebox                               | Occlusion test scenario           |
+| Occlusion object | Shoebox / board / wall segment        | Occlusion test scenario           |
 
-**Budget: ~$190 total.** No Pixhawk, no GPS — guidance closes over UDP MAVLink to PX4 SITL.
+**Budget target: ~$190 total.** No GPS. Optional future guidance closes over UDP MAVLink to PX4 SITL.
 
 ---
 
@@ -139,154 +203,67 @@ Runs at **1000 Hz**, driven by the ICM-42688-P IMU over SPI.
 Estimates the camera platform's orientation as a quaternion (`q_cam`) plus accelerometer bias (`b_a`) and gyro bias (`b_g`). The output rotation matrix `R_cam_to_NED` is used by Filter 2 to convert AprilTag detections from camera frame into NED world coordinates.
 
 **Three update mechanisms:**
-- **Gravity update** — uses the accelerometer reading as a gravity direction measurement when the platform is not accelerating. Produces NIS logged to `logs/nis_camera_gravity.csv` (CI-gated at χ²(3), 95%).
-- **ZARU (Zero Angular Rate Update)** — fires at 1 Hz on a static platform; treats the absence of angular rate as a pseudo-measurement to correct gyro bias. NIS logged to `logs/nis_camera_zaru.csv` (*not* CI-gated — ZARU is static-platform only).
+
+- **Gravity update** — uses the accelerometer reading as a gravity direction measurement when the platform is not accelerating. Produces NIS logged to `logs/nis_camera_gravity.csv`.
+- **ZARU (Zero Angular Rate Update)** — fires at 1 Hz on a static platform; treats the absence of angular rate as a pseudo-measurement to correct gyro bias.
 - **Sage-Husa adaptive noise** — recursively updates the measurement noise estimate R̂ with a forgetting factor of 0.98; enforces positive definiteness via eigenvalue floor.
 
-### Filter 2 — CV/CTRV Kinematic Filter (`src/target_tracker/`)
+### Filter 2 — Target Tracker
 
-Runs at the **vision frame rate** (~25–45 fps).
+The original design contains CV/CTRV filters. The current live ROS2 demo additionally includes `ghost_sim_ros2.mh_tracker`, a bounded multi-hypothesis probability tracker that subscribes to `/ghost/vision/target_pose` and publishes:
 
-Tracks the RC car's 2-D floor position and velocity. Two parallel models:
+```text
+/ghost/tracker_mh/target_odom
+/ghost/tracker_mh/futures_json
+/ghost/tracker_mh/status
+```
 
-- **CV (Constant Velocity)** — 6-state `[px, py, pz, vx, vy, vz]`. EKF with linear state transition and Singer model process noise. Observes position from the AprilTag pose.
-- **CTRV (Constant Turn Rate and Velocity)** — 5-state `[px, py, v, ψ, ψ̇]`. UKF with nonlinear sigma-point propagation. Singularity guard fires at `|ψ̇| < 1e-4 rad/s`, reverting to CV straight-line equations.
-
-**IMU data never enters this filter.** The IMU is mounted on the static tripod, not the moving car. During occlusion the filter simply propagates its kinematic model forward. NIS logged to `logs/nis_target_tracker.csv` (CI-gated at χ²(3), 95%).
+During occlusion, the live tracker maintains ranked future hypotheses such as constant velocity, braking/hovering, lateral motion, turning, and acceleration. It does not claim hidden-state certainty.
 
 ---
 
 ## Repository Structure
 
-```
+```text
 ghost-vins-eskf/
 ├── README.md
-├── GHOST_V10.md                          # Full design document
-├── .gitignore
-├── .github/
-│   └── workflows/
-│       └── ci.yml                        # NIS-gated CI pipeline
+├── GHOST_V10.md                          # Legacy design document
+├── GHOST_V12_USB_WEBCAM.md               # USB webcam design document
+├── docs/
+│   ├── NO_HARDWARE_DEMO.md
+│   └── CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md
+├── ghost_sim_ros2/
+│   ├── ghost_sim_ros2/
+│   │   ├── cv_tracker.py
+│   │   ├── mh_tracker.py
+│   │   ├── mh_monitor.py
+│   │   └── mh_web_dashboard.py
+│   └── analysis/
+│       ├── ghost_mh_engine.py
+│       ├── ghost_mh_calibrated.py
+│       └── ghost_mh_final_no_camera_benchmark.py
+├── tools/
+│   ├── ghost_start_bg.sh
+│   ├── ghost_stop_bg.sh
+│   └── ghost_status_bg.sh
 ├── src/
-│   ├── attitude_filter/                  # Filter 1 — 9-state ESKF
-│   │   ├── eskf.hpp / eskf.cpp
-│   │   ├── sage_husa.hpp / sage_husa.cpp
-│   │   └── zaru.hpp / zaru.cpp
-│   ├── target_tracker/                   # Filter 2 — CV/CTRV
-│   │   ├── cv_filter.hpp / cv_filter.cpp
-│   │   └── ctrv_filter.hpp / ctrv_filter.cpp
-│   └── guidance/                         # TPN ProNav
-│       ├── pronav.hpp / pronav.cpp
+│   ├── attitude_filter/
+│   ├── target_tracker/
+│   └── guidance/
 ├── analysis/
-│   └── nis_validation.py                 # NIS χ² gate (CLI tool)
 ├── test/
-│   ├── test_eskf.cpp
-│   └── test_pronav.cpp
 └── logs/                                 # Runtime-generated — not committed
-    ├── nis_camera_gravity.csv
-    ├── nis_camera_zaru.csv
-    └── nis_target_tracker.csv
 ```
 
 ---
 
 ## Build
 
-> Requires: CMake ≥ 3.16, Eigen3, Google Test (Ubuntu 22.04 recommended)
+> Requires: ROS2 Jazzy for the live Python demo. Legacy C++ components require CMake ≥ 3.16, Eigen3, and Google Test.
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y cmake libeigen3-dev libgtest-dev
-
-mkdir build && cd build
-cmake ..
-make -j$(nproc)
-ctest --output-on-failure
+source /opt/ros/jazzy/setup.bash
+cd ~/ghost_ws
+colcon build --packages-select ghost_sim_ros2
+source install/setup.bash
 ```
-
----
-
-## Run the NIS CI Gate Locally
-
-After a recording session, NIS logs are written to `logs/`. Validate them against the χ²(3) distribution at 95% confidence:
-
-```bash
-# Attitude filter — gravity update NIS
-python3 analysis/nis_validation.py \
-  --log logs/nis_camera_gravity.csv \
-  --dof 3 \
-  --confidence 0.95 \
-  --fail-on-violation
-
-# Target tracking filter NIS
-python3 analysis/nis_validation.py \
-  --log logs/nis_target_tracker.csv \
-  --dof 3 \
-  --confidence 0.95 \
-  --fail-on-violation
-
-# ZARU NIS — informational only, no pass/fail gate
-python3 analysis/nis_validation.py \
-  --log logs/nis_camera_zaru.csv \
-  --dof 3 \
-  --confidence 0.95
-```
-
-Exit code 0 = filter is statistically consistent. Exit code 1 = filter is overconfident or diverging — tune Q/R.
-
----
-
-## CI Pipeline
-
-GitHub Actions runs on every push and pull request to `main`:
-
-1. **`build`** — installs Eigen3 + GTest, compiles all targets, runs `ctest`.
-2. **`nis_gate_attitude`** — validates `logs/nis_camera_gravity.csv` (needs `build`).
-3. **`nis_gate_target`** — validates `logs/nis_target_tracker.csv` (needs `build`).
-
-`nis_camera_zaru.csv` is deliberately excluded from CI gating — ZARU is a static-platform-only pseudo-measurement, not valid during dynamic rosbag replay.
-
----
-
-## Engineering Decisions and Documented Fixes
-
-Twenty implementation flaws were identified and corrected during development:
-
-| # | Component | Flaw | Fix |
-|---|-----------|------|-----|
-| 1 | ProNav | `v_drone_NED` dead parameter in `compute()` | Removed from signature |
-| 2 | ProNav test | Collinear geometry → `Omega = 0` → test always passed trivially | Added lateral offset `(10, 2, 0)` |
-| 3 | CV filter | Naive `P = (I−KH)P` loses symmetry over time | Joseph form: `(I−KH)P(I−KH)ᵀ + KRKᵀ` |
-| 4 | CV filter | `logNIS()` opened/closed file every update | Persistent `std::ofstream nis_log_` member |
-| 5 | CTRV filter | `std::vector<Eigen::VectorXd>` sigma points → heap alloc at 1000 Hz | Fixed-size `Eigen::Matrix` member buffers |
-| 6 | CTRV filter | UKF weights recomputed every call | Promoted to `static constexpr` |
-| 7 | CTRV filter | `logNIS()` opened/closed file every update | Persistent `std::ofstream nis_log_` member |
-| 8 | ESKF | F matrix ambiguity: `-I3` placed in middle block (accel bias) | Corrected to last block (gyro bias): `F.block<3,3>(0,6) = -I3` |
-| 9 | ESKF | Naive `P = (I−KH)P` in `updateGravity()` | Joseph form applied |
-| 10 | ESKF | `sigma_accel_meas_` missing; process noise `sigma_a` used for meas noise | Added dedicated `sigma_accel_meas_` member |
-| 11 | ESKF | `logNIS()` opened file per call | Persistent `nis_log_` member opened in `initialize()` |
-| 12 | ZARU | `getH()` risk of placing `I3` in middle block (accel bias) | `H.block<3,3>(0,6) = I3` — gyro bias in last block |
-| 13 | Sage-Husa | Eigendecomposition before symmetrization | Symmetrize first: `0.5*(R + Rᵀ)`, then eigen-decompose |
-| 14 | Sage-Husa | No eigenvalue floor on `R_hat_` | `R_hat_ += (floor − min_eig) * I` when below floor |
-| 15 | NIS validation | Crash on empty CSV | Guard: `if total == 0: sys.exit(1)` |
-| 16 | NIS validation | Exit code ambiguity | Always exit 0 unless gate fails **and** `--fail-on-violation` |
-| 17 | CI | `nis_camera_zaru.csv` risk of accidental CI gating | Explicit exclusion with comment in `ci.yml` |
-| 18 | CI | NIS gate jobs could run on failed build | `needs: build` on both NIS gate jobs |
-| 19 | CTRV | `ctrvPredictSingle` with `Eigen::VectorXd` argument copies | Changed to `Eigen::Ref<const State5d>` |
-| 20 | CV filter | `H_` initialized as zero, position block never set explicitly | Explicit `H_.block<3,3>(0,0) = I3` in constructor |
-
----
-
-## Full Design Document
-
-[GHOST_V10.md](GHOST_V10.md) — complete architecture, filter derivations, hardware integration notes, MAVLink bridge design, and simulation configuration.
-
----
-
-## Real-World Relevance
-
-| Application | Connection |
-|---|---|
-| Counter-drone intercept | Anduril Anvil — GPS-denied terminal guidance against maneuvering target |
-| Underground navigation | Shield AI Nova 2 — vision-only target tracking in tunnels |
-| Ship deck landing | Shield AI V-BAT — kinematic target model for moving deck |
-| EW-jammed environments | GPS spoofed/denied — vision + kinematic fallback |
