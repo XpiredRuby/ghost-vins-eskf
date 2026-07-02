@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eo pipefail
 
 PID_DIR="$HOME/ghost_logs/pids"
 LOG_DIR="$HOME/ghost_logs/live"
