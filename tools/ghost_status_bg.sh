@@ -3,6 +3,7 @@ set -eo pipefail
 
 PID_DIR="$HOME/ghost_logs/pids"
 LOG_DIR="$HOME/ghost_logs/live"
+TRIAL_DIR="$HOME/ghost_logs/trials"
 
 check_one() {
   local name="$1"
@@ -24,6 +25,7 @@ check_one() {
 
 check_one camera
 check_one mh_tracker
+check_one trial_recorder
 check_one mh_monitor
 check_one mh_web_dashboard
 
@@ -33,5 +35,22 @@ source /opt/ros/jazzy/setup.bash
 ros2 topic list | grep ghost || true
 
 echo
+echo "Latest trial:"
+latest="$(ls -td "$TRIAL_DIR"/* 2>/dev/null | head -1 || true)"
+if [ -n "$latest" ]; then
+  echo "$latest"
+  if [ -f "$latest/summary.md" ]; then
+    echo "--- summary.md ---"
+    sed -n '1,80p' "$latest/summary.md"
+  fi
+else
+  echo "No trial folders yet."
+fi
+
+echo
 echo "Recent dashboard log:"
 tail -8 "$LOG_DIR/mh_web_dashboard.log" 2>/dev/null || true
+
+echo
+echo "Recent trial recorder log:"
+tail -8 "$LOG_DIR/trial_recorder.log" 2>/dev/null || true
