@@ -7,7 +7,6 @@ on:
     branches: [main]
 
 jobs:
-  # ─── Job 1: portable C++ build + Python analysis tests ───────────────────────
   build:
     runs-on: ubuntu-22.04
 
@@ -22,6 +21,12 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install numpy pytest
 
+      - name: Run Python unit tests
+        run: |
+          cd ghost_sim_ros2
+          python3 -m pip install .
+          python3 -m pytest -q test
+
       - name: Build portable C++ core
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release -DGHOST_BUILD_ROS2_NODES=OFF
@@ -32,17 +37,6 @@ jobs:
           cd build
           ctest --output-on-failure
 
-      - name: Run Python unit tests
-        run: |
-          cd ghost_sim_ros2
-          python3 -m pip install -e .
-          python3 -m pytest -q test
-
-  # ─── Job 2: NIS gate — Attitude Filter (gravity update only) ─────────────────
-  # nis_camera_zaru.csv is deliberately NOT gated here.
-  # ZARU fires at 1 Hz on a static platform only — it is not valid for a dynamic
-  # rosbag chi²(3) gate. Merging ZARU NIS into the gravity stream creates a
-  # bimodal distribution that would break the gate on an otherwise healthy filter.
   nis_gate_attitude:
     runs-on: ubuntu-22.04
     needs: build
@@ -57,18 +51,14 @@ jobs:
           sudo apt-get install -y python3 python3-pip
           python3 -m pip install scipy
 
-      - name: NIS gate — Attitude Filter (gravity update)
+      - name: NIS gate attitude
         run: |
           if [ ! -f logs/nis_camera_gravity.csv ]; then
-            echo "Skipping NIS gate: logs/nis_camera_gravity.csv is not present in this checkout."
+            echo "Skipping NIS gate: logs/nis_camera_gravity.csv is not present."
             exit 0
           fi
-          python3 analysis/nis_validation.py \
-            --log logs/nis_camera_gravity.csv \
-            --dof 3 --confidence 0.95 --fail-on-violation
+          python3 analysis/nis_validation.py --log logs/nis_camera_gravity.csv --dof 3 --confidence 0.95 --fail-on-violation
 
-  # ─── Job 3: NIS gate — CV Target Tracking Filter (chi²(3)) ──────────────────
-  # CV filter measures 3D position [px, py, pz] → innovation is chi²(3)-distributed.
   nis_gate_cv:
     runs-on: ubuntu-22.04
     needs: build
@@ -83,21 +73,14 @@ jobs:
           sudo apt-get install -y python3 python3-pip
           python3 -m pip install scipy
 
-      - name: NIS gate — CV Filter (dof=3)
+      - name: NIS gate CV
         run: |
           if [ ! -f logs/nis_cv_tracker.csv ]; then
-            echo "Skipping NIS gate: logs/nis_cv_tracker.csv is not present in this checkout."
+            echo "Skipping NIS gate: logs/nis_cv_tracker.csv is not present."
             exit 0
           fi
-          python3 analysis/nis_validation.py \
-            --log logs/nis_cv_tracker.csv \
-            --dof 3 --confidence 0.95 --fail-on-violation
+          python3 analysis/nis_validation.py --log logs/nis_cv_tracker.csv --dof 3 --confidence 0.95 --fail-on-violation
 
-  # ─── Job 4: NIS gate — CTRV Target Tracking Filter (chi²(2)) ────────────────
-  # CTRV filter measures 2D position [px, py] → innovation is chi²(2)-distributed.
-  # chi²(2, 0.95) = 5.991 vs chi²(3, 0.95) = 7.815 — separate gate mandatory.
-  # Using dof=3 for CTRV would silently pass NIS values in (5.991, 7.815] that
-  # indicate filter inconsistency.
   nis_gate_ctrv:
     runs-on: ubuntu-22.04
     needs: build
@@ -112,12 +95,10 @@ jobs:
           sudo apt-get install -y python3 python3-pip
           python3 -m pip install scipy
 
-      - name: NIS gate — CTRV Filter (dof=2)
+      - name: NIS gate CTRV
         run: |
           if [ ! -f logs/nis_ctrv_tracker.csv ]; then
-            echo "Skipping NIS gate: logs/nis_ctrv_tracker.csv is not present in this checkout."
+            echo "Skipping NIS gate: logs/nis_ctrv_tracker.csv is not present."
             exit 0
           fi
-          python3 analysis/nis_validation.py \
-            --log logs/nis_ctrv_tracker.csv \
-            --dof 2 --confidence 0.95 --fail-on-violation
+          python3 analysis/nis_validation.py --log logs/nis_ctrv_tracker.csv --dof 2 --confidence 0.95 --fail-on-violation
