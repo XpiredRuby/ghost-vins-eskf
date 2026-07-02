@@ -15,7 +15,7 @@ setup(
         (f"share/{package_name}/rviz", glob("rviz/*.rviz")),
         (f"share/{package_name}/analysis", glob("analysis/*.py")),
     ],
-    install_requires=["setuptools"],
+    install_requires=["setuptools", "numpy"],
     zip_safe=True,
     maintainer="Vinayak Manoj Nair",
     maintainer_email="vinayak@example.com",
