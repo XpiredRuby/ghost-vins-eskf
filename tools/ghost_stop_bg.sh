@@ -25,11 +25,25 @@ stop_one() {
   fi
 }
 
+kill_stale() {
+  echo "Cleaning stale GHOST processes and ports..."
+  pkill -f "ghost_live_apriltag_pose_calibrated.py" 2>/dev/null || true
+  pkill -f "ros2 run ghost_sim_ros2 mh_tracker" 2>/dev/null || true
+  pkill -f "ros2 run ghost_sim_ros2 trial_recorder" 2>/dev/null || true
+  pkill -f "ros2 run ghost_sim_ros2 mh_monitor" 2>/dev/null || true
+  pkill -f "ros2 run ghost_sim_ros2 mh_web_dashboard" 2>/dev/null || true
+  if command -v fuser >/dev/null 2>&1; then
+    fuser -k 8081/tcp 2>/dev/null || true
+    fuser -k 8090/tcp 2>/dev/null || true
+  fi
+}
+
 stop_one camera
 stop_one mh_tracker
 stop_one trial_recorder
 stop_one mh_monitor
 stop_one mh_web_dashboard
+kill_stale
 
 tmux kill-session -t ghost 2>/dev/null || true
 
