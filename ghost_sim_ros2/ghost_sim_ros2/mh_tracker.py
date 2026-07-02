@@ -12,10 +12,11 @@ from std_msgs.msg import String
 
 from analysis.ghost_mh_calibrated import CalibratedModeBankTracker
 from analysis.ghost_mh_mode_bank import mode_bank
+from analysis.stationary_gate import StationaryGateConfig, WindowedVelocityGate
 
 
 class GhostMHTrackerNode(Node):
-    """Live ROS2 wrapper for the calibrated GHOST-MH probability tracker.
+    """Live ROS2 wrapper for the calibrated V1 heuristic hypothesis tracker.
 
     Input:
         /ghost/vision/target_pose       geometry_msgs/PoseWithCovarianceStamped
@@ -44,6 +45,12 @@ class GhostMHTrackerNode(Node):
         self.declare_parameter("future_horizon_s", 1.5)
         self.declare_parameter("future_dt_s", 0.10)
         self.declare_parameter("accel_temperature", 0.30)
+        self.declare_parameter("stationary_gate_enabled", True)
+        self.declare_parameter("stationary_window_s", 1.5)
+        self.declare_parameter("stationary_enter_speed_mps", 0.08)
+        self.declare_parameter("stationary_exit_speed_mps", 0.14)
+        self.declare_parameter("stationary_min_samples", 5)
+        self.declare_parameter("stationary_hold_prior", 0.95)
 
         self.input_topic = str(self.get_parameter("input_topic").value)
         self.odom_topic = str(self.get_parameter("odom_topic").value)
@@ -56,6 +63,9 @@ class GhostMHTrackerNode(Node):
         self.top_n = int(self.get_parameter("top_n").value)
         self.future_horizon_s = float(self.get_parameter("future_horizon_s").value)
         self.future_dt_s = float(self.get_parameter("future_dt_s").value)
+        self.stationary_gate_enabled = bool(self.get_parameter("stationary_gate_enabled").value)
+        self.stationary_hold_prior = float(self.get_parameter("stationary_hold_prior").value)
+        self.stationary_hold_prior = min(max(self.stationary_hold_prior, 0.50), 1.0)
 
         self.tracker = CalibratedModeBankTracker(
             measurement_std_m=float(self.get_parameter("measurement_std_m").value),
@@ -64,6 +74,17 @@ class GhostMHTrackerNode(Node):
             accel_temperature=float(self.get_parameter("accel_temperature").value),
         )
         self.model_lookup = {model.name: model for model in mode_bank()}
+
+        self.stationary_gate = WindowedVelocityGate(
+            StationaryGateConfig(
+                window_s=float(self.get_parameter("stationary_window_s").value),
+                enter_speed_mps=float(self.get_parameter("stationary_enter_speed_mps").value),
+                exit_speed_mps=float(self.get_parameter("stationary_exit_speed_mps").value),
+                min_samples=int(self.get_parameter("stationary_min_samples").value),
+            )
+        )
+        self.stationary_state = self.stationary_gate.state
+        self.hidden_stationary_hold_active = False
 
         self.latest_xy: tuple[float, float] | None = None
         self.latest_stamp_s: float | None = None
@@ -90,10 +111,11 @@ class GhostMHTrackerNode(Node):
         self.timer = self.create_timer(period, self.on_timer)
 
         self.get_logger().info(
-            "GHOST-MH tracker listening on "
+            "GHOST V1 heuristic tracker listening on "
             f"{self.input_topic}; publishing {self.odom_topic}, "
             f"{self.futures_topic}; tick={self.tick_hz:.1f}Hz; "
-            f"timeout={self.measurement_timeout_s:.2f}s; future_dt={self.future_dt_s:.2f}s"
+            f"timeout={self.measurement_timeout_s:.2f}s; future_dt={self.future_dt_s:.2f}s; "
+            f"stationary_gate={self.stationary_gate_enabled}"
         )
 
     def now_s(self) -> float:
@@ -117,6 +139,9 @@ class GhostMHTrackerNode(Node):
         self.latest_arrival_s = now
         self.measurement_count += 1
 
+        if self.stationary_gate_enabled:
+            self.stationary_state = self.stationary_gate.update(msg_stamp_s, x, y)
+
     def on_timer(self) -> None:
         now = self.now_s()
         if self.last_tick_s is None:
@@ -137,6 +162,13 @@ class GhostMHTrackerNode(Node):
 
         self.tracker.step(dt, measurement)
         estimate = self.tracker.estimate()
+        self.hidden_stationary_hold_active = bool(
+            self.stationary_gate_enabled
+            and estimate.initialized
+            and (not visible)
+            and self.stationary_state.active
+            and self.latest_xy is not None
+        )
 
         if estimate.initialized:
             self.publish_odom(now, estimate)
@@ -148,12 +180,20 @@ class GhostMHTrackerNode(Node):
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = self.frame_id
         msg.child_frame_id = self.child_frame_id
-        msg.pose.pose.position.x = float(estimate.x[0, 0])
-        msg.pose.pose.position.y = float(estimate.x[1, 0])
+
+        if self.hidden_stationary_hold_active and self.latest_xy is not None:
+            msg.pose.pose.position.x = float(self.latest_xy[0])
+            msg.pose.pose.position.y = float(self.latest_xy[1])
+            msg.twist.twist.linear.x = 0.0
+            msg.twist.twist.linear.y = 0.0
+        else:
+            msg.pose.pose.position.x = float(estimate.x[0, 0])
+            msg.pose.pose.position.y = float(estimate.x[1, 0])
+            msg.twist.twist.linear.x = float(estimate.x[2, 0])
+            msg.twist.twist.linear.y = float(estimate.x[3, 0])
+
         msg.pose.pose.position.z = 0.0
         msg.pose.pose.orientation.w = 1.0
-        msg.twist.twist.linear.x = float(estimate.x[2, 0])
-        msg.twist.twist.linear.y = float(estimate.x[3, 0])
 
         cov = [0.0] * 36
         cov[0] = float(estimate.p[0, 0])
@@ -195,36 +235,47 @@ class GhostMHTrackerNode(Node):
             "tick_hz": self.tick_hz,
             "future_horizon_s": self.future_horizon_s,
             "future_dt_s": self.future_dt_s,
+            "stationary_gate_enabled": bool(self.stationary_gate_enabled),
+            "stationary_hold_active": bool(self.stationary_state.active),
+            "hidden_stationary_hold_active": bool(self.hidden_stationary_hold_active),
+            "stationary_window_speed_mps": finite_or_none(self.stationary_state.speed_mps),
+            "stationary_window_span_s": finite_or_none(self.stationary_state.span_s),
+            "stationary_gate_reason": self.stationary_state.reason,
             "estimate": None,
             "hypotheses": [],
         }
 
         if estimate.initialized:
+            est_x, est_y, est_vx, est_vy = self.current_output_state(estimate)
             payload["estimate"] = {
-                "x_m": float(estimate.x[0, 0]),
-                "y_m": float(estimate.x[1, 0]),
-                "vx_mps": float(estimate.x[2, 0]),
-                "vy_mps": float(estimate.x[3, 0]),
+                "x_m": est_x,
+                "y_m": est_y,
+                "vx_mps": est_vx,
+                "vy_mps": est_vy,
                 "cov_xx": float(estimate.p[0, 0]),
                 "cov_xy": float(estimate.p[0, 1]),
                 "cov_yy": float(estimate.p[1, 1]),
             }
-            for rank, hyp in enumerate(self.tracker.top_hypotheses(self.top_n), start=1):
-                payload["hypotheses"].append(
-                    {
-                        "rank": rank,
-                        "model": str(hyp.model),
-                        "probability": float(hyp.weight),
-                        "x_m": float(hyp.x[0, 0]),
-                        "y_m": float(hyp.x[1, 0]),
-                        "vx_mps": float(hyp.x[2, 0]),
-                        "vy_mps": float(hyp.x[3, 0]),
-                        "cov_xx": float(hyp.p[0, 0]),
-                        "cov_xy": float(hyp.p[0, 1]),
-                        "cov_yy": float(hyp.p[1, 1]),
-                        "path": self.project_path(hyp),
-                    }
-                )
+
+            if self.hidden_stationary_hold_active:
+                payload["hypotheses"] = self.stationary_hold_hypotheses(estimate)
+            else:
+                for rank, hyp in enumerate(self.tracker.top_hypotheses(self.top_n), start=1):
+                    payload["hypotheses"].append(
+                        {
+                            "rank": rank,
+                            "model": str(hyp.model),
+                            "probability": float(hyp.weight),
+                            "x_m": float(hyp.x[0, 0]),
+                            "y_m": float(hyp.x[1, 0]),
+                            "vx_mps": float(hyp.x[2, 0]),
+                            "vy_mps": float(hyp.x[3, 0]),
+                            "cov_xx": float(hyp.p[0, 0]),
+                            "cov_xy": float(hyp.p[0, 1]),
+                            "cov_yy": float(hyp.p[1, 1]),
+                            "path": self.project_path(hyp),
+                        }
+                    )
 
         self.futures_pub.publish(String(data=json.dumps(payload, separators=(",", ":"))))
 
@@ -236,12 +287,91 @@ class GhostMHTrackerNode(Node):
         if not estimate.initialized:
             text = "WAITING_FOR_TARGET"
         elif visible:
-            text = "VISIBLE"
+            text = (
+                "VISIBLE "
+                f"stationary={self.stationary_state.active} "
+                f"window_speed={finite_or_none(self.stationary_state.speed_mps)}"
+            )
+        elif self.hidden_stationary_hold_active:
+            text = (
+                "HIDDEN_STATIONARY_HOLD "
+                f"age={finite_or_none(measurement_age_s)} "
+                f"window_speed={finite_or_none(self.stationary_state.speed_mps)}"
+            )
         else:
             tops = self.tracker.top_hypotheses(min(3, self.top_n))
             top_text = ", ".join(f"{h.model}:{100.0*h.weight:.1f}%" for h in tops)
             text = f"OCCLUDED age={finite_or_none(measurement_age_s)} top=[{top_text}]"
         self.status_pub.publish(String(data=text))
+
+    def current_output_state(self, estimate: Any) -> tuple[float, float, float, float]:
+        if self.hidden_stationary_hold_active and self.latest_xy is not None:
+            return float(self.latest_xy[0]), float(self.latest_xy[1]), 0.0, 0.0
+        return (
+            float(estimate.x[0, 0]),
+            float(estimate.x[1, 0]),
+            float(estimate.x[2, 0]),
+            float(estimate.x[3, 0]),
+        )
+
+    def stationary_hold_hypotheses(self, estimate: Any) -> list[dict[str, Any]]:
+        if self.latest_xy is not None:
+            x_m = float(self.latest_xy[0])
+            y_m = float(self.latest_xy[1])
+        else:
+            x_m = float(estimate.x[0, 0])
+            y_m = float(estimate.x[1, 0])
+
+        stationary_prior = self.stationary_hold_prior
+        residual_prior = max(0.0, 1.0 - stationary_prior)
+        path = self.stationary_hold_path(x_m, y_m)
+        cov_xx = float(estimate.p[0, 0])
+        cov_xy = float(estimate.p[0, 1])
+        cov_yy = float(estimate.p[1, 1])
+
+        hypotheses = [
+            {
+                "rank": 1,
+                "model": "stationary_hold",
+                "probability": stationary_prior,
+                "x_m": x_m,
+                "y_m": y_m,
+                "vx_mps": 0.0,
+                "vy_mps": 0.0,
+                "cov_xx": cov_xx,
+                "cov_xy": cov_xy,
+                "cov_yy": cov_yy,
+                "path": path,
+            }
+        ]
+        if self.top_n > 1 and residual_prior > 0.0:
+            hypotheses.append(
+                {
+                    "rank": 2,
+                    "model": "bounded_uncertainty_hold",
+                    "probability": residual_prior,
+                    "x_m": x_m,
+                    "y_m": y_m,
+                    "vx_mps": 0.0,
+                    "vy_mps": 0.0,
+                    "cov_xx": cov_xx,
+                    "cov_xy": cov_xy,
+                    "cov_yy": cov_yy,
+                    "path": path,
+                }
+            )
+        return hypotheses[: self.top_n]
+
+    def stationary_hold_path(self, x_m: float, y_m: float) -> list[dict[str, float]]:
+        points = []
+        t = 0.0
+        while t <= self.future_horizon_s + 1e-9:
+            points.append({"t_s": round(t, 3), "x_m": float(x_m), "y_m": float(y_m)})
+            step = min(self.future_dt_s, self.future_horizon_s - t)
+            if step <= 1e-9:
+                break
+            t += step
+        return points
 
     def project_path(self, hyp: Any) -> list[dict[str, float]]:
         model = self.model_lookup.get(str(hyp.model))
