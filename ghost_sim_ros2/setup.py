@@ -38,6 +38,7 @@ setup(
             "imm_tracker = analysis.imm_tracker:main",
             "stats_harness = analysis.stats_harness:main",
             "tracker_comparison = analysis.tracker_comparison:main",
+            "acceptance_gate = analysis.acceptance_gate:main",
         ],
     },
 )
