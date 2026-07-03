@@ -18,21 +18,30 @@ from dataclasses import dataclass
 import numpy as np
 
 
+CANDIDATE_THRESHOLD_STATUS = "CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R"
+CANDIDATE_THRESHOLD_PROVENANCE = (
+    "Defaults use the reviewed offline software-regime candidate range: "
+    "enter=0.065 m/s at a 1.5 s window, exit=0.090 m/s. Replace with a committed "
+    "hardware-calibrated noise artifact before citing report-grade validation."
+)
+
+
 @dataclass(frozen=True)
 class StationaryGateConfig:
     """Configuration for the windowed stationary gate.
 
-    Thresholds are deliberately supplied by configuration because final values
-    must be derived from controlled hardware noise characterization, not baked
-    into the estimator.
+    Defaults are reviewed candidate values from the software-regime harness.
+    They are not final hardware-calibrated values.
     """
 
     window_s: float = 1.5
-    enter_speed_mps: float = 0.08
-    exit_speed_mps: float = 0.14
+    enter_speed_mps: float = 0.065
+    exit_speed_mps: float = 0.090
     min_samples: int = 5
     min_span_fraction: float = 0.50
     history_duration_s: float | None = None
+    threshold_status: str = CANDIDATE_THRESHOLD_STATUS
+    threshold_provenance: str = CANDIDATE_THRESHOLD_PROVENANCE
 
     def validate(self) -> None:
         if self.window_s <= 0.0:
