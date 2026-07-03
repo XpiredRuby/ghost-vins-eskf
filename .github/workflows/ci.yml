@@ -24,7 +24,7 @@ jobs:
       - name: Run Python unit tests
         run: |
           cd ghost_sim_ros2
-          PYTHONPATH="$PWD" python3 -m pytest -q test/test_stationary_noise_analysis.py test/test_stationary_gate.py test/test_measurement_r.py
+          PYTHONPATH="$PWD" python3 -m pytest -q test/test_stationary_noise_analysis.py test/test_stationary_gate.py test/test_measurement_r.py test/test_observability_crlb.py
 
       - name: Build portable C++ core
         run: |

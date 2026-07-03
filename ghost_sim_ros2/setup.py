@@ -33,6 +33,8 @@ setup(
             "gazebo_bridge = ghost_sim_ros2.gazebo_bridge:main",
             "imu_watchdog = ghost_sim_ros2.imu_watchdog:main",
             "stationary_noise_analysis = analysis.stationary_noise_analysis:main",
+            "measurement_covariance = analysis.measurement_covariance:main",
+            "observability_crlb = analysis.observability_crlb:main",
         ],
     },
 )
