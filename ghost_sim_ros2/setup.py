@@ -37,6 +37,7 @@ setup(
             "observability_crlb = analysis.observability_crlb:main",
             "imm_tracker = analysis.imm_tracker:main",
             "stats_harness = analysis.stats_harness:main",
+            "tracker_comparison = analysis.tracker_comparison:main",
         ],
     },
 )
