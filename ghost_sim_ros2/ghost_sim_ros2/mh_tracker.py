@@ -5,7 +5,7 @@ from typing import Any
 import numpy as np
 import rclpy
 from geometry_msgs.msg import PoseWithCovarianceStamped
-from nav_msgs.msg import String
+from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from std_msgs.msg import String
