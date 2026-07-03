@@ -20,6 +20,8 @@ stationary_hold_prior = 0.95
 stationary_hold_max_s = 4.0
 ```
 
+`stationary_hold_prior = 0.95` is also a candidate V1 design prior, not a measured probability. It is carried in the live payload with its own status/provenance fields so it does not become an undocumented magic number.
+
 When the target was stationary before measurement loss, the live wrapper:
 
 ```text
@@ -31,6 +33,12 @@ When the target was stationary before measurement loss, the live wrapper:
 6. emits status text: HIDDEN - STATIONARY HOLD
 ```
 
+## Important implementation notes
+
+The live wrapper rejects `x < 0.0` detections because V1 treats camera-frame `+x` as forward range. Negative `x` is behind the camera/invalid for the current single-camera bench geometry. Lateral `y` may be positive or negative.
+
+The stationary gate updates only on real visible pose messages. During occlusion there are no new poses, so the gate state intentionally freezes at the last visible decision. This preserves the answer to: "was the target stationary immediately before hiding?" The separate `stationary_hold_max_s` bound prevents holding that belief forever.
+
 ## Payload caveat
 
 The live futures payload now carries:
@@ -41,6 +49,9 @@ stationary_threshold_provenance
 stationary_window_s
 stationary_enter_speed_mps
 stationary_exit_speed_mps
+stationary_hold_prior
+stationary_hold_prior_status
+stationary_hold_prior_provenance
 stationary_hold_max_s
 ```
 
@@ -98,6 +109,8 @@ Expected hidden stationary payload behavior:
 ```json
 {
   "hidden_stationary_hold_active": true,
+  "stationary_hold_prior": 0.95,
+  "stationary_hold_prior_status": "CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R",
   "hypotheses": [
     {
       "rank": 1,
