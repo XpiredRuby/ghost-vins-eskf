@@ -281,8 +281,15 @@ def estimate_jacobian_from_projection_fn(
     return estimate_jacobian_propagated_r(j, pixel_sigma_px, dimensions=dimensions, status=status)
 
 
+def covariance_report_key(estimate: CovarianceEstimate) -> str:
+    """Return a stable JSON key that prevents raw/detrended overwrite."""
+    if estimate.estimator == "empirical_stationary_log" and estimate.sample_mode:
+        return f"{estimate.estimator}_{estimate.sample_mode}"
+    return estimate.estimator
+
+
 def estimates_to_dict(estimates: Sequence[CovarianceEstimate]) -> dict[str, dict]:
-    return {estimate.estimator: estimate.to_dict() for estimate in estimates}
+    return {covariance_report_key(estimate): estimate.to_dict() for estimate in estimates}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -296,9 +303,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json-out", type=Path, default=None, help="Optional JSON output path")
     args = parser.parse_args(argv)
 
-    estimates: list[CovarianceEstimate] = [
-        estimate_pinhole_lateral_r(args.fx, args.fy, args.rms, args.standoff)
-    ]
+    estimates: list[CovarianceEstimate] = [estimate_pinhole_lateral_r(args.fx, args.fy, args.rms, args.standoff)]
     if args.csv is not None:
         estimates.append(estimate_empirical_stationary_r(args.csv, sample_mode="raw"))
         if args.include_detrended:
