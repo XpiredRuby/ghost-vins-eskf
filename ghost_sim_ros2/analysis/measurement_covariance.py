@@ -165,6 +165,10 @@ def estimate_empirical_stationary_r(
     if len(dims) == 1:
         r = np.asarray([[float(r)]], dtype=float)
 
+    # Coupling note: the covariance samples above and the provenance report below
+    # both rely on PR #20's load_pose_csv/uniform_resample behavior. If the noise
+    # analysis resampling policy changes, keep this estimator synchronized so the
+    # covariance matrix and provenance describe the same time base.
     report = analyze_pose_csv(csv_path)
     if sample_mode == "raw":
         assumption = MAY_INCLUDE_COLORED_COMPONENTS
