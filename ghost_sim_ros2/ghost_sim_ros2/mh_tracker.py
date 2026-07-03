@@ -15,6 +15,21 @@ from analysis.ghost_mh_mode_bank import mode_bank
 from analysis.stationary_gate import StationaryGateConfig, WindowedVelocityGate
 
 
+STATIONARY_THRESHOLD_STATUS = "CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R"
+STATIONARY_THRESHOLD_PROVENANCE = (
+    "Live ROS stationary gate uses the reviewed candidate range from the offline "
+    "software-regime scaffold: enter=0.065 m/s at a 1.5 s window, exit=0.090 m/s. "
+    "These values still require committed hardware-calibrated noise artifacts before "
+    "being cited as report-grade validation."
+)
+STATIONARY_HOLD_PRIOR_STATUS = "CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R"
+STATIONARY_HOLD_PRIOR_PROVENANCE = (
+    "stationary_hold_prior=0.95 is a candidate V1 design prior from the reviewed "
+    "software-regime scaffold, not a measured probability. It must remain tunable "
+    "and should be revisited after live hardware trials."
+)
+
+
 class GhostMHTrackerNode(Node):
     """Live ROS2 wrapper for the calibrated V1 heuristic hypothesis tracker.
 
@@ -25,6 +40,11 @@ class GhostMHTrackerNode(Node):
         /ghost/tracker_mh/target_odom   nav_msgs/Odometry
         /ghost/tracker_mh/futures_json  std_msgs/String JSON payload
         /ghost/tracker_mh/status        std_msgs/String human-readable status
+
+    Important:
+        Stationary-hold behavior here is an integration of the reviewed offline
+        scaffold. It is still a candidate live behavior until hardware-calibrated
+        noise replay and live Pi trials are reviewed.
     """
 
     def __init__(self) -> None:
@@ -45,12 +65,17 @@ class GhostMHTrackerNode(Node):
         self.declare_parameter("future_horizon_s", 1.5)
         self.declare_parameter("future_dt_s", 0.10)
         self.declare_parameter("accel_temperature", 0.30)
+
+        # Reviewed candidate values from the offline software-regime scaffold.
+        # These are intentionally parameters so live trials can sweep them without
+        # changing code. They remain placeholders pending hardware-calibrated R.
         self.declare_parameter("stationary_gate_enabled", True)
         self.declare_parameter("stationary_window_s", 1.5)
-        self.declare_parameter("stationary_enter_speed_mps", 0.08)
-        self.declare_parameter("stationary_exit_speed_mps", 0.14)
+        self.declare_parameter("stationary_enter_speed_mps", 0.065)
+        self.declare_parameter("stationary_exit_speed_mps", 0.090)
         self.declare_parameter("stationary_min_samples", 5)
         self.declare_parameter("stationary_hold_prior", 0.95)
+        self.declare_parameter("stationary_hold_max_s", 4.0)
 
         self.input_topic = str(self.get_parameter("input_topic").value)
         self.odom_topic = str(self.get_parameter("odom_topic").value)
@@ -64,6 +89,11 @@ class GhostMHTrackerNode(Node):
         self.future_horizon_s = float(self.get_parameter("future_horizon_s").value)
         self.future_dt_s = float(self.get_parameter("future_dt_s").value)
         self.stationary_gate_enabled = bool(self.get_parameter("stationary_gate_enabled").value)
+        self.stationary_window_s = float(self.get_parameter("stationary_window_s").value)
+        self.stationary_enter_speed_mps = float(self.get_parameter("stationary_enter_speed_mps").value)
+        self.stationary_exit_speed_mps = float(self.get_parameter("stationary_exit_speed_mps").value)
+        self.stationary_min_samples = int(self.get_parameter("stationary_min_samples").value)
+        self.stationary_hold_max_s = float(self.get_parameter("stationary_hold_max_s").value)
         self.stationary_hold_prior = float(self.get_parameter("stationary_hold_prior").value)
         self.stationary_hold_prior = min(max(self.stationary_hold_prior, 0.50), 1.0)
 
@@ -77,10 +107,10 @@ class GhostMHTrackerNode(Node):
 
         self.stationary_gate = WindowedVelocityGate(
             StationaryGateConfig(
-                window_s=float(self.get_parameter("stationary_window_s").value),
-                enter_speed_mps=float(self.get_parameter("stationary_enter_speed_mps").value),
-                exit_speed_mps=float(self.get_parameter("stationary_exit_speed_mps").value),
-                min_samples=int(self.get_parameter("stationary_min_samples").value),
+                window_s=self.stationary_window_s,
+                enter_speed_mps=self.stationary_enter_speed_mps,
+                exit_speed_mps=self.stationary_exit_speed_mps,
+                min_samples=self.stationary_min_samples,
             )
         )
         self.stationary_state = self.stationary_gate.state
@@ -115,7 +145,9 @@ class GhostMHTrackerNode(Node):
             f"{self.input_topic}; publishing {self.odom_topic}, "
             f"{self.futures_topic}; tick={self.tick_hz:.1f}Hz; "
             f"timeout={self.measurement_timeout_s:.2f}s; future_dt={self.future_dt_s:.2f}s; "
-            f"stationary_gate={self.stationary_gate_enabled}"
+            f"stationary_gate={self.stationary_gate_enabled}; "
+            f"stationary_enter={self.stationary_enter_speed_mps:.3f}m/s; "
+            f"stationary_exit={self.stationary_exit_speed_mps:.3f}m/s"
         )
 
     def now_s(self) -> float:
@@ -127,6 +159,9 @@ class GhostMHTrackerNode(Node):
         y = float(msg.pose.pose.position.y)
         if not math.isfinite(x) or not math.isfinite(y):
             return
+        # V1 AprilTag pose uses camera-frame forward range as +x. Negative x is
+        # behind the camera/invalid for the current single-camera bench geometry;
+        # y is lateral and may legitimately be positive or negative.
         if x < 0.0 or math.hypot(x, y) > float(self.get_parameter("max_workspace_range_m").value):
             return
 
@@ -162,12 +197,18 @@ class GhostMHTrackerNode(Node):
 
         self.tracker.step(dt, measurement)
         estimate = self.tracker.estimate()
+
+        # The stationary gate is updated only by real visible measurements. During
+        # occlusion its state intentionally freezes at the last visible decision,
+        # which answers: "was the target stationary immediately before hiding?"
+        # The separate measurement_age_s bound below prevents holding forever.
         self.hidden_stationary_hold_active = bool(
             self.stationary_gate_enabled
             and estimate.initialized
             and (not visible)
             and self.stationary_state.active
             and self.latest_xy is not None
+            and measurement_age_s <= self.stationary_hold_max_s
         )
 
         if estimate.initialized:
@@ -236,6 +277,16 @@ class GhostMHTrackerNode(Node):
             "future_horizon_s": self.future_horizon_s,
             "future_dt_s": self.future_dt_s,
             "stationary_gate_enabled": bool(self.stationary_gate_enabled),
+            "stationary_threshold_status": STATIONARY_THRESHOLD_STATUS,
+            "stationary_threshold_provenance": STATIONARY_THRESHOLD_PROVENANCE,
+            "stationary_window_s": self.stationary_window_s,
+            "stationary_enter_speed_mps": self.stationary_enter_speed_mps,
+            "stationary_exit_speed_mps": self.stationary_exit_speed_mps,
+            "stationary_min_samples": self.stationary_min_samples,
+            "stationary_hold_prior": self.stationary_hold_prior,
+            "stationary_hold_prior_status": STATIONARY_HOLD_PRIOR_STATUS,
+            "stationary_hold_prior_provenance": STATIONARY_HOLD_PRIOR_PROVENANCE,
+            "stationary_hold_max_s": self.stationary_hold_max_s,
             "stationary_hold_active": bool(self.stationary_state.active),
             "hidden_stationary_hold_active": bool(self.hidden_stationary_hold_active),
             "stationary_window_speed_mps": finite_or_none(self.stationary_state.speed_mps),
@@ -288,20 +339,20 @@ class GhostMHTrackerNode(Node):
             text = "WAITING_FOR_TARGET"
         elif visible:
             text = (
-                "VISIBLE "
+                "VISIBLE - MEASUREMENT LOCK "
                 f"stationary={self.stationary_state.active} "
                 f"window_speed={finite_or_none(self.stationary_state.speed_mps)}"
             )
         elif self.hidden_stationary_hold_active:
             text = (
-                "HIDDEN_STATIONARY_HOLD "
+                "HIDDEN - STATIONARY HOLD "
                 f"age={finite_or_none(measurement_age_s)} "
                 f"window_speed={finite_or_none(self.stationary_state.speed_mps)}"
             )
         else:
             tops = self.tracker.top_hypotheses(min(3, self.top_n))
             top_text = ", ".join(f"{h.model}:{100.0*h.weight:.1f}%" for h in tops)
-            text = f"OCCLUDED age={finite_or_none(measurement_age_s)} top=[{top_text}]"
+            text = f"OCCLUDED - HYPOTHESIS BANK age={finite_or_none(measurement_age_s)} top=[{top_text}]"
         self.status_pub.publish(String(data=text))
 
     def current_output_state(self, estimate: Any) -> tuple[float, float, float, float]:

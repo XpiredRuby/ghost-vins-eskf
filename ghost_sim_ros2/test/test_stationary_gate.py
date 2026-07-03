@@ -6,7 +6,11 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from analysis.stationary_gate import StationaryGateConfig, WindowedVelocityGate  # noqa: E402
+from analysis.stationary_gate import (  # noqa: E402
+    CANDIDATE_THRESHOLD_STATUS,
+    StationaryGateConfig,
+    WindowedVelocityGate,
+)
 
 
 def colored_stationary_noise(count, dt, seed=11):
@@ -36,11 +40,21 @@ def run_gate(t, x, y, config):
     return states
 
 
+def test_default_thresholds_match_reviewed_candidate_values():
+    config = StationaryGateConfig()
+
+    assert config.window_s == 1.5
+    assert config.enter_speed_mps == 0.065
+    assert config.exit_speed_mps == 0.090
+    assert config.threshold_status == CANDIDATE_THRESHOLD_STATUS
+    assert "hardware-calibrated" in config.threshold_provenance
+
+
 def test_stationary_colored_noise_enters_and_stays_locked():
     config = StationaryGateConfig(
         window_s=1.5,
-        enter_speed_mps=0.04,
-        exit_speed_mps=0.10,
+        enter_speed_mps=0.065,
+        exit_speed_mps=0.090,
         min_samples=8,
     )
     t, x, y = colored_stationary_noise(count=1200, dt=0.05)
@@ -62,8 +76,8 @@ def test_stationary_colored_noise_enters_and_stays_locked():
 def test_slow_constant_motion_does_not_false_lock():
     config = StationaryGateConfig(
         window_s=1.5,
-        enter_speed_mps=0.04,
-        exit_speed_mps=0.08,
+        enter_speed_mps=0.065,
+        exit_speed_mps=0.090,
         min_samples=8,
     )
     dt = 0.05
@@ -82,8 +96,8 @@ def test_slow_constant_motion_does_not_false_lock():
 def test_stationary_to_motion_to_stationary_transition():
     config = StationaryGateConfig(
         window_s=1.0,
-        enter_speed_mps=0.04,
-        exit_speed_mps=0.08,
+        enter_speed_mps=0.065,
+        exit_speed_mps=0.090,
         min_samples=6,
     )
     dt = 0.05
