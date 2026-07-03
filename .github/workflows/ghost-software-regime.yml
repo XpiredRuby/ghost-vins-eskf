@@ -1,0 +1,45 @@
+name: GHOST Software Regime
+
+on:
+  pull_request:
+    paths:
+      - 'ghost_sim_ros2/analysis/**'
+      - 'ghost_sim_ros2/test/**'
+      - 'ghost_sim_ros2/docs/**'
+      - 'docs/**'
+      - '.github/workflows/ghost-software-regime.yml'
+  workflow_dispatch:
+
+jobs:
+  offline-acceptance:
+    name: Offline stationary-hold acceptance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run software-regime acceptance harness
+        run: |
+          python ghost_sim_ros2/analysis/ghost_software_regime.py --out ghost_regime_runs/ci
+
+      - name: Run focused pytest gates
+        run: |
+          python -m pip install --upgrade pip pytest
+          pytest -q ghost_sim_ros2/test/test_ghost_software_regime.py
+
+      - name: Upload acceptance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ghost-software-regime-report
+          path: |
+            ghost_regime_runs/ci/summary.md
+            ghost_regime_runs/ci/summary.json
+            ghost_regime_runs/ci/replay.html
+            ghost_regime_runs/ci/*/metrics.json
+            ghost_regime_runs/ci/*/futures.jsonl
