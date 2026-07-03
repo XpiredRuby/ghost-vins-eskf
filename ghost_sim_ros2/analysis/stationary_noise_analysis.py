@@ -1,13 +1,18 @@
-"""Stationary AprilTag pose noise characterization utilities.
+"""Stationary AprilTag pose noise characterization utilities for GHOST V1.
 
-This module is intentionally hardware-independent. It analyzes CSV logs with
-columns ``t,x,y,z`` and reports autocorrelation, Welch PSD, and Allan deviation
-after resampling onto a uniform time grid.
+This module is pure Python/NumPy and intentionally hardware-independent. It
+analyzes CSV logs with schema ``t,x,y,z`` and reports autocorrelation, Welch PSD,
+and Allan deviation after resampling onto a uniform time grid.
 
 Important estimator caveat:
 These diagnostics do not assume the pose noise is white. If later code chooses
 to use white-Gaussian measurement covariance, that assumption must be stated
 separately and validated against these colored-noise diagnostics.
+
+Raw vs detrended diagnostics:
+Raw autocorrelation/PSD/Allan fields are preserved for direct comparison to the
+earlier uncontrolled baseline. Detrended diagnostics are reported alongside them
+as a drift-removed view. Do not compare detrended values to old raw baselines.
 """
 
 from __future__ import annotations
@@ -18,9 +23,17 @@ import json
 import math
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Literal
 
 import numpy as np
+
+CSV_SCHEMA = ("t", "x", "y", "z")
+NOISE_ASSUMPTION_STATUS = "DOES_NOT_ASSUME_WHITE_NOISE"
+WHITE_NOISE_ASSUMPTION_FLAG = "WHITE_NOISE_NOT_ASSUMED_DIAGNOSTIC_ONLY"
+HARDWARE_STATUS = "CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R"
+DETRENDING_STATUS = "RAW_BASELINE_COMPARABLE_AND_DETRENDED_DIAGNOSTICS_REPORTED"
+
+SlopeClass = Literal["white-noise-like", "flicker-or-floor-like", "random-walk-or-drift-like"]
 
 
 @dataclass(frozen=True)
@@ -32,17 +45,54 @@ class AxisNoiseSummary:
     mean_m: float
     std_m: float
     detrended_std_m: float
+    linear_trend_slope_mps: float
+    detrending_applied: bool
+
+    # Baseline-comparable raw diagnostics. These are also mirrored by the
+    # legacy field names below so existing callers naturally compare raw-to-raw.
+    raw_lag1_autocorrelation: float
+    raw_decorrelation_time_s: float | None
+    raw_psd_power_below: dict[str, float]
+    raw_dominant_peaks_hz: list[dict[str, float]]
+    raw_allan_selected: list[dict[str, float]]
+    raw_allan_slopes: list[dict[str, float | str]]
+    raw_overall_allan_slope: float
+    raw_overall_allan_class: SlopeClass
+
+    # Drift-removed diagnostics. Use these for improved characterization after
+    # raw baseline comparisons have been made.
+    detrended_lag1_autocorrelation: float
+    detrended_decorrelation_time_s: float | None
+    detrended_psd_power_below: dict[str, float]
+    detrended_dominant_peaks_hz: list[dict[str, float]]
+    detrended_allan_selected: list[dict[str, float]]
+    detrended_allan_slopes: list[dict[str, float | str]]
+    detrended_overall_allan_slope: float
+    detrended_overall_allan_class: SlopeClass
+
+    # Legacy/public aliases intentionally remain raw, not detrended, so PR #20
+    # output can be compared directly to earlier uncontrolled raw baseline
+    # numbers such as sigma_x=0.0355 m and lag-1 rho_x=0.995.
     lag1_autocorrelation: float
     decorrelation_time_s: float | None
     psd_power_below: dict[str, float]
     dominant_peaks_hz: list[dict[str, float]]
     allan_selected: list[dict[str, float]]
     allan_slopes: list[dict[str, float | str]]
+    overall_allan_slope: float
+    overall_allan_class: SlopeClass
 
 
 @dataclass(frozen=True)
 class NoiseAnalysisReport:
     source: str
+    csv_schema: tuple[str, str, str, str]
+    noise_assumption_status: str
+    white_noise_assumption_flag: str
+    hardware_status: str
+    detrending_status: str
+    detrending_applied: bool
+    comparison_guidance: str
     sample_count_raw: int
     sample_count_uniform: int
     dt_s: float
@@ -51,18 +101,22 @@ class NoiseAnalysisReport:
 
 
 def load_pose_csv(path: str | Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Load a stationary pose CSV with columns t,x,y,z."""
+    """Load a stationary pose CSV with columns exactly compatible with ``t,x,y,z``.
+
+    Extra columns are allowed, but the required schema must be present. The
+    returned time vector is sorted and normalized to start at zero seconds.
+    """
     rows: list[tuple[float, float, float, float]] = []
     with Path(path).expanduser().open(newline="") as f:
         reader = csv.DictReader(f)
-        required = {"t", "x", "y", "z"}
+        required = set(CSV_SCHEMA)
         if reader.fieldnames is None or not required.issubset(set(reader.fieldnames)):
-            raise ValueError(f"CSV must contain columns {sorted(required)}; got {reader.fieldnames}")
+            raise ValueError(f"CSV must contain columns {list(CSV_SCHEMA)}; got {reader.fieldnames}")
         for row in reader:
             rows.append((float(row["t"]), float(row["x"]), float(row["y"]), float(row["z"])))
 
-    if len(rows) < 4:
-        raise ValueError("Need at least four pose samples for noise analysis.")
+    if len(rows) < 8:
+        raise ValueError("Need at least eight pose samples for noise analysis.")
 
     rows.sort(key=lambda r: r[0])
     t = np.asarray([r[0] for r in rows], dtype=float)
@@ -103,12 +157,18 @@ def uniform_resample(t: np.ndarray, values: np.ndarray, dt_s: float | None = Non
     return t_uniform - t_uniform[0], values_uniform, dt
 
 
+def linear_trend(t: np.ndarray, values: np.ndarray) -> tuple[float, float]:
+    """Return best-fit slope/intercept for one time series."""
+    if len(values) < 2:
+        return 0.0, float(np.mean(values)) if len(values) else 0.0
+    slope, intercept = np.polyfit(t, values, 1)
+    return float(slope), float(intercept)
+
+
 def detrend_linear(t: np.ndarray, values: np.ndarray) -> np.ndarray:
     """Remove the best-fit line from a time series."""
-    if len(values) < 2:
-        return values - np.mean(values)
-    coeff = np.polyfit(t, values, 1)
-    return values - np.polyval(coeff, t)
+    slope, intercept = linear_trend(t, values)
+    return values - (slope * t + intercept)
 
 
 def autocorrelation(values: np.ndarray, max_lag: int = 50) -> np.ndarray:
@@ -134,7 +194,13 @@ def decorrelation_time(acf: np.ndarray, dt_s: float, threshold: float = 1.0 / ma
 
 
 def welch_psd(values: np.ndarray, fs_hz: float, nperseg: int = 256, overlap: float = 0.5) -> tuple[np.ndarray, np.ndarray]:
-    """Compute a simple Welch PSD estimate using only NumPy."""
+    """Compute a simple Welch PSD estimate using only NumPy.
+
+    The DC bin is zeroed intentionally because the report focuses on fluctuation
+    structure rather than static pose offset. The implementation mirrors the
+    common SciPy Welch form closely enough for relative power/peak diagnostics
+    without adding a SciPy dependency to the Pi path.
+    """
     x = np.asarray(values, dtype=float) - float(np.mean(values))
     n = len(x)
     if n < 4:
@@ -175,7 +241,12 @@ def psd_power_fractions(freqs: np.ndarray, psd: np.ndarray, cutoffs_hz: Iterable
 
 
 def dominant_psd_peaks(freqs: np.ndarray, psd: np.ndarray, count: int = 6) -> list[dict[str, float]]:
-    """Return dominant local PSD peaks. Falls back to largest bins if needed."""
+    """Return dominant local PSD peaks.
+
+    If no strict local maxima exist, the function intentionally falls back to
+    the largest non-DC bins. That makes monotonic/smooth spectra still produce a
+    useful reviewable summary, though it may return fewer than ``count`` peaks.
+    """
     total = float(np.sum(psd))
     if total <= 0.0:
         return []
@@ -187,16 +258,14 @@ def dominant_psd_peaks(freqs: np.ndarray, psd: np.ndarray, count: int = 6) -> li
 
     candidates = local_maxima if local_maxima else [i for i in range(1, len(psd)) if freqs[i] > 0.0]
     candidates = sorted(candidates, key=lambda i: float(psd[i]), reverse=True)[:count]
-    return [
-        {"frequency_hz": float(freqs[i]), "relative_power": float(psd[i] / total)}
-        for i in candidates
-    ]
+    return [{"frequency_hz": float(freqs[i]), "relative_power": float(psd[i] / total)} for i in candidates]
 
 
 def allan_deviation(values: np.ndarray, dt_s: float, points: int = 48) -> tuple[np.ndarray, np.ndarray]:
     """Overlapping Allan deviation for position-like data.
 
     For position white noise, slope is near -1/2.
+    For position flicker/floor-like noise, slope is near 0.
     For position random walk/drift, slope is near +1/2.
     """
     x = np.asarray(values, dtype=float)
@@ -224,13 +293,25 @@ def allan_deviation(values: np.ndarray, dt_s: float, points: int = 48) -> tuple[
     return np.asarray(taus, dtype=float), np.asarray(adevs, dtype=float)
 
 
-def interpret_allan_slope(slope: float) -> str:
-    """Interpret Allan deviation slope."""
-    if slope < -0.30:
+def interpret_allan_slope(slope: float) -> SlopeClass:
+    """Interpret Allan deviation slope into the classes used by GHOST reports."""
+    if slope < -0.25:
         return "white-noise-like"
-    if slope <= 0.30:
+    if slope <= 0.25:
         return "flicker-or-floor-like"
     return "random-walk-or-drift-like"
+
+
+def fit_allan_slope(taus: np.ndarray, adevs: np.ndarray, lo_s: float | None = None, hi_s: float | None = None) -> float:
+    """Fit one log-log Allan slope over a selected tau window."""
+    if len(taus) < 3:
+        return math.nan
+    lo = float(np.min(taus[taus > 0.0]) if lo_s is None else lo_s)
+    hi = float(np.max(taus) if hi_s is None else hi_s)
+    mask = (taus >= lo) & (taus <= hi) & (adevs > 0.0)
+    if int(np.sum(mask)) < 3:
+        return math.nan
+    return float(np.polyfit(np.log10(taus[mask]), np.log10(adevs[mask]), 1)[0])
 
 
 def allan_slopes_by_octave(taus: np.ndarray, adevs: np.ndarray) -> list[dict[str, float | str]]:
@@ -272,6 +353,25 @@ def selected_allan_points(taus: np.ndarray, adevs: np.ndarray, targets_s: Iterab
     return out
 
 
+def _diagnostics_for_series(values: np.ndarray, dt_s: float, max_lag: int, nperseg: int) -> dict:
+    fs_hz = 1.0 / dt_s
+    acf = autocorrelation(values, max_lag=max_lag)
+    freqs, psd = welch_psd(values, fs_hz=fs_hz, nperseg=nperseg)
+    taus, adevs = allan_deviation(values, dt_s=dt_s)
+    overall_slope = fit_allan_slope(taus, adevs, lo_s=max(2.0 * dt_s, 0.2), hi_s=min(float(np.max(taus)) if len(taus) else 1.0, 10.0))
+    overall_class: SlopeClass = interpret_allan_slope(overall_slope) if math.isfinite(overall_slope) else "flicker-or-floor-like"
+    return {
+        "lag1_autocorrelation": float(acf[1]) if len(acf) > 1 else math.nan,
+        "decorrelation_time_s": decorrelation_time(acf, dt_s),
+        "psd_power_below": psd_power_fractions(freqs, psd, [0.25, 0.50, 1.00]),
+        "dominant_peaks_hz": dominant_psd_peaks(freqs, psd),
+        "allan_selected": selected_allan_points(taus, adevs, [dt_s, 0.25, 0.50, 1.00, 2.00, 5.00, 10.00]),
+        "allan_slopes": allan_slopes_by_octave(taus, adevs),
+        "overall_allan_slope": overall_slope,
+        "overall_allan_class": overall_class,
+    }
+
+
 def analyze_axis(
     axis: str,
     t_uniform: np.ndarray,
@@ -280,33 +380,56 @@ def analyze_axis(
     max_lag: int = 50,
     nperseg: int = 256,
 ) -> AxisNoiseSummary:
-    """Analyze one uniformly sampled position axis."""
-    fs_hz = 1.0 / dt_s
+    """Analyze one uniformly sampled position axis.
+
+    Raw diagnostics are baseline-comparable. Detrended diagnostics are reported
+    separately and must not be mixed with earlier raw baseline numbers.
+    """
+    slope_mps, _intercept = linear_trend(t_uniform, values_uniform)
     detrended = detrend_linear(t_uniform, values_uniform)
 
-    acf = autocorrelation(detrended, max_lag=max_lag)
-    freqs, psd = welch_psd(detrended, fs_hz=fs_hz, nperseg=nperseg)
-    taus, adevs = allan_deviation(detrended, dt_s=dt_s)
+    raw = _diagnostics_for_series(values_uniform, dt_s, max_lag, nperseg)
+    det = _diagnostics_for_series(detrended, dt_s, max_lag, nperseg)
 
     return AxisNoiseSummary(
         axis=axis,
         sample_count=int(len(values_uniform)),
         dt_s=float(dt_s),
-        sample_rate_hz=float(fs_hz),
+        sample_rate_hz=float(1.0 / dt_s),
         mean_m=float(np.mean(values_uniform)),
         std_m=float(np.std(values_uniform, ddof=1)),
         detrended_std_m=float(np.std(detrended, ddof=1)),
-        lag1_autocorrelation=float(acf[1]) if len(acf) > 1 else math.nan,
-        decorrelation_time_s=decorrelation_time(acf, dt_s),
-        psd_power_below=psd_power_fractions(freqs, psd, [0.25, 0.50, 1.00]),
-        dominant_peaks_hz=dominant_psd_peaks(freqs, psd),
-        allan_selected=selected_allan_points(taus, adevs, [dt_s, 0.25, 0.50, 1.00, 2.00, 5.00, 10.00]),
-        allan_slopes=allan_slopes_by_octave(taus, adevs),
+        linear_trend_slope_mps=float(slope_mps),
+        detrending_applied=True,
+        raw_lag1_autocorrelation=raw["lag1_autocorrelation"],
+        raw_decorrelation_time_s=raw["decorrelation_time_s"],
+        raw_psd_power_below=raw["psd_power_below"],
+        raw_dominant_peaks_hz=raw["dominant_peaks_hz"],
+        raw_allan_selected=raw["allan_selected"],
+        raw_allan_slopes=raw["allan_slopes"],
+        raw_overall_allan_slope=raw["overall_allan_slope"],
+        raw_overall_allan_class=raw["overall_allan_class"],
+        detrended_lag1_autocorrelation=det["lag1_autocorrelation"],
+        detrended_decorrelation_time_s=det["decorrelation_time_s"],
+        detrended_psd_power_below=det["psd_power_below"],
+        detrended_dominant_peaks_hz=det["dominant_peaks_hz"],
+        detrended_allan_selected=det["allan_selected"],
+        detrended_allan_slopes=det["allan_slopes"],
+        detrended_overall_allan_slope=det["overall_allan_slope"],
+        detrended_overall_allan_class=det["overall_allan_class"],
+        lag1_autocorrelation=raw["lag1_autocorrelation"],
+        decorrelation_time_s=raw["decorrelation_time_s"],
+        psd_power_below=raw["psd_power_below"],
+        dominant_peaks_hz=raw["dominant_peaks_hz"],
+        allan_selected=raw["allan_selected"],
+        allan_slopes=raw["allan_slopes"],
+        overall_allan_slope=raw["overall_allan_slope"],
+        overall_allan_class=raw["overall_allan_class"],
     )
 
 
 def analyze_pose_csv(path: str | Path, max_lag: int = 50, nperseg: int = 256) -> NoiseAnalysisReport:
-    """Analyze x/y stationary pose noise from a CSV log."""
+    """Analyze a Pi-validation-compatible ``t,x,y,z`` stationary pose CSV."""
     t, x, y, _z = load_pose_csv(path)
     t_uniform, x_uniform, dt_s = uniform_resample(t, x)
     _t_uniform_y, y_uniform, _dt_y = uniform_resample(t, y, dt_s=dt_s)
@@ -318,6 +441,17 @@ def analyze_pose_csv(path: str | Path, max_lag: int = 50, nperseg: int = 256) ->
 
     return NoiseAnalysisReport(
         source=str(path),
+        csv_schema=CSV_SCHEMA,
+        noise_assumption_status=NOISE_ASSUMPTION_STATUS,
+        white_noise_assumption_flag=WHITE_NOISE_ASSUMPTION_FLAG,
+        hardware_status=HARDWARE_STATUS,
+        detrending_status=DETRENDING_STATUS,
+        detrending_applied=True,
+        comparison_guidance=(
+            "Use raw_* fields and legacy aliases for comparison to previous raw baselines "
+            "such as sigma_x=0.0355 m and lag-1 rho_x=0.995. Use detrended_* fields only "
+            "as drift-removed diagnostics; do not mix raw and detrended conclusions."
+        ),
         sample_count_raw=int(len(t)),
         sample_count_uniform=int(len(t_uniform)),
         dt_s=float(dt_s),
@@ -327,8 +461,35 @@ def analyze_pose_csv(path: str | Path, max_lag: int = 50, nperseg: int = 256) ->
 
 
 def report_to_dict(report: NoiseAnalysisReport) -> dict:
-    """Convert dataclass report to JSON-serializable dict."""
+    """Convert dataclass report to a JSON-serializable dict."""
     return asdict(report)
+
+
+def _append_diag_block(lines: list[str], title: str, diag_prefix: str, axis: AxisNoiseSummary) -> None:
+    get = lambda name: getattr(axis, f"{diag_prefix}_{name}")
+    lines.extend(
+        [
+            f"- {title} lag-1 autocorrelation: `{get('lag1_autocorrelation'):.6f}`",
+            f"- {title} decorrelation time: `{_fmt_optional(get('decorrelation_time_s'))} s`",
+            f"- {title} overall Allan slope: `{get('overall_allan_slope'):.3f}` (`{get('overall_allan_class')}`)",
+            f"- {title} PSD power fractions:",
+        ]
+    )
+    for cutoff, frac in get("psd_power_below").items():
+        lines.append(f"  - below {cutoff} Hz: `{100.0 * frac:.2f}%`")
+
+    lines.append(f"- {title} dominant PSD peaks:")
+    for peak in get("dominant_peaks_hz")[:5]:
+        lines.append(f"  - `{peak['frequency_hz']:.4f} Hz`, relative power `{peak['relative_power']:.4f}`")
+
+    lines.append(f"- {title} Allan deviation octave slopes:")
+    for slope in get("allan_slopes")[:8]:
+        lines.append(
+            "  - "
+            f"`{float(slope['tau_start_s']):.3f}-{float(slope['tau_end_s']):.3f} s`: "
+            f"slope `{float(slope['slope']):.3f}` "
+            f"({slope['interpretation']})"
+        )
 
 
 def format_markdown_report(report: NoiseAnalysisReport) -> str:
@@ -337,12 +498,21 @@ def format_markdown_report(report: NoiseAnalysisReport) -> str:
         "## Stationary AprilTag Noise Characterization",
         "",
         f"Source: `{report.source}`",
+        f"CSV schema: `{','.join(report.csv_schema)}`",
+        f"Noise assumption status: `{report.noise_assumption_status}`",
+        f"White-noise assumption flag: `{report.white_noise_assumption_flag}`",
+        f"Hardware/calibration status: `{report.hardware_status}`",
+        f"Detrending status: `{report.detrending_status}`",
+        f"Detrending applied: `{report.detrending_applied}`",
         f"Samples: raw `{report.sample_count_raw}`, uniform `{report.sample_count_uniform}`",
         f"Median-resampled dt: `{report.dt_s:.6f} s`",
         f"Sample rate: `{report.sample_rate_hz:.3f} Hz`",
         "",
         "> Diagnostic caveat: this report does not assume white Gaussian noise. "
-        "Autocorrelation, PSD, and Allan deviation are used to check whether that assumption is defensible.",
+        "Raw diagnostics are baseline-comparable. Detrended diagnostics are reported separately "
+        "as a drift-removed view and must not be mixed with earlier raw baseline values.",
+        "",
+        f"> Comparison guidance: {report.comparison_guidance}",
         "",
     ]
 
@@ -355,28 +525,14 @@ def format_markdown_report(report: NoiseAnalysisReport) -> str:
                 f"- Mean: `{axis.mean_m:.6f} m`",
                 f"- Standard deviation: `{axis.std_m:.6f} m`",
                 f"- Detrended standard deviation: `{axis.detrended_std_m:.6f} m`",
-                f"- Lag-1 autocorrelation: `{axis.lag1_autocorrelation:.6f}`",
-                f"- Decorrelation time: `{_fmt_optional(axis.decorrelation_time_s)} s`",
-                "- PSD power fractions:",
+                f"- Linear trend slope: `{axis.linear_trend_slope_mps:.9f} m/s`",
+                "",
+                "#### Raw diagnostics (baseline-comparable)",
             ]
         )
-        for cutoff, frac in axis.psd_power_below.items():
-            lines.append(f"  - below {cutoff} Hz: `{100.0 * frac:.2f}%`")
-
-        lines.append("- Dominant PSD peaks:")
-        for peak in axis.dominant_peaks_hz[:5]:
-            lines.append(
-                f"  - `{peak['frequency_hz']:.4f} Hz`, relative power `{peak['relative_power']:.4f}`"
-            )
-
-        lines.append("- Allan deviation octave slopes:")
-        for slope in axis.allan_slopes[:8]:
-            lines.append(
-                "  - "
-                f"`{float(slope['tau_start_s']):.3f}-{float(slope['tau_end_s']):.3f} s`: "
-                f"slope `{float(slope['slope']):.3f}` "
-                f"({slope['interpretation']})"
-            )
+        _append_diag_block(lines, "Raw", "raw", axis)
+        lines.extend(["", "#### Detrended diagnostics (drift-removed)"])
+        _append_diag_block(lines, "Detrended", "detrended", axis)
         lines.append("")
 
     return "\n".join(lines).rstrip() + "\n"
@@ -386,6 +542,12 @@ def format_text_report(report: NoiseAnalysisReport) -> str:
     """Return a compact terminal-readable report."""
     lines = [
         f"file: {report.source}",
+        f"csv schema: {','.join(report.csv_schema)}",
+        f"noise assumption status: {report.noise_assumption_status}",
+        f"white noise assumption flag: {report.white_noise_assumption_flag}",
+        f"hardware status: {report.hardware_status}",
+        f"detrending status: {report.detrending_status}",
+        f"comparison guidance: {report.comparison_guidance}",
         f"samples raw/uniform: {report.sample_count_raw}/{report.sample_count_uniform}",
         f"dt: {report.dt_s:.6f} s",
         f"sample rate: {report.sample_rate_hz:.3f} Hz",
@@ -395,27 +557,73 @@ def format_text_report(report: NoiseAnalysisReport) -> str:
         lines.extend(
             [
                 "",
-                f"========== {axis_name} ==========",
+                f"========== {axis_name} ==========" ,
                 f"mean: {axis.mean_m:.6f} m",
                 f"std: {axis.std_m:.6f} m",
                 f"detrended std: {axis.detrended_std_m:.6f} m",
-                f"lag-1 acf: {axis.lag1_autocorrelation:.6f}",
-                f"decorrelation time: {_fmt_optional(axis.decorrelation_time_s)} s",
-                "PSD power fractions:",
+                f"linear trend slope: {axis.linear_trend_slope_mps:.9f} m/s",
+                f"raw lag-1 acf: {axis.raw_lag1_autocorrelation:.6f}",
+                f"detrended lag-1 acf: {axis.detrended_lag1_autocorrelation:.6f}",
+                f"raw Allan slope: {axis.raw_overall_allan_slope:.3f} {axis.raw_overall_allan_class}",
+                f"detrended Allan slope: {axis.detrended_overall_allan_slope:.3f} {axis.detrended_overall_allan_class}",
+                "raw PSD power fractions:",
             ]
         )
-        for cutoff, frac in axis.psd_power_below.items():
+        for cutoff, frac in axis.raw_psd_power_below.items():
             lines.append(f"  below {cutoff} Hz: {100.0 * frac:.2f}%")
-        lines.append("dominant peaks:")
-        for peak in axis.dominant_peaks_hz[:5]:
-            lines.append(f"  {peak['frequency_hz']:.4f} Hz rel={peak['relative_power']:.4f}")
-        lines.append("Allan slopes:")
-        for slope in axis.allan_slopes[:8]:
-            lines.append(
-                f"  {float(slope['tau_start_s']):.3f}-{float(slope['tau_end_s']):.3f}s "
-                f"slope={float(slope['slope']):.3f} {slope['interpretation']}"
-            )
+        lines.append("detrended PSD power fractions:")
+        for cutoff, frac in axis.detrended_psd_power_below.items():
+            lines.append(f"  below {cutoff} Hz: {100.0 * frac:.2f}%")
     return "\n".join(lines)
+
+
+def generate_white_noise(count: int, std_m: float = 0.004, seed: int = 1) -> np.ndarray:
+    """Generate synthetic position white noise."""
+    rng = np.random.default_rng(seed)
+    return rng.normal(0.0, std_m, count)
+
+
+def generate_random_walk_noise(count: int, step_std_m: float = 0.001, seed: int = 2) -> np.ndarray:
+    """Generate synthetic position random-walk noise."""
+    rng = np.random.default_rng(seed)
+    return np.cumsum(rng.normal(0.0, step_std_m, count))
+
+
+def generate_flicker_like_noise(count: int, amplitude_m: float = 0.001, seed: int = 3) -> np.ndarray:
+    """Generate approximate 1/f, flicker-like position noise with flat Allan slope.
+
+    This is a frequency-domain synthetic source used only for unit testing the
+    classifier boundary. It is not a hardware replay.
+    """
+    rng = np.random.default_rng(seed)
+    freqs = np.fft.rfftfreq(count, d=1.0)
+    scale = np.zeros_like(freqs)
+    scale[1:] = 1.0 / np.sqrt(freqs[1:])
+    spectrum = (rng.normal(size=len(freqs)) + 1j * rng.normal(size=len(freqs))) * scale
+    spectrum[0] = 0.0
+    x = np.fft.irfft(spectrum, n=count)
+    x = x / max(float(np.std(x)), 1e-12) * amplitude_m
+    return x
+
+
+def generate_ar1_drift_noise(
+    count: int,
+    rho: float = 0.985,
+    process_std_m: float = 0.0012,
+    white_std_m: float = 0.0025,
+    seed: int = 4,
+) -> np.ndarray:
+    """Generate synthetic AR(1) drift matching the PR #18 software-regime pattern.
+
+    This mirrors ``stationary_colored_noise_hide_reveal`` in
+    ``ghost_software_regime.py`` and remains synthetic, not hardware Allan/PSD
+    replay.
+    """
+    rng = np.random.default_rng(seed)
+    drift = np.zeros(count, dtype=float)
+    for k in range(1, count):
+        drift[k] = rho * drift[k - 1] + rng.normal(0.0, process_std_m)
+    return drift + rng.normal(0.0, white_std_m, count)
 
 
 def _fmt_optional(value: float | None) -> str:
@@ -424,17 +632,30 @@ def _fmt_optional(value: float | None) -> str:
     return f"{value:.6f}"
 
 
+def write_reports(report: NoiseAnalysisReport, json_out: Path | None = None, markdown_out: Path | None = None) -> None:
+    """Write JSON and/or Markdown reports."""
+    if json_out is not None:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(json.dumps(report_to_dict(report), indent=2) + "\n")
+    if markdown_out is not None:
+        markdown_out.parent.mkdir(parents=True, exist_ok=True)
+        markdown_out.write_text(format_markdown_report(report))
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Analyze stationary AprilTag pose noise from t,x,y,z CSV logs.")
-    parser.add_argument("csv_path", help="Input CSV with columns t,x,y,z")
-    parser.add_argument("--json", action="store_true", help="Print JSON report.")
-    parser.add_argument("--markdown", action="store_true", help="Print Markdown report block.")
+    parser.add_argument("csv_path", help="Input CSV with columns t,x,y,z; extra columns are ignored")
+    parser.add_argument("--json", action="store_true", help="Print JSON report to stdout.")
+    parser.add_argument("--markdown", action="store_true", help="Print Markdown report block to stdout.")
+    parser.add_argument("--json-out", type=Path, default=None, help="Optional machine-readable JSON output path.")
+    parser.add_argument("--markdown-out", type=Path, default=None, help="Optional Markdown report output path.")
     parser.add_argument("--max-lag", type=int, default=50, help="Maximum autocorrelation lag in samples.")
     parser.add_argument("--nperseg", type=int, default=256, help="Welch PSD segment length.")
-    parser.add_argument("--out", type=Path, default=None, help="Optional output path for the selected report format.")
+    parser.add_argument("--out", type=Path, default=None, help="Legacy output path for the selected stdout format.")
     args = parser.parse_args(argv)
 
     report = analyze_pose_csv(args.csv_path, max_lag=args.max_lag, nperseg=args.nperseg)
+    write_reports(report, json_out=args.json_out, markdown_out=args.markdown_out)
 
     if args.json:
         output = json.dumps(report_to_dict(report), indent=2)
@@ -444,8 +665,9 @@ def main(argv: list[str] | None = None) -> int:
         output = format_text_report(report)
 
     if args.out is not None:
-        args.out.write_text(output)
-    else:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(output if output.endswith("\n") else output + "\n")
+    elif args.json_out is None and args.markdown_out is None:
         print(output)
     return 0
 
