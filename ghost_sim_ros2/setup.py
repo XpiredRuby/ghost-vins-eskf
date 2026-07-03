@@ -36,6 +36,7 @@ setup(
             "measurement_covariance = analysis.measurement_covariance:main",
             "observability_crlb = analysis.observability_crlb:main",
             "imm_tracker = analysis.imm_tracker:main",
+            "stats_harness = analysis.stats_harness:main",
         ],
     },
 )
