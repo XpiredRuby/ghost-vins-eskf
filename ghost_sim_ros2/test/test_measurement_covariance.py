@@ -152,6 +152,33 @@ def test_cli_outputs_json_with_raw_empirical_default(tmp_path):
     assert rc == 0
     summary = json.loads(out.read_text())
     assert "pinhole_first_order" in summary
-    assert "empirical_stationary_log" in summary
-    assert summary["empirical_stationary_log"]["sample_mode"] == "raw"
-    assert summary["empirical_stationary_log"]["assumption_label"] == MAY_INCLUDE_COLORED_COMPONENTS
+    assert "empirical_stationary_log_raw" in summary
+    assert summary["empirical_stationary_log_raw"]["sample_mode"] == "raw"
+    assert summary["empirical_stationary_log_raw"]["assumption_label"] == MAY_INCLUDE_COLORED_COMPONENTS
+
+
+def test_cli_keeps_raw_and_detrended_empirical_reports_separate(tmp_path):
+    rng = np.random.default_rng(16)
+    t = np.arange(300, dtype=float) * 0.05
+    drift = np.column_stack([0.001 * t, -0.001 * t, np.zeros_like(t)])
+    xyz = drift + rng.normal(0.0, [0.001, 0.001, 0.001], size=(len(t), 3))
+    path = tmp_path / "pose.csv"
+    out = tmp_path / "r_summary.json"
+    write_pose_csv(path, t, xyz)
+
+    rc = main([
+        "--csv",
+        str(path),
+        "--standoff",
+        "0.5",
+        "--include-detrended",
+        "--json-out",
+        str(out),
+    ])
+
+    assert rc == 0
+    summary = json.loads(out.read_text())
+    assert "empirical_stationary_log_raw" in summary
+    assert "empirical_stationary_log_detrended" in summary
+    assert summary["empirical_stationary_log_raw"]["assumption_label"] == MAY_INCLUDE_COLORED_COMPONENTS
+    assert summary["empirical_stationary_log_detrended"]["assumption_label"] == DETRENDED_DIAGNOSTIC_NOT_DEFAULT_FOR_FILTER_R
