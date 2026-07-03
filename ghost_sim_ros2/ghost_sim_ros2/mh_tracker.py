@@ -5,7 +5,7 @@ from typing import Any
 import numpy as np
 import rclpy
 from geometry_msgs.msg import PoseWithCovarianceStamped
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import String
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from std_msgs.msg import String
@@ -21,6 +21,12 @@ STATIONARY_THRESHOLD_PROVENANCE = (
     "software-regime scaffold: enter=0.065 m/s at a 1.5 s window, exit=0.090 m/s. "
     "These values still require committed hardware-calibrated noise artifacts before "
     "being cited as report-grade validation."
+)
+STATIONARY_HOLD_PRIOR_STATUS = "CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R"
+STATIONARY_HOLD_PRIOR_PROVENANCE = (
+    "stationary_hold_prior=0.95 is a candidate V1 design prior from the reviewed "
+    "software-regime scaffold, not a measured probability. It must remain tunable "
+    "and should be revisited after live hardware trials."
 )
 
 
@@ -153,6 +159,9 @@ class GhostMHTrackerNode(Node):
         y = float(msg.pose.pose.position.y)
         if not math.isfinite(x) or not math.isfinite(y):
             return
+        # V1 AprilTag pose uses camera-frame forward range as +x. Negative x is
+        # behind the camera/invalid for the current single-camera bench geometry;
+        # y is lateral and may legitimately be positive or negative.
         if x < 0.0 or math.hypot(x, y) > float(self.get_parameter("max_workspace_range_m").value):
             return
 
@@ -188,6 +197,11 @@ class GhostMHTrackerNode(Node):
 
         self.tracker.step(dt, measurement)
         estimate = self.tracker.estimate()
+
+        # The stationary gate is updated only by real visible measurements. During
+        # occlusion its state intentionally freezes at the last visible decision,
+        # which answers: "was the target stationary immediately before hiding?"
+        # The separate measurement_age_s bound below prevents holding forever.
         self.hidden_stationary_hold_active = bool(
             self.stationary_gate_enabled
             and estimate.initialized
@@ -269,6 +283,9 @@ class GhostMHTrackerNode(Node):
             "stationary_enter_speed_mps": self.stationary_enter_speed_mps,
             "stationary_exit_speed_mps": self.stationary_exit_speed_mps,
             "stationary_min_samples": self.stationary_min_samples,
+            "stationary_hold_prior": self.stationary_hold_prior,
+            "stationary_hold_prior_status": STATIONARY_HOLD_PRIOR_STATUS,
+            "stationary_hold_prior_provenance": STATIONARY_HOLD_PRIOR_PROVENANCE,
             "stationary_hold_max_s": self.stationary_hold_max_s,
             "stationary_hold_active": bool(self.stationary_state.active),
             "hidden_stationary_hold_active": bool(self.hidden_stationary_hold_active),
