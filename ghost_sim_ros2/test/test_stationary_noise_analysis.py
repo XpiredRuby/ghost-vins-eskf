@@ -6,12 +6,11 @@ from pathlib import Path
 
 import numpy as np
 
-# Keep the tests runnable both through `pip install .` and directly from a
-# source checkout in GitHub Actions or a ROS workspace.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from analysis.stationary_noise_analysis import (  # noqa: E402
     CSV_SCHEMA,
+    DETRENDING_STATUS,
     HARDWARE_STATUS,
     NOISE_ASSUMPTION_STATUS,
     NoiseAnalysisReport,
@@ -34,6 +33,14 @@ from analysis.stationary_noise_analysis import (  # noqa: E402
 
 def fit_slope(taus, adevs, lo, hi):
     return fit_allan_slope(taus, adevs, lo_s=lo, hi_s=hi)
+
+
+def write_pose_csv(path, t, x, y, z):
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["t", "x", "y", "z"])
+        writer.writeheader()
+        for row in zip(t, x, y, z):
+            writer.writerow({"t": row[0], "x": row[1], "y": row[2], "z": row[3]})
 
 
 def test_uniform_resample_recovers_requested_dt():
@@ -95,9 +102,27 @@ def test_ar1_generator_matches_colored_noise_expectations():
 
     summary = analyze_axis("x", t, x, dt, max_lag=20, nperseg=256)
 
-    assert summary.lag1_autocorrelation > 0.50
-    assert summary.psd_power_below["0.50"] > 0.50
-    assert summary.overall_allan_class in {"flicker-or-floor-like", "random-walk-or-drift-like"}
+    assert summary.raw_lag1_autocorrelation > 0.50
+    assert summary.raw_psd_power_below["0.50"] > 0.50
+    assert summary.raw_overall_allan_class in {"flicker-or-floor-like", "random-walk-or-drift-like"}
+    assert summary.lag1_autocorrelation == summary.raw_lag1_autocorrelation
+
+
+def test_analyze_axis_reports_raw_and_detrended_separately():
+    rng = np.random.default_rng(44)
+    dt = 0.1
+    t = np.arange(0.0, 80.0, dt)
+    trend = 0.004 * t
+    x = trend + 0.002 * np.sin(2.0 * np.pi * 0.12 * t) + rng.normal(0.0, 0.0005, len(t))
+
+    summary = analyze_axis("x", t, x, dt, max_lag=20, nperseg=128)
+
+    assert summary.detrending_applied
+    assert abs(summary.linear_trend_slope_mps) > 0.001
+    assert summary.raw_lag1_autocorrelation != summary.detrended_lag1_autocorrelation
+    assert summary.raw_psd_power_below != summary.detrended_psd_power_below
+    assert summary.lag1_autocorrelation == summary.raw_lag1_autocorrelation
+    assert summary.overall_allan_slope == summary.raw_overall_allan_slope
 
 
 def test_analyze_axis_reports_colored_noise_as_correlated():
@@ -105,13 +130,13 @@ def test_analyze_axis_reports_colored_noise_as_correlated():
     dt = 0.1
     t = np.arange(0.0, 80.0, dt)
 
-    # Synthetic colored/drift-like signal: slow sinusoid + small white noise.
     x = 0.01 * np.sin(2.0 * np.pi * 0.12 * t) + rng.normal(0.0, 0.001, len(t))
     summary = analyze_axis("x", t, x, dt, max_lag=20, nperseg=128)
 
-    assert summary.lag1_autocorrelation > 0.5
-    assert summary.psd_power_below["0.50"] > 0.5
-    assert len(summary.allan_slopes) > 0
+    assert summary.raw_lag1_autocorrelation > 0.5
+    assert summary.raw_psd_power_below["0.50"] > 0.5
+    assert len(summary.raw_allan_slopes) > 0
+    assert len(summary.detrended_allan_slopes) > 0
 
 
 def test_analyze_pose_csv_schema_and_json_fields(tmp_path):
@@ -122,11 +147,7 @@ def test_analyze_pose_csv_schema_and_json_fields(tmp_path):
     z = np.zeros_like(t)
 
     csv_path = tmp_path / "pose.csv"
-    with csv_path.open("w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["t", "x", "y", "z"])
-        writer.writeheader()
-        for row in zip(t, x, y, z):
-            writer.writerow({"t": row[0], "x": row[1], "y": row[2], "z": row[3]})
+    write_pose_csv(csv_path, t, x, y, z)
 
     report = analyze_pose_csv(csv_path)
     as_dict = json.loads(json.dumps(report, default=lambda o: o.__dict__))
@@ -134,8 +155,13 @@ def test_analyze_pose_csv_schema_and_json_fields(tmp_path):
     assert tuple(report.csv_schema) == CSV_SCHEMA
     assert report.noise_assumption_status == NOISE_ASSUMPTION_STATUS
     assert report.hardware_status == HARDWARE_STATUS
+    assert report.detrending_status == DETRENDING_STATUS
+    assert report.detrending_applied is True
+    assert "raw_* fields" in report.comparison_guidance
     assert set(report.axes) == {"x", "y"}
     assert as_dict["csv_schema"] == list(CSV_SCHEMA)
+    assert "raw_lag1_autocorrelation" in as_dict["axes"]["x"]
+    assert "detrended_lag1_autocorrelation" in as_dict["axes"]["x"]
 
 
 def test_cli_writes_json_and_markdown_outputs(tmp_path):
@@ -146,11 +172,7 @@ def test_cli_writes_json_and_markdown_outputs(tmp_path):
     z = np.zeros_like(t)
 
     csv_path = tmp_path / "pose.csv"
-    with csv_path.open("w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["t", "x", "y", "z"])
-        writer.writeheader()
-        for row in zip(t, x, y, z):
-            writer.writerow({"t": row[0], "x": row[1], "y": row[2], "z": row[3]})
+    write_pose_csv(csv_path, t, x, y, z)
 
     json_out = tmp_path / "noise_summary.json"
     md_out = tmp_path / "noise_summary.md"
@@ -161,11 +183,15 @@ def test_cli_writes_json_and_markdown_outputs(tmp_path):
     md = md_out.read_text()
     assert summary["csv_schema"] == list(CSV_SCHEMA)
     assert summary["noise_assumption_status"] == NOISE_ASSUMPTION_STATUS
-    assert "Stationary AprilTag Noise Characterization" in md
+    assert summary["detrending_status"] == DETRENDING_STATUS
+    assert "raw_lag1_autocorrelation" in summary["axes"]["x"]
+    assert "detrended_lag1_autocorrelation" in summary["axes"]["x"]
+    assert "Raw diagnostics (baseline-comparable)" in md
+    assert "Detrended diagnostics (drift-removed)" in md
     assert "does not assume white Gaussian noise" in md
 
 
-def test_markdown_report_contains_white_noise_caveat():
+def test_markdown_report_contains_raw_detrended_caveat():
     rng = np.random.default_rng(10)
     dt = 0.1
     t = np.arange(0.0, 30.0, dt)
@@ -180,6 +206,9 @@ def test_markdown_report_contains_white_noise_caveat():
         noise_assumption_status=NOISE_ASSUMPTION_STATUS,
         white_noise_assumption_flag="WHITE_NOISE_NOT_ASSUMED_DIAGNOSTIC_ONLY",
         hardware_status=HARDWARE_STATUS,
+        detrending_status=DETRENDING_STATUS,
+        detrending_applied=True,
+        comparison_guidance="Use raw_* fields for old baseline comparison.",
         sample_count_raw=len(t),
         sample_count_uniform=len(t),
         dt_s=dt,
@@ -190,5 +219,6 @@ def test_markdown_report_contains_white_noise_caveat():
     md = format_markdown_report(report)
 
     assert "does not assume white Gaussian noise" in md
-    assert "Stationary AprilTag Noise Characterization" in md
+    assert "Raw diagnostics (baseline-comparable)" in md
+    assert "Detrended diagnostics (drift-removed)" in md
     assert "CSV schema" in md
