@@ -1,309 +1,315 @@
-"""Measurement covariance utilities for GHOST AprilTag pose logs.
+"""Measurement covariance estimators for GHOST-MH.
 
-This module compares three covariance estimates:
+This module is intentionally pure Python/NumPy. It does not import ROS, rclpy,
+OpenCV, camera drivers, or Pi-specific code.
 
-1. first-order pinhole reference from calibration and standoff distance,
-2. empirical covariance from a stationary pose log, and
-3. optional Jacobian-propagated covariance from a PnP/projectPoints residual model.
-
-The empirical stationary logs observed so far are colored/drift-dominated, so
-white-noise assumptions are explicitly warned where they are used.
+Estimator scope:
+- First-order pinhole lateral covariance from fx/fy/reprojection RMS/standoff.
+- Empirical covariance from stationary ``t,x,y,z`` logs using the PR #20 noise
+  analysis module. The default empirical R uses RAW samples, not detrended
+  diagnostics, because R should model the actual single-measurement uncertainty
+  seen by a Kalman-style filter.
+- Generic Jacobian-propagated pose covariance for a local projection model. This
+  is the pure-NumPy equivalent of using a solvePnP/projectPoints Jacobian if the
+  AprilTag/PnP stack exposes one later.
 """
 
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import math
-import warnings
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Callable, Literal, Sequence
 
 import numpy as np
 
-
-WHITE_NOISE_WARNING = (
-    "This covariance calculation treats residuals as independent white noise. "
-    "Existing GHOST stationary AprilTag logs indicate colored low-frequency drift, "
-    "so this result is a reference model, not a validated live measurement R."
+from analysis.stationary_noise_analysis import (
+    HARDWARE_STATUS,
+    analyze_pose_csv,
+    detrend_linear,
+    load_pose_csv,
+    uniform_resample,
 )
+
+ASSUMES_WHITE_NOISE = "ASSUMES_WHITE_NOISE"
+MAY_INCLUDE_COLORED_COMPONENTS = "MAY_INCLUDE_COLORED_COMPONENTS"
+DETRENDED_DIAGNOSTIC_NOT_DEFAULT_FOR_FILTER_R = "DETRENDED_DIAGNOSTIC_NOT_DEFAULT_FOR_FILTER_R"
+ASSUMES_LOCAL_LINEARIZATION_AND_WHITE_PIXEL_NOISE = "ASSUMES_LOCAL_LINEARIZATION_AND_WHITE_PIXEL_NOISE"
+
+EstimatorName = Literal["pinhole_first_order", "empirical_stationary_log", "jacobian_propagation"]
+SampleMode = Literal["raw", "detrended"]
 
 
 @dataclass(frozen=True)
 class CovarianceEstimate:
-    """Labeled covariance estimate with assumptions."""
+    """Machine-readable measurement covariance estimate."""
 
-    method: str
-    covariance_m2: list[list[float]]
-    std_m: list[float]
-    assumptions: list[str]
-    includes_colored_noise: bool
+    estimator: EstimatorName
+    dimensions: tuple[str, ...]
+    covariance: list[list[float]]
+    assumption_label: str
+    status: str
+    provenance: str
+    sample_mode: str | None = None
+    source: str | None = None
     sample_count: int | None = None
+    notes: str = ""
+
+    def matrix(self) -> np.ndarray:
+        return np.asarray(self.covariance, dtype=float)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict(), indent=2)
 
 
-def pinhole_position_covariance(
+def _as_covariance_list(matrix: np.ndarray) -> list[list[float]]:
+    m = np.asarray(matrix, dtype=float)
+    if m.ndim != 2 or m.shape[0] != m.shape[1]:
+        raise ValueError("covariance must be a square 2-D matrix")
+    if not np.all(np.isfinite(m)):
+        raise ValueError("covariance contains non-finite values")
+    return [[float(v) for v in row] for row in m]
+
+
+def _validate_positive(name: str, value: float) -> float:
+    value = float(value)
+    if value <= 0.0 or not math.isfinite(value):
+        raise ValueError(f"{name} must be positive and finite")
+    return value
+
+
+def estimate_pinhole_lateral_r(
     fx_px: float,
     fy_px: float,
     reprojection_rms_px: float,
     standoff_m: float,
-    depth_std_m: float | None = None,
-    warn_white_assumption: bool = True,
+    status: str = HARDWARE_STATUS,
 ) -> CovarianceEstimate:
-    """First-order position covariance from pinhole projection.
+    """First-order lateral measurement covariance from a pinhole model.
 
-    Lateral small-angle model:
-        sigma_x ~= z * sigma_px / fx
-        sigma_y ~= z * sigma_px / fy
+    The lateral small-angle approximation is:
 
-    Depth is not observable from a single bearing measurement alone. If no
-    explicit depth standard deviation is provided, this function uses the same
-    angular scale with the mean focal length as a reference placeholder and
-    labels that assumption in the output.
+    ``sigma_x ~= z * sigma_u / fx``
+    ``sigma_y ~= z * sigma_v / fy``
+
+    This is a 2-D lateral ``R`` over ``x,y`` only. Depth/range covariance is not
+    inferred from this estimator because fx/fy/reprojection RMS/standoff alone do
+    not uniquely determine solvePnP depth uncertainty.
+
+    White-noise assumption is explicit and runtime-visible.
     """
-    _require_positive("fx_px", fx_px)
-    _require_positive("fy_px", fy_px)
-    _require_nonnegative("reprojection_rms_px", reprojection_rms_px)
-    _require_positive("standoff_m", standoff_m)
+    fx = _validate_positive("fx_px", fx_px)
+    fy = _validate_positive("fy_px", fy_px)
+    rms = _validate_positive("reprojection_rms_px", reprojection_rms_px)
+    z = _validate_positive("standoff_m", standoff_m)
 
-    if warn_white_assumption:
-        warnings.warn(WHITE_NOISE_WARNING, RuntimeWarning, stacklevel=2)
+    sigma_x_m = z * rms / fx
+    sigma_y_m = z * rms / fy
+    r = np.diag([sigma_x_m**2, sigma_y_m**2])
 
-    sigma_x = standoff_m * reprojection_rms_px / fx_px
-    sigma_y = standoff_m * reprojection_rms_px / fy_px
-    assumptions = [
-        "small-angle pinhole lateral propagation",
-        "reprojection RMS used as pixel noise scale",
-        "does not model low-frequency pose drift or temporal correlation",
-    ]
-
-    if depth_std_m is None:
-        f_mean = 0.5 * (fx_px + fy_px)
-        sigma_z = standoff_m * reprojection_rms_px / f_mean
-        assumptions.append("depth standard deviation approximated using mean focal length reference scale")
-    else:
-        _require_nonnegative("depth_std_m", depth_std_m)
-        sigma_z = depth_std_m
-        assumptions.append("depth standard deviation supplied externally")
-
-    covariance = np.diag([sigma_x**2, sigma_y**2, sigma_z**2])
-    return _estimate(
-        method="pinhole_first_order",
-        covariance=covariance,
-        assumptions=assumptions,
-        includes_colored_noise=False,
-    )
-
-
-def empirical_covariance_from_pose_log(path: str | Path, detrend: bool = False) -> CovarianceEstimate:
-    """Compute empirical x/y/z covariance from a stationary CSV log.
-
-    Input CSV columns must include ``t,x,y,z``. The result may include colored
-    drift, lighting changes, camera auto-control drift, and setup vibration.
-    That is useful for live-system characterization but should not be confused
-    with white sensor covariance.
-    """
-    t, xyz = load_pose_log(path)
-    values = xyz.copy()
-    assumptions = [
-        "stationary target log",
-        "sample covariance over measured pose samples",
-        "may include colored noise, drift, bias wander, and setup motion",
-    ]
-
-    if detrend:
-        values = detrend_linear_xyz(t, values)
-        assumptions.append("linear trend removed before covariance calculation")
-    else:
-        assumptions.append("no detrending applied")
-
-    covariance = np.cov(values, rowvar=False, ddof=1)
-    return _estimate(
-        method="empirical_stationary_log_detrended" if detrend else "empirical_stationary_log_raw",
-        covariance=covariance,
-        assumptions=assumptions,
-        includes_colored_noise=True,
-        sample_count=int(values.shape[0]),
-    )
-
-
-def jacobian_propagated_pose_covariance(
-    residual_jacobian: np.ndarray,
-    pixel_sigma_px: float,
-    parameter_indices: list[int] | None = None,
-    warn_white_assumption: bool = True,
-) -> CovarianceEstimate:
-    """Approximate pose covariance from a residual Jacobian.
-
-    For a least-squares residual model with residual Jacobian J and IID pixel
-    residual variance sigma^2, parameter covariance is approximated as:
-
-        Cov(theta) ~= sigma^2 * pinv(J.T @ J)
-
-    If ``parameter_indices`` is provided, the returned covariance is sliced to
-    those parameters. For solvePnP/projectPoints workflows, callers should pass
-    the indices corresponding to the desired pose components.
-    """
-    jacobian = np.asarray(residual_jacobian, dtype=float)
-    if jacobian.ndim != 2:
-        raise ValueError("residual_jacobian must be a 2D array")
-    if jacobian.shape[0] < jacobian.shape[1]:
-        raise ValueError("residual_jacobian should have at least as many residual rows as parameter columns")
-    _require_nonnegative("pixel_sigma_px", pixel_sigma_px)
-
-    if warn_white_assumption:
-        warnings.warn(WHITE_NOISE_WARNING, RuntimeWarning, stacklevel=2)
-
-    normal = jacobian.T @ jacobian
-    covariance = (pixel_sigma_px**2) * np.linalg.pinv(normal)
-    assumptions = [
-        "linearized residual model",
-        "IID white pixel residuals",
-        "covariance computed as sigma^2 * pinv(J.T @ J)",
-        "does not model colored temporal pose drift",
-    ]
-
-    if parameter_indices is not None:
-        idx = np.asarray(parameter_indices, dtype=int)
-        covariance = covariance[np.ix_(idx, idx)]
-        assumptions.append(f"sliced to parameter indices {list(map(int, idx))}")
-
-    return _estimate(
-        method="jacobian_propagated",
-        covariance=covariance,
-        assumptions=assumptions,
-        includes_colored_noise=False,
-    )
-
-
-def compare_covariance_estimates(estimates: list[CovarianceEstimate]) -> dict[str, dict]:
-    """Return estimates side by side as a JSON-serializable dictionary."""
-    return {estimate.method: asdict(estimate) for estimate in estimates}
-
-
-def format_markdown(estimates: list[CovarianceEstimate]) -> str:
-    """Format covariance estimates as a Markdown report block."""
-    lines = [
-        "## Measurement Covariance Comparison",
-        "",
-        "> Caveat: pinhole and Jacobian covariance estimates use white-residual reference assumptions. "
-        "Empirical stationary covariance can include colored drift and should be interpreted separately.",
-        "",
-    ]
-    for estimate in estimates:
-        lines.extend(
-            [
-                f"### {estimate.method}",
-                "",
-                f"- Standard deviations: `{_fmt_vector(estimate.std_m)} m`",
-                f"- Includes colored/noise drift terms: `{estimate.includes_colored_noise}`",
-            ]
-        )
-        if estimate.sample_count is not None:
-            lines.append(f"- Samples: `{estimate.sample_count}`")
-        lines.append("- Assumptions:")
-        for assumption in estimate.assumptions:
-            lines.append(f"  - {assumption}")
-        lines.append("- Covariance matrix m^2:")
-        for row in estimate.covariance_m2:
-            lines.append(f"  - `{_fmt_vector(row)}`")
-        lines.append("")
-    return "\n".join(lines).rstrip() + "\n"
-
-
-def load_pose_log(path: str | Path) -> tuple[np.ndarray, np.ndarray]:
-    rows: list[tuple[float, float, float, float]] = []
-    with Path(path).expanduser().open(newline="") as f:
-        reader = csv.DictReader(f)
-        required = {"t", "x", "y", "z"}
-        if reader.fieldnames is None or not required.issubset(set(reader.fieldnames)):
-            raise ValueError(f"CSV must contain columns {sorted(required)}; got {reader.fieldnames}")
-        for row in reader:
-            rows.append((float(row["t"]), float(row["x"]), float(row["y"]), float(row["z"])))
-
-    if len(rows) < 2:
-        raise ValueError("Need at least two pose samples for empirical covariance")
-
-    rows.sort(key=lambda r: r[0])
-    t = np.asarray([r[0] for r in rows], dtype=float)
-    t = t - t[0]
-    xyz = np.asarray([[r[1], r[2], r[3]] for r in rows], dtype=float)
-    return t, xyz
-
-
-def detrend_linear_xyz(t: np.ndarray, xyz: np.ndarray) -> np.ndarray:
-    out = np.empty_like(xyz, dtype=float)
-    for col in range(xyz.shape[1]):
-        coeff = np.polyfit(t, xyz[:, col], 1)
-        out[:, col] = xyz[:, col] - np.polyval(coeff, t)
-    return out
-
-
-def _estimate(
-    method: str,
-    covariance: np.ndarray,
-    assumptions: list[str],
-    includes_colored_noise: bool,
-    sample_count: int | None = None,
-) -> CovarianceEstimate:
-    covariance = np.asarray(covariance, dtype=float)
-    if covariance.ndim != 2 or covariance.shape[0] != covariance.shape[1]:
-        raise ValueError("covariance must be square")
-    std = np.sqrt(np.maximum(np.diag(covariance), 0.0))
     return CovarianceEstimate(
-        method=method,
-        covariance_m2=covariance.tolist(),
-        std_m=std.tolist(),
-        assumptions=assumptions,
-        includes_colored_noise=includes_colored_noise,
-        sample_count=sample_count,
+        estimator="pinhole_first_order",
+        dimensions=("x", "y"),
+        covariance=_as_covariance_list(r),
+        assumption_label=ASSUMES_WHITE_NOISE,
+        status=status,
+        provenance=(
+            "First-order pinhole lateral propagation using fx/fy, reprojection RMS, "
+            "and standoff distance. Assumes isotropic white pixel reprojection noise. "
+            "Does not estimate depth covariance."
+        ),
+        notes="Use as an analytical starting point only; compare against empirical raw stationary-log R before filter tuning.",
     )
 
 
-def _require_positive(name: str, value: float) -> None:
-    if not math.isfinite(value) or value <= 0.0:
-        raise ValueError(f"{name} must be positive and finite")
+def estimate_empirical_stationary_r(
+    csv_path: str | Path,
+    sample_mode: SampleMode = "raw",
+    dimensions: Sequence[str] = ("x", "y"),
+    status: str = HARDWARE_STATUS,
+) -> CovarianceEstimate:
+    """Estimate empirical measurement covariance from a stationary pose CSV.
+
+    Default ``sample_mode='raw'`` is intentional. A Kalman-style measurement R
+    should model the actual single-measurement uncertainty seen by the filter,
+    including colored/drift components if they are present in the pose pipeline.
+    Detrended covariance is available only as an explicit diagnostic mode and is
+    not the default for filter R.
+    """
+    dims = tuple(dimensions)
+    if not dims:
+        raise ValueError("dimensions must contain at least one axis")
+    if any(d not in {"x", "y", "z"} for d in dims):
+        raise ValueError("dimensions must be a subset of ('x', 'y', 'z')")
+    if sample_mode not in {"raw", "detrended"}:
+        raise ValueError("sample_mode must be 'raw' or 'detrended'")
+
+    t, x, y, z = load_pose_csv(csv_path)
+    t_uniform, x_uniform, dt_s = uniform_resample(t, x)
+    _tu_y, y_uniform, _dt_y = uniform_resample(t, y, dt_s=dt_s)
+    _tu_z, z_uniform, _dt_z = uniform_resample(t, z, dt_s=dt_s)
+    axis_values = {"x": x_uniform, "y": y_uniform, "z": z_uniform}
+
+    if sample_mode == "detrended":
+        axis_values = {name: detrend_linear(t_uniform, values) for name, values in axis_values.items()}
+
+    samples = np.vstack([axis_values[d] for d in dims]).T
+    if samples.shape[0] < 2:
+        raise ValueError("Need at least two samples for covariance")
+    r = np.cov(samples, rowvar=False, ddof=1)
+    if len(dims) == 1:
+        r = np.asarray([[float(r)]], dtype=float)
+
+    report = analyze_pose_csv(csv_path)
+    if sample_mode == "raw":
+        assumption = MAY_INCLUDE_COLORED_COMPONENTS
+        provenance = (
+            "Empirical covariance from RAW stationary-log samples. This is the default for filter R because it "
+            "preserves actual single-measurement uncertainty, including drift/colored components if present. "
+            f"Noise analysis status: {report.noise_assumption_status}; detrending status: {report.detrending_status}."
+        )
+    else:
+        assumption = DETRENDED_DIAGNOSTIC_NOT_DEFAULT_FOR_FILTER_R
+        provenance = (
+            "Empirical covariance from linearly detrended stationary-log samples. This is a diagnostic option, "
+            "not the default filter R, because detrending can remove drift that the filter would otherwise need to model. "
+            f"Noise analysis status: {report.noise_assumption_status}; detrending status: {report.detrending_status}."
+        )
+
+    return CovarianceEstimate(
+        estimator="empirical_stationary_log",
+        dimensions=dims,
+        covariance=_as_covariance_list(np.asarray(r, dtype=float)),
+        assumption_label=assumption,
+        status=status,
+        provenance=provenance,
+        sample_mode=sample_mode,
+        source=str(csv_path),
+        sample_count=int(samples.shape[0]),
+        notes="Use raw_* noise-analysis diagnostics for baseline comparability; per-octave Allan slopes should be reviewed before final covariance tuning.",
+    )
 
 
-def _require_nonnegative(name: str, value: float) -> None:
-    if not math.isfinite(value) or value < 0.0:
-        raise ValueError(f"{name} must be non-negative and finite")
+def estimate_jacobian_propagated_r(
+    jacobian_px_per_state: np.ndarray,
+    pixel_sigma_px: float,
+    dimensions: Sequence[str],
+    status: str = HARDWARE_STATUS,
+) -> CovarianceEstimate:
+    """Propagate white pixel noise through a local projection Jacobian.
+
+    If a future AprilTag/PnP stack exposes the projectPoints/solvePnP Jacobian,
+    pass that Jacobian here. For measurement model ``pixel = h(state)`` with
+    local Jacobian ``J = dh/dstate`` and pixel covariance ``sigma_px^2 I``, the
+    local pose covariance is approximated by:
+
+    ``R_state = inv(J.T @ inv(R_pixel) @ J)``
+
+    This assumes local linearization and white pixel noise; those assumptions are
+    explicit in the output.
+    """
+    j = np.asarray(jacobian_px_per_state, dtype=float)
+    if j.ndim != 2:
+        raise ValueError("jacobian_px_per_state must be 2-D")
+    if j.shape[1] != len(dimensions):
+        raise ValueError("Jacobian column count must match dimensions")
+    if not np.all(np.isfinite(j)):
+        raise ValueError("Jacobian contains non-finite values")
+    sigma = _validate_positive("pixel_sigma_px", pixel_sigma_px)
+    if np.linalg.matrix_rank(j) < j.shape[1]:
+        raise ValueError("Jacobian is rank-deficient; covariance is not observable for all requested dimensions")
+
+    information = (j.T @ j) / (sigma**2)
+    covariance = np.linalg.inv(information)
+
+    return CovarianceEstimate(
+        estimator="jacobian_propagation",
+        dimensions=tuple(dimensions),
+        covariance=_as_covariance_list(covariance),
+        assumption_label=ASSUMES_LOCAL_LINEARIZATION_AND_WHITE_PIXEL_NOISE,
+        status=status,
+        provenance=(
+            "Local Jacobian propagation from pixel noise into state covariance. Equivalent to using a "
+            "solvePnP/projectPoints Jacobian if exposed by the AprilTag/PnP stack. Assumes white pixel noise "
+            "and local linearity; invalid as a complete noise model if pose residuals remain colored."
+        ),
+    )
 
 
-def _fmt_vector(values: list[float]) -> str:
-    return "[" + ", ".join(f"{float(v):.6e}" for v in values) + "]"
+def finite_difference_projection_jacobian(
+    projection_fn: Callable[[np.ndarray], np.ndarray],
+    state: Sequence[float],
+    step: float = 1e-6,
+) -> np.ndarray:
+    """Numerically estimate a projection Jacobian for tests or adapter code.
+
+    ``projection_fn`` must map a state vector to a flat pixel residual/vector. This
+    helper does not call OpenCV and does not require AprilTag code.
+    """
+    x0 = np.asarray(state, dtype=float)
+    y0 = np.asarray(projection_fn(x0), dtype=float).reshape(-1)
+    if not np.all(np.isfinite(y0)):
+        raise ValueError("projection_fn returned non-finite values")
+    h = _validate_positive("step", step)
+    j = np.zeros((len(y0), len(x0)), dtype=float)
+    for k in range(len(x0)):
+        xp = x0.copy()
+        xm = x0.copy()
+        xp[k] += h
+        xm[k] -= h
+        yp = np.asarray(projection_fn(xp), dtype=float).reshape(-1)
+        ym = np.asarray(projection_fn(xm), dtype=float).reshape(-1)
+        j[:, k] = (yp - ym) / (2.0 * h)
+    return j
+
+
+def estimate_jacobian_from_projection_fn(
+    projection_fn: Callable[[np.ndarray], np.ndarray],
+    state: Sequence[float],
+    pixel_sigma_px: float,
+    dimensions: Sequence[str],
+    step: float = 1e-6,
+    status: str = HARDWARE_STATUS,
+) -> CovarianceEstimate:
+    """Convenience wrapper around finite-difference projection Jacobian."""
+    j = finite_difference_projection_jacobian(projection_fn, state, step=step)
+    return estimate_jacobian_propagated_r(j, pixel_sigma_px, dimensions=dimensions, status=status)
+
+
+def estimates_to_dict(estimates: Sequence[CovarianceEstimate]) -> dict[str, dict]:
+    return {estimate.estimator: estimate.to_dict() for estimate in estimates}
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Compare GHOST AprilTag measurement covariance estimates.")
-    parser.add_argument("--csv", type=Path, help="Stationary pose CSV with columns t,x,y,z.")
-    parser.add_argument("--fx", type=float, default=487.694, help="Camera fx in pixels.")
-    parser.add_argument("--fy", type=float, default=489.393, help="Camera fy in pixels.")
-    parser.add_argument("--rms", type=float, default=0.648, help="Reprojection RMS in pixels.")
-    parser.add_argument("--standoff", type=float, required=True, help="Tag standoff distance in meters.")
-    parser.add_argument("--depth-std", type=float, default=None, help="Optional external depth std in meters.")
-    parser.add_argument("--detrend", action="store_true", help="Also report detrended empirical covariance.")
-    parser.add_argument("--markdown", action="store_true", help="Print Markdown instead of JSON.")
+    parser = argparse.ArgumentParser(description="Estimate GHOST measurement covariance R without ROS/hardware dependencies.")
+    parser.add_argument("--csv", type=Path, default=None, help="Optional stationary pose CSV with columns t,x,y,z")
+    parser.add_argument("--fx", type=float, default=487.694, help="Camera fx in pixels")
+    parser.add_argument("--fy", type=float, default=489.393, help="Camera fy in pixels")
+    parser.add_argument("--rms", type=float, default=0.6484223428868449, help="Reprojection RMS in pixels")
+    parser.add_argument("--standoff", type=float, required=True, help="Standoff distance in meters for pinhole estimate")
+    parser.add_argument("--include-detrended", action="store_true", help="Also output detrended empirical covariance as diagnostic only")
+    parser.add_argument("--json-out", type=Path, default=None, help="Optional JSON output path")
     args = parser.parse_args(argv)
 
-    estimates = [
-        pinhole_position_covariance(
-            fx_px=args.fx,
-            fy_px=args.fy,
-            reprojection_rms_px=args.rms,
-            standoff_m=args.standoff,
-            depth_std_m=args.depth_std,
-        )
+    estimates: list[CovarianceEstimate] = [
+        estimate_pinhole_lateral_r(args.fx, args.fy, args.rms, args.standoff)
     ]
     if args.csv is not None:
-        estimates.append(empirical_covariance_from_pose_log(args.csv, detrend=False))
-        if args.detrend:
-            estimates.append(empirical_covariance_from_pose_log(args.csv, detrend=True))
+        estimates.append(estimate_empirical_stationary_r(args.csv, sample_mode="raw"))
+        if args.include_detrended:
+            estimates.append(estimate_empirical_stationary_r(args.csv, sample_mode="detrended"))
 
-    if args.markdown:
-        print(format_markdown(estimates))
+    output = json.dumps(estimates_to_dict(estimates), indent=2) + "\n"
+    if args.json_out is not None:
+        args.json_out.parent.mkdir(parents=True, exist_ok=True)
+        args.json_out.write_text(output)
     else:
-        print(json.dumps(compare_covariance_estimates(estimates), indent=2))
+        print(output, end="")
     return 0
 
 
