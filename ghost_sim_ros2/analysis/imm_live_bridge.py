@@ -33,6 +33,18 @@ LIVE_IMM_INTEGRATION_CAVEAT = (
     "It is wired for side-by-side live trials, not report-grade covariance claims, until hardware R and "
     "residual whiteness are validated."
 )
+LIVE_IMM_WAITING_FOR_TARGET = "LIVE_IMM_WAITING_FOR_TARGET"
+LIVE_IMM_TRACKING = "LIVE_IMM_TRACKING"
+LIVE_IMM_PREDICTION_ONLY = "LIVE_IMM_PREDICTION_ONLY"
+LIVE_IMM_DROPOUT_DEGRADED = "LIVE_IMM_DROPOUT_DEGRADED"
+DROPOUT_DEGRADED_AFTER_STEPS_DEFAULT = 10
+DROPOUT_DEGRADED_RATIONALE = (
+    "At the default 30 Hz live rate, 10 consecutive prediction-only cycles is about 0.33 s. "
+    "The bridge keeps publishing but marks output degraded instead of silently trusting long open-loop propagation."
+)
+REJECT_NONFINITE_MEASUREMENT = "REJECT_NONFINITE_MEASUREMENT"
+REJECT_BEHIND_CAMERA_MEASUREMENT = "REJECT_BEHIND_CAMERA_MEASUREMENT"
+REJECT_OUT_OF_WORKSPACE_MEASUREMENT = "REJECT_OUT_OF_WORKSPACE_MEASUREMENT"
 
 
 @dataclass(frozen=True)
@@ -45,6 +57,7 @@ class FormalImmLiveConfig:
     p0_diag: tuple[float, float, float, float] = (0.04, 0.04, 0.25, 0.25)
     future_horizon_s: float = 1.5
     future_dt_s: float = 0.10
+    dropout_degraded_after_steps: int = DROPOUT_DEGRADED_AFTER_STEPS_DEFAULT
     parameter_status: str = CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R
     integration_status: str = FORMAL_IMM_LIVE_BRIDGE_OPTIONAL_NOT_DEFAULT
     covariance_validity_status: str = INVALID_IF_NOISE_IS_COLORED
@@ -58,6 +71,8 @@ class FormalImmLiveConfig:
         _require_positive("future_dt_s", self.future_dt_s)
         if self.future_dt_s > self.future_horizon_s:
             raise ValueError("future_dt_s must be <= future_horizon_s")
+        if self.dropout_degraded_after_steps < 1:
+            raise ValueError("dropout_degraded_after_steps must be >= 1")
         if len(self.initial_mode_probabilities) != 2:
             raise ValueError("initial_mode_probabilities must contain smooth and maneuver probabilities")
         if any(v < 0.0 or not math.isfinite(v) for v in self.initial_mode_probabilities):
@@ -75,6 +90,9 @@ class FormalImmLiveOutput:
     estimate: dict[str, float] | None
     mode_probabilities: dict[str, float]
     hypotheses: list[dict[str, object]]
+    live_status: str
+    prediction_only_steps: int
+    dropout_degraded_after_steps: int
     estimator_status: str
     integration_status: str
     parameter_status: str
@@ -95,12 +113,16 @@ class FormalImmLiveAdapter:
         self.config.validate()
         self.imm: InteractingMultipleModelEstimator | None = None
         self.sequence = 0
+        self.prediction_only_steps = 0
         self.last_output = FormalImmLiveOutput(
             initialized=False,
             sequence=0,
             estimate=None,
             mode_probabilities={},
             hypotheses=[],
+            live_status=LIVE_IMM_WAITING_FOR_TARGET,
+            prediction_only_steps=0,
+            dropout_degraded_after_steps=self.config.dropout_degraded_after_steps,
             estimator_status=FORMAL_IMM_5_STEP_CYCLE,
             integration_status=self.config.integration_status,
             parameter_status=self.config.parameter_status,
@@ -119,12 +141,16 @@ class FormalImmLiveAdapter:
         measurement = None if measurement_xy is None else _measurement(measurement_xy)
         if self.imm is None:
             if measurement is None:
+                self.prediction_only_steps = 0
                 self.last_output = FormalImmLiveOutput(
                     initialized=False,
                     sequence=self.sequence,
                     estimate=None,
                     mode_probabilities={},
                     hypotheses=[],
+                    live_status=LIVE_IMM_WAITING_FOR_TARGET,
+                    prediction_only_steps=0,
+                    dropout_degraded_after_steps=self.config.dropout_degraded_after_steps,
                     estimator_status=FORMAL_IMM_5_STEP_CYCLE,
                     integration_status=self.config.integration_status,
                     parameter_status=self.config.parameter_status,
@@ -144,6 +170,10 @@ class FormalImmLiveAdapter:
                 p0_diag=self.config.p0_diag,
             )
 
+        if measurement is None:
+            self.prediction_only_steps += 1
+        else:
+            self.prediction_only_steps = 0
         cycle_step = self.imm.step(None if measurement is None else measurement)
         combined = cycle_step.combined_estimate
         estimate = _estimate_dict(combined.x, combined.p)
@@ -168,6 +198,9 @@ class FormalImmLiveAdapter:
             estimate=estimate,
             mode_probabilities=combined.mode_probabilities,
             hypotheses=hypotheses,
+            live_status=self._live_status(measurement is not None),
+            prediction_only_steps=self.prediction_only_steps,
+            dropout_degraded_after_steps=self.config.dropout_degraded_after_steps,
             estimator_status=cycle_step.estimator_status,
             integration_status=self.config.integration_status,
             parameter_status=self.config.parameter_status,
@@ -177,6 +210,13 @@ class FormalImmLiveAdapter:
             integration_caveat=LIVE_IMM_INTEGRATION_CAVEAT,
         )
         return self.last_output
+
+    def _live_status(self, has_measurement: bool) -> str:
+        if has_measurement:
+            return LIVE_IMM_TRACKING
+        if self.prediction_only_steps >= self.config.dropout_degraded_after_steps:
+            return LIVE_IMM_DROPOUT_DEGRADED
+        return LIVE_IMM_PREDICTION_ONLY
 
     def project_path(self, state: Iterable[float]) -> list[dict[str, float]]:
         values = np.asarray(list(state), dtype=float)
@@ -197,6 +237,27 @@ class FormalImmLiveAdapter:
                 break
             t += step
         return points
+
+
+@dataclass(frozen=True)
+class LiveMeasurementValidation:
+    valid: bool
+    measurement_xy: list[float] | None
+    rejection_reason: str | None
+
+
+def validate_live_measurement_xy(x: float, y: float, max_workspace_range_m: float) -> LiveMeasurementValidation:
+    """Validate live x/y measurements without throwing inside the ROS callback."""
+    _require_positive("max_workspace_range_m", max_workspace_range_m)
+    x = float(x)
+    y = float(y)
+    if not math.isfinite(x) or not math.isfinite(y):
+        return LiveMeasurementValidation(False, None, REJECT_NONFINITE_MEASUREMENT)
+    if x < 0.0:
+        return LiveMeasurementValidation(False, None, REJECT_BEHIND_CAMERA_MEASUREMENT)
+    if math.hypot(x, y) > max_workspace_range_m:
+        return LiveMeasurementValidation(False, None, REJECT_OUT_OF_WORKSPACE_MEASUREMENT)
+    return LiveMeasurementValidation(True, [x, y], None)
 
 
 def _estimate_dict(state: Iterable[float], covariance: Iterable[Iterable[float]]) -> dict[str, float]:
