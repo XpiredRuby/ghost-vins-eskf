@@ -19,9 +19,11 @@ from rclpy.qos import QoSProfile
 from std_msgs.msg import String
 
 from analysis.imm_live_bridge import (
+    DROPOUT_DEGRADED_AFTER_STEPS_DEFAULT,
     FormalImmLiveAdapter,
     FormalImmLiveConfig,
     LIVE_IMM_NOT_HARDWARE_CALIBRATED,
+    validate_live_measurement_xy,
 )
 
 
@@ -45,6 +47,7 @@ class FormalImmTrackerNode(Node):
         self.declare_parameter("future_horizon_s", 1.5)
         self.declare_parameter("future_dt_s", 0.10)
         self.declare_parameter("max_workspace_range_m", 5.0)
+        self.declare_parameter("dropout_degraded_after_steps", DROPOUT_DEGRADED_AFTER_STEPS_DEFAULT)
 
         self.input_topic = str(self.get_parameter("input_topic").value)
         self.odom_topic = str(self.get_parameter("odom_topic").value)
@@ -65,6 +68,7 @@ class FormalImmTrackerNode(Node):
                 maneuver_acceleration_std_mps2=float(self.get_parameter("maneuver_acceleration_std_mps2").value),
                 future_horizon_s=float(self.get_parameter("future_horizon_s").value),
                 future_dt_s=float(self.get_parameter("future_dt_s").value),
+                dropout_degraded_after_steps=int(self.get_parameter("dropout_degraded_after_steps").value),
             )
         )
 
@@ -72,6 +76,8 @@ class FormalImmTrackerNode(Node):
         self.latest_stamp_s: float | None = None
         self.latest_arrival_s: float | None = None
         self.measurement_count = 0
+        self.rejected_measurement_count = 0
+        self.last_rejection_reason: str | None = None
         self.sequence = 0
         self.last_log_s = 0.0
 
@@ -96,19 +102,21 @@ class FormalImmTrackerNode(Node):
         now = self.now_s()
         x = float(msg.pose.pose.position.x)
         y = float(msg.pose.pose.position.y)
-        if not math.isfinite(x) or not math.isfinite(y):
-            return
-        if x < 0.0 or math.hypot(x, y) > self.max_workspace_range_m:
+        validation = validate_live_measurement_xy(x, y, self.max_workspace_range_m)
+        if not validation.valid:
+            self.rejected_measurement_count += 1
+            self.last_rejection_reason = validation.rejection_reason
             return
 
         msg_stamp_s = float(msg.header.stamp.sec) + 1e-9 * float(msg.header.stamp.nanosec)
         if msg_stamp_s <= 0.0 or abs(now - msg_stamp_s) > 30.0:
             msg_stamp_s = now
 
-        self.latest_xy = (x, y)
+        self.latest_xy = (validation.measurement_xy[0], validation.measurement_xy[1])
         self.latest_stamp_s = msg_stamp_s
         self.latest_arrival_s = now
         self.measurement_count += 1
+        self.last_rejection_reason = None
 
     def on_timer(self) -> None:
         now = self.now_s()
@@ -177,6 +185,7 @@ class FormalImmTrackerNode(Node):
             "measurement_count": self.measurement_count,
             "frame_id": self.frame_id,
             "tracker": "formal_imm",
+            "live_status": output.live_status,
             "integration_status": output.integration_status,
             "parameter_status": output.parameter_status,
             "covariance_validity_status": output.covariance_validity_status,
@@ -184,6 +193,10 @@ class FormalImmTrackerNode(Node):
             "covariance_caveat": output.covariance_caveat,
             "integration_caveat": output.integration_caveat,
             "initialized": output.initialized,
+            "prediction_only_steps": output.prediction_only_steps,
+            "dropout_degraded_after_steps": output.dropout_degraded_after_steps,
+            "rejected_measurement_count": self.rejected_measurement_count,
+            "last_rejection_reason": self.last_rejection_reason,
             "estimate": output.estimate,
             "mode_probabilities": output.mode_probabilities,
             "hypotheses": output.hypotheses,
@@ -198,10 +211,15 @@ class FormalImmTrackerNode(Node):
             text = f"FORMAL_IMM WAITING_FOR_TARGET status={LIVE_IMM_NOT_HARDWARE_CALIBRATED}"
         else:
             probs = ", ".join(f"{k}:{100.0*v:.1f}%" for k, v in output.mode_probabilities.items())
+            rejection = ""
+            if self.last_rejection_reason is not None:
+                rejection = f" rejected={self.last_rejection_reason} rejected_count={self.rejected_measurement_count}"
             text = (
-                f"FORMAL_IMM {'VISIBLE' if visible else 'PREDICT'} "
-                f"age={finite_or_none(measurement_age_s)} modes=[{probs}] "
+                f"FORMAL_IMM {output.live_status} visible={visible} "
+                f"age={finite_or_none(measurement_age_s)} prediction_only_steps={output.prediction_only_steps} "
+                f"modes=[{probs}] "
                 f"covariance={output.covariance_validity_status}"
+                f"{rejection}"
             )
         self.status_pub.publish(String(data=text))
 
