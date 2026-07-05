@@ -23,6 +23,8 @@ from analysis.imm_live_bridge import (
     FormalImmLiveAdapter,
     FormalImmLiveConfig,
     LIVE_IMM_NOT_HARDWARE_CALIBRATED,
+    MAX_WORKSPACE_RANGE_M_DEFAULT,
+    MAX_WORKSPACE_RANGE_STATUS,
     validate_live_measurement_xy,
 )
 
@@ -46,7 +48,7 @@ class FormalImmTrackerNode(Node):
         self.declare_parameter("maneuver_acceleration_std_mps2", 0.75)
         self.declare_parameter("future_horizon_s", 1.5)
         self.declare_parameter("future_dt_s", 0.10)
-        self.declare_parameter("max_workspace_range_m", 5.0)
+        self.declare_parameter("max_workspace_range_m", MAX_WORKSPACE_RANGE_M_DEFAULT)
         self.declare_parameter("dropout_degraded_after_steps", DROPOUT_DEGRADED_AFTER_STEPS_DEFAULT)
 
         self.input_topic = str(self.get_parameter("input_topic").value)
@@ -186,6 +188,8 @@ class FormalImmTrackerNode(Node):
             "frame_id": self.frame_id,
             "tracker": "formal_imm",
             "live_status": output.live_status,
+            "workspace_range_m": self.max_workspace_range_m,
+            "workspace_range_status": MAX_WORKSPACE_RANGE_STATUS,
             "integration_status": output.integration_status,
             "parameter_status": output.parameter_status,
             "covariance_validity_status": output.covariance_validity_status,
@@ -195,6 +199,12 @@ class FormalImmTrackerNode(Node):
             "initialized": output.initialized,
             "prediction_only_steps": output.prediction_only_steps,
             "dropout_degraded_after_steps": output.dropout_degraded_after_steps,
+            "total_initialized_cycles": output.total_initialized_cycles,
+            "tracking_cycles": output.tracking_cycles,
+            "prediction_only_cycles": output.prediction_only_cycles,
+            "degraded_dropout_cycles": output.degraded_dropout_cycles,
+            "prediction_only_rate": output.prediction_only_rate,
+            "degraded_dropout_rate": output.degraded_dropout_rate,
             "rejected_measurement_count": self.rejected_measurement_count,
             "last_rejection_reason": self.last_rejection_reason,
             "estimate": output.estimate,
