@@ -33,6 +33,50 @@ comparison. It is not yet a hardware-calibrated covariance claim, and it should
 not replace the heuristic tracker until real Pi/camera residuals have been
 checked for R calibration and temporal whiteness.
 
+## Dropout Behavior
+
+The bridge does not reset on a short target dropout. After initialization, a
+missing measurement advances the IMM with prediction only and publishes
+`LIVE_IMM_PREDICTION_ONLY`.
+
+The default degradation threshold is 10 consecutive prediction-only cycles. At
+the default 30 Hz live rate, this is about 0.33 s. Once that threshold is
+reached, the bridge keeps publishing but changes `live_status` to
+`LIVE_IMM_DROPOUT_DEGRADED`. It does not silently trust long open-loop
+propagation and it does not reset the estimator without an explicit future
+policy.
+
+## Malformed Input Behavior
+
+The ROS wrapper must not die on malformed live measurements. Invalid samples are
+rejected, counted, and surfaced in the futures/status payloads while the node
+continues running. The current rejection reasons are:
+
+- `REJECT_NONFINITE_MEASUREMENT`
+- `REJECT_BEHIND_CAMERA_MEASUREMENT`
+- `REJECT_OUT_OF_WORKSPACE_MEASUREMENT`
+
+A rejected sample does not reinitialize the IMM. The next timer cycle either
+uses a fresh valid measurement or advances prediction-only status according to
+the dropout threshold above.
+
+## Default-Handoff Gate
+
+The formal IMM should not become the default tracker until paired live evidence
+beats or matches the heuristic path under the same trial conditions. The
+candidate handoff gate is:
+
+- at least 10 paired live runs per condition
+- formal IMM median position RMSE no worse than heuristic MH median RMSE
+- formal IMM 95% bootstrap confidence interval on RMSE difference excludes a
+  regression larger than 5%
+- no higher dropout rate than the heuristic tracker
+- hardware-data 2-sigma coverage at or above 0.90 after R calibration and
+  residual-color caveat review
+
+These are candidate gates pending hardware characterization; they are meant to
+make the default handoff auditable rather than automatic.
+
 ## Next Validation
 
 Use the trial recorder or a paired comparison harness to collect matching
