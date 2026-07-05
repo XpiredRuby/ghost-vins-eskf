@@ -13,6 +13,10 @@ from analysis.imm_live_bridge import (  # noqa: E402
     LIVE_IMM_INTEGRATION_CAVEAT,
     LIVE_IMM_PREDICTION_ONLY,
     LIVE_IMM_TRACKING,
+    MAX_WORKSPACE_RANGE_M_DEFAULT,
+    MAX_WORKSPACE_RANGE_STATUS,
+    DEGRADED_DROPOUT_RATE_FORMULA,
+    PREDICTION_ONLY_RATE_FORMULA,
     REJECT_BEHIND_CAMERA_MEASUREMENT,
     REJECT_NONFINITE_MEASUREMENT,
     REJECT_OUT_OF_WORKSPACE_MEASUREMENT,
@@ -55,6 +59,10 @@ def test_live_bridge_initializes_from_first_measurement_and_emits_payload_schema
     assert output.hypotheses[0]["path"]
     assert output.live_status == LIVE_IMM_TRACKING
     assert output.prediction_only_steps == 0
+    assert output.total_initialized_cycles == 1
+    assert output.tracking_cycles == 1
+    assert output.prediction_only_rate == 0.0
+    assert output.degraded_dropout_rate == 0.0
     assert output.dropout_degraded_after_steps == DROPOUT_DEGRADED_AFTER_STEPS_DEFAULT
     assert output.parameter_status == CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R
     assert output.covariance_validity_status == INVALID_IF_NOISE_IS_COLORED
@@ -90,8 +98,22 @@ def test_live_bridge_flags_degraded_after_named_dropout_threshold():
     assert first_dropout.prediction_only_steps == 1
     assert second_dropout.live_status == LIVE_IMM_DROPOUT_DEGRADED
     assert second_dropout.prediction_only_steps == 2
+    assert second_dropout.total_initialized_cycles == 3
+    assert second_dropout.prediction_only_cycles == 1
+    assert second_dropout.degraded_dropout_cycles == 1
     assert recovered.live_status == LIVE_IMM_TRACKING
     assert recovered.prediction_only_steps == 0
+    assert recovered.total_initialized_cycles == 4
+    assert recovered.tracking_cycles == 2
+    assert recovered.prediction_only_cycles == 1
+    assert recovered.degraded_dropout_cycles == 1
+    assert recovered.prediction_only_rate == 0.25
+    assert recovered.degraded_dropout_rate == 0.25
+
+
+def test_live_bridge_exposes_dropout_metric_formulas():
+    assert PREDICTION_ONLY_RATE_FORMULA == "prediction_only_rate = prediction_only_cycles / total_initialized_cycles"
+    assert DEGRADED_DROPOUT_RATE_FORMULA == "degraded_dropout_rate = degraded_dropout_cycles / total_initialized_cycles"
 
 
 def test_live_bridge_rejects_invalid_measurements_and_bad_config():
@@ -120,11 +142,13 @@ def test_live_bridge_rejects_invalid_measurements_and_bad_config():
 
 
 def test_live_measurement_validation_returns_rejection_reason_without_throwing():
-    assert validate_live_measurement_xy(1.0, 0.1, 5.0).measurement_xy == [1.0, 0.1]
+    assert MAX_WORKSPACE_RANGE_M_DEFAULT == 5.0
+    assert MAX_WORKSPACE_RANGE_STATUS == "CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_WORKSPACE_RANGE"
+    assert validate_live_measurement_xy(1.0, 0.1, MAX_WORKSPACE_RANGE_M_DEFAULT).measurement_xy == [1.0, 0.1]
 
-    nonfinite = validate_live_measurement_xy(float("nan"), 0.0, 5.0)
-    behind = validate_live_measurement_xy(-0.1, 0.0, 5.0)
-    out_of_workspace = validate_live_measurement_xy(6.0, 0.0, 5.0)
+    nonfinite = validate_live_measurement_xy(float("nan"), 0.0, MAX_WORKSPACE_RANGE_M_DEFAULT)
+    behind = validate_live_measurement_xy(-0.1, 0.0, MAX_WORKSPACE_RANGE_M_DEFAULT)
+    out_of_workspace = validate_live_measurement_xy(6.0, 0.0, MAX_WORKSPACE_RANGE_M_DEFAULT)
 
     assert not nonfinite.valid
     assert nonfinite.rejection_reason == REJECT_NONFINITE_MEASUREMENT
