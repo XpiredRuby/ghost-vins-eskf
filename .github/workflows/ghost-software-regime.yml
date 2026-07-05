@@ -5,6 +5,7 @@ on:
     paths:
       - 'ghost_sim_ros2/analysis/**'
       - 'ghost_sim_ros2/ghost_sim_ros2/mh_tracker.py'
+      - 'ghost_sim_ros2/ghost_sim_ros2/formal_imm_tracker.py'
       - 'ghost_sim_ros2/test/**'
       - 'ghost_sim_ros2/docs/**'
       - 'docs/**'
@@ -32,7 +33,7 @@ jobs:
         run: python -m pip install --upgrade pip pytest numpy
 
       - name: Run focused pytest gates
-        run: pytest -q ghost_sim_ros2/test/test_ghost_software_regime.py ghost_sim_ros2/test/test_stationary_gate.py ghost_sim_ros2/test/test_stationary_noise_analysis.py ghost_sim_ros2/test/test_measurement_covariance.py ghost_sim_ros2/test/test_observability_crlb.py ghost_sim_ros2/test/test_mode_matched_kf.py ghost_sim_ros2/test/test_mode_probability_bank.py ghost_sim_ros2/test/test_imm_mixing.py ghost_sim_ros2/test/test_imm_cycle.py ghost_sim_ros2/test/test_formal_imm_regression_suite.py
+        run: pytest -q ghost_sim_ros2/test/test_ghost_software_regime.py ghost_sim_ros2/test/test_stationary_gate.py ghost_sim_ros2/test/test_stationary_noise_analysis.py ghost_sim_ros2/test/test_measurement_covariance.py ghost_sim_ros2/test/test_observability_crlb.py ghost_sim_ros2/test/test_mode_matched_kf.py ghost_sim_ros2/test/test_mode_probability_bank.py ghost_sim_ros2/test/test_imm_mixing.py ghost_sim_ros2/test/test_imm_cycle.py ghost_sim_ros2/test/test_formal_imm_regression_suite.py ghost_sim_ros2/test/test_imm_live_bridge.py
 
       - name: Upload acceptance report
         uses: actions/upload-artifact@v4
