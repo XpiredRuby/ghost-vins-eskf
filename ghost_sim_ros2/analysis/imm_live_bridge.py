@@ -42,6 +42,14 @@ DROPOUT_DEGRADED_RATIONALE = (
     "At the default 30 Hz live rate, 10 consecutive prediction-only cycles is about 0.33 s. "
     "The bridge keeps publishing but marks output degraded instead of silently trusting long open-loop propagation."
 )
+MAX_WORKSPACE_RANGE_M_DEFAULT = 5.0
+MAX_WORKSPACE_RANGE_STATUS = "CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_WORKSPACE_RANGE"
+MAX_WORKSPACE_RANGE_RATIONALE = (
+    "Default live workspace range is a conservative candidate software guard for bench and room-scale "
+    "AprilTag tests. It must be replaced or confirmed from measured camera geometry before report-grade trials."
+)
+PREDICTION_ONLY_RATE_FORMULA = "prediction_only_rate = prediction_only_cycles / total_initialized_cycles"
+DEGRADED_DROPOUT_RATE_FORMULA = "degraded_dropout_rate = degraded_dropout_cycles / total_initialized_cycles"
 REJECT_NONFINITE_MEASUREMENT = "REJECT_NONFINITE_MEASUREMENT"
 REJECT_BEHIND_CAMERA_MEASUREMENT = "REJECT_BEHIND_CAMERA_MEASUREMENT"
 REJECT_OUT_OF_WORKSPACE_MEASUREMENT = "REJECT_OUT_OF_WORKSPACE_MEASUREMENT"
@@ -93,6 +101,12 @@ class FormalImmLiveOutput:
     live_status: str
     prediction_only_steps: int
     dropout_degraded_after_steps: int
+    total_initialized_cycles: int
+    tracking_cycles: int
+    prediction_only_cycles: int
+    degraded_dropout_cycles: int
+    prediction_only_rate: float
+    degraded_dropout_rate: float
     estimator_status: str
     integration_status: str
     parameter_status: str
@@ -114,6 +128,10 @@ class FormalImmLiveAdapter:
         self.imm: InteractingMultipleModelEstimator | None = None
         self.sequence = 0
         self.prediction_only_steps = 0
+        self.total_initialized_cycles = 0
+        self.tracking_cycles = 0
+        self.prediction_only_cycles = 0
+        self.degraded_dropout_cycles = 0
         self.last_output = FormalImmLiveOutput(
             initialized=False,
             sequence=0,
@@ -123,6 +141,12 @@ class FormalImmLiveAdapter:
             live_status=LIVE_IMM_WAITING_FOR_TARGET,
             prediction_only_steps=0,
             dropout_degraded_after_steps=self.config.dropout_degraded_after_steps,
+            total_initialized_cycles=0,
+            tracking_cycles=0,
+            prediction_only_cycles=0,
+            degraded_dropout_cycles=0,
+            prediction_only_rate=0.0,
+            degraded_dropout_rate=0.0,
             estimator_status=FORMAL_IMM_5_STEP_CYCLE,
             integration_status=self.config.integration_status,
             parameter_status=self.config.parameter_status,
@@ -151,6 +175,12 @@ class FormalImmLiveAdapter:
                     live_status=LIVE_IMM_WAITING_FOR_TARGET,
                     prediction_only_steps=0,
                     dropout_degraded_after_steps=self.config.dropout_degraded_after_steps,
+                    total_initialized_cycles=0,
+                    tracking_cycles=0,
+                    prediction_only_cycles=0,
+                    degraded_dropout_cycles=0,
+                    prediction_only_rate=0.0,
+                    degraded_dropout_rate=0.0,
                     estimator_status=FORMAL_IMM_5_STEP_CYCLE,
                     integration_status=self.config.integration_status,
                     parameter_status=self.config.parameter_status,
@@ -175,6 +205,8 @@ class FormalImmLiveAdapter:
         else:
             self.prediction_only_steps = 0
         cycle_step = self.imm.step(None if measurement is None else measurement)
+        live_status = self._live_status(measurement is not None)
+        self._update_live_metrics(live_status)
         combined = cycle_step.combined_estimate
         estimate = _estimate_dict(combined.x, combined.p)
         hypotheses = []
@@ -198,9 +230,15 @@ class FormalImmLiveAdapter:
             estimate=estimate,
             mode_probabilities=combined.mode_probabilities,
             hypotheses=hypotheses,
-            live_status=self._live_status(measurement is not None),
+            live_status=live_status,
             prediction_only_steps=self.prediction_only_steps,
             dropout_degraded_after_steps=self.config.dropout_degraded_after_steps,
+            total_initialized_cycles=self.total_initialized_cycles,
+            tracking_cycles=self.tracking_cycles,
+            prediction_only_cycles=self.prediction_only_cycles,
+            degraded_dropout_cycles=self.degraded_dropout_cycles,
+            prediction_only_rate=_rate(self.prediction_only_cycles, self.total_initialized_cycles),
+            degraded_dropout_rate=_rate(self.degraded_dropout_cycles, self.total_initialized_cycles),
             estimator_status=cycle_step.estimator_status,
             integration_status=self.config.integration_status,
             parameter_status=self.config.parameter_status,
@@ -217,6 +255,15 @@ class FormalImmLiveAdapter:
         if self.prediction_only_steps >= self.config.dropout_degraded_after_steps:
             return LIVE_IMM_DROPOUT_DEGRADED
         return LIVE_IMM_PREDICTION_ONLY
+
+    def _update_live_metrics(self, live_status: str) -> None:
+        self.total_initialized_cycles += 1
+        if live_status == LIVE_IMM_TRACKING:
+            self.tracking_cycles += 1
+        elif live_status == LIVE_IMM_DROPOUT_DEGRADED:
+            self.degraded_dropout_cycles += 1
+        elif live_status == LIVE_IMM_PREDICTION_ONLY:
+            self.prediction_only_cycles += 1
 
     def project_path(self, state: Iterable[float]) -> list[dict[str, float]]:
         values = np.asarray(list(state), dtype=float)
@@ -258,6 +305,12 @@ def validate_live_measurement_xy(x: float, y: float, max_workspace_range_m: floa
     if math.hypot(x, y) > max_workspace_range_m:
         return LiveMeasurementValidation(False, None, REJECT_OUT_OF_WORKSPACE_MEASUREMENT)
     return LiveMeasurementValidation(True, [x, y], None)
+
+
+def _rate(numerator: int, denominator: int) -> float:
+    if denominator <= 0:
+        return 0.0
+    return float(numerator) / float(denominator)
 
 
 def _estimate_dict(state: Iterable[float], covariance: Iterable[Iterable[float]]) -> dict[str, float]:
