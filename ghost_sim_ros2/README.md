@@ -2,14 +2,14 @@
 
 ## Portfolio Snapshot
 
-GHOST is a ROS 2 autonomy prototype for target tracking under intermittent AprilTag visibility, with live Raspberry Pi hardware validation and side-by-side formal IMM and heuristic MH trackers.
+GHOST is a ROS 2 autonomy prototype for target tracking under intermittent AprilTag visibility, with Raspberry Pi hardware replay evidence and side-by-side formal IMM and heuristic MH trackers.
 
 What was built:
 - ROS 2 measurement, tracking, visualization, plotting, and dashboard tooling for a target-tracking autonomy pipeline.
-- A formal Interacting Multiple Model tracker alongside a heuristic multi-hypothesis tracker for comparison during visibility loss.
+- A formal Interacting Multiple Model tracker alongside a heuristic multi-hypothesis tracker for side-by-side qualitative replay during visibility loss.
 - Hardware replay artifacts that show raw AprilTag measurements, tracker estimates, status changes, and prediction behavior from the final calibrated run.
 
-Hardware validation status:
+Hardware replay evidence status:
 - Final bag: `live_camera_calibrated_R_01` from the calibrated Raspberry Pi AprilTag setup.
 - Duration: `48.28 s` with `655` vision measurements.
 - Rates: camera pose `13.57 Hz`, IMM odom `30.01 Hz`, MH odom `29.99 Hz`.
@@ -30,7 +30,7 @@ cd docs && python3 -m http.server 8000 --bind 0.0.0.0
 
 Then open `http://localhost:8000/GHOST_LIVE_REPLAY_DASHBOARD.html`.
 
-See `HARDWARE_CALIBRATION_EVIDENCE.md` for calibration and live-bag evidence.
+See `HARDWARE_CALIBRATION_EVIDENCE.md` for calibration notes and live-bag pipeline evidence. Controlled measurement covariance R characterization remains pending before report-grade estimator accuracy claims.
 
 This package runs the GHOST software path without camera hardware or IMU hardware.
 

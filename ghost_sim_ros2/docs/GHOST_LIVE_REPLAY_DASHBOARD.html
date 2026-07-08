@@ -294,7 +294,7 @@
       <div class="evidenceList">
         <div class="evidenceItem"><strong>Input</strong>Live AprilTag measurement stream</div>
         <div class="evidenceItem"><strong>Formal tracker</strong>IMM model probabilities and state estimate</div>
-        <div class="evidenceItem"><strong>Baseline tracker</strong>Heuristic MH state estimate</div>
+        <div class="evidenceItem"><strong>Context tracker</strong>Heuristic MH state estimate</div>
         <div class="evidenceItem"><strong>Dropout behavior</strong>Prediction during target loss</div>
       </div>
     </div>
@@ -369,7 +369,7 @@
     <div class="explainGrid">
       <div class="explainItem"><strong>Final bag source</strong><span>Exported from <span class="mono">live_camera_calibrated_R_01</span>, the final calibrated Raspberry Pi hardware run.</span></div>
       <div class="explainItem"><strong>Static artifact</strong><span>All UI behavior is plain HTML, CSS, canvas, and local JSON. No package install or network fetch is required.</span></div>
-      <div class="explainItem"><strong>IMM comparison</strong><span>Mode probabilities expose how the formal tracker weighs smooth and maneuvering motion models.</span></div>
+      <div class="explainItem"><strong>IMM replay context</strong><span>Mode probabilities expose how the formal tracker weighs smooth and maneuvering motion models; statistical IMM/MH comparison is future work.</span></div>
       <div class="explainItem"><strong>Dropout evidence</strong><span>Measurement age is clamped at zero for display, then rises only when detections are actually stale or absent.</span></div>
     </div>
   </section>

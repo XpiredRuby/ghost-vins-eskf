@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-GHOST is a ROS 2 autonomy project focused on target tracking when visual measurements are intermittent. The repository demonstrates a complete engineering loop: simulated development, live Raspberry Pi AprilTag capture, formal IMM tracking, heuristic MH comparison, validation plots, and a static replay dashboard that can be reviewed without ROS or external dependencies.
+GHOST is a ROS 2 autonomy project focused on target tracking when visual measurements are intermittent. The repository demonstrates a complete engineering loop: simulated development, live Raspberry Pi AprilTag capture, formal IMM tracking, heuristic MH side-by-side replay, hardware pipeline evidence plots, and a static replay dashboard that can be reviewed without ROS or external dependencies.
 
 ## Engineering Problem
 
@@ -14,13 +14,13 @@ The project is organized around a ROS 2 target-tracking pipeline:
 
 - AprilTag pose measurements publish target observations on `/ghost/vision/target_pose`.
 - A formal IMM tracker estimates target state while switching probability mass between motion models.
-- A heuristic MH tracker provides a comparison baseline for live behavior.
+- A heuristic MH tracker provides a contextual baseline for non-statistical side-by-side replay.
 - Odom, status, future-hypothesis, and plot/export tools convert live bag data into reviewable evidence.
 - Static documentation and dashboard assets make the final hardware run easy to inspect from GitHub or a local HTTP server.
 
-## Hardware Validation Evidence
+## Hardware Pipeline Evidence
 
-The final validation artifact is the calibrated Raspberry Pi AprilTag bag `live_camera_calibrated_R_01`. The replay dashboard and plot page show the raw measurement stream, the formal IMM estimate, the heuristic MH estimate, tracker status transitions, and prediction behavior during target loss.
+The final hardware replay artifact is the calibrated Raspberry Pi AprilTag bag `live_camera_calibrated_R_01`. The replay dashboard and plot page show the raw measurement stream, the formal IMM estimate, the heuristic MH estimate, tracker status transitions, and prediction behavior during target loss. This evidence validates live ROS 2 pipeline operation, topic rates, dropout/status telemetry, and replay tooling; report-grade real-world estimator accuracy validation is pending verified stationary measurement covariance R characterization.
 
 ## Key Metrics
 
@@ -45,8 +45,8 @@ The final validation artifact is the calibrated Raspberry Pi AprilTag bag `live_
 For aerospace, autonomy, and robotics roles, this project shows practical ownership of problems that matter in real systems:
 
 - Sensor-driven estimation with explicit handling of stale measurements.
-- Validation from a real hardware data source, not only a synthetic demo.
-- Side-by-side comparison of a formal model-based tracker and a heuristic baseline.
+- Pipeline evidence from a real hardware data source, not only a synthetic demo.
+- Side-by-side qualitative replay of a formal model-based tracker and a heuristic baseline, with statistical comparison pending a dedicated harness.
 - Reproducible evidence packaging through plots, reports, exported JSON, and a dependency-free static dashboard.
 - Engineering discipline around safety boundaries: the package publishes target state and setpoint topics but does not arm or command a vehicle.
 

@@ -86,4 +86,4 @@ multi-future coverage into a usable real-time estimate by adding:
 2. visualization of the top futures,
 3. explicit confidence ellipses,
 4. reacquisition logic that collapses the future set onto the matching path,
-5. hardware validation using AprilTag measurements.
+5. hardware pipeline replay evidence using AprilTag measurements, followed by controlled covariance R and ground-truth validation.

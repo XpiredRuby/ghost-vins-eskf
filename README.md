@@ -2,13 +2,14 @@
 
 ## Portfolio Snapshot
 
-ROS 2 target-tracking autonomy prototype for intermittent AprilTag visibility, validated on Raspberry Pi hardware with formal IMM and heuristic MH tracking.
+ROS 2 target-tracking autonomy prototype for intermittent AprilTag visibility, integrated with Raspberry Pi AprilTag hardware replay evidence and live formal IMM plus heuristic MH tracking.
 
 - **Author:** Vinayak Manoj Nair — Texas A&M University, B.S. Aerospace Engineering (Dec 2026)
 - **Repo:** `ghost-vins-eskf`
-- **Current status:** Hardware-validated final replay package complete.
+- **Current status:** Hardware-integrated final replay package complete for pipeline, telemetry, and dashboard evidence.
+- **Evidence caveat:** Current hardware evidence validates live ROS 2 pipeline operation, topic rates, dropout/status telemetry, and replay tooling. It does not yet constitute report-grade real-world estimator accuracy validation because controlled hardware measurement covariance R is pending verified stationary noise characterization.
 
-Key proof metrics from the final calibrated hardware run:
+Key hardware replay metrics from the final calibrated hardware run:
 
 | Metric | Value |
 | --- | ---: |
@@ -157,7 +158,7 @@ ros2 launch ghost_sim_ros2 ghost_full_demo.launch.py
 The previous replay and report packaging milestone is complete for the final calibrated AprilTag hardware bag. Reviewers can inspect:
 
 1. Static replay dashboard with local JSON-backed playback.
-2. Formal IMM and heuristic MH tracker comparison.
+2. Formal IMM and heuristic MH side-by-side qualitative replay, with statistical comparison pending a dedicated harness.
 3. Hardware bag plots for XY path, position over time, status timelines, and topic rates.
 4. A final project report and concise portfolio packet.
 5. Career-facing snippets for resume, LinkedIn, GitHub, and interview use.
@@ -166,9 +167,9 @@ The critical review roadmap remains available for historical context and future 
 
 ## Hardware Scope And Future Work
 
-Current hardware validation covers a calibrated Raspberry Pi AprilTag replay with both trackers running side by side. The package does not claim flight test, production deployment, closed-loop vehicle command, real drone autonomy, or onboard vehicle command.
+Current hardware replay evidence covers a calibrated Raspberry Pi AprilTag run with both trackers running side by side. The package does not claim flight test, production deployment, closed-loop vehicle command, real drone autonomy, or onboard vehicle command.
 
-Useful future work includes larger trial sets, measured ground-truth trajectories, more lighting and motion-blur tests, longer occlusions, and non-AprilTag perception after the AprilTag validation path.
+Useful future work includes verified stationary noise characterization for measurement covariance R, a statistical IMM/MH comparison harness, larger trial sets, measured ground-truth trajectories, more lighting and motion-blur tests, longer occlusions, and non-AprilTag perception after the AprilTag pipeline path.
 
 ## Architecture
 
