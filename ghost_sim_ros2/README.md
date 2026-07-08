@@ -17,6 +17,7 @@ Hardware validation status:
 
 Direct review links:
 - Portfolio packet: `docs/GHOST_PORTFOLIO_PACKET.md`
+- Career snippets: `docs/GHOST_CAREER_SNIPPETS.md`
 - Final project report: `docs/GHOST_PROJECT_REPORT.md`
 - Final hardware bag plots: `docs/GHOST_LIVE_BAG_PLOTS.md`
 - Live replay dashboard: `docs/GHOST_LIVE_REPLAY_DASHBOARD.html`
