@@ -1,20 +1,55 @@
 # GHOST — GPS-Denied Hardware Occlusion-Survivable Tracker
 
-> **Current baseline:** GHOST-MH live prototype — USB webcam + calibrated AprilTag pose + ROS2 Jazzy + bounded multi-hypothesis occlusion tracker.  
-> **Current working demo:** one-command background launcher starts camera evidence, GHOST-MH tracker, terminal monitor, and browser operator console.  
-> **Operator console:** `http://<pi-ip>:8090` shows live camera, top-down probability map, ranked future hypotheses, covariance ellipses, latency indicators, and tracker health.  
-> **Camera-only view:** `http://<pi-ip>:8081` shows the calibrated AprilTag detector overlay.  
-> **Critical review roadmap:** [`docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md`](docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md).
+## Portfolio Snapshot
 
-**Author:** Vinayak Manoj Nair — Texas A&M University, B.S. Aerospace Engineering (Dec 2026)  
-**Repo:** `ghost-vins-eskf`  
-**Status:** Live GHOST-MH hardware demo working on Raspberry Pi. Next milestone is replay, baseline comparison, validation metrics, event timeline, and automatic report export.
+ROS 2 target-tracking autonomy prototype for intermittent AprilTag visibility, validated on Raspberry Pi hardware with formal IMM and heuristic MH tracking.
+
+- **Author:** Vinayak Manoj Nair — Texas A&M University, B.S. Aerospace Engineering (Dec 2026)
+- **Repo:** `ghost-vins-eskf`
+- **Current status:** Hardware-validated final replay package complete.
+
+Key proof metrics from the final calibrated hardware run:
+
+| Metric | Value |
+| --- | ---: |
+| Final bag | `live_camera_calibrated_R_01` |
+| Duration | `48.28 s` |
+| Vision measurements | `655` |
+| Camera pose rate | `13.57 Hz` |
+| IMM odom rate | `30.01 Hz` |
+| MH odom rate | `29.99 Hz` |
+| Max IMM prediction-only steps | `77` |
+| Max IMM measurement age | `2.849 s` |
+
+Direct review links:
+
+- Career snippets: [`ghost_sim_ros2/docs/GHOST_CAREER_SNIPPETS.md`](ghost_sim_ros2/docs/GHOST_CAREER_SNIPPETS.md)
+- Portfolio packet: [`ghost_sim_ros2/docs/GHOST_PORTFOLIO_PACKET.md`](ghost_sim_ros2/docs/GHOST_PORTFOLIO_PACKET.md)
+- Final project report: [`ghost_sim_ros2/docs/GHOST_PROJECT_REPORT.md`](ghost_sim_ros2/docs/GHOST_PROJECT_REPORT.md)
+- Final hardware bag plots: [`ghost_sim_ros2/docs/GHOST_LIVE_BAG_PLOTS.md`](ghost_sim_ros2/docs/GHOST_LIVE_BAG_PLOTS.md)
+- Live replay dashboard: [`ghost_sim_ros2/docs/GHOST_LIVE_REPLAY_DASHBOARD.html`](ghost_sim_ros2/docs/GHOST_LIVE_REPLAY_DASHBOARD.html)
+
+View the static replay dashboard locally:
+
+```bash
+cd ghost_sim_ros2/docs
+python3 -m http.server 8000 --bind 0.0.0.0
+```
+
+Then open `http://localhost:8000/GHOST_LIVE_REPLAY_DASHBOARD.html`. GitHub may display the HTML source instead of executing the local JSON-backed dashboard, so local serving is the intended review path.
 
 ## Current Evidence
 
+### Final Hardware Replay Package
+
+The completed evidence package replays the final calibrated Raspberry Pi AprilTag bag with raw vision measurements, formal IMM tracking, heuristic MH tracking, status transitions, prediction tails, plots, and a static dashboard. The live Raspberry Pi operator console remains useful for demos, while the replay package is the primary reviewer-facing artifact.
+
 ### Live GHOST-MH Hardware Demo
 
-The current live system runs on the Raspberry Pi with a USB webcam and 10 cm AprilTag target. It publishes calibrated target pose into ROS2, runs the GHOST-MH probability tracker, and serves a combined browser operator console.
+The live system runs on the Raspberry Pi with a USB webcam and 10 cm AprilTag target. It publishes calibrated target pose into ROS2, runs the GHOST-MH probability tracker, and serves a combined browser operator console.
+
+Operator console: `http://<pi-ip>:8090`
+Camera-only view: `http://<pi-ip>:8081`
 
 ### ROS2 Synthetic Tracking
 
@@ -109,32 +144,23 @@ Integrated hardware/software demo: [ghost_sim_ros2/docs/FULL_INTEGRATED_DEMO.md]
 ros2 launch ghost_sim_ros2 ghost_full_demo.launch.py
 ```
 
-## Critical Review / Next Research Milestone
+## Completed Review Package
 
-The strongest current criticism is not that the tracker fails. The current criticism is that a live demo is not yet enough evidence for a research-grade claim.
+The previous replay and report packaging milestone is complete for the final calibrated AprilTag hardware bag. Reviewers can inspect:
 
-The next milestone is documented here:
+1. Static replay dashboard with local JSON-backed playback.
+2. Formal IMM and heuristic MH tracker comparison.
+3. Hardware bag plots for XY path, position over time, status timelines, and topic rates.
+4. A final project report and concise portfolio packet.
+5. Career-facing snippets for resume, LinkedIn, GitHub, and interview use.
 
-[`docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md`](docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md)
+The critical review roadmap remains available for historical context and future extensions: [`docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md`](docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md).
 
-Priority upgrades:
+## Hardware Scope And Future Work
 
-1. Trial recording and replay mode.
-2. Baseline comparison: last-seen hold vs constant velocity vs GHOST-MH.
-3. Ground-truth validation metrics: RMSE, 95th percentile error, top-1/top-3 occlusion coverage.
-4. Event timeline: visible, occluded, hypothesis split, reacquired, reset.
-5. Automatic Markdown/PDF demo report export.
-6. Probability heatmap and latency waterfall.
-7. Tagless tracking mode after AprilTag validation is complete.
+Current hardware validation covers a calibrated Raspberry Pi AprilTag replay with both trackers running side by side. The package does not claim flight test, production deployment, closed-loop vehicle command, real drone autonomy, or onboard vehicle command.
 
-## Hardware Next
-
-The remaining hardware validation work is:
-
-1. Run repeated measured-grid AprilTag trials and compute pose RMSE.
-2. Record dynamic occlusion trials with known reappearance locations.
-3. Compare GHOST-MH against baseline trackers.
-4. Add final real-world validation plots and demo video.
+Useful future work includes larger trial sets, measured ground-truth trajectories, more lighting and motion-blur tests, longer occlusions, and non-AprilTag perception after the AprilTag validation path.
 
 ## Architecture
 
@@ -173,7 +199,7 @@ The remaining hardware validation work is:
                                      └──────────────────┘
 ```
 
-**Target:** RC car or hand-moved target with 10 cm × 10 cm AprilTag 36h11 on a flat floor.  
+**Target:** RC car or hand-moved target with 10 cm × 10 cm AprilTag 36h11 on a flat floor.
 **Occlusion:** Target moves behind an object. GHOST-MH predicts bounded probabilistic futures and resets after the configured validity horizon.
 
 ---
@@ -233,6 +259,12 @@ ghost-vins-eskf/
 │   ├── NO_HARDWARE_DEMO.md
 │   └── CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md
 ├── ghost_sim_ros2/
+│   ├── docs/
+│   │   ├── GHOST_CAREER_SNIPPETS.md
+│   │   ├── GHOST_PORTFOLIO_PACKET.md
+│   │   ├── GHOST_PROJECT_REPORT.md
+│   │   ├── GHOST_LIVE_BAG_PLOTS.md
+│   │   └── GHOST_LIVE_REPLAY_DASHBOARD.html
 │   ├── ghost_sim_ros2/
 │   │   ├── cv_tracker.py
 │   │   ├── mh_tracker.py
