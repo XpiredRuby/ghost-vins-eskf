@@ -1,24 +1,35 @@
 # GHOST ROS2 Simulation Package
 
-## Hardware-Validated Status
+## Portfolio Snapshot
 
-GHOST now includes live Raspberry Pi AprilTag tracking with side-by-side heuristic MH tracking and formal IMM tracking.
+GHOST is a ROS 2 autonomy prototype for target tracking under intermittent AprilTag visibility, with live Raspberry Pi hardware validation and side-by-side formal IMM and heuristic MH trackers.
 
-Final calibrated hardware run:
-- Bag: `~/ghost_ws/bags/live_camera_calibrated_R_01`
-- Duration: `48.280 s`
-- Camera pose rate: `13.57 Hz`
-- IMM tracker rate: `30.01 Hz`
-- MH tracker rate: `29.99 Hz`
-- Max IMM measurement age during dropout: `2.849 s`
+What was built:
+- ROS 2 measurement, tracking, visualization, plotting, and dashboard tooling for a target-tracking autonomy pipeline.
+- A formal Interacting Multiple Model tracker alongside a heuristic multi-hypothesis tracker for comparison during visibility loss.
+- Hardware replay artifacts that show raw AprilTag measurements, tracker estimates, status changes, and prediction behavior from the final calibrated run.
+
+Hardware validation status:
+- Final bag: `live_camera_calibrated_R_01` from the calibrated Raspberry Pi AprilTag setup.
+- Duration: `48.28 s` with `655` vision measurements.
+- Rates: camera pose `13.57 Hz`, IMM odom `30.01 Hz`, MH odom `29.99 Hz`.
+- Dropout behavior: IMM reached `77` prediction-only steps and `2.849 s` max measurement age while continuing to publish estimates.
+
+Direct review links:
+- Portfolio packet: `docs/GHOST_PORTFOLIO_PACKET.md`
+- Final project report: `docs/GHOST_PROJECT_REPORT.md`
+- Final hardware bag plots: `docs/GHOST_LIVE_BAG_PLOTS.md`
+- Live replay dashboard: `docs/GHOST_LIVE_REPLAY_DASHBOARD.html`
+
+View the dashboard locally:
+
+```bash
+cd docs && python3 -m http.server 8000 --bind 0.0.0.0
+```
+
+Then open `http://localhost:8000/GHOST_LIVE_REPLAY_DASHBOARD.html`.
 
 See `HARDWARE_CALIBRATION_EVIDENCE.md` for calibration and live-bag evidence.
-
-Final project report: `docs/GHOST_PROJECT_REPORT.md`
-
-Final hardware bag plots: `docs/GHOST_LIVE_BAG_PLOTS.md`
-
-Live replay dashboard: `docs/GHOST_LIVE_REPLAY_DASHBOARD.html`
 
 This package runs the GHOST software path without camera hardware or IMU hardware.
 
