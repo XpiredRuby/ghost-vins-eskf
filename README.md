@@ -44,20 +44,28 @@ Then open `http://localhost:8000/GHOST_LIVE_REPLAY_DASHBOARD.html`. GitHub may d
 
 The completed evidence package replays the final calibrated Raspberry Pi AprilTag bag with raw vision measurements, formal IMM tracking, heuristic MH tracking, status transitions, prediction tails, plots, and a static dashboard. The live Raspberry Pi operator console remains useful for demos, while the replay package is the primary reviewer-facing artifact.
 
+![Final hardware XY path](ghost_sim_ros2/docs/assets/ghost_live_plots/ghost_live_xy_path.png)
+
+![Final hardware position over time](ghost_sim_ros2/docs/assets/ghost_live_plots/ghost_live_position_vs_time.png)
+
+![Formal IMM status timeline](ghost_sim_ros2/docs/assets/ghost_live_plots/ghost_live_imm_status_timeline.png)
+
+![Final hardware topic rates](ghost_sim_ros2/docs/assets/ghost_live_plots/ghost_live_topic_rates.png)
+
 ### Live GHOST-MH Hardware Demo
 
 The live system runs on the Raspberry Pi with a USB webcam and 10 cm AprilTag target. It publishes calibrated target pose into ROS2, runs the GHOST-MH probability tracker, and serves a combined browser operator console.
 
-Operator console: `http://<pi-ip>:8090`
-Camera-only view: `http://<pi-ip>:8081`
+- Operator console: `http://<pi-ip>:8090`
+- Camera-only view: `http://<pi-ip>:8081`
 
-### ROS2 Synthetic Tracking
+### Earlier Synthetic / Parameter-Sweep Evidence
 
-![GHOST tracking evidence](analysis/ghost_tracking_evidence.png)
+These older artifacts remain useful for understanding the software-only development path, but the final hardware replay above is the primary review evidence.
 
-### Tracker Sweep
+![GHOST synthetic tracking evidence](analysis/ghost_tracking_evidence.png)
 
-![Tracker sweep summary](analysis/tracker_sweep_summary.png)
+![Tracker parameter sweep summary](analysis/tracker_sweep_summary.png)
 
 ## What Works Now
 
@@ -199,8 +207,8 @@ Useful future work includes larger trial sets, measured ground-truth trajectorie
                                      └──────────────────┘
 ```
 
-**Target:** RC car or hand-moved target with 10 cm × 10 cm AprilTag 36h11 on a flat floor.
-**Occlusion:** Target moves behind an object. GHOST-MH predicts bounded probabilistic futures and resets after the configured validity horizon.
+- **Target:** RC car or hand-moved target with 10 cm × 10 cm AprilTag 36h11 on a flat floor.
+- **Occlusion:** Target moves behind an object. GHOST-MH predicts bounded probabilistic futures and resets after the configured validity horizon.
 
 ---
 
