@@ -14,6 +14,8 @@ Final calibrated hardware run:
 
 See `HARDWARE_CALIBRATION_EVIDENCE.md` for calibration and live-bag evidence.
 
+Final project report: `docs/GHOST_PROJECT_REPORT.md`
+
 This package runs the GHOST software path without camera hardware or IMU hardware.
 
 It provides:
