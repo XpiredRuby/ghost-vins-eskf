@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GHOST Live Replay Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --bg: #0a0f1d;
+      --panel: #111827;
+      --panel2: #182235;
+      --panel3: #0f172a;
+      --text: #eef4ff;
+      --muted: #a9b7d0;
+      --grid: rgba(255,255,255,0.12);
+      --line: rgba(255,255,255,0.10);
+      --vision: #ffd166;
+      --imm: #4cc9f0;
+      --mh: #f72585;
+      --future: #a7f3d0;
+      --warn: #ffb703;
+      --bad: #fb7185;
+      --ok: #22c55e;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Arial, sans-serif;
+    }
+    header {
+      padding: 24px 28px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 0.2px;
+    }
+    .subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    main {
+      padding: 20px 28px 32px;
+      max-width: 1360px;
+      margin: 0 auto;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+    .value {
+      font-size: 22px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 16px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    }
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+    canvas {
+      width: 100%;
+      height: 430px;
+      background: #081026;
+      border-radius: 6px;
+      display: block;
+    }
+    #timeCanvas {
+      height: 300px;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+      margin: 16px 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    button {
+      background: #23345e;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    button:hover {
+      background: #2d4378;
+    }
+    input[type=range] {
+      width: 100%;
+    }
+    .timeText {
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      min-width: 120px;
+      text-align: right;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    .swatch {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: -1px;
+    }
+    .statusBox {
+      display: grid;
+      gap: 12px;
+    }
+    .statusLine {
+      background: var(--panel2);
+      border-radius: 8px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .statusTitle {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 5px;
+    }
+    .statusValue {
+      font-size: 16px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .footer {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 18px;
+      line-height: 1.5;
+    }
+
+    .overview {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .lede {
+      background: linear-gradient(180deg, #101a2f 0%, #0f172a 100%);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      line-height: 1.55;
+    }
+    .lede h2, .explain h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    .lede p, .explain p {
+      margin: 0;
+      color: var(--muted);
+    }
+    .evidenceList {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .evidenceItem {
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.075);
+      border-radius: 6px;
+      padding: 9px 10px;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .evidenceItem strong {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .callout {
+      background: var(--panel3);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--imm);
+      border-radius: 8px;
+      padding: 14px 16px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .callout strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+    .explain {
+      margin-top: 16px;
+    }
+    .explainGrid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .explainItem {
+      background: var(--panel2);
+      border: 1px solid rgba(255,255,255,0.065);
+      border-radius: 8px;
+      padding: 12px;
+      line-height: 1.45;
+    }
+    .explainItem strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text);
+    }
+    .explainItem span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin-top: 8px;
+    }
+    @media (max-width: 980px) {
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid, .overview, .explainGrid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      main, header { padding-left: 16px; padding-right: 16px; }
+      .cards, .evidenceList { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr; }
+      .timeText { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>GHOST Live Replay Dashboard</h1>
+  <div class="subtitle">
+    Dependency-free replay of the final calibrated Raspberry Pi AprilTag hardware bag, with the live measurement stream, formal IMM tracker, heuristic MH tracker, status timelines, and prediction tails in one static page.
+  </div>
+</header>
+
+<main>
+  <section class="overview">
+    <div class="lede">
+      <h2>Final Hardware Replay</h2>
+      <p>This page replays the AprilTag detections recorded from the final calibrated hardware bag and overlays both target trackers. It is intended as a reviewable artifact: the same exported JSON drives every plot, counter, status, and prediction tail.</p>
+      <div class="evidenceList">
+        <div class="evidenceItem"><strong>Input</strong>Live AprilTag measurement stream</div>
+        <div class="evidenceItem"><strong>Formal tracker</strong>IMM model probabilities and state estimate</div>
+        <div class="evidenceItem"><strong>Baseline tracker</strong>Heuristic MH state estimate</div>
+        <div class="evidenceItem"><strong>Dropout behavior</strong>Prediction during target loss</div>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>What to look for</strong>
+      During visible segments, yellow measurements should line up with the cyan IMM and magenta MH tracks. During target loss, measurement age rises from zero while prediction-only steps increase and the future tail shows how the tracker continues to forecast motion until detections return.
+    </div>
+  </section>
+
+  <section class="cards">
+    <div class="card"><div class="label">Duration</div><div class="value" id="duration">--</div></div>
+    <div class="card"><div class="label">AprilTag measurements</div><div class="value" id="visionCount">--</div></div>
+    <div class="card"><div class="label">Formal IMM samples</div><div class="value" id="immCount">--</div></div>
+    <div class="card"><div class="label">Heuristic MH samples</div><div class="value" id="mhCount">--</div></div>
+  </section>
+
+  <section class="controls">
+    <button id="playBtn">Play</button>
+    <input id="slider" type="range" min="0" max="1000" value="0">
+    <div class="timeText mono" id="timeText">t = 0.00 s</div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>XY Target Replay</h2>
+      <div class="hint">Accumulated path through the selected replay time. Yellow dots are raw AprilTag pose measurements; cyan and magenta lines are tracker estimates.</div>
+      <canvas id="xyCanvas"></canvas>
+      <div class="legend">
+        <span><span class="swatch" style="background:var(--vision)"></span>Vision measurements</span>
+        <span><span class="swatch" style="background:var(--imm)"></span>Formal IMM estimate</span>
+        <span><span class="swatch" style="background:var(--mh)"></span>Heuristic MH estimate</span>
+        <span><span class="swatch" style="background:var(--future)"></span>Prediction tail</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Replay State</h2>
+      <div class="statusBox">
+        <div class="statusLine">
+          <div class="statusTitle">IMM status</div>
+          <div class="statusValue" id="immStatus">--</div>
+        </div>
+        <div class="statusLine">
+          <div class="statusTitle">MH status</div>
+          <div class="statusValue" id="mhStatus">--</div>
+        </div>
+        <div class="statusLine">
+          <div class="statusTitle">IMM mode probabilities</div>
+          <div class="statusValue mono" id="modeProbs">--</div>
+        </div>
+        <div class="statusLine">
+          <div class="statusTitle">Measurement age / prediction-only</div>
+          <div class="statusValue mono" id="ageBox">--</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" style="margin-top:16px;">
+    <h2>Position Over Time</h2>
+    <div class="hint">Solid lines are x position and dashed lines are y position. The vertical cursor marks the current replay time.</div>
+    <canvas id="timeCanvas"></canvas>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--vision)"></span>Vision x/y</span>
+      <span><span class="swatch" style="background:var(--imm)"></span>IMM x/y</span>
+      <span><span class="swatch" style="background:var(--mh)"></span>MH x/y</span>
+    </div>
+  </section>
+
+  <section class="panel explain">
+    <h2>Reproducibility Notes</h2>
+    <div class="explainGrid">
+      <div class="explainItem"><strong>Final bag source</strong><span>Exported from <span class="mono">live_camera_calibrated_R_01</span>, the final calibrated Raspberry Pi hardware run.</span></div>
+      <div class="explainItem"><strong>Static artifact</strong><span>All UI behavior is plain HTML, CSS, canvas, and local JSON. No package install or network fetch is required.</span></div>
+      <div class="explainItem"><strong>IMM comparison</strong><span>Mode probabilities expose how the formal tracker weighs smooth and maneuvering motion models.</span></div>
+      <div class="explainItem"><strong>Dropout evidence</strong><span>Measurement age is clamped at zero for display, then rises only when detections are actually stale or absent.</span></div>
+    </div>
+  </section>
+
+  <div class="footer">
+    Data source: <span class="mono">docs/assets/ghost_live_dashboard/live_camera_calibrated_R_01_dashboard.json</span>.
+    To view locally, serve the repository docs folder with <span class="mono">cd docs && python3 -m http.server 8000 --bind 0.0.0.0</span>; direct file opening may block JSON loading in some browsers.
+  </div>
+</main>
+
+<script>
+const DATA_URL = "assets/ghost_live_dashboard/live_camera_calibrated_R_01_dashboard.json";
+let data = null;
+let currentT = 0;
+let playing = false;
+let lastFrame = null;
+
+const xyCanvas = document.getElementById("xyCanvas");
+const timeCanvas = document.getElementById("timeCanvas");
+const slider = document.getElementById("slider");
+const playBtn = document.getElementById("playBtn");
+
+function resizeCanvas(canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+  canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return ctx;
+}
+
+function nearest(arr, t) {
+  if (!arr || arr.length === 0) return null;
+  let lo = 0, hi = arr.length - 1;
+  while (lo < hi) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (arr[mid].t < t) lo = mid + 1; else hi = mid;
+  }
+  if (lo > 0 && Math.abs(arr[lo-1].t - t) < Math.abs(arr[lo].t - t)) return arr[lo-1];
+  return arr[lo];
+}
+
+function upto(arr, t) {
+  if (!arr) return [];
+  let i = 0;
+  while (i < arr.length && arr[i].t <= t) i++;
+  return arr.slice(0, i);
+}
+
+function boundsXY() {
+  const pts = [].concat(data.vision, data.imm, data.mh);
+  let xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+  let minX = Math.min(...xs), maxX = Math.max(...xs);
+  let minY = Math.min(...ys), maxY = Math.max(...ys);
+  const padX = Math.max(0.02, (maxX - minX) * 0.15);
+  const padY = Math.max(0.02, (maxY - minY) * 0.15);
+  return {minX:minX-padX, maxX:maxX+padX, minY:minY-padY, maxY:maxY+padY};
+}
+
+function makeXYMapper(canvas, b) {
+  const rect = canvas.getBoundingClientRect();
+  const w = rect.width, h = rect.height;
+  const pad = 46;
+  const sx = (w - 2*pad) / (b.maxX - b.minX);
+  const sy = (h - 2*pad) / (b.maxY - b.minY);
+  const s = Math.min(sx, sy);
+  const x0 = (w - s*(b.maxX-b.minX)) / 2;
+  const y0 = (h - s*(b.maxY-b.minY)) / 2;
+  return {
+    x: p => x0 + (p.x - b.minX) * s,
+    y: p => y0 + (b.maxY - p.y) * s,
+    w, h
+  };
+}
+
+function drawGrid(ctx, canvas, titleX, titleY) {
+  const rect = canvas.getBoundingClientRect();
+  ctx.clearRect(0, 0, rect.width, rect.height);
+  ctx.fillStyle = "#081026";
+  ctx.fillRect(0, 0, rect.width, rect.height);
+  ctx.strokeStyle = "rgba(255,255,255,0.10)";
+  ctx.lineWidth = 1;
+  for (let i=0; i<=8; i++) {
+    const x = i * rect.width / 8;
+    const y = i * rect.height / 8;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, rect.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(rect.width, y); ctx.stroke();
+  }
+  ctx.fillStyle = "rgba(233,238,252,0.72)";
+  ctx.font = "12px system-ui";
+  ctx.fillText(titleX, rect.width - 110, rect.height - 12);
+  ctx.save();
+  ctx.translate(14, 105);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText(titleY, 0, 0);
+  ctx.restore();
+}
+
+function drawLine(ctx, pts, map, color, width, dashed=false) {
+  if (!pts || pts.length < 2) return;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.globalAlpha = 0.95;
+  if (dashed) ctx.setLineDash([6, 5]);
+  ctx.beginPath();
+  ctx.moveTo(map.x(pts[0]), map.y(pts[0]));
+  for (const p of pts.slice(1)) ctx.lineTo(map.x(p), map.y(p));
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawDots(ctx, pts, map, color, r) {
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.85;
+  for (const p of pts) {
+    ctx.beginPath();
+    ctx.arc(map.x(p), map.y(p), r, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawMarker(ctx, p, map, color, r) {
+  if (!p) return;
+  ctx.fillStyle = color;
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(map.x(p), map.y(p), r, 0, Math.PI*2);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawXY() {
+  const ctx = resizeCanvas(xyCanvas);
+  drawGrid(ctx, xyCanvas, "x position (m)", "y position (m)");
+
+  const b = boundsXY();
+  const map = makeXYMapper(xyCanvas, b);
+
+  const visionPts = upto(data.vision, currentT);
+  const immPts = upto(data.imm, currentT);
+  const mhPts = upto(data.mh, currentT);
+
+  drawDots(ctx, visionPts, map, getComputedStyle(document.documentElement).getPropertyValue("--vision"), 2.0);
+  drawLine(ctx, immPts, map, getComputedStyle(document.documentElement).getPropertyValue("--imm"), 2.0, false);
+  drawLine(ctx, mhPts, map, getComputedStyle(document.documentElement).getPropertyValue("--mh"), 1.8, true);
+
+  const immFuture = nearest(data.imm_futures, currentT);
+  if (immFuture && immFuture.hypotheses && immFuture.hypotheses.length) {
+    for (const h of immFuture.hypotheses.slice(0, 2)) {
+      const path = h.path.map(p => ({x:p.x, y:p.y}));
+      drawLine(ctx, path, map, getComputedStyle(document.documentElement).getPropertyValue("--future"), 1.4, true);
+    }
+  }
+
+  drawMarker(ctx, nearest(data.vision, currentT), map, getComputedStyle(document.documentElement).getPropertyValue("--vision"), 4);
+  drawMarker(ctx, nearest(data.imm, currentT), map, getComputedStyle(document.documentElement).getPropertyValue("--imm"), 5);
+  drawMarker(ctx, nearest(data.mh, currentT), map, getComputedStyle(document.documentElement).getPropertyValue("--mh"), 5);
+}
+
+function timeBounds() {
+  const pts = [].concat(data.vision, data.imm, data.mh);
+  let vals = [];
+  for (const p of pts) { vals.push(p.x); vals.push(p.y); }
+  let minV = Math.min(...vals), maxV = Math.max(...vals);
+  const pad = Math.max(0.02, (maxV - minV) * 0.12);
+  return {minV:minV-pad, maxV:maxV+pad, maxT:data.meta.duration_s};
+}
+
+function drawTimeSeries(ctx, arr, key, map, color, dashed=false) {
+  const pts = arr.filter(p => p.t <= currentT).map(p => ({t:p.t, v:p[key]}));
+  if (pts.length < 2) return;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  if (dashed) ctx.setLineDash([5,5]);
+  ctx.beginPath();
+  ctx.moveTo(map.x(pts[0].t), map.y(pts[0].v));
+  for (const p of pts.slice(1)) ctx.lineTo(map.x(p.t), map.y(p.v));
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawTime() {
+  const ctx = resizeCanvas(timeCanvas);
+  drawGrid(ctx, timeCanvas, "time (s)", "position (m)");
+
+  const rect = timeCanvas.getBoundingClientRect();
+  const pad = 42;
+  const b = timeBounds();
+  const map = {
+    x: t => pad + (t / b.maxT) * (rect.width - 2*pad),
+    y: v => pad + ((b.maxV - v) / (b.maxV - b.minV)) * (rect.height - 2*pad)
+  };
+
+  const visionColor = getComputedStyle(document.documentElement).getPropertyValue("--vision");
+  const immColor = getComputedStyle(document.documentElement).getPropertyValue("--imm");
+  const mhColor = getComputedStyle(document.documentElement).getPropertyValue("--mh");
+
+  drawTimeSeries(ctx, data.vision, "x", map, visionColor, false);
+  drawTimeSeries(ctx, data.vision, "y", map, visionColor, true);
+  drawTimeSeries(ctx, data.imm, "x", map, immColor, false);
+  drawTimeSeries(ctx, data.imm, "y", map, immColor, true);
+  drawTimeSeries(ctx, data.mh, "x", map, mhColor, false);
+  drawTimeSeries(ctx, data.mh, "y", map, mhColor, true);
+
+  ctx.strokeStyle = "rgba(255,255,255,0.6)";
+  ctx.lineWidth = 1;
+  const x = map.x(currentT);
+  ctx.beginPath();
+  ctx.moveTo(x, 0);
+  ctx.lineTo(x, rect.height);
+  ctx.stroke();
+}
+
+function fmtProb(obj) {
+  if (!obj || Object.keys(obj).length === 0) return "--";
+  return Object.entries(obj).map(([k,v]) => k + ": " + (100*v).toFixed(1) + "%").join(" | ");
+}
+
+function nonnegativeNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.max(0, n) : null;
+}
+
+function fmtNonnegativeSeconds(value) {
+  const n = nonnegativeNumber(value);
+  return n == null ? "--" : n.toFixed(3) + " s";
+}
+
+function fmtNonnegativeInteger(value) {
+  const n = nonnegativeNumber(value);
+  return n == null ? "--" : String(Math.round(n));
+}
+
+function updateStatus() {
+  const immS = nearest(data.imm_status, currentT);
+  const mhS = nearest(data.mh_status, currentT);
+  const immF = nearest(data.imm_futures, currentT);
+
+  document.getElementById("immStatus").textContent = immS ? immS.status : "--";
+  document.getElementById("mhStatus").textContent = mhS ? mhS.status : "--";
+  document.getElementById("modeProbs").textContent = immF ? fmtProb(immF.mode_probabilities) : "--";
+
+  if (immF) {
+    const age = fmtNonnegativeSeconds(immF.measurement_age_s);
+    const steps = fmtNonnegativeInteger(immF.prediction_only_steps);
+    document.getElementById("ageBox").textContent = "age=" + age + " | prediction_only_steps=" + steps;
+  } else {
+    document.getElementById("ageBox").textContent = "--";
+  }
+}
+
+function render() {
+  document.getElementById("timeText").textContent = "t = " + currentT.toFixed(2) + " s";
+  slider.value = Math.round((currentT / data.meta.duration_s) * 1000);
+  drawXY();
+  drawTime();
+  updateStatus();
+}
+
+function tick(ts) {
+  if (!playing) return;
+  if (lastFrame == null) lastFrame = ts;
+  const dt = (ts - lastFrame) / 1000;
+  lastFrame = ts;
+  currentT += dt * 3.0;
+  if (currentT >= data.meta.duration_s) {
+    currentT = data.meta.duration_s;
+    playing = false;
+    playBtn.textContent = "Play";
+  }
+  render();
+  requestAnimationFrame(tick);
+}
+
+playBtn.addEventListener("click", () => {
+  playing = !playing;
+  playBtn.textContent = playing ? "Pause" : "Play";
+  lastFrame = null;
+  if (playing) {
+    if (currentT >= data.meta.duration_s) currentT = 0;
+    requestAnimationFrame(tick);
+  }
+});
+
+slider.addEventListener("input", () => {
+  currentT = (Number(slider.value) / 1000) * data.meta.duration_s;
+  render();
+});
+
+window.addEventListener("resize", () => {
+  if (data) render();
+});
+
+fetch(DATA_URL)
+  .then(r => {
+    if (!r.ok) throw new Error("Failed to load " + DATA_URL);
+    return r.json();
+  })
+  .then(d => {
+    data = d;
+    document.getElementById("duration").textContent = data.meta.duration_s.toFixed(2) + " s";
+    document.getElementById("visionCount").textContent = data.vision.length.toLocaleString();
+    document.getElementById("immCount").textContent = data.imm.length.toLocaleString();
+    document.getElementById("mhCount").textContent = data.mh.length.toLocaleString();
+    currentT = 0;
+    render();
+  })
+  .catch(err => {
+    document.body.innerHTML = "<main><h1>Dashboard load error</h1><p>" + err.message + "</p><p>Serve docs locally with: <code>cd docs && python3 -m http.server 8000</code></p></main>";
+  });
+</script>
+</body>
+</html>

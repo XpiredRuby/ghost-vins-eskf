@@ -18,6 +18,8 @@ Final project report: `docs/GHOST_PROJECT_REPORT.md`
 
 Final hardware bag plots: `docs/GHOST_LIVE_BAG_PLOTS.md`
 
+Live replay dashboard: `docs/GHOST_LIVE_REPLAY_DASHBOARD.html`
+
 This package runs the GHOST software path without camera hardware or IMU hardware.
 
 It provides:
