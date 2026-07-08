@@ -43,7 +43,7 @@ class FormalImmTrackerNode(Node):
         self.declare_parameter("child_frame_id", "ghost_target_imm")
         self.declare_parameter("tick_hz", 30.0)
         self.declare_parameter("measurement_timeout_s", 0.30)
-        self.declare_parameter("measurement_std_m", 0.04)
+        self.declare_parameter("measurement_std_m", 0.005)
         self.declare_parameter("smooth_acceleration_std_mps2", 0.015)
         self.declare_parameter("maneuver_acceleration_std_mps2", 0.75)
         self.declare_parameter("future_horizon_s", 1.5)

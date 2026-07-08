@@ -58,7 +58,7 @@ class GhostMHTrackerNode(Node):
         self.declare_parameter("child_frame_id", "ghost_target_mh")
         self.declare_parameter("tick_hz", 30.0)
         self.declare_parameter("measurement_timeout_s", 0.30)
-        self.declare_parameter("measurement_std_m", 0.04)
+        self.declare_parameter("measurement_std_m", 0.005)
         self.declare_parameter("max_occlusion_s", 3.0)
         self.declare_parameter("max_workspace_range_m", 5.0)
         self.declare_parameter("top_n", 5)
