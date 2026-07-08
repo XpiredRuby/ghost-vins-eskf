@@ -1,5 +1,19 @@
 # GHOST ROS2 Simulation Package
 
+## Hardware-Validated Status
+
+GHOST now includes live Raspberry Pi AprilTag tracking with side-by-side heuristic MH tracking and formal IMM tracking.
+
+Final calibrated hardware run:
+- Bag: `~/ghost_ws/bags/live_camera_calibrated_R_01`
+- Duration: `48.280 s`
+- Camera pose rate: `13.57 Hz`
+- IMM tracker rate: `30.01 Hz`
+- MH tracker rate: `29.99 Hz`
+- Max IMM measurement age during dropout: `2.849 s`
+
+See `HARDWARE_CALIBRATION_EVIDENCE.md` for calibration and live-bag evidence.
+
 This package runs the GHOST software path without camera hardware or IMU hardware.
 
 It provides:
