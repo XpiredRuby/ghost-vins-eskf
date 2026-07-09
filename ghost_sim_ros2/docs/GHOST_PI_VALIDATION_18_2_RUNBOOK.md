@@ -31,7 +31,8 @@ camera_controls_after_set.txt
 camera_controls_after_trial.txt
 camera_lock_status.json
 vision_pose_log.csv
-tracker_futures.jsonl
+tracker_imm_futures.jsonl
+tracker_mh_futures.jsonl
 tracker_status.txt
 noise_summary.json
 noise_summary.md
@@ -104,7 +105,8 @@ Create `metadata.json` before the tracking trial:
     "camera_controls_after_trial.txt",
     "camera_lock_status.json",
     "vision_pose_log.csv",
-    "tracker_futures.jsonl",
+    "tracker_imm_futures.jsonl",
+    "tracker_mh_futures.jsonl",
     "tracker_status.txt",
     "noise_summary.json",
     "noise_summary.md"
@@ -147,13 +149,14 @@ source install/setup.bash
 ros2 run ghost_sim_ros2 trial_recorder --ros-args -p trial_root:="$TRIAL_DIR"
 ```
 
-The recorder creates a timestamped subfolder under `$TRIAL_DIR` containing `vision_pose.jsonl`, `futures.jsonl`, `status.jsonl`, and summary artifacts. Keep those raw logs. If you also use `ros2 bag record`, keep the bag directory as the raw source of record.
+The recorder creates a timestamped subfolder under `$TRIAL_DIR` containing `vision_pose.jsonl`, `imm_futures.jsonl`, `mh_futures.jsonl`, `status.jsonl`, and summary artifacts. Keep those raw logs. If you also use `ros2 bag record`, keep the bag directory as the raw source of record.
 
 For reviewer packet compatibility, copy or symlink the raw tracker logs into the trial root after recording:
 
 ```bash
 REC_DIR=$(find "$TRIAL_DIR" -mindepth 1 -maxdepth 1 -type d | sort | tail -n 1)
-cp "$REC_DIR/futures.jsonl" "$TRIAL_DIR/tracker_futures.jsonl"
+cp "$REC_DIR/imm_futures.jsonl" "$TRIAL_DIR/tracker_imm_futures.jsonl"
+cp "$REC_DIR/mh_futures.jsonl" "$TRIAL_DIR/tracker_mh_futures.jsonl"
 cp "$REC_DIR/status.jsonl" "$TRIAL_DIR/tracker_status.jsonl"
 cp "$REC_DIR/vision_pose.jsonl" "$TRIAL_DIR/vision_pose.jsonl"
 ```
@@ -317,11 +320,12 @@ Bring back these exact items for review:
 2. camera_controls_before.txt
 3. camera_controls_after_set.txt
 4. camera_controls_after_trial.txt
-5. tracker_futures.jsonl for the hide/reveal window
-6. tracker_status.txt for the hide/reveal window
-7. vision pose log
-8. noise_summary.md
-9. noise_summary.json
-10. camera_lock_status.json
-11. a short note answering whether the 0.114 Hz peak persisted
+5. tracker_imm_futures.jsonl for the hide/reveal window
+6. tracker_mh_futures.jsonl for the hide/reveal window
+7. tracker_status.txt for the hide/reveal window
+8. vision pose log
+9. noise_summary.md
+10. noise_summary.json
+11. camera_lock_status.json
+12. a short note answering whether the 0.114 Hz peak persisted
 ```

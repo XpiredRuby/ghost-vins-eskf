@@ -33,14 +33,15 @@ class JsonlWriter:
 
 
 class GhostTrialRecorder(Node):
-    """Records a live GHOST-MH run into replayable JSONL logs.
+    """Records a live GHOST run into replayable JSONL logs.
 
     Output folder:
         ~/ghost_logs/trials/<trial_id>/
 
     Files:
         metadata.json
-        futures.jsonl
+        imm_futures.jsonl
+        mh_futures.jsonl
         status.jsonl
         vision_pose.jsonl
         events.jsonl
@@ -53,12 +54,24 @@ class GhostTrialRecorder(Node):
         super().__init__("ghost_trial_recorder")
 
         self.declare_parameter("trial_root", str(Path.home() / "ghost_logs" / "trials"))
-        self.declare_parameter("futures_topic", "/ghost/tracker_mh/futures_json")
+        self.declare_parameter("imm_futures_topic", "/ghost/tracker_imm/futures_json")
+        self.declare_parameter("mh_futures_topic", "/ghost/tracker_mh/futures_json")
+        self.declare_parameter("futures_topic", "")
         self.declare_parameter("status_topic", "/ghost/tracker_mh/status")
         self.declare_parameter("vision_topic", "/ghost/vision/target_pose")
         self.declare_parameter("events_topic", "/ghost/trial/events_json")
         self.declare_parameter("summary_topic", "/ghost/trial/summary_json")
         self.declare_parameter("report_period_s", 1.0)
+
+        self.imm_futures_topic = str(self.get_parameter("imm_futures_topic").value)
+        self.mh_futures_topic = str(self.get_parameter("mh_futures_topic").value)
+        legacy_futures_topic = str(self.get_parameter("futures_topic").value)
+        if legacy_futures_topic:
+            self.mh_futures_topic = legacy_futures_topic
+            self.get_logger().warn(
+                "Legacy futures_topic override mapped to mh_futures_topic; "
+                "IMM futures still record from imm_futures_topic."
+            )
 
         self.start_wall_s = time_now_s()
         self.start_ros_s = self.now_s()
@@ -66,7 +79,8 @@ class GhostTrialRecorder(Node):
         self.trial_dir = Path(str(self.get_parameter("trial_root").value)).expanduser() / self.trial_id
         self.trial_dir.mkdir(parents=True, exist_ok=True)
 
-        self.futures_log = JsonlWriter(self.trial_dir / "futures.jsonl")
+        self.imm_futures_log = JsonlWriter(self.trial_dir / "imm_futures.jsonl")
+        self.mh_futures_log = JsonlWriter(self.trial_dir / "mh_futures.jsonl")
         self.status_log = JsonlWriter(self.trial_dir / "status.jsonl")
         self.vision_log = JsonlWriter(self.trial_dir / "vision_pose.jsonl")
         self.events_log = JsonlWriter(self.trial_dir / "events.jsonl")
@@ -89,8 +103,14 @@ class GhostTrialRecorder(Node):
         qos = QoSProfile(depth=10)
         self.create_subscription(
             String,
-            str(self.get_parameter("futures_topic").value),
-            self.on_futures,
+            self.imm_futures_topic,
+            self.on_imm_futures,
+            qos,
+        )
+        self.create_subscription(
+            String,
+            self.mh_futures_topic,
+            self.on_mh_futures,
             qos,
         )
         self.create_subscription(
@@ -141,7 +161,8 @@ class GhostTrialRecorder(Node):
             "created_local": datetime.now().isoformat(timespec="seconds"),
             "trial_dir": str(self.trial_dir),
             "topics": {
-                "futures": str(self.get_parameter("futures_topic").value),
+                "imm_futures": self.imm_futures_topic,
+                "mh_futures": self.mh_futures_topic,
                 "status": str(self.get_parameter("status_topic").value),
                 "vision": str(self.get_parameter("vision_topic").value),
                 "events": str(self.get_parameter("events_topic").value),
@@ -169,20 +190,29 @@ class GhostTrialRecorder(Node):
         }
         self.vision_log.write(row)
 
-    def on_futures(self, msg: String) -> None:
+    def on_imm_futures(self, msg: String) -> None:
+        self.on_futures(msg, source="imm", writer=self.imm_futures_log, update_state=False)
+
+    def on_mh_futures(self, msg: String) -> None:
+        self.on_futures(msg, source="mh", writer=self.mh_futures_log, update_state=True)
+
+    def on_futures(self, msg: String, source: str, writer: JsonlWriter, update_state: bool) -> None:
         row = self.base_row()
+        row["source"] = source
         try:
             payload = json.loads(msg.data)
         except json.JSONDecodeError:
             row["error"] = "bad_json"
             row["raw"] = msg.data[:500]
-            self.futures_log.write(row)
+            writer.write(row)
             return
 
         row["payload"] = payload
-        self.futures_log.write(row)
-        self.latest_payload = payload
-        self.update_state_machine(payload)
+        writer.write(row)
+
+        if update_state:
+            self.latest_payload = payload
+            self.update_state_machine(payload)
 
     def update_state_machine(self, payload: dict[str, Any]) -> None:
         initialized = bool(payload.get("initialized"))
@@ -393,7 +423,14 @@ class GhostTrialRecorder(Node):
             self.write_summary_safe()
         except Exception:
             pass
-        for writer in [self.futures_log, self.status_log, self.vision_log, self.events_log, self.metrics_log]:
+        for writer in [
+            self.imm_futures_log,
+            self.mh_futures_log,
+            self.status_log,
+            self.vision_log,
+            self.events_log,
+            self.metrics_log,
+        ]:
             writer.close()
 
     def _handle_signal(self, signum: int, frame: Any) -> None:
