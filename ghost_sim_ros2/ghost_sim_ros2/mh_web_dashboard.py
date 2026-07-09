@@ -340,11 +340,19 @@ def load_latest_trial(root: Path, max_frames: int = 700) -> dict[str, Any]:
     latest = max(trials, key=lambda p: p.stat().st_mtime)
     summary = read_json(latest / "summary.json") or {}
     events = read_jsonl(latest / "events.jsonl", max_rows=300)
-    frames = read_replay_frames(latest / "futures.jsonl", max_frames=max_frames)
+
+    # New live recorder trials split IMM and MH futures into separate files.
+    # Keep the legacy futures.jsonl fallback for older recorder/software-regime artifacts.
+    futures_path = latest / "mh_futures.jsonl"
+    if not futures_path.exists():
+        futures_path = latest / "futures.jsonl"
+
+    frames = read_replay_frames(futures_path, max_frames=max_frames)
     return {
         "ok": True,
         "trial_id": latest.name,
         "trial_dir": str(latest),
+        "futures_file": futures_path.name,
         "summary": summary,
         "events": events,
         "frames": frames,
