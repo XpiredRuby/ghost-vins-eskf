@@ -107,9 +107,9 @@ def make_report(rows: list[dict[str, str]], limit: int) -> str:
             "## Research Interpretation",
             "",
             "A top-3 failure means the tracker did not keep a sufficiently accurate",
-            "future among its three highest-probability branches. These are the cases",
+            "future among its three highest-weight branches. These are the cases",
             "to inspect when tuning priors, adding richer motion modes, or improving",
-            "probability calibration.",
+            "relative-weight interpretation.",
             "",
         ]
     )

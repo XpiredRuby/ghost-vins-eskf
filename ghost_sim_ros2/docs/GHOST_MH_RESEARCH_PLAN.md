@@ -7,7 +7,7 @@ tracking for drone-like objects using physics-backed multiple hypotheses.
 ## Research Claim
 
 During temporary visual loss, GHOST-MH should maintain several physically
-plausible target futures, assign a probability to each future, and collapse back
+plausible target futures, assign a relative hypothesis weight to each future, and collapse back
 onto the most likely branch when the target is reacquired.
 
 The tracker must beat these baselines on controlled occlusion trials:
@@ -15,7 +15,7 @@ The tracker must beat these baselines on controlled occlusion trials:
 1. Detector-only: no prediction while hidden.
 2. Last-seen hold: freezes at the last measurement.
 3. Single-model constant-velocity Kalman filter.
-4. GHOST-MH: probability-weighted multiple physics hypotheses.
+4. GHOST-MH: relative-weighted multiple physics hypotheses.
 
 ## Current No-Camera Implementation
 
@@ -60,7 +60,7 @@ Motion hypotheses:
 | evasive_maneuver | High-process-noise fallback for unmodeled motion |
 
 Prediction branches each surviving hypothesis through the model bank during
-occlusion. Each branch carries a Gaussian state belief and a scalar probability.
+occlusion. Each branch carries a Gaussian state belief and a scalar relative hypothesis weight.
 On reacquisition, each branch is scored by measurement likelihood and normalized.
 
 ## Acceptance Criteria For Strong Graduate-Level Milestone
@@ -83,8 +83,8 @@ GHOST-MH should not be considered graduate-research complete until it has:
 Using an IMM or particle filter is not automatically novel. The PhD-level step is
 to add a defensible contribution, such as:
 
-- occlusion-aware branching probabilities learned from motion context,
-- physics-constrained probability pruning,
+- occlusion-aware branch weights learned from motion context,
+- physics-constrained relative-weight pruning,
 - explicit visibility/occluder likelihood,
 - uncertainty visualization tied to real-time decision-making,
 - a custom GHOST occlusion dataset and benchmark.

@@ -96,7 +96,7 @@ def parse_futures(t, msg, tracker):
     for h in obj.get("hypotheses", [])[:4]:
         item["hypotheses"].append({
             "model": h.get("model", "unknown"),
-            "probability": h.get("probability"),
+            "relative_hypothesis_weight": h.get("relative_hypothesis_weight", h.get("probability")),
             "x": h.get("x_m"),
             "y": h.get("y_m"),
             "vx": h.get("vx_mps"),

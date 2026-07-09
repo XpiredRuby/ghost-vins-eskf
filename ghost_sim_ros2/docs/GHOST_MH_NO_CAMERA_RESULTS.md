@@ -82,8 +82,8 @@ truth than the CV path, and its top-3 futures beat CV in most cases.
 This is not yet the final graduate result. The next milestone is to turn
 multi-future coverage into a usable real-time estimate by adding:
 
-1. probability calibration for top hypotheses,
+1. relative-weight interpretation for top hypotheses,
 2. visualization of the top futures,
-3. explicit confidence ellipses,
+3. explicit covariance ellipses,
 4. reacquisition logic that collapses the future set onto the matching path,
 5. hardware pipeline replay evidence using AprilTag measurements, followed by controlled covariance R and ground-truth validation.

@@ -37,7 +37,7 @@ def test_stationary_hidden_uses_stationary_hold():
     cfg = _load_module().RegimeConfig()
     score = _score("stationary_hide_reveal")
     assert score.top1_model_at_first_hidden == "stationary_hold"
-    assert score.top1_probability_at_first_hidden >= cfg.stationary_prior_min
+    assert score.top1_relative_hypothesis_weight_at_first_hidden >= cfg.stationary_prior_min
     assert score.stationary_false_motion_mps <= cfg.stationary_false_motion_limit_mps
     assert score.stationary_hold_fraction_hidden >= cfg.stationary_hold_fraction_min
 
@@ -79,3 +79,15 @@ def test_single_outlier_white_noise_is_explicitly_scoped():
     assert score.rmse_m <= cfg.visible_rmse_limit_m
     assert score.top1_model_at_first_hidden == "NONE"
     assert math.isnan(score.top1_terminal_error_m)
+
+
+def test_output_json_uses_relative_hypothesis_weight_field():
+    mod = _load_module()
+    cfg = mod.RegimeConfig()
+    scenario = mod.make_scenarios()["stationary_hide_reveal"]
+    measurements = mod.generate_measurements(scenario, cfg)
+    outputs = mod.run_tracker(measurements, cfg)
+    hidden = next(o for m, o in zip(measurements, outputs) if not m.visible and o.hypotheses)
+    hyp = hidden.to_json_dict()["hypotheses"][0]
+    assert "relative_hypothesis_weight" in hyp
+    assert "probability" not in hyp

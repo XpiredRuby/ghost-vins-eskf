@@ -95,12 +95,12 @@ class GhostMHMonitor(Node):
         for hyp in hypotheses[:5]:
             rank = int(hyp.get("rank", 0))
             model = str(hyp.get("model", "unknown"))
-            prob = 100.0 * float(hyp.get("probability", 0.0))
+            weight = 100.0 * float(hyp.get("relative_hypothesis_weight", hyp.get("probability", 0.0)))
             x = float(hyp.get("x_m", 0.0))
             y = float(hyp.get("y_m", 0.0))
             vx = float(hyp.get("vx_mps", 0.0))
             vy = float(hyp.get("vy_mps", 0.0))
-            print(f"{rank}. {model:<24} {prob:6.2f}%  x={x: .3f} y={y: .3f}  vx={vx: .3f} vy={vy: .3f}")
+            print(f"{rank}. {model:<24} {weight:6.2f}% weight  x={x: .3f} y={y: .3f}  vx={vx: .3f} vy={vy: .3f}")
 
 
 def main(args: list[str] | None = None) -> None:

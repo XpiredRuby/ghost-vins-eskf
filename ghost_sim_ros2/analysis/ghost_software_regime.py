@@ -100,7 +100,7 @@ class Measurement:
 class Hypothesis:
     rank: int
     model: str
-    probability: float
+    relative_hypothesis_weight: float
     x_m: float
     y_m: float
     vx_mps: float
@@ -155,7 +155,7 @@ class TrackerOutput:
                 {
                     "rank": h.rank,
                     "model": h.model,
-                    "probability": h.probability,
+                    "relative_hypothesis_weight": h.relative_hypothesis_weight,
                     "x_m": h.x_m,
                     "y_m": h.y_m,
                     "vx_mps": h.vx_mps,
@@ -378,8 +378,8 @@ class GhostRegimeTracker:
         return [{"dt_s": k * self.config.future_dt_s, "x_m": x, "y_m": y, "uncertainty_sigma_m": sigma + 0.002 * k * self.config.future_dt_s} for k in range(n + 1)]
 
     @staticmethod
-    def _hyp(rank: int, model: str, probability: float, x: float, y: float, vx: float, vy: float, cov_xx: float, cov_xy: float, cov_yy: float, path: Optional[List[Dict[str, float]]] = None) -> Hypothesis:
-        return Hypothesis(rank, model, probability, x, y, vx, vy, cov_xx, cov_xy, cov_yy, path or [])
+    def _hyp(rank: int, model: str, relative_hypothesis_weight: float, x: float, y: float, vx: float, vy: float, cov_xx: float, cov_xy: float, cov_yy: float, path: Optional[List[Dict[str, float]]] = None) -> Hypothesis:
+        return Hypothesis(rank, model, relative_hypothesis_weight, x, y, vx, vy, cov_xx, cov_xy, cov_yy, path or [])
 
 
 @dataclass(frozen=True)
@@ -406,7 +406,7 @@ class ScenarioMetrics:
     top1_terminal_error_m: float
     top3_best_terminal_error_m: float
     top1_model_at_first_hidden: str
-    top1_probability_at_first_hidden: float
+    top1_relative_hypothesis_weight_at_first_hidden: float
     stationary_false_motion_mps: float
     stationary_hold_fraction_hidden: float
     reset_count: int
@@ -508,7 +508,7 @@ def score_scenario(scenario: Scenario, measurements: List[Measurement], outputs:
     stationary_false_motions = []
     stationary_hold_hidden = 0
     first_hidden_model = "NONE"
-    first_hidden_probability = 0.0
+    first_hidden_relative_weight = 0.0
     reset_count = 0
 
     for m, o in zip(measurements, outputs):
@@ -528,7 +528,7 @@ def score_scenario(scenario: Scenario, measurements: List[Measurement], outputs:
                 top3_best_errs.append(min(h_errs))
                 if first_hidden_model == "NONE":
                     first_hidden_model = o.hypotheses[0].model
-                    first_hidden_probability = o.hypotheses[0].probability
+                    first_hidden_relative_weight = o.hypotheses[0].relative_hypothesis_weight
                 h0 = o.hypotheses[0]
                 if h0.path and o.x_m is not None and o.y_m is not None:
                     stationary_false_motions.append(_err((o.x_m, o.y_m), h0.terminal_xy()) / cfg.future_horizon_s)
@@ -546,7 +546,7 @@ def score_scenario(scenario: Scenario, measurements: List[Measurement], outputs:
         if first_hidden_model != "stationary_hold":
             passed = False
             notes.append("top hidden model was not stationary_hold")
-        if first_hidden_probability < cfg.stationary_prior_min:
+        if first_hidden_relative_weight < cfg.stationary_prior_min:
             passed = False
             notes.append(f"stationary_hold prior below {cfg.stationary_prior_min:.2f}")
         if false_motion > cfg.stationary_false_motion_limit_mps:
@@ -596,7 +596,7 @@ def score_scenario(scenario: Scenario, measurements: List[Measurement], outputs:
         top1,
         top3,
         first_hidden_model,
-        first_hidden_probability,
+        first_hidden_relative_weight,
         false_motion,
         hold_frac,
         reset_count,
@@ -649,17 +649,17 @@ def write_summary(run_dir: Path, metrics: List[ScenarioMetrics], config: Optiona
         f"**Threshold provenance:** {cfg.threshold_provenance}\n",
         f"**Overall:** {'PASS' if summary['overall_pass'] else 'FAIL'}  ",
         f"**Scenarios:** {summary['pass_count']}/{summary['scenario_count']} passing\n",
-        "| Scenario | Result | Top hidden model | P(top) | RMSE m | Top-1 future m | Top-3 best m | Stationary false motion m/s | Hold fraction | Reset count | Notes |",
+        "| Scenario | Result | Top hidden model | Top relative weight | RMSE m | Top-1 future m | Top-3 best m | Stationary false motion m/s | Hold fraction | Reset count | Notes |",
         "|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---|",
     ]
     for m in metrics:
         lines.append(
-            f"| {m.scenario} | {m.pass_fail} | {m.top1_model_at_first_hidden} | {m.top1_probability_at_first_hidden:.2f} | "
+            f"| {m.scenario} | {m.pass_fail} | {m.top1_model_at_first_hidden} | {m.top1_relative_hypothesis_weight_at_first_hidden:.2f} | "
             f"{m.rmse_m:.4f} | {m.top1_terminal_error_m:.4f} | {m.top3_best_terminal_error_m:.4f} | "
             f"{m.stationary_false_motion_mps:.4f} | {m.stationary_hold_fraction_hidden:.2f} | {m.reset_count} | {m.notes} |"
         )
     lines.append("\n## Acceptance Gates\n")
-    lines.append(f"- `stationary_hide_reveal`: top hidden model must be `stationary_hold`, probability >= {cfg.stationary_prior_min:.2f}, dominant hidden path <= {cfg.stationary_false_motion_limit_mps:.3f} m/s, hold fraction >= {cfg.stationary_hold_fraction_min:.2f}.")
+    lines.append(f"- `stationary_hide_reveal`: top hidden model must be `stationary_hold`, relative hypothesis weight >= {cfg.stationary_prior_min:.2f}, dominant hidden path <= {cfg.stationary_false_motion_limit_mps:.3f} m/s, hold fraction >= {cfg.stationary_hold_fraction_min:.2f}.")
     lines.append("- `stationary_colored_noise_hide_reveal`: synthetic AR(1) drift check only; not a replacement for hardware Allan/PSD replay.")
     lines.append("- `constant_velocity_hide_reveal`: moving target must not be incorrectly locked stationary.")
     lines.append("- `long_occlusion_reset`: V1 must eventually admit unknown/reset instead of claiming indefinite tracking.")

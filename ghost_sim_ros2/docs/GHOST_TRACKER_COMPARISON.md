@@ -43,9 +43,9 @@ tracker_comparison --out /tmp/ghost_tracker_comparison.csv
 | --- | --- |
 | `cv_rmse_m` | CV point-estimate RMSE during occlusion |
 | `imm_rmse_m` | IMM point-estimate RMSE during occlusion |
-| `mh_mean_rmse_m` | probability-weighted GHOST-MH mean RMSE |
+| `mh_mean_rmse_m` | relative-weighted GHOST-MH mean RMSE |
 | `mh_best_future_rmse_m` | closest GHOST-MH branch RMSE |
-| `mh_top3_future_rmse_m` | closest of the top-three probability branches |
+| `mh_top3_future_rmse_m` | closest of the top-three relative-weight branches |
 | `mh_top1_coverage_frac` | fraction where the top branch is within the coverage radius |
 | `mh_top3_coverage_frac` | fraction where a top-three branch is within the coverage radius |
 | `mh_any_coverage_frac` | fraction where any maintained branch is within the coverage radius |
@@ -58,7 +58,7 @@ single-path trackers within the same synthetic truth/noise/occlusion schedule.
 
 The future-branch scores (`mh_best_future_rmse_m`, `mh_top3_future_rmse_m`, and
 coverage) evaluate the actual GHOST research claim: during occlusion, the system
-should maintain multiple physically plausible futures with probabilities.
+should maintain multiple physically plausible futures with relative hypothesis weights.
 
 Strong software-only results should show expectations for this synthetic harness, not hardware accuracy claims:
 

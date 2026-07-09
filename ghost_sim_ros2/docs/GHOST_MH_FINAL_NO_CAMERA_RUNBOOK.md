@@ -7,7 +7,7 @@ It is meant to be reproducible before any Raspberry Pi or real camera test.
 
 GHOST-MH is not just a single averaged position predictor. Its useful research
 behavior is multi-future occlusion prediction: during visual loss, it maintains
-several physically plausible target futures and ranks them by probability.
+several physically plausible target futures and ranks them by relative hypothesis weight.
 
 The current calibrated mode-bank tracker should be evaluated by:
 
@@ -101,7 +101,7 @@ hypothesis weights, velocities, covariance entries, and per-hypothesis error.
 The next no-camera improvements should focus on:
 
 - richer acceleration-burst modes,
-- probability calibration after long hidden intervals,
+- relative-weight calibration/interpretation after long hidden intervals,
 - top-k selection metrics instead of only weighted-mean metrics,
 - visualization of branch weights and uncertainty ellipses,
 - and real-camera validation only after the no-camera model behavior is stable.

@@ -13,7 +13,7 @@ class CalibratedModeBankTracker(ModeBankTracker):
 
     The mode-bank tracker is intentionally multi-modal: it carries several
     possible futures during occlusion. This calibrated version changes only the
-    initial branch probabilities at the moment the target disappears. It uses the
+    initial branch relative weights at the moment the target disappears. It uses the
     recent visible measurement trend to bias priors toward modes consistent with
     the observed velocity/acceleration without re-branching every hidden frame.
     """

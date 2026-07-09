@@ -48,7 +48,7 @@ class ModeBankTracker:
     Unlike the first MH prototype, this tracker does not branch every hidden
     frame. It branches once when measurements disappear, then each hypothesis
     keeps its assigned physical mode until reacquisition. That makes the belief
-    tree interpretable and prevents excessive probability diffusion.
+    tree interpretable and prevents excessive relative-weight diffusion.
     """
 
     def __init__(

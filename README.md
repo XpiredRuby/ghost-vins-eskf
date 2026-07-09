@@ -55,7 +55,7 @@ The completed evidence package replays the final calibrated Raspberry Pi AprilTa
 
 ### Live GHOST-MH Hardware Demo
 
-The live system runs on the Raspberry Pi with a USB webcam and 10 cm AprilTag target. It publishes calibrated target pose into ROS2, runs the GHOST-MH probability tracker, and serves a combined browser operator console.
+The live system runs on the Raspberry Pi with a USB webcam and 10 cm AprilTag target. It publishes calibrated target pose into ROS2, runs the GHOST-MH relative-hypothesis-weight tracker, and serves a combined browser operator console.
 
 - Operator console: `http://<pi-ip>:8090`
 - Camera-only view: `http://<pi-ip>:8081`
@@ -209,7 +209,7 @@ Useful future work includes verified stationary noise characterization for measu
 ```
 
 - **Target:** RC car or hand-moved target with 10 cm × 10 cm AprilTag 36h11 on a flat floor.
-- **Occlusion:** Target moves behind an object. GHOST-MH predicts bounded probabilistic futures and resets after the configured validity horizon.
+- **Occlusion:** Target moves behind an object. GHOST-MH predicts bounded relative-weight future hypotheses and resets after the configured validity horizon.
 
 ---
 
@@ -245,7 +245,7 @@ Estimates the camera platform's orientation as a quaternion (`q_cam`) plus accel
 
 ### Filter 2 — Target Tracker
 
-The original design contains CV/CTRV filters. The current live ROS2 demo additionally includes `ghost_sim_ros2.mh_tracker`, a bounded multi-hypothesis probability tracker that subscribes to `/ghost/vision/target_pose` and publishes:
+The original design contains CV/CTRV filters. The current live ROS2 demo additionally includes `ghost_sim_ros2.mh_tracker`, a bounded multi-hypothesis relative-weight tracker that subscribes to `/ghost/vision/target_pose` and publishes:
 
 ```text
 /ghost/tracker_mh/target_odom

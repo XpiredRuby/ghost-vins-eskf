@@ -86,7 +86,7 @@ def summarize(point_rows: list[dict[str, str]], future_rows: list[dict[str, str]
 ## Interpretation
 
 The current GHOST-MH mode bank is more compelling as a multi-future predictor
-than as a single averaged point estimate. The next research step is probability
+than as a single averaged point estimate. The next research step is relative-weight
 calibration: the system should make the correct future rise into the top-ranked
 hypotheses before reacquisition.
 """

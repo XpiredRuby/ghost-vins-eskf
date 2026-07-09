@@ -26,7 +26,7 @@ STATIONARY_THRESHOLD_PROVENANCE = (
 STATIONARY_HOLD_PRIOR_STATUS = "CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R"
 STATIONARY_HOLD_PRIOR_PROVENANCE = (
     "stationary_hold_prior=0.95 is a candidate V1 design prior from the reviewed "
-    "software-regime scaffold, not a measured probability. It must remain tunable "
+    "software-regime scaffold, not a calibrated probability. It must remain tunable "
     "and should be revisited after live hardware trials."
 )
 
@@ -335,7 +335,7 @@ class GhostMHTrackerNode(Node):
                         {
                             "rank": rank,
                             "model": str(hyp.model),
-                            "probability": float(hyp.weight),
+                            "relative_hypothesis_weight": float(hyp.weight),
                             "x_m": float(hyp.x[0, 0]),
                             "y_m": float(hyp.x[1, 0]),
                             "vx_mps": float(hyp.x[2, 0]),
@@ -403,7 +403,7 @@ class GhostMHTrackerNode(Node):
             {
                 "rank": 1,
                 "model": "stationary_hold",
-                "probability": stationary_prior,
+                "relative_hypothesis_weight": stationary_prior,
                 "x_m": x_m,
                 "y_m": y_m,
                 "vx_mps": 0.0,
@@ -419,7 +419,7 @@ class GhostMHTrackerNode(Node):
                 {
                     "rank": 2,
                     "model": "bounded_uncertainty_hold",
-                    "probability": residual_prior,
+                    "relative_hypothesis_weight": residual_prior,
                     "x_m": x_m,
                     "y_m": y_m,
                     "vx_mps": 0.0,

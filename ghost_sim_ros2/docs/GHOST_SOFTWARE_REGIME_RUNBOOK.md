@@ -29,7 +29,7 @@ The accepted behavior is:
 ```text
 HIDDEN - STATIONARY HOLD
 rank 1 hypothesis = stationary_hold
-rank 1 probability >= 0.90
+rank 1 relative hypothesis weight >= 0.90
 dominant future path stays at last measured position
 uncertainty grows with occlusion age
 ```
@@ -117,7 +117,7 @@ are explicit V1 engineering requirements/placeholders. They are no longer hidden
 |---|---|
 | stationary_false_motion_mps | Detects fake motion during stationary occlusion |
 | top1_model_at_first_hidden | Must be `stationary_hold` in the stationary case |
-| top1_probability_at_first_hidden | Must be >= 0.90 in the stationary case |
+| top1_relative_hypothesis_weight_at_first_hidden | Must be >= 0.90 in the stationary case |
 | top3_best_terminal_error_m | Measures whether the hypothesis bank contains a plausible future |
 | reset_count | Ensures V1 does not claim indefinite hidden tracking |
 

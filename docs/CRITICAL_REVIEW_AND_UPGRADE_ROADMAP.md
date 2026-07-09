@@ -2,7 +2,7 @@
 
 This document captures the strongest criticism a serious robotics, aerospace, or perception reviewer would make against the current GHOST-MH prototype, and converts each criticism into a concrete upgrade path.
 
-The current system is a successful live prototype: a USB camera observes an AprilTag target, ROS2 publishes calibrated pose, GHOST-MH runs a bounded multi-hypothesis probabilistic tracker, and a browser operator console displays camera evidence, predicted future paths, probabilities, latency indicators, and uncertainty ellipses.
+The current system is a successful live prototype: a USB camera observes an AprilTag target, ROS2 publishes calibrated pose, GHOST-MH runs a bounded multi-hypothesis tracker with relative hypothesis weights, and a browser operator console displays camera evidence, predicted future paths, relative weights, latency indicators, and uncertainty ellipses.
 
 The remaining gap is not whether the demo works. The remaining gap is whether the project is presented and validated like a publishable robotics system.
 
@@ -81,7 +81,7 @@ The correct next iteration is to turn GHOST-MH from a live demo into an evidence
 **Correct claim language:**
 
 - Visible target: measured pose error is minimized and quantified.
-- Occluded target: GHOST-MH maintains a bounded probability distribution over plausible future states.
+- Occluded target: GHOST-MH maintains a bounded set of relative-weighted plausible future states.
 - Reacquisition: hypotheses are scored against the returning measurement.
 - Failure safety: predictions reset after the validity horizon instead of hallucinating indefinitely.
 
@@ -89,7 +89,7 @@ The correct next iteration is to turn GHOST-MH from a live demo into an evidence
 
 - README and report never imply perfect hidden-state knowledge.
 - Dashboard explicitly labels predictions as probabilistic.
-- Evaluation reports coverage probability and error percentiles, not only average error.
+- Evaluation reports top-k coverage rate and error percentiles, not only average error.
 
 ---
 
@@ -101,7 +101,7 @@ The correct next iteration is to turn GHOST-MH from a live demo into an evidence
 
 **Acceptance criteria:**
 
-- One-page operator console includes camera, map, probability table, latency, health, and event timeline.
+- One-page operator console includes camera, map, relative-weight table, latency, health, and event timeline.
 - Optional tabs:
   - `Live`
   - `Replay`
@@ -114,15 +114,15 @@ The correct next iteration is to turn GHOST-MH from a live demo into an evidence
 
 ---
 
-### 6. The probability paths are lines; they should also be fields
+### 6. The relative-weight paths are lines; they should also show uncertainty fields
 
-**Criticism:** Lines and percentages are useful, but probability is spatial. A reviewer expects uncertainty regions, covariance, or probability density.
+**Criticism:** Lines and relative weights are useful, but uncertainty is spatial. A reviewer expects uncertainty regions, covariance, or a clearly labeled relative-weight density view.
 
-**Fix:** Add heatmap/probability cloud rendering.
+**Fix:** Add uncertainty/relative-weight cloud rendering.
 
 **Acceptance criteria:**
 
-- Dashboard renders a probability heatmap over the x-y map.
+- Dashboard renders a clearly labeled uncertainty or relative-weight heatmap over the x-y map.
 - Each hypothesis contributes weighted density using its covariance.
 - Bright regions represent likely target locations.
 - Covariance ellipses remain visible as interpretable summary geometry.
@@ -192,7 +192,7 @@ The correct next iteration is to turn GHOST-MH from a live demo into an evidence
 
 ### 10. The motion priors need empirical calibration
 
-**Criticism:** The mode probabilities depend on priors and process models. If those are hand-selected, a reviewer can challenge the physics credibility.
+**Criticism:** The MH relative weights depend on priors and process models. If those are hand-selected, a reviewer can challenge the physics credibility.
 
 **Fix:** Learn or calibrate mode priors from logged trial data.
 
@@ -202,12 +202,12 @@ The correct next iteration is to turn GHOST-MH from a live demo into an evidence
   - typical velocity range
   - acceleration range
   - lateral motion frequency
-  - braking/hover probability
+  - braking/hover relative weight
   - turn model likelihood
 - Mode weights can be exported and versioned.
 - Dashboard displays the active mode bank configuration.
 
-**Presentation value:** Turns hand-tuned probabilities into data-calibrated priors.
+**Presentation value:** Turns hand-tuned relative weights into data-calibrated priors.
 
 ---
 
@@ -297,7 +297,7 @@ Goal: make the contribution distinct from a basic Kalman tracker.
 
 Tasks:
 
-1. Add probability heatmap.
+1. Add clearly labeled uncertainty/relative-weight heatmap.
 2. Add mode-prior calibration from logs.
 3. Add baseline-versus-GHOST plots.
 4. Add failure-mode suite.
@@ -328,7 +328,7 @@ Expected outcome: GHOST becomes an extensible robotics perception platform rathe
 One browser operator console should contain:
 
 - live camera evidence
-- top-down probability map
+- top-down relative-weight map
 - heatmap belief field
 - covariance ellipses
 - ranked hypothesis table
@@ -375,7 +375,7 @@ Presentation metrics:
 
 Use this:
 
-> GHOST-MH is a real-time ROS2 multi-hypothesis tracker that maintains a bounded probability distribution over physically plausible target futures during visual occlusion. It does not hallucinate certainty. It predicts, scores, and resets based on measurement availability, covariance, and calibrated motion priors.
+> GHOST-MH is a real-time ROS2 multi-hypothesis tracker that maintains a bounded set of relative-weighted, physically plausible target futures during visual occlusion. It does not hallucinate certainty. It predicts, scores, and resets based on measurement availability, covariance, and tunable motion priors.
 
 Avoid this:
 

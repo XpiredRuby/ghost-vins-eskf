@@ -20,7 +20,7 @@ stationary_hold_prior = 0.95
 stationary_hold_max_s = 4.0
 ```
 
-`stationary_hold_prior = 0.95` is also a candidate V1 design prior, not a measured probability. It is carried in the live payload with its own status/provenance fields so it does not become an undocumented magic number.
+`stationary_hold_prior = 0.95` is also a candidate V1 design prior, not a calibrated probability. It is carried in the live payload with its own status/provenance fields so it does not become an undocumented magic number.
 
 When the target was stationary before measurement loss, the live wrapper:
 
@@ -115,7 +115,7 @@ Expected hidden stationary payload behavior:
     {
       "rank": 1,
       "model": "stationary_hold",
-      "probability": 0.95,
+      "relative_hypothesis_weight": 0.95,
       "vx_mps": 0.0,
       "vy_mps": 0.0
     }

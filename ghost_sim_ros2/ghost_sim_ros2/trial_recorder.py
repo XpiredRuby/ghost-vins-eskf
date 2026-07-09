@@ -300,11 +300,12 @@ class GhostTrialRecorder(Node):
         for hyp in hypotheses[:5]:
             hx = as_float(hyp.get("x_m"))
             hy = as_float(hyp.get("y_m"))
+            relative_weight = hyp.get("relative_hypothesis_weight", hyp.get("probability"))
             ghost_rows.append(
                 {
                     "rank": hyp.get("rank"),
                     "model": hyp.get("model"),
-                    "probability": hyp.get("probability"),
+                    "relative_hypothesis_weight": relative_weight,
                     "prediction": {"x_m": hx, "y_m": hy},
                     "error_m": dist_xy(x, y, hx, hy),
                 }
