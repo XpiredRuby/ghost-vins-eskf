@@ -18,7 +18,7 @@ Do not assume camera settings are locked.
 Set them, query them back, and store the confirmed readback in trial metadata before logging tracking data.
 ```
 
-Then run a controlled stationary hide/reveal trial and compare the new manual-exposure noise result against the earlier uncontrolled stationary log.
+Then run a controlled stationary hide/reveal trial, export the raw vision samples to the canonical `t,x,y,z` CSV schema, and create the final `noise_summary.json` / `noise_summary.md` artifacts for controlled R review. This tooling prepares report-grade R characterization, but it does not by itself prove estimator accuracy.
 
 ## Required outputs
 
@@ -29,6 +29,7 @@ metadata.json
 camera_controls_before.txt
 camera_controls_after_set.txt
 camera_controls_after_trial.txt
+camera_lock_status.json
 vision_pose_log.csv
 tracker_futures.jsonl
 tracker_status.txt
@@ -38,26 +39,39 @@ noise_summary.md
 
 Do not accept a trial without the camera-control readbacks.
 
-## Step 1 — Confirm camera control state
+## Step 1 — Create trial folder and lock camera controls
 
-Before logging any target data, capture the actual returned controls:
-
-```bash
-mkdir -p ~/ghost_trials/18_2_stationary_hide_reveal_$(date +%Y%m%d_%H%M%S)
-cd ~/ghost_trials/18_2_stationary_hide_reveal_*
-
-v4l2-ctl -d /dev/video0 --list-ctrls > camera_controls_before.txt
-```
-
-Then set the intended fixed controls using the appropriate camera stack command for the current driver.
-
-After setting, query again:
+From the `ghost_sim_ros2` package directory on the Pi:
 
 ```bash
-v4l2-ctl -d /dev/video0 --list-ctrls > camera_controls_after_set.txt
+cd ~/ghost_ws/src/ghost-vins-eskf/ghost_sim_ros2
+TRIAL_DIR=~/ghost_trials/18_2_stationary_hide_reveal_$(date +%Y%m%d_%H%M%S)
+mkdir -p "$TRIAL_DIR"
+bash tools/lock_uvc_camera_controls.sh /dev/video0 "$TRIAL_DIR"
+cd "$TRIAL_DIR"
 ```
 
-The trial is invalid if readback still shows dynamic behavior enabled, such as:
+The helper writes:
+
+```text
+camera_controls_before.txt
+camera_controls_after_set.txt
+camera_lock_status.json
+```
+
+It applies the verified fixed/manual controls:
+
+```text
+auto_exposure=1
+exposure_time_absolute=157
+exposure_dynamic_framerate=0
+gain=0
+white_balance_automatic=0
+white_balance_temperature=4600
+power_line_frequency=2
+```
+
+The helper exits nonzero if readback does not match the requested fixed/manual values. The trial is invalid if readback still shows dynamic behavior enabled, such as:
 
 ```text
 AGC / auto exposure still enabled
@@ -88,6 +102,7 @@ Create `metadata.json` before the tracking trial:
     "camera_controls_before.txt",
     "camera_controls_after_set.txt",
     "camera_controls_after_trial.txt",
+    "camera_lock_status.json",
     "vision_pose_log.csv",
     "tracker_futures.jsonl",
     "tracker_status.txt",
@@ -121,43 +136,83 @@ stationary_hold_prior_status: CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R
 
 After `stationary_hold_max_s`, the tracker must stop indefinite hold behavior and fall back to the normal hypothesis/unknown behavior.
 
-## Step 4 — Capture live tracker evidence
+## Step 4 — Record live tracker evidence
 
-Capture the live futures payload during the whole trial:
-
-```bash
-ros2 topic echo /ghost/tracker_mh/futures_json > tracker_futures.jsonl
-```
-
-Capture status separately:
+Use the trial recorder so the vision stream is preserved as raw JSONL. Start it before the hide/reveal sequence and stop it immediately after the sequence:
 
 ```bash
-ros2 topic echo /ghost/tracker_mh/status > tracker_status.txt
+cd ~/ghost_ws
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+ros2 run ghost_sim_ros2 trial_recorder --ros-args -p trial_root:="$TRIAL_DIR"
 ```
 
-Capture the raw vision pose stream used by the tracker:
+The recorder creates a timestamped subfolder under `$TRIAL_DIR` containing `vision_pose.jsonl`, `futures.jsonl`, `status.jsonl`, and summary artifacts. Keep those raw logs. If you also use `ros2 bag record`, keep the bag directory as the raw source of record.
+
+For reviewer packet compatibility, copy or symlink the raw tracker logs into the trial root after recording:
 
 ```bash
-ros2 topic echo /ghost/vision/target_pose > vision_pose_log.csv
+REC_DIR=$(find "$TRIAL_DIR" -mindepth 1 -maxdepth 1 -type d | sort | tail -n 1)
+cp "$REC_DIR/futures.jsonl" "$TRIAL_DIR/tracker_futures.jsonl"
+cp "$REC_DIR/status.jsonl" "$TRIAL_DIR/tracker_status.jsonl"
+cp "$REC_DIR/vision_pose.jsonl" "$TRIAL_DIR/vision_pose.jsonl"
 ```
 
-If the exact logging format is not CSV, store the raw ROS output and convert it later. Do not discard raw logs.
+## Step 5 — Export canonical vision pose CSV
 
-## Step 5 — Query camera readback again after trial
+From the `ghost_sim_ros2` package directory, export raw samples without detrending or filtering:
+
+```bash
+cd ~/ghost_ws/src/ghost-vins-eskf/ghost_sim_ros2
+python3 tools/export_vision_pose_csv.py \
+  "$TRIAL_DIR/vision_pose.jsonl" \
+  --out "$TRIAL_DIR/vision_pose_log.csv"
+```
+
+If the raw source is a ROS 2 bag directory instead of trial-recorder JSONL:
+
+```bash
+python3 tools/export_vision_pose_csv.py \
+  "$TRIAL_DIR/<bag_directory>" \
+  --out "$TRIAL_DIR/vision_pose_log.csv" \
+  --topic /ghost/vision/target_pose
+```
+
+The output CSV schema must be exactly:
+
+```text
+t,x,y,z
+```
+
+## Step 6 — Create final stationary noise summaries
+
+Run the stationary noise report and empirical raw R generator:
+
+```bash
+python3 tools/make_stationary_noise_summary.py \
+  --csv "$TRIAL_DIR/vision_pose_log.csv" \
+  --json-out "$TRIAL_DIR/noise_summary.json" \
+  --md-out "$TRIAL_DIR/noise_summary.md" \
+  --include-detrended-r
+```
+
+The recommended empirical raw `R_xy` section is the candidate measurement covariance artifact for engineer review. The detrended R is diagnostic-only. Raw R may include colored/drift components and is not proof of white noise or estimator accuracy.
+
+## Step 7 — Query camera readback again after trial
 
 Immediately after the run:
 
 ```bash
-v4l2-ctl -d /dev/video0 --list-ctrls > camera_controls_after_trial.txt
+v4l2-ctl -d /dev/video0 --list-ctrls > "$TRIAL_DIR/camera_controls_after_trial.txt"
 ```
 
 Compare `camera_controls_after_set.txt` and `camera_controls_after_trial.txt`.
 
 If exposure/gain/white-balance/framerate changed during the run, the trial cannot be used for final 18.2 evidence.
 
-## Step 6 — Rerun noise characterization
+## Step 8 — Review noise characterization
 
-Run the same stationary noise analysis used earlier, then compare against the uncontrolled baseline.
+Compare the new confirmed-control noise result against the uncontrolled baseline.
 
 Minimum fields to report:
 
@@ -188,7 +243,7 @@ The important question is:
 Was the earlier colored low-frequency drift mostly camera-control artifact, or is it fundamental to this sensor/pose pipeline?
 ```
 
-## Step 7 — Pass/fail interpretation
+## Step 9 — Pass/fail interpretation
 
 A good run should show:
 
@@ -198,8 +253,9 @@ A good run should show:
 3. Hidden window publishes HIDDEN - STATIONARY HOLD.
 4. futures_json rank-1 hypothesis is stationary_hold with zero velocity.
 5. Candidate caveat fields are present in live futures_json.
-6. Noise statistics are lower or at least now interpretable under confirmed camera settings.
-7. If noise remains colored, thresholds stay candidate until calibrated against that measured R.
+6. `vision_pose_log.csv`, `noise_summary.json`, and `noise_summary.md` were generated from preserved raw samples.
+7. Noise statistics are lower or at least now interpretable under confirmed camera settings.
+8. If noise remains colored, thresholds stay candidate until covariance R is reviewed with the raw autocorrelation/PSD/Allan diagnostics.
 ```
 
 A failed run includes any of:
@@ -210,7 +266,7 @@ camera controls changed during trial
 gate never entered stationary during visible stationary segment
 hidden target showed dominant moving future despite stationary pre-hide evidence
 futures_json missing threshold/prior caveat fields
-post-trial analysis omits autocorrelation/PSD/Allan comparison
+post-trial analysis omits autocorrelation/PSD/Allan comparison or empirical raw R_xy
 ```
 
 ## Engineer review packet
@@ -227,5 +283,6 @@ Bring back these exact items for review:
 7. vision pose log
 8. noise_summary.md
 9. noise_summary.json
-10. a short note answering whether the 0.114 Hz peak persisted
+10. camera_lock_status.json
+11. a short note answering whether the 0.114 Hz peak persisted
 ```
