@@ -198,6 +198,45 @@ python3 tools/make_stationary_noise_summary.py \
 
 The recommended empirical raw `R_xy` section is the candidate measurement covariance artifact for engineer review. The detrended R is diagnostic-only. Raw R may include colored/drift components and is not proof of white noise or estimator accuracy.
 
+
+## Controlled-R candidate live parameters
+
+After producing the controlled stable-window R candidate, use the same `R_xy` consistently in the AprilTag publisher and both live trackers for the next trial. This is a controlled-R candidate for integration testing; it does not validate estimator accuracy.
+
+AprilTag publisher:
+
+```bash
+source ~/ghost_venv/bin/activate
+python ~/ghost_ws/src/ghost-vins-eskf/ghost_sim_ros2/ghost_sim_ros2/apriltag_ros_only.py --device /dev/video0 --tag-size 0.10 --use-controlled-r-candidate
+```
+
+Formal IMM tracker parameters:
+
+```bash
+ros2 run ghost_sim_ros2 formal_imm_tracker --ros-args \
+  -p measurement_r_xx_m2:=2.17492633008e-06 \
+  -p measurement_r_xy_m2:=6.31889067707e-07 \
+  -p measurement_r_yy_m2:=1.98048863448e-07
+```
+
+MH tracker parameters:
+
+```bash
+ros2 run ghost_sim_ros2 mh_tracker --ros-args \
+  -p measurement_r_xx_m2:=2.17492633008e-06 \
+  -p measurement_r_xy_m2:=6.31889067707e-07 \
+  -p measurement_r_yy_m2:=1.98048863448e-07
+```
+
+The candidate matrix is:
+
+```text
+R_xy = [[2.17492633008e-06, 6.31889067707e-07],
+        [6.31889067707e-07, 1.98048863448e-07]]
+```
+
+Live futures JSON should report `measurement_r_source=CONTROLLED_R_CANDIDATE_STABLE_60S_PENDING_ENGINEER_REVIEW` and `measurement_r_status=DOES_NOT_VALIDATE_ESTIMATOR_ACCURACY`.
+
 ## Step 7 — Query camera readback again after trial
 
 Immediately after the run:

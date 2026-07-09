@@ -181,6 +181,7 @@ def combine_mode_estimates(
 def make_smooth_maneuver_cv_imm(
     dt: float = 0.05,
     measurement_std_m: float = 0.02,
+    measurement_covariance_xy: Iterable[Iterable[float]] | None = None,
     smooth_acceleration_std_mps2: float = 0.015,
     maneuver_acceleration_std_mps2: float = 0.75,
     transition: np.ndarray | None = None,
@@ -194,6 +195,7 @@ def make_smooth_maneuver_cv_imm(
         smooth_acceleration_std_mps2,
         measurement_std_m,
         name="smooth_cv",
+        measurement_covariance_xy=measurement_covariance_xy,
         status=CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R,
     )
     maneuver = cv_position_model(
@@ -201,6 +203,7 @@ def make_smooth_maneuver_cv_imm(
         maneuver_acceleration_std_mps2,
         measurement_std_m,
         name="maneuver_cv",
+        measurement_covariance_xy=measurement_covariance_xy,
         status=CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R,
     )
     p0 = np.diag(np.asarray(list(p0_diag), dtype=float))

@@ -11,6 +11,7 @@ from rclpy.qos import QoSProfile
 from std_msgs.msg import String
 
 from analysis.ghost_mh_calibrated import CalibratedModeBankTracker
+from analysis.measurement_covariance_config import build_measurement_r_xy
 from analysis.ghost_mh_mode_bank import mode_bank
 from analysis.stationary_gate import StationaryGateConfig, WindowedVelocityGate
 
@@ -59,6 +60,9 @@ class GhostMHTrackerNode(Node):
         self.declare_parameter("tick_hz", 30.0)
         self.declare_parameter("measurement_timeout_s", 0.30)
         self.declare_parameter("measurement_std_m", 0.005)
+        self.declare_parameter("measurement_r_xx_m2", -1.0)
+        self.declare_parameter("measurement_r_xy_m2", 0.0)
+        self.declare_parameter("measurement_r_yy_m2", -1.0)
         self.declare_parameter("max_occlusion_s", 3.0)
         self.declare_parameter("max_workspace_range_m", 5.0)
         self.declare_parameter("top_n", 5)
@@ -97,8 +101,17 @@ class GhostMHTrackerNode(Node):
         self.stationary_hold_prior = float(self.get_parameter("stationary_hold_prior").value)
         self.stationary_hold_prior = min(max(self.stationary_hold_prior, 0.50), 1.0)
 
+        measurement_std_m = float(self.get_parameter("measurement_std_m").value)
+        r_xx = float(self.get_parameter("measurement_r_xx_m2").value)
+        r_xy = float(self.get_parameter("measurement_r_xy_m2").value)
+        r_yy = float(self.get_parameter("measurement_r_yy_m2").value)
+        measurement_covariance_xy = None
+        if r_xx > 0.0 and r_yy > 0.0:
+            measurement_covariance_xy = build_measurement_r_xy(measurement_std_m, r_xx, r_xy, r_yy)
+
         self.tracker = CalibratedModeBankTracker(
-            measurement_std_m=float(self.get_parameter("measurement_std_m").value),
+            measurement_std_m=measurement_std_m,
+            measurement_covariance_xy=measurement_covariance_xy,
             max_occlusion_s=float(self.get_parameter("max_occlusion_s").value),
             max_workspace_range_m=float(self.get_parameter("max_workspace_range_m").value),
             accel_temperature=float(self.get_parameter("accel_temperature").value),
@@ -146,6 +159,8 @@ class GhostMHTrackerNode(Node):
             f"{self.futures_topic}; tick={self.tick_hz:.1f}Hz; "
             f"timeout={self.measurement_timeout_s:.2f}s; future_dt={self.future_dt_s:.2f}s; "
             f"stationary_gate={self.stationary_gate_enabled}; "
+            f"measurement_r_source={self.tracker.measurement_r_source}; "
+            f"measurement_r_xy={self.tracker.measurement_r_xy}; "
             f"stationary_enter={self.stationary_enter_speed_mps:.3f}m/s; "
             f"stationary_exit={self.stationary_exit_speed_mps:.3f}m/s"
         )
@@ -277,6 +292,10 @@ class GhostMHTrackerNode(Node):
             "future_horizon_s": self.future_horizon_s,
             "future_dt_s": self.future_dt_s,
             "stationary_gate_enabled": bool(self.stationary_gate_enabled),
+            "measurement_r_xy": self.tracker.measurement_r_xy,
+            "measurement_r_source": self.tracker.measurement_r_source,
+            "measurement_r_status": self.tracker.measurement_r_status,
+            "measurement_r_provenance": self.tracker.measurement_r_provenance,
             "stationary_threshold_status": STATIONARY_THRESHOLD_STATUS,
             "stationary_threshold_provenance": STATIONARY_THRESHOLD_PROVENANCE,
             "stationary_window_s": self.stationary_window_s,

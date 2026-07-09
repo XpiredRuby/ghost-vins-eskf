@@ -4,6 +4,14 @@ from typing import Iterable
 
 import numpy as np
 
+from analysis.measurement_covariance_config import (
+    build_measurement_r_xy,
+    covariance_to_list,
+    measurement_r_provenance,
+    measurement_r_source,
+    measurement_r_status,
+)
+
 
 STATE_DIM = 4
 MEAS_DIM = 2
@@ -119,15 +127,33 @@ class MultiHypothesisTracker:
         max_workspace_range_m: float = 8.0,
         measurement_std_m: float = 0.05,
         gate_chi2: float = 16.0,
+        measurement_covariance_xy: Iterable[Iterable[float]] | None = None,
     ):
         self.models = models if models is not None else default_drone_models()
         self.max_hypotheses = int(max_hypotheses)
         self.max_occlusion_s = float(max_occlusion_s)
         self.max_workspace_range_m = float(max_workspace_range_m)
         self.measurement_std_m = float(measurement_std_m)
+        self.measurement_covariance_xy = (
+            tuple(tuple(float(v) for v in row) for row in measurement_covariance_xy)
+            if measurement_covariance_xy is not None
+            else None
+        )
         self.gate_chi2 = float(gate_chi2)
         self.h = np.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]], dtype=float)
-        self.r = np.eye(MEAS_DIM, dtype=float) * self.measurement_std_m**2
+        self.r = np.asarray(
+            build_measurement_r_xy(
+                self.measurement_std_m,
+                self.measurement_covariance_xy[0][0] if self.measurement_covariance_xy is not None else None,
+                self.measurement_covariance_xy[0][1] if self.measurement_covariance_xy is not None else 0.0,
+                self.measurement_covariance_xy[1][1] if self.measurement_covariance_xy is not None else None,
+            ),
+            dtype=float,
+        )
+        self.measurement_r_xy = covariance_to_list(self.r)
+        self.measurement_r_source = measurement_r_source(self.measurement_covariance_xy, self.measurement_std_m)
+        self.measurement_r_status = measurement_r_status(self.measurement_covariance_xy)
+        self.measurement_r_provenance = measurement_r_provenance(self.measurement_covariance_xy)
         self.hypotheses: list[Hypothesis] = []
 
     @property

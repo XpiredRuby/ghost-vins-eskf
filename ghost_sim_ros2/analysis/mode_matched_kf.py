@@ -14,6 +14,10 @@ from typing import Iterable, Mapping
 import numpy as np
 
 from analysis import observability_crlb as model_defs
+from analysis.measurement_covariance_config import (
+    build_measurement_r_xy,
+    measurement_r_provenance,
+)
 
 ASSUMES_WHITE_GAUSSIAN_RESIDUALS = "ASSUMES_WHITE_GAUSSIAN_RESIDUALS"
 INVALID_IF_NOISE_IS_COLORED = "INVALID_IF_NOISE_IS_COLORED"
@@ -203,6 +207,7 @@ def cv_position_model(
     measurement_std_m: float,
     name: str = "cv",
     status: str = CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R,
+    measurement_covariance_xy: Iterable[Iterable[float]] | None = None,
 ) -> KalmanModel:
     """Create a CV position-measurement KF model for [x, y, vx, vy]."""
     _require_positive("dt", dt)
@@ -211,7 +216,15 @@ def cv_position_model(
     f = model_defs.cv_state_transition(dt)
     h = _position_h(4)
     q = _cv_white_acceleration_q(dt, acceleration_std_mps2)
-    r = np.eye(2) * measurement_std_m**2
+    r = np.asarray(
+        build_measurement_r_xy(
+            measurement_std_m,
+            measurement_covariance_xy[0][0] if measurement_covariance_xy is not None else None,
+            measurement_covariance_xy[0][1] if measurement_covariance_xy is not None else 0.0,
+            measurement_covariance_xy[1][1] if measurement_covariance_xy is not None else None,
+        ),
+        dtype=float,
+    )
     return KalmanModel(
         name=name,
         f=_to_list(f),
@@ -225,9 +238,7 @@ def cv_position_model(
             "CV white-acceleration spectral approximation. Candidate value pending hardware trajectory validation."
         ),
         measurement_noise_status=status,
-        measurement_noise_provenance=(
-            "Isotropic position R from measurement_std_m. Candidate value pending empirical raw R from hardware logs."
-        ),
+        measurement_noise_provenance=measurement_r_provenance(measurement_covariance_xy),
     )
 
 
@@ -237,6 +248,7 @@ def ca_position_model(
     measurement_std_m: float,
     name: str = "ca",
     status: str = CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R,
+    measurement_covariance_xy: Iterable[Iterable[float]] | None = None,
 ) -> KalmanModel:
     """Create a CA position-measurement KF model for [x, y, vx, vy, ax, ay]."""
     _require_positive("dt", dt)
@@ -245,7 +257,15 @@ def ca_position_model(
     f = model_defs.ca_state_transition(dt)
     h = _position_h(6)
     q = _ca_white_jerk_q(dt, jerk_std_mps3)
-    r = np.eye(2) * measurement_std_m**2
+    r = np.asarray(
+        build_measurement_r_xy(
+            measurement_std_m,
+            measurement_covariance_xy[0][0] if measurement_covariance_xy is not None else None,
+            measurement_covariance_xy[0][1] if measurement_covariance_xy is not None else 0.0,
+            measurement_covariance_xy[1][1] if measurement_covariance_xy is not None else None,
+        ),
+        dtype=float,
+    )
     return KalmanModel(
         name=name,
         f=_to_list(f),
@@ -259,9 +279,7 @@ def ca_position_model(
             "CA white-jerk spectral approximation. Candidate value pending hardware maneuver validation."
         ),
         measurement_noise_status=status,
-        measurement_noise_provenance=(
-            "Isotropic position R from measurement_std_m. Candidate value pending empirical raw R from hardware logs."
-        ),
+        measurement_noise_provenance=measurement_r_provenance(measurement_covariance_xy),
     )
 
 

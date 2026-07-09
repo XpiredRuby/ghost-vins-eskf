@@ -128,3 +128,11 @@ def test_invalid_transition_invariants_are_enforced():
             assert message in str(exc)
         else:
             raise AssertionError(f"invalid transition should fail: {message}")
+
+
+def test_smooth_maneuver_imm_passes_full_r_to_both_mode_filters():
+    r = ((2.17492633008e-06, 6.31889067707e-07), (6.31889067707e-07, 1.98048863448e-07))
+    imm = make_smooth_maneuver_cv_imm(measurement_std_m=0.005, measurement_covariance_xy=r)
+
+    for filt in imm.mixed_bank.filters:
+        assert np.allclose(filt.r, np.asarray(r))

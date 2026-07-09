@@ -164,3 +164,16 @@ def test_live_bridge_future_path_uses_velocity_projection():
     assert [p["t_s"] for p in path] == [0.0, 0.1, 0.2]
     assert np.allclose([p["x_m"] for p in path], [1.0, 1.05, 1.1])
     assert np.allclose([p["y_m"] for p in path], [2.0, 1.975, 1.95])
+
+
+def test_live_bridge_accepts_full_r_and_emits_candidate_metadata():
+    r = ((2.17492633008e-06, 6.31889067707e-07), (6.31889067707e-07, 1.98048863448e-07))
+    bridge = FormalImmLiveAdapter(FormalImmLiveConfig(dt_s=0.05, measurement_std_m=0.005, measurement_covariance_xy=r))
+
+    output = bridge.step([1.0, 0.1])
+
+    assert output.initialized
+    assert output.measurement_r_xy == [[r[0][0], r[0][1]], [r[1][0], r[1][1]]]
+    assert output.measurement_r_source == "CONTROLLED_R_CANDIDATE_STABLE_60S_PENDING_ENGINEER_REVIEW"
+    assert output.measurement_r_status == "DOES_NOT_VALIDATE_ESTIMATOR_ACCURACY"
+    assert "does not validate estimator accuracy" in output.measurement_r_provenance

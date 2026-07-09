@@ -115,3 +115,16 @@ def test_default_model_metadata_flags_candidate_noise_and_colored_noise_caveat()
     assert model.measurement_assumption_label == ASSUMES_WHITE_GAUSSIAN_RESIDUALS
     assert model.covariance_validity_status == INVALID_IF_NOISE_IS_COLORED
     assert model.estimator_status == MODE_MATCHED_KF_BANK_NO_MIXING
+
+
+def test_cv_position_model_uses_full_measurement_covariance_exactly():
+    r = ((2.17492633008e-06, 6.31889067707e-07), (6.31889067707e-07, 1.98048863448e-07))
+    model = cv_position_model(
+        dt=0.05,
+        acceleration_std_mps2=0.18,
+        measurement_std_m=0.005,
+        measurement_covariance_xy=r,
+    )
+
+    assert np.allclose(model.r_matrix(), np.asarray(r))
+    assert "Candidate empirical raw R_xy" in model.measurement_noise_provenance

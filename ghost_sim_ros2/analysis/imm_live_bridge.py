@@ -25,6 +25,13 @@ from analysis.mode_matched_kf import (
     CANDIDATE_PLACEHOLDER_PENDING_HARDWARE_R,
     INVALID_IF_NOISE_IS_COLORED,
 )
+from analysis.measurement_covariance_config import (
+    build_measurement_r_xy,
+    covariance_to_list,
+    measurement_r_provenance,
+    measurement_r_source,
+    measurement_r_status,
+)
 
 FORMAL_IMM_LIVE_BRIDGE_OPTIONAL_NOT_DEFAULT = "FORMAL_IMM_LIVE_BRIDGE_OPTIONAL_NOT_DEFAULT"
 LIVE_IMM_NOT_HARDWARE_CALIBRATED = "LIVE_IMM_NOT_HARDWARE_CALIBRATED"
@@ -59,6 +66,7 @@ REJECT_OUT_OF_WORKSPACE_MEASUREMENT = "REJECT_OUT_OF_WORKSPACE_MEASUREMENT"
 class FormalImmLiveConfig:
     dt_s: float = 1.0 / 30.0
     measurement_std_m: float = 0.04
+    measurement_covariance_xy: tuple[tuple[float, float], tuple[float, float]] | None = None
     smooth_acceleration_std_mps2: float = 0.015
     maneuver_acceleration_std_mps2: float = 0.75
     initial_mode_probabilities: tuple[float, float] = (0.8, 0.2)
@@ -73,6 +81,13 @@ class FormalImmLiveConfig:
     def validate(self) -> None:
         _require_positive("dt_s", self.dt_s)
         _require_positive("measurement_std_m", self.measurement_std_m)
+        if self.measurement_covariance_xy is not None:
+            build_measurement_r_xy(
+                self.measurement_std_m,
+                self.measurement_covariance_xy[0][0],
+                self.measurement_covariance_xy[0][1],
+                self.measurement_covariance_xy[1][1],
+            )
         _require_positive("smooth_acceleration_std_mps2", self.smooth_acceleration_std_mps2)
         _require_positive("maneuver_acceleration_std_mps2", self.maneuver_acceleration_std_mps2)
         _require_positive("future_horizon_s", self.future_horizon_s)
@@ -114,6 +129,10 @@ class FormalImmLiveOutput:
     covariance_validity_status: str
     covariance_caveat: str
     integration_caveat: str
+    measurement_r_xy: list[list[float]]
+    measurement_r_source: str
+    measurement_r_status: str
+    measurement_r_provenance: str
 
     def to_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -154,11 +173,34 @@ class FormalImmLiveAdapter:
             covariance_validity_status=self.config.covariance_validity_status,
             covariance_caveat=COMBINED_COVARIANCE_CAVEAT,
             integration_caveat=LIVE_IMM_INTEGRATION_CAVEAT,
+            **self._r_metadata(),
         )
 
     @property
     def initialized(self) -> bool:
         return self.imm is not None
+
+    def measurement_r_xy(self) -> list[list[float]]:
+        if self.config.measurement_covariance_xy is not None:
+            return covariance_to_list(self.config.measurement_covariance_xy)
+        return covariance_to_list(build_measurement_r_xy(self.config.measurement_std_m))
+
+    def measurement_r_source(self) -> str:
+        return measurement_r_source(self.config.measurement_covariance_xy, self.config.measurement_std_m)
+
+    def measurement_r_status(self) -> str:
+        return measurement_r_status(self.config.measurement_covariance_xy)
+
+    def measurement_r_provenance(self) -> str:
+        return measurement_r_provenance(self.config.measurement_covariance_xy)
+
+    def _r_metadata(self) -> dict[str, object]:
+        return {
+            "measurement_r_xy": self.measurement_r_xy(),
+            "measurement_r_source": self.measurement_r_source(),
+            "measurement_r_status": self.measurement_r_status(),
+            "measurement_r_provenance": self.measurement_r_provenance(),
+        }
 
     def step(self, measurement_xy: Iterable[float] | None) -> FormalImmLiveOutput:
         self.sequence += 1
@@ -188,6 +230,7 @@ class FormalImmLiveAdapter:
                     covariance_validity_status=self.config.covariance_validity_status,
                     covariance_caveat=COMBINED_COVARIANCE_CAVEAT,
                     integration_caveat=LIVE_IMM_INTEGRATION_CAVEAT,
+                    **self._r_metadata(),
                 )
                 return self.last_output
             self.imm = make_smooth_maneuver_cv_imm(
@@ -198,6 +241,7 @@ class FormalImmLiveAdapter:
                 initial_mode_probabilities=self.config.initial_mode_probabilities,
                 initial_state=[measurement[0], measurement[1], 0.0, 0.0],
                 p0_diag=self.config.p0_diag,
+                measurement_covariance_xy=self.config.measurement_covariance_xy,
             )
 
         if measurement is None:
@@ -246,6 +290,7 @@ class FormalImmLiveAdapter:
             covariance_validity_status=combined.covariance_validity_status,
             covariance_caveat=combined.covariance_caveat,
             integration_caveat=LIVE_IMM_INTEGRATION_CAVEAT,
+            **self._r_metadata(),
         )
         return self.last_output
 

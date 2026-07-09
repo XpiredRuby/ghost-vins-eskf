@@ -18,6 +18,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from std_msgs.msg import String
 
+from analysis.measurement_covariance_config import build_measurement_r_xy
 from analysis.imm_live_bridge import (
     DROPOUT_DEGRADED_AFTER_STEPS_DEFAULT,
     FormalImmLiveAdapter,
@@ -44,6 +45,9 @@ class FormalImmTrackerNode(Node):
         self.declare_parameter("tick_hz", 30.0)
         self.declare_parameter("measurement_timeout_s", 0.30)
         self.declare_parameter("measurement_std_m", 0.005)
+        self.declare_parameter("measurement_r_xx_m2", -1.0)
+        self.declare_parameter("measurement_r_xy_m2", 0.0)
+        self.declare_parameter("measurement_r_yy_m2", -1.0)
         self.declare_parameter("smooth_acceleration_std_mps2", 0.015)
         self.declare_parameter("maneuver_acceleration_std_mps2", 0.75)
         self.declare_parameter("future_horizon_s", 1.5)
@@ -62,10 +66,18 @@ class FormalImmTrackerNode(Node):
         self.max_workspace_range_m = float(self.get_parameter("max_workspace_range_m").value)
 
         dt_s = 1.0 / max(self.tick_hz, 1.0)
+        measurement_std_m = float(self.get_parameter("measurement_std_m").value)
+        r_xx = float(self.get_parameter("measurement_r_xx_m2").value)
+        r_xy = float(self.get_parameter("measurement_r_xy_m2").value)
+        r_yy = float(self.get_parameter("measurement_r_yy_m2").value)
+        measurement_covariance_xy = None
+        if r_xx > 0.0 and r_yy > 0.0:
+            measurement_covariance_xy = build_measurement_r_xy(measurement_std_m, r_xx, r_xy, r_yy)
         self.bridge = FormalImmLiveAdapter(
             FormalImmLiveConfig(
                 dt_s=dt_s,
-                measurement_std_m=float(self.get_parameter("measurement_std_m").value),
+                measurement_std_m=measurement_std_m,
+                measurement_covariance_xy=measurement_covariance_xy,
                 smooth_acceleration_std_mps2=float(self.get_parameter("smooth_acceleration_std_mps2").value),
                 maneuver_acceleration_std_mps2=float(self.get_parameter("maneuver_acceleration_std_mps2").value),
                 future_horizon_s=float(self.get_parameter("future_horizon_s").value),
@@ -94,6 +106,8 @@ class FormalImmTrackerNode(Node):
             "GHOST formal IMM tracker listening on "
             f"{self.input_topic}; publishing {self.odom_topic}, {self.futures_topic}; "
             f"tick={self.tick_hz:.1f}Hz; timeout={self.measurement_timeout_s:.2f}s; "
+            f"measurement_r_source={self.bridge.measurement_r_source()}; "
+            f"measurement_r_xy={self.bridge.measurement_r_xy()}; "
             f"status={LIVE_IMM_NOT_HARDWARE_CALIBRATED}"
         )
 
@@ -196,6 +210,10 @@ class FormalImmTrackerNode(Node):
             "measurement_assumption_label": output.measurement_assumption_label,
             "covariance_caveat": output.covariance_caveat,
             "integration_caveat": output.integration_caveat,
+            "measurement_r_xy": output.measurement_r_xy,
+            "measurement_r_source": output.measurement_r_source,
+            "measurement_r_status": output.measurement_r_status,
+            "measurement_r_provenance": output.measurement_r_provenance,
             "initialized": output.initialized,
             "prediction_only_steps": output.prediction_only_steps,
             "dropout_degraded_after_steps": output.dropout_degraded_after_steps,

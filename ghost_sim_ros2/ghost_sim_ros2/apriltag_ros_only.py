@@ -13,6 +13,11 @@ from nav_msgs.msg import Odometry
 from flask import Flask, Response
 from pupil_apriltags import Detector
 
+CONTROLLED_R_XX_M2 = 2.17492633008e-06
+CONTROLLED_R_XY_M2 = 6.31889067707e-07
+CONTROLLED_R_YY_M2 = 1.98048863448e-07
+DEFAULT_COV_M2 = 0.005 * 0.005
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="GHOST calibrated AprilTag pose live viewer")
@@ -23,7 +28,16 @@ def parse_args():
     parser.add_argument("--port", type=int, default=8081)
     parser.add_argument("--tag-size", type=float, default=0.10, help="physical AprilTag edge length in meters")
     parser.add_argument("--calib", default=str(Path.home() / "ghost_camera_calibration.json"))
-    return parser.parse_args()
+    parser.add_argument("--cov-xx-m2", type=float, default=DEFAULT_COV_M2, help="Pose covariance xx in m^2")
+    parser.add_argument("--cov-xy-m2", type=float, default=0.0, help="Pose covariance xy in m^2")
+    parser.add_argument("--cov-yy-m2", type=float, default=DEFAULT_COV_M2, help="Pose covariance yy in m^2")
+    parser.add_argument("--use-controlled-r-candidate", action="store_true", help="Use controlled stable-window candidate R_xy; not estimator accuracy validation")
+    parsed = parser.parse_args()
+    if parsed.use_controlled_r_candidate:
+        parsed.cov_xx_m2 = CONTROLLED_R_XX_M2
+        parsed.cov_xy_m2 = CONTROLLED_R_XY_M2
+        parsed.cov_yy_m2 = CONTROLLED_R_YY_M2
+    return parsed
 
 
 args = parse_args()
@@ -118,12 +132,10 @@ def publish_ros_pose(tvec):
     msg.pose.pose.position.z = 0.0
     msg.pose.pose.orientation.w = 1.0
 
-    # Stationary hardware calibration, 2026-07-07:
-    # measured std_x ~= 0.00125 m, std_y ~= 0.00055 m.
-    # Use a conservative 5 mm scalar covariance for live tracker robustness.
-    var = 0.005 * 0.005
-    msg.pose.covariance[0] = var
-    msg.pose.covariance[7] = var
+    msg.pose.covariance[0] = float(args.cov_xx_m2)
+    msg.pose.covariance[1] = float(args.cov_xy_m2)
+    msg.pose.covariance[6] = float(args.cov_xy_m2)
+    msg.pose.covariance[7] = float(args.cov_yy_m2)
     msg.pose.covariance[14] = 0.01
     msg.pose.covariance[21] = 999.0
     msg.pose.covariance[28] = 999.0
@@ -280,7 +292,9 @@ if __name__ == "__main__":
         10,
     )
 
+    cov_source = "CONTROLLED_R_CANDIDATE_STABLE_60S_PENDING_ENGINEER_REVIEW" if args.use_controlled_r_candidate else "SCALAR_OR_USER_PROVIDED_COVARIANCE"
     print(f"Calibration: {CALIB_STATUS}")
+    print(f"ROS_ONLY covariance source: {cov_source}; R_xy=[[{args.cov_xx_m2}, {args.cov_xy_m2}], [{args.cov_xy_m2}, {args.cov_yy_m2}]]")
     print("ROS_ONLY: publishing /ghost/vision/target_pose")
     print("Press Ctrl+C to stop")
     try:
