@@ -4,9 +4,13 @@ on:
   pull_request:
     paths:
       - 'ghost_sim_ros2/analysis/campaign_analysis.py'
+      - 'ghost_sim_ros2/analysis/campaign_analysis_runner.py'
+      - 'ghost_sim_ros2/analysis/campaign_public_visuals.py'
       - 'ghost_sim_ros2/analysis/grid_validation_visuals.py'
       - 'ghost_sim_ros2/test/test_campaign_analysis_visuals.py'
+      - 'ghost_sim_ros2/test/test_campaign_analysis_runner.py'
       - 'ghost_sim_ros2/docs/GHOST_CAMPAIGN_ANALYSIS.md'
+      - 'ghost_sim_ros2/docs/GHOST_CAMPAIGN_PUBLIC_VISUALS.md'
       - '.github/workflows/campaign-analysis.yml'
   workflow_dispatch:
 
@@ -30,10 +34,15 @@ jobs:
         run: |
           python -m py_compile \
             ghost_sim_ros2/analysis/campaign_analysis.py \
+            ghost_sim_ros2/analysis/campaign_analysis_runner.py \
+            ghost_sim_ros2/analysis/campaign_public_visuals.py \
             ghost_sim_ros2/analysis/grid_validation_visuals.py \
-            ghost_sim_ros2/test/test_campaign_analysis_visuals.py
+            ghost_sim_ros2/test/test_campaign_analysis_visuals.py \
+            ghost_sim_ros2/test/test_campaign_analysis_runner.py
 
       - name: Run focused campaign and grid visual tests
         run: |
           PYTHONPATH=ghost_sim_ros2 \
-          python -m pytest -q ghost_sim_ros2/test/test_campaign_analysis_visuals.py
+          python -m pytest -q \
+            ghost_sim_ros2/test/test_campaign_analysis_visuals.py \
+            ghost_sim_ros2/test/test_campaign_analysis_runner.py
