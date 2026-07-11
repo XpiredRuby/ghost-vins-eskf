@@ -1,61 +1,74 @@
-# GHOST ROS2 Simulation Package
+# GHOST ROS 2 Package
 
-## Portfolio Snapshot
+## Scope
 
-GHOST is a ROS 2 autonomy prototype for target tracking under intermittent AprilTag visibility, with Raspberry Pi hardware replay evidence and side-by-side formal IMM and heuristic MH trackers.
+`ghost_sim_ros2` contains the active ROS 2 Jazzy target-estimation package, deterministic software-in-the-loop GNC harness, hardware replay, physical-validation tools, campaign operations, analysis, and public documentation for Project GHOST.
 
-What was built:
-- ROS 2 measurement, tracking, visualization, plotting, and dashboard tooling for a target-tracking autonomy pipeline.
-- A formal Interacting Multiple Model tracker alongside a heuristic multi-hypothesis tracker for side-by-side qualitative replay during visibility loss.
-- Hardware replay artifacts that show raw AprilTag measurements, tracker estimates, status changes, and prediction behavior from the final calibrated run.
+The active hardware sensor path is:
 
-Hardware replay evidence status:
-- Final bag: `live_camera_calibrated_R_01` from the calibrated Raspberry Pi AprilTag setup.
-- Duration: `48.28 s` with `655` vision measurements.
-- Rates: camera pose `13.57 Hz`, IMM odom `30.01 Hz`, MH odom `29.99 Hz`.
-- Dropout behavior: IMM reached `77` prediction-only steps and `2.849 s` max measurement age while continuing to publish estimates.
-
-Direct review links:
-- Portfolio packet: `docs/GHOST_PORTFOLIO_PACKET.md`
-- Career snippets: `docs/GHOST_CAREER_SNIPPETS.md`
-- Final project report: `docs/GHOST_PROJECT_REPORT.md`
-- Final hardware bag plots: `docs/GHOST_LIVE_BAG_PLOTS.md`
-- Live replay dashboard: `docs/GHOST_LIVE_REPLAY_DASHBOARD.html`
-
-View the dashboard locally:
-
-```bash
-cd docs && python3 -m http.server 8000 --bind 0.0.0.0
+```text
+AprilTag target
+  -> standard USB UVC webcam
+  -> Linux V4L2 on Raspberry Pi
+  -> /ghost/vision/target_pose
+  -> formal IMM and heuristic GHOST-MH trackers
 ```
 
-Then open `http://localhost:8000/GHOST_LIVE_REPLAY_DASHBOARD.html`.
+The package also includes a software-only synthetic measurement path for development and regression testing. Simulation topics and bridge outputs are not evidence that a real vehicle is commanded.
 
-See `HARDWARE_CALIBRATION_EVIDENCE.md` for calibration notes and live-bag pipeline evidence. Controlled measurement covariance R characterization remains pending before report-grade estimator accuracy claims.
+## Portfolio snapshot
 
-This package runs the GHOST software path without camera hardware or IMU hardware.
+### Preserved hardware behavior
 
-It provides:
+Run: `live_camera_calibrated_R_01`
 
-- synthetic AprilTag-like position measurements on `/ghost/vision/target_pose`
-- simulated ground truth on `/ghost/sim/target_truth`
-- a 2D constant-velocity Kalman tracker on `/ghost/tracker/target_odom`
-- RViz/Gazebo-friendly markers on `/ghost/sim/target_marker` and `/ghost/tracker/target_marker`
-- Gazebo/PX4-facing bridge topics on `/ghost/gazebo/target_pose`, `/ghost/gazebo/target_twist`, and `/ghost/px4/target_setpoint`
-- CSV evidence logging to `~/ghost_logs/sim_tracking.csv`
-- offline filter tuning sweep output to `~/ghost_logs/tracker_sweep.csv`
+| Metric | Value |
+|---|---:|
+| Duration | `48.28 s` |
+| Vision measurements | `655` |
+| USB-camera pose rate | `13.57 Hz` |
+| IMM odometry rate | `30.01 Hz` |
+| MH odometry rate | `29.99 Hz` |
+| Maximum IMM prediction-only steps | `77` |
+| Maximum IMM measurement age | `2.849 s` |
+
+This validates the USB-camera-to-ROS-to-tracker pipeline, publication behavior, dropout-state telemetry, prediction-only propagation, and reacquisition. It does not validate physical tracking accuracy.
+
+### Deterministic formal-IMM GNC SIL
+
+The repository's actual formal IMM drives relative-standoff guidance, acceleration-limited control, actuator lag, follower dynamics, and a `TRACKING` / `PREDICTION` / `SAFE_HOLD` supervisor.
+
+| Scenario | Final standoff error | Maximum estimator error | Safe hold |
+|---|---:|---:|---:|
+| nominal visible | `0.00114 m` | `0.02673 m` | `0.0 s` |
+| short dropout | `0.000353 m` | `0.16357 m` | `0.0 s` |
+| long dropout | `0.00986 m` | `0.41683 m` | `2.0 s` |
+
+These are deterministic synthetic-truth SIL results—not PX4, HIL, vehicle, or flight results.
+
+## Direct review paths
+
+- [Public showcase](https://xpiredruby.github.io/ghost-vins-eskf/)
+- [Interactive hardware replay](https://xpiredruby.github.io/ghost-vins-eskf/demo.html)
+- [USB hardware & BOM](https://xpiredruby.github.io/ghost-vins-eskf/hardware.html)
+- [`docs/GHOST_PROJECT_REPORT.md`](docs/GHOST_PROJECT_REPORT.md)
+- [`docs/GHOST_PORTFOLIO_PACKET.md`](docs/GHOST_PORTFOLIO_PACKET.md)
+- [`docs/GHOST_HARDWARE_FREE_COMPLETION.md`](docs/GHOST_HARDWARE_FREE_COMPLETION.md)
+- [`docs/GHOST_PHYSICAL_VALIDATION_MASTER_RUNBOOK.md`](docs/GHOST_PHYSICAL_VALIDATION_MASTER_RUNBOOK.md)
+- [`docs/GHOST_CAREER_SNIPPETS.md`](docs/GHOST_CAREER_SNIPPETS.md)
 
 ## Build
 
-From the ROS2 workspace root:
+From the ROS 2 workspace root:
 
 ```bash
 source /opt/ros/jazzy/setup.bash
 cd ~/ghost_ws
-colcon build --packages-select ghost_sim_ros2
+colcon build --packages-select ghost_sim_ros2 --symlink-install
 source install/setup.bash
 ```
 
-## Run The No-Hardware Pipeline
+## Software-only tracker pipeline
 
 ```bash
 ros2 launch ghost_sim_ros2 sim_tracking.launch.py
@@ -64,107 +77,103 @@ ros2 launch ghost_sim_ros2 sim_tracking.launch.py
 Optional:
 
 ```bash
-ros2 launch ghost_sim_ros2 sim_tracking.launch.py noise_std_m:=0.04 dropout_duration_s:=5.0
+ros2 launch ghost_sim_ros2 sim_tracking.launch.py \
+  noise_std_m:=0.04 \
+  dropout_duration_s:=5.0
 ```
 
-Strict validation mode with visible NIS gate rejections:
+This launches synthetic measurements, the CV tracker, evidence logging, and target-state bridge topics. It does not arm or control a vehicle.
 
-```bash
-ros2 launch ghost_sim_ros2 sim_tracking.launch.py warn_on_reject:=true gate_chi2_2d:=9.210
+## Formal IMM and GHOST-MH live outputs
+
+```text
+/ghost/tracker_imm/target_odom
+/ghost/tracker_imm/futures_json
+/ghost/tracker_imm/status
+
+/ghost/tracker_mh/target_odom
+/ghost/tracker_mh/futures_json
+/ghost/tracker_mh/status
 ```
 
-This starts:
-
-- `ghost_synthetic_measurements`
-- `ghost_cv_tracker`
-- `ghost_evidence_logger`
-- `ghost_gazebo_bridge`
-
-## Inspect
-
-```bash
-ros2 topic list
-ros2 topic echo /ghost/tracker/target_odom
-ros2 topic echo /ghost/gazebo/target_pose
-```
-
-Expected core topics:
+Shared input:
 
 ```text
 /ghost/vision/target_pose
-/ghost/sim/target_truth
-/ghost/tracker/target_odom
-/ghost/sim/target_marker
-/ghost/tracker/target_marker
-/ghost/gazebo/target_pose
-/ghost/gazebo/target_twist
-/ghost/px4/target_setpoint
 ```
 
-## Evidence Plot
-
-After running the launch file for at least 20 seconds:
+## Deterministic closed-loop GNC SIL
 
 ```bash
-python3 ~/ghost_plot_tracking_evidence.py
+PYTHONPATH=ghost_sim_ros2 \
+python3 ghost_sim_ros2/analysis/closed_loop_gnc_sil.py \
+  --out ghost_gnc_sil/manual
 ```
 
-Expected output:
+## Controlled covariance collection
 
-```text
-~/ghost_logs/ghost_tracking_evidence.png
-```
-
-## Offline Tracker Sweep
-
-Run this without ROS launch:
+On the Raspberry Pi with the USB webcam available:
 
 ```bash
-python3 ~/ghost_ws/src/ghost_sim_ros2/analysis/ghost_offline_tracker_sweep.py
+cd ~/ghost_ws/src/ghost-vins-eskf
+DEVICE=/dev/video0 ghost_sim_ros2/tools/collect_controlled_r_trial.sh
 ```
 
-Expected output:
+Do not begin the physical grid or formal motion campaign until the controlled-R quality gate is accepted and the same camera setup remains locked.
 
-```text
-~/ghost_logs/tracker_sweep.csv
-```
+## Formal paired campaign
 
-The CSV ranks CV tracker parameter sets by RMS error and max error.
-
-## RViz
-
-Option A, launch RViz with the sim:
+Initialize after dry runs and parameter lock:
 
 ```bash
-ros2 launch ghost_sim_ros2 sim_tracking_rviz.launch.py
+python3 ghost_sim_ros2/tools/campaign_operations.py \
+  --template ghost_sim_ros2/docs/IMM_MH_CAMPAIGN_MANIFEST.example.json \
+  --out ~/ghost_trials/imm_mh_campaign_v1 \
+  --resolve-protocol-commit \
+  --repo-root .
 ```
 
-Option B, open RViz separately:
+Run one local cue sequence:
 
 ```bash
-rviz2 -d ~/ghost_ws/install/ghost_sim_ros2/share/ghost_sim_ros2/rviz/ghost_sim.rviz
+python3 ghost_sim_ros2/tools/trial_conductor.py \
+  --campaign-dir ~/ghost_trials/imm_mh_campaign_v1 \
+  --sequence 1
 ```
 
-Fixed frame:
+Actual measured vision gaps—not browser timing alone—determine acceptance.
 
-```text
-ghost_floor
+## Analysis and integrity
+
+Audited campaign analysis:
+
+```bash
+PYTHONPATH=ghost_sim_ros2 \
+python3 ghost_sim_ros2/analysis/campaign_analysis_runner.py \
+  --campaign-dir ~/ghost_trials/imm_mh_campaign_v1 \
+  --out-dir ~/ghost_trials/imm_mh_campaign_v1/analysis
 ```
 
-Blue/cyan marker is simulated truth. Green/orange marker is tracker output. Orange indicates stale/coasting state during occlusion.
+Package evidence:
 
-## Bridge Scope
-
-`ghost_gazebo_bridge` intentionally publishes target-state topics only. It does not command a drone and does not arm/control PX4.
-
-Real PX4 offboard control should be a later safety-gated node that consumes:
-
-```text
-/ghost/px4/target_setpoint
+```bash
+python3 ghost_sim_ros2/tools/evidence_integrity.py package \
+  --source ~/ghost_trials/imm_mh_campaign_v1 \
+  --archive ~/ghost_evidence/imm_mh_campaign_v1.zip \
+  --profile campaign \
+  --repo-root ~/ghost_ws/src/ghost-vins-eskf
 ```
 
-and applies geofencing, mode checks, rate limits, and kill-switch logic.
+## Current boundary
 
-## Why This Exists
+All meaningful hardware-free preparation is complete. Physical covariance, grid truth, repeated paired trials, real USB/Pi performance, exact BOM/photos, and the final validated public metrics still require the actual hardware session.
 
-This package is the hardware-free development path for GHOST V12. It lets the tracker, logging, validation plots, and Gazebo/RViz visualization be built before the camera and IMU tests are complete.
+The package does not currently claim:
+
+- validated real-world tracking accuracy;
+- formal IMM superiority on physical trials;
+- production robustness;
+- general object tracking beyond AprilTags;
+- PX4/HIL integration;
+- real vehicle command;
+- flight readiness or flight testing.
