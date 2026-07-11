@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "project": "GHOST",
+  "release_status": "PREVALIDATION_TEMPLATE",
+  "claims": [
+    {
+      "claim_id": "hardware_pipeline",
+      "public_statement": "GHOST runs a Raspberry Pi and ROS 2 USB-webcam AprilTag measurement pipeline with simultaneous formal IMM and heuristic GHOST-MH outputs.",
+      "classification": "hardware_behavior_only",
+      "public_ready": true,
+      "evidence": [
+        "live_camera_calibrated_R_01 hardware bag",
+        "GHOST_LIVE_BAG_PLOTS.md",
+        "static hardware replay"
+      ],
+      "limitations": [
+        "Does not by itself establish ground-truth accuracy.",
+        "USB webcam exact manufacturer/model remains pending physical inventory."
+      ]
+    },
+    {
+      "claim_id": "dropout_behavior",
+      "public_statement": "The formal IMM exposes measurement-backed tracking, prediction-only propagation, degraded dropout and reacquisition states during the preserved hardware run.",
+      "classification": "hardware_behavior_only",
+      "public_ready": true,
+      "evidence": [
+        "IMM status timeline",
+        "measurement-age telemetry",
+        "prediction-only step telemetry"
+      ],
+      "limitations": [
+        "Behavior evidence is not endpoint-accuracy validation."
+      ]
+    },
+    {
+      "claim_id": "closed_loop_gnc_sil",
+      "public_statement": "The repository contains deterministic software-in-the-loop evidence connecting the formal IMM estimate to relative-standoff guidance, bounded control, actuator lag and follower dynamics.",
+      "classification": "software_only",
+      "public_ready": true,
+      "evidence": [
+        "GHOST Closed-Loop GNC SIL workflow artifact",
+        "GHOST_CLOSED_LOOP_GNC_SIL.md"
+      ],
+      "limitations": [
+        "Not PX4, hardware-in-the-loop, vehicle, or flight validation."
+      ]
+    },
+    {
+      "claim_id": "controlled_covariance",
+      "public_statement": "A predeclared controlled stationary trial measured empirical raw AprilTag position covariance over the fixed 15–75 second window.",
+      "classification": "pending",
+      "public_ready": false,
+      "evidence": [],
+      "limitations": [
+        "Physical collection pending.",
+        "Does not validate tracker accuracy or residual whiteness."
+      ]
+    },
+    {
+      "claim_id": "grid_accuracy",
+      "public_statement": "GHOST achieved a measured position RMSE of <PENDING> over a six-point physical grid in the documented USB-camera setup.",
+      "classification": "pending",
+      "public_ready": false,
+      "evidence": [],
+      "limitations": [
+        "Physical grid collection pending.",
+        "Setup-specific result; not general production accuracy."
+      ]
+    },
+    {
+      "claim_id": "imm_mh_comparison",
+      "public_statement": "The formal IMM produced lower median endpoint prediction error than GHOST-MH for <PENDING CONDITIONS> with <PENDING CONFIDENCE INTERVALS>.",
+      "classification": "pending",
+      "public_ready": false,
+      "evidence": [],
+      "limitations": [
+        "Predeclared paired hardware campaign pending.",
+        "Conclusions must remain condition-specific and include sample counts, failures and confidence intervals."
+      ]
+    },
+    {
+      "claim_id": "runtime_performance",
+      "public_statement": "The Raspberry Pi sustained <PENDING RATE> with <PENDING CPU/MEMORY/TEMPERATURE> during the documented hardware condition.",
+      "classification": "pending",
+      "public_ready": false,
+      "evidence": [],
+      "limitations": [
+        "Physical runtime characterization pending.",
+        "Session-specific, not worst-case qualification."
+      ]
+    },
+    {
+      "claim_id": "flight_readiness",
+      "public_statement": "GHOST is flight-ready and production-ready.",
+      "classification": "prohibited",
+      "public_ready": false,
+      "evidence": [],
+      "limitations": [
+        "No physical vehicle control, flight test, environmental qualification or production validation exists."
+      ]
+    }
+  ]
+}
