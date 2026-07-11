@@ -1,8 +1,80 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+usage() {
+  cat <<'EOF'
+Usage: collect_controlled_r_trial.sh [--check-ros-environment] [-h|--help]
+
+Collect one controlled stationary AprilTag dataset for empirical R analysis.
+
+Options:
+  -h, --help                 Show this help and exit without creating evidence.
+  --check-ros-environment    Source available ROS setup files safely, then exit.
+
+Major environment variables:
+  DEVICE, CALIB_PATH, TAG_SIZE_M, TRIAL_ROOT, TRIAL_DIR
+  RECORD_DURATION_S, ANALYSIS_START_S, ANALYSIS_END_S
+  MIN_ANALYSIS_RATE_HZ, MAX_ANALYSIS_GAP_S, AUTO_START_PUBLISHER
+  EXPOSURE_AUTO, EXPOSURE_ABSOLUTE
+  WHITE_BALANCE_TEMPERATURE_AUTO, WHITE_BALANCE_TEMPERATURE
+  FOCUS_AUTO, FOCUS_ABSOLUTE
+EOF
+}
+
+MODE=collect
+case "${1:-}" in
+  "") ;;
+  -h|--help)
+    usage
+    exit 0
+    ;;
+  --check-ros-environment)
+    MODE=check_ros_environment
+    ;;
+  *)
+    printf 'ERROR: unknown argument: %s\n' "$1" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
+if (( $# > 1 )); then
+  printf 'ERROR: unexpected positional arguments\n' >&2
+  usage >&2
+  exit 2
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PACKAGE_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+source_ros_setup() {
+  local setup_file="$1"
+  local nounset_was_set=0
+  local source_status
+  [[ -f "$setup_file" ]] || return 0
+
+  case "$-" in
+    *u*)
+      nounset_was_set=1
+      set +u
+      ;;
+  esac
+  if source "$setup_file"; then
+    source_status=0
+  else
+    source_status=$?
+  fi
+  if [[ "$nounset_was_set" -eq 1 ]]; then
+    set -u
+  fi
+  return "$source_status"
+}
+
+if [[ "$MODE" == "check_ros_environment" ]]; then
+  source_ros_setup /opt/ros/jazzy/setup.bash
+  source_ros_setup "$HOME/ghost_ws/install/setup.bash"
+  printf 'ROS environment setup completed with nounset restored.\n'
+  exit 0
+fi
 REPO_ROOT="$(cd "$PACKAGE_ROOT/.." && pwd)"
 
 DEVICE="${DEVICE:-/dev/video0}"
@@ -225,11 +297,8 @@ link_recorder_artifacts() {
 
 require_prerequisites
 
-source /opt/ros/jazzy/setup.bash
-if [[ -f "$HOME/ghost_ws/install/setup.bash" ]]; then
-  # shellcheck disable=SC1091
-  source "$HOME/ghost_ws/install/setup.bash"
-fi
+source_ros_setup /opt/ros/jazzy/setup.bash
+source_ros_setup "$HOME/ghost_ws/install/setup.bash"
 
 cat <<EOF
 Controlled R stationary trial directory:
