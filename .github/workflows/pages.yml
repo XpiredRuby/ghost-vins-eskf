@@ -1,0 +1,41 @@
+name: Deploy GHOST replay to Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ghost_sim_ros2/docs/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload static replay
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ghost_sim_ros2/docs
+
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

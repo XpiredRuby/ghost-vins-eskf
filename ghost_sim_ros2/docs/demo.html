@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <title>GHOST Hardware Replay</title>
+  <style>
+    :root {
+      --bar-height: 70px;
+      --bg: #07111f;
+      --text: #f4f8ff;
+      --muted: #b8c5d8;
+      --line: rgba(255,255,255,.13);
+      --orange: #ffb454;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow: hidden;
+    }
+    .bar {
+      height: var(--bar-height);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 18px;
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(7,17,31,.97);
+    }
+    .brand {
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .notice {
+      color: #ffe0b2;
+      font-size: 13px;
+      line-height: 1.35;
+      text-align: center;
+    }
+    .back {
+      padding: 8px 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    iframe {
+      width: 100%;
+      height: calc(100vh - var(--bar-height));
+      border: 0;
+      background: #0a0f1d;
+      display: block;
+    }
+    @media (max-width: 760px) {
+      :root { --bar-height: 104px; }
+      .bar {
+        grid-template-columns: auto auto;
+        align-content: center;
+      }
+      .notice {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        text-align: left;
+      }
+      .back { justify-self: end; }
+    }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <a class="brand" href="index.html">GHOST</a>
+    <div class="notice">
+      Real hardware integration replay. This demo visualizes telemetry and dropout behavior; controlled estimator-accuracy validation is still in progress.
+    </div>
+    <a class="back" href="index.html">Back to overview</a>
+  </header>
+  <iframe
+    title="GHOST live hardware replay dashboard"
+    src="GHOST_LIVE_REPLAY_DASHBOARD.html"
+    loading="eager"
+    referrerpolicy="no-referrer">
+  </iframe>
+</body>
+</html>
