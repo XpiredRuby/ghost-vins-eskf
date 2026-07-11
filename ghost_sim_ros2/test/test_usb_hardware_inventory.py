@@ -18,6 +18,43 @@ def test_sanitize_text_redacts_sensitive_lines_mac_and_ip():
     assert "model=USB Cam" in clean
 
 
+def test_sanitize_text_redacts_all_path_and_serial_property_variants():
+    sensitive_values = [
+        "platform-private-path",
+        "platform-private-tag",
+        "platform-private-revision-path",
+        "private-serial",
+        "private-short-serial",
+        "private-future-serial-variant",
+    ]
+    text = "\n".join(
+        [
+            f"ID_PATH={sensitive_values[0]}",
+            f"ID_PATH_TAG={sensitive_values[1]}",
+            f"ID_PATH_WITH_USB_REVISION={sensitive_values[2]}",
+            f"ID_SERIAL={sensitive_values[3]}",
+            f"ID_SERIAL_SHORT={sensitive_values[4]}",
+            f"ID_SERIAL_FUTURE_SUFFIX={sensitive_values[5]}",
+            "ID_MODEL=USB_Camera",
+        ]
+    )
+
+    clean = sanitize_text(text)
+
+    for value in sensitive_values:
+        assert value not in clean
+    for key in (
+        "ID_PATH",
+        "ID_PATH_TAG",
+        "ID_PATH_WITH_USB_REVISION",
+        "ID_SERIAL",
+        "ID_SERIAL_SHORT",
+        "ID_SERIAL_FUTURE_SUFFIX",
+    ):
+        assert f"{key}=[REDACTED]" in clean
+    assert "ID_MODEL=USB_Camera" in clean
+
+
 def test_capture_inventory_separates_private_and_public_outputs(tmp_path: Path):
     calibration = tmp_path / "camera_calibration.json"
     calibration.write_text('{"rms":0.5}', encoding="utf-8")

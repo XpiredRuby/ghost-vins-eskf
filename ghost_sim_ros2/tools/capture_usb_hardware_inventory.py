@@ -122,12 +122,15 @@ def capture_inventory(
 def sanitize_text(text: str) -> str:
     lines = []
     for line in text.splitlines():
+        udev_property = re.match(r"(?i)^((?:ID_PATH|ID_SERIAL)[^=]*)=(.*)$", line)
+        if udev_property:
+            lines.append(f"{udev_property.group(1)}=[REDACTED]")
+            continue
         if SENSITIVE_LINE.search(line):
             lines.append("[REDACTED SENSITIVE LINE]")
             continue
         line = MAC.sub("[REDACTED_MAC]", line)
         line = IPV4.sub("[REDACTED_IP]", line)
-        line = re.sub(r"(?i)(ID_SERIAL_SHORT|ID_SERIAL|ID_PATH)=.*", r"\1=[REDACTED]", line)
         lines.append(line)
     return "\n".join(lines) + ("\n" if text.endswith("\n") else "")
 
