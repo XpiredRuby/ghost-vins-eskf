@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="GHOST: Raspberry Pi and ROS 2 target-state estimation through temporary AprilTag occlusion using a formal IMM and heuristic multi-hypothesis tracker.">
+  <meta name="description" content="GHOST: Raspberry Pi and ROS 2 intermittent-visibility target estimation with a formal IMM, heuristic MH comparison tracker, public hardware replay, and deterministic closed-loop GNC software-in-the-loop evidence.">
   <meta name="theme-color" content="#07111f">
-  <title>GHOST — Occlusion-Resilient Target Estimation</title>
+  <title>GHOST — Occlusion-Resilient Estimation and GNC SIL</title>
   <style>
     :root {
       --bg: #07111f;
-      --bg2: #0c1728;
-      --panel: rgba(16, 31, 52, 0.88);
+      --bg-deep: #040913;
+      --panel: rgba(16, 31, 52, 0.9);
       --panel-strong: #11233a;
       --text: #f4f8ff;
       --muted: #a9bbd3;
@@ -20,6 +20,7 @@
       --yellow: #ffd166;
       --green: #62e6a7;
       --orange: #ffb454;
+      --purple: #b894ff;
       --shadow: 0 24px 70px rgba(0,0,0,.34);
     }
 
@@ -29,9 +30,9 @@
       margin: 0;
       color: var(--text);
       background:
-        radial-gradient(circle at 18% 0%, rgba(93,226,255,.13), transparent 34rem),
-        radial-gradient(circle at 86% 15%, rgba(255,93,168,.10), transparent 32rem),
-        linear-gradient(180deg, var(--bg), #050a12 75%);
+        radial-gradient(circle at 16% 0%, rgba(93,226,255,.13), transparent 35rem),
+        radial-gradient(circle at 88% 14%, rgba(255,93,168,.10), transparent 31rem),
+        linear-gradient(180deg, var(--bg), var(--bg-deep) 78%);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       line-height: 1.55;
     }
@@ -45,7 +46,7 @@
       z-index: 50;
       padding: 10px 18px;
       border-bottom: 1px solid rgba(255,180,84,.3);
-      background: rgba(28, 18, 4, .94);
+      background: rgba(28, 18, 4, .95);
       color: #ffe0b2;
       text-align: center;
       font-size: 13px;
@@ -66,10 +67,10 @@
 
     .hero {
       display: grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 32px;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 34px;
       align-items: center;
-      padding: 56px 0 42px;
+      padding: 54px 0 42px;
     }
     .eyebrow {
       display: inline-flex;
@@ -86,7 +87,7 @@
     }
     h1 {
       margin: 18px 0 16px;
-      font-size: clamp(44px, 8vw, 88px);
+      font-size: clamp(44px, 8vw, 86px);
       line-height: .94;
       letter-spacing: -.055em;
     }
@@ -94,16 +95,12 @@
       display: block;
       margin-top: 12px;
       color: var(--muted);
-      font-size: clamp(22px, 3vw, 34px);
-      line-height: 1.1;
+      font-size: clamp(21px, 3vw, 33px);
+      line-height: 1.12;
       letter-spacing: -.03em;
       font-weight: 650;
     }
-    .lede {
-      max-width: 760px;
-      color: var(--muted);
-      font-size: clamp(17px, 2vw, 20px);
-    }
+    .lede { max-width: 760px; color: var(--muted); font-size: clamp(17px, 2vw, 20px); }
     .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
     .button {
       display: inline-flex;
@@ -116,30 +113,23 @@
       font-weight: 800;
       border: 1px solid var(--line);
       background: rgba(255,255,255,.06);
+      transition: transform .16s ease, border-color .16s ease;
     }
     .button.primary {
       border-color: rgba(93,226,255,.55);
       background: linear-gradient(135deg, #167a91, #3251a6);
       box-shadow: 0 14px 34px rgba(53,130,246,.22);
     }
-    .button:hover { transform: translateY(-1px); }
+    .button:hover { transform: translateY(-1px); border-color: rgba(93,226,255,.6); }
 
     .hero-card {
       position: relative;
       overflow: hidden;
       border: 1px solid var(--line);
       border-radius: 22px;
-      background: linear-gradient(150deg, rgba(17,35,58,.95), rgba(9,20,35,.82));
+      background: linear-gradient(150deg, rgba(17,35,58,.97), rgba(9,20,35,.84));
       box-shadow: var(--shadow);
       padding: 22px;
-    }
-    .hero-card::after {
-      content: "";
-      position: absolute;
-      inset: auto -20% -35% 25%;
-      height: 220px;
-      background: radial-gradient(circle, rgba(93,226,255,.24), transparent 68%);
-      pointer-events: none;
     }
     .signal {
       height: 220px;
@@ -152,179 +142,121 @@
       position: relative;
       overflow: hidden;
     }
-    .track, .measurement, .prediction {
+    .track, .measurement, .prediction, .hold {
       position: absolute;
       border-radius: 999px;
     }
     .track {
-      left: 8%; top: 62%;
+      left: 8%; top: 63%;
       width: 72%; height: 4px;
       background: linear-gradient(90deg, var(--cyan), var(--pink));
       transform: rotate(-18deg);
       box-shadow: 0 0 18px rgba(93,226,255,.48);
     }
-    .measurement {
-      width: 10px; height: 10px;
-      background: var(--yellow);
-      box-shadow: 0 0 14px rgba(255,209,102,.8);
-    }
+    .measurement { width: 10px; height: 10px; background: var(--yellow); box-shadow: 0 0 14px rgba(255,209,102,.8); }
     .m1 { left: 18%; top: 64%; }
-    .m2 { left: 30%; top: 56%; }
+    .m2 { left: 30%; top: 57%; }
     .m3 { left: 42%; top: 49%; }
-    .m4 { left: 77%; top: 28%; }
+    .m4 { left: 78%; top: 28%; }
     .prediction {
-      left: 51%; top: 42%;
+      left: 51%; top: 43%;
       width: 29%; height: 3px;
       border-top: 2px dashed var(--green);
       transform: rotate(-20deg);
-      opacity: .9;
     }
-    .mini-labels {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 14px;
-      font-size: 12px;
-      color: var(--muted);
+    .hold {
+      left: 69%; top: 35%;
+      width: 44px; height: 44px;
+      border: 2px solid var(--purple);
+      opacity: .75;
     }
-    .mini-labels span {
-      padding: 9px;
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      background: rgba(255,255,255,.035);
-    }
+    .mini-labels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; font-size: 12px; color: var(--muted); }
+    .mini-labels span { padding: 9px; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,255,255,.035); }
 
     section { padding: 42px 0; }
     .section-heading { margin-bottom: 20px; }
     .section-heading h2 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 44px); letter-spacing: -.035em; }
-    .section-heading p { margin: 0; color: var(--muted); max-width: 780px; }
+    .section-heading p { margin: 0; color: var(--muted); max-width: 840px; }
 
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-    .metric {
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      padding: 18px;
-      background: var(--panel);
-      box-shadow: 0 12px 38px rgba(0,0,0,.2);
-    }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .metric { border: 1px solid var(--line); border-radius: 15px; padding: 18px; background: var(--panel); box-shadow: 0 12px 38px rgba(0,0,0,.2); }
     .metric strong { display: block; font-size: 27px; letter-spacing: -.03em; }
     .metric span { color: var(--muted); font-size: 13px; }
 
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-    .panel {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
+    .panel { border: 1px solid var(--line); border-radius: 18px; background: var(--panel); box-shadow: var(--shadow); overflow: hidden; }
     .panel img { display: block; width: 100%; background: #fff; }
     .panel-copy { padding: 18px; }
     .panel-copy h3 { margin: 0 0 6px; }
     .panel-copy p { margin: 0; color: var(--muted); }
 
-    .status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .status {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 18px;
-      background: var(--panel);
-    }
-    .status-tag {
-      display: inline-block;
-      margin-bottom: 10px;
-      padding: 5px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      font-weight: 850;
-    }
-    .done { color: #b7ffe0; background: rgba(98,230,167,.12); }
-    .pending { color: #ffe0b2; background: rgba(255,180,84,.12); }
-    .planned { color: #d9c7ff; background: rgba(173,127,255,.12); }
-    .status h3 { margin: 0 0 8px; }
-    .status p { margin: 0; color: var(--muted); }
-
-    .pipeline {
+    .flow {
       display: grid;
-      grid-template-columns: repeat(7, auto);
+      grid-template-columns: repeat(9, auto);
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 24px;
+      gap: 9px;
+      padding: 22px;
       border: 1px solid var(--line);
       border-radius: 18px;
       background: var(--panel);
       overflow-x: auto;
     }
-    .node {
-      min-width: 128px;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      text-align: center;
-      background: var(--panel-strong);
-      font-weight: 780;
-    }
+    .node { min-width: 120px; padding: 13px; border: 1px solid var(--line); border-radius: 12px; text-align: center; background: var(--panel-strong); font-weight: 780; }
     .arrow { color: var(--cyan); font-size: 20px; }
 
-    .review-links {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-    .review-link {
-      min-height: 120px;
-      padding: 18px;
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      background: var(--panel);
-      text-decoration: none;
-    }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .card { border: 1px solid var(--line); border-radius: 16px; padding: 18px; background: var(--panel); }
+    .tag { display: inline-block; margin-bottom: 10px; padding: 5px 8px; border-radius: 999px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 850; }
+    .done { color: #b7ffe0; background: rgba(98,230,167,.12); }
+    .sil { color: #dfd0ff; background: rgba(184,148,255,.13); }
+    .pending { color: #ffe0b2; background: rgba(255,180,84,.12); }
+    .card h3 { margin: 0 0 8px; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    th, td { padding: 13px 15px; border-bottom: 1px solid var(--line); text-align: left; }
+    th { color: #d7e4f7; background: rgba(255,255,255,.035); font-size: 13px; }
+    td { color: var(--muted); }
+    tbody tr:last-child td { border-bottom: 0; }
+    td strong { color: var(--text); }
+
+    .review-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .review-link { min-height: 132px; padding: 18px; border: 1px solid var(--line); border-radius: 15px; background: var(--panel); text-decoration: none; }
     .review-link strong { display: block; margin-bottom: 7px; }
     .review-link span { color: var(--muted); font-size: 14px; }
     .review-link:hover { border-color: rgba(93,226,255,.55); }
 
-    footer {
-      margin-top: 40px;
-      padding: 34px 0 46px;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 14px;
-    }
+    footer { margin-top: 40px; padding: 34px 0 46px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
 
-    @media (max-width: 900px) {
+    @media (max-width: 940px) {
       .hero, .two-col { grid-template-columns: 1fr; }
       .metrics { grid-template-columns: repeat(2, 1fr); }
-      .status-grid, .review-links { grid-template-columns: 1fr; }
+      .cards, .review-links { grid-template-columns: 1fr 1fr; }
       .hero { padding-top: 30px; }
+      .flow { justify-content: flex-start; }
     }
-    @media (max-width: 560px) {
+    @media (max-width: 590px) {
       .shell { width: min(100% - 24px, 1180px); }
       nav { align-items: flex-start; }
       .nav-links { justify-content: flex-end; gap: 10px; }
-      .metrics { grid-template-columns: 1fr; }
-      .mini-labels { grid-template-columns: 1fr; }
-      .pipeline { justify-content: flex-start; }
+      .metrics, .cards, .review-links, .mini-labels { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="evidence-banner">
-    Interactive replay of real hardware trial data — integration and telemetry evidence. Controlled estimator-accuracy validation is still in progress.
+    Hardware replay validates estimation-pipeline integration. Closed-loop GNC results are deterministic software-in-the-loop evidence. Physical accuracy, vehicle control, and flight readiness remain unclaimed.
   </div>
 
   <div class="shell">
     <nav>
       <div class="brand">GHOST</div>
       <div class="nav-links">
-        <a href="#evidence">Evidence</a>
-        <a href="#scope">Scope</a>
+        <a href="#hardware">Hardware</a>
+        <a href="#gnc">GNC SIL</a>
+        <a href="#validation">Validation</a>
         <a href="#review">Review paths</a>
         <a href="https://github.com/XpiredRuby/ghost-vins-eskf">GitHub</a>
       </div>
@@ -333,22 +265,23 @@
     <main>
       <section class="hero">
         <div>
-          <div class="eyebrow">Raspberry Pi · ROS 2 Jazzy · AprilTag · IMM</div>
-          <h1>GHOST<span>Occlusion-resilient target-state estimation</span></h1>
+          <div class="eyebrow">Raspberry Pi · ROS 2 Jazzy · AprilTag · Formal IMM · GNC SIL</div>
+          <h1>GHOST<span>Occlusion-resilient estimation with bounded closed-loop software evidence</span></h1>
           <p class="lede">
-            A hardware-integrated estimation project that keeps target state, covariance, measurement age, and motion-model behavior visible when camera measurements disappear.
+            A hardware-integrated target-estimation project that keeps state, uncertainty, measurement age, and dropout behavior visible—then drives a separate deterministic guidance-controller-plant loop with bounded acceleration and long-dropout safe hold.
           </p>
           <div class="cta-row">
             <a class="button primary" href="demo.html">Launch hardware replay</a>
+            <a class="button" href="GHOST_CLOSED_LOOP_GNC_SIL.md">Review GNC SIL</a>
             <a class="button" href="https://github.com/XpiredRuby/ghost-vins-eskf">Inspect repository</a>
-            <a class="button" href="GHOST_LIVE_BAG_PLOTS.md">View evidence notes</a>
           </div>
         </div>
 
-        <div class="hero-card" aria-label="Stylized tracker visualization">
+        <div class="hero-card" aria-label="Stylized tracker and supervisor visualization">
           <div class="signal">
             <div class="track"></div>
             <div class="prediction"></div>
+            <div class="hold"></div>
             <div class="measurement m1"></div>
             <div class="measurement m2"></div>
             <div class="measurement m3"></div>
@@ -357,20 +290,20 @@
           <div class="mini-labels">
             <span><strong>Formal IMM</strong><br>mode probabilities</span>
             <span><strong>GHOST-MH</strong><br>relative weights</span>
-            <span><strong>Dropout</strong><br>explicit degraded state</span>
+            <span><strong>Supervisor</strong><br>track · predict · hold</span>
           </div>
         </div>
       </section>
 
-      <section id="evidence">
+      <section id="hardware">
         <div class="section-heading">
           <h2>Preserved hardware evidence</h2>
-          <p>The `live_camera_calibrated_R_01` run contains real AprilTag measurements and simultaneous formal IMM / heuristic MH telemetry.</p>
+          <p>The `live_camera_calibrated_R_01` run contains real Raspberry Pi AprilTag measurements and simultaneous formal IMM / heuristic MH telemetry.</p>
         </div>
         <div class="metrics">
           <div class="metric"><strong>48.28 s</strong><span>hardware run duration</span></div>
           <div class="metric"><strong>655</strong><span>vision measurements</span></div>
-          <div class="metric"><strong>30.01 Hz</strong><span>IMM odometry rate</span></div>
+          <div class="metric"><strong>30.01 Hz</strong><span>formal IMM odometry</span></div>
           <div class="metric"><strong>2.849 s</strong><span>maximum IMM measurement age</span></div>
         </div>
       </section>
@@ -388,7 +321,7 @@
             <img src="assets/ghost_live_plots/ghost_live_imm_status_timeline.png" alt="Formal IMM status timeline">
             <div class="panel-copy">
               <h3>Dropout-state timeline</h3>
-              <p>Tracking, prediction-only, and degraded-dropout states remain explicit throughout replay.</p>
+              <p>Tracking, prediction-only, degraded dropout, and reacquisition remain explicit throughout replay.</p>
             </div>
           </article>
         </div>
@@ -396,37 +329,95 @@
 
       <section>
         <div class="section-heading">
-          <h2>Current verified pipeline</h2>
-          <p>The public demo reflects the implemented tracker pipeline, not the larger legacy or future flight architecture.</p>
+          <h2>Hardware estimation pipeline</h2>
+          <p>The public replay reflects the implemented tracker pipeline rather than the larger legacy or future flight architecture.</p>
         </div>
-        <div class="pipeline">
+        <div class="flow">
           <div class="node">Pi camera</div><div class="arrow">→</div>
           <div class="node">AprilTag pose</div><div class="arrow">→</div>
           <div class="node">IMM + MH</div><div class="arrow">→</div>
+          <div class="node">ROS telemetry</div><div class="arrow">→</div>
           <div class="node">Replay evidence</div>
         </div>
       </section>
 
-      <section id="scope">
+      <section id="gnc">
         <div class="section-heading">
-          <h2>Implemented, pending, planned</h2>
-          <p>The project separates engineering completion from physical validation so the visual presentation never outruns the evidence.</p>
+          <h2>Formal-IMM closed-loop GNC software-in-the-loop</h2>
+          <p>The repository's actual formal IMM drives relative-standoff guidance, an acceleration-limited controller, actuator lag, follower dynamics, and a safe-hold supervisor.</p>
         </div>
-        <div class="status-grid">
-          <article class="status">
-            <span class="status-tag done">Implemented + hardware evidence</span>
+        <div class="flow">
+          <div class="node">Synthetic truth</div><div class="arrow">→</div>
+          <div class="node">Formal IMM</div><div class="arrow">→</div>
+          <div class="node">Guidance</div><div class="arrow">→</div>
+          <div class="node">Controller</div><div class="arrow">→</div>
+          <div class="node">Follower plant</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Deterministic SIL scenario</th>
+                <th>Final standoff error</th>
+                <th>RMS error after 5 s</th>
+                <th>Max estimator error</th>
+                <th>Measurement age</th>
+                <th>Safe hold</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Nominal visible</strong></td><td>0.00114 m</td><td>0.05319 m</td><td>0.02673 m</td><td>0.0 s</td><td>0.0 s</td></tr>
+              <tr><td><strong>Short dropout</strong></td><td>0.000353 m</td><td>0.05535 m</td><td>0.16357 m</td><td>1.5 s</td><td>0.0 s</td></tr>
+              <tr><td><strong>Long dropout</strong></td><td>0.00986 m</td><td>0.31648 m</td><td>0.41683 m</td><td>4.0 s</td><td>2.0 s</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="validation">
+        <div class="section-heading">
+          <h2>Implemented, software-validated, physically pending</h2>
+          <p>GHOST separates implementation from evidence source so the visual presentation never outruns what was actually tested.</p>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <span class="tag done">Hardware integration evidence</span>
             <h3>Measurement and estimation</h3>
-            <p>AprilTag pose ingestion, formal IMM, GHOST-MH, full covariance plumbing, status telemetry, split recording, plots, and replay.</p>
+            <p>AprilTag pose ingestion, formal IMM, heuristic MH comparison, covariance plumbing, dropout telemetry, split recording, plots, and replay.</p>
           </article>
-          <article class="status">
-            <span class="status-tag pending">Physical collection pending</span>
-            <h3>Quantitative accuracy</h3>
-            <p>Predeclared stationary covariance and measured-grid protocols exist. Bias, RMSE, repeatability, and paired trial results await collection.</p>
-          </article>
-          <article class="status">
-            <span class="status-tag planned">Planned GNC extension</span>
+          <article class="card">
+            <span class="tag sil">Deterministic software evidence</span>
             <h3>Guidance and control</h3>
-            <p>The current project demonstrates the navigation/estimation core. Closed-loop guidance, controller validation, vehicle command, and flight test are not claimed.</p>
+            <p>Formal-IMM-driven guidance, bounded acceleration, actuator lag, follower dynamics, prediction horizon, safe hold, and reacquisition.</p>
+          </article>
+          <article class="card">
+            <span class="tag pending">Physical collection pending</span>
+            <h3>Quantitative validation</h3>
+            <p>Hardened 90-second covariance workflow, measured grid, and a predeclared 55-trial paired IMM/MH campaign await collection.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <h2>Validation designed before data</h2>
+          <p>The physical campaign fixes collection windows, quality gates, trial slots, rejection handling, metrics, and statistical methods before new results are observed.</p>
+        </div>
+        <div class="cards">
+          <article class="card">
+            <h3>Controlled covariance</h3>
+            <p>90 seconds recorded; seconds 15–75 analyzed; ≥10 Hz; ≤0.25 s sample gap; camera-control readbacks; fixed subwindows; operator attestation.</p>
+          </article>
+          <article class="card">
+            <h3>Ground-truth grid</h3>
+            <p>Measured non-collinear points with bias, RMSE, mean error, maximum error, repeatability, sample count, and rate.</p>
+          </article>
+          <article class="card">
+            <h3>Paired campaign</h3>
+            <p>55 planned trials across six conditions, retained rejections, condition-specific bootstrap intervals, and Wilcoxon reporting.</p>
           </article>
         </div>
       </section>
@@ -434,27 +425,47 @@
       <section id="review">
         <div class="section-heading">
           <h2>Choose a review path</h2>
-          <p>Recruiters can start with the replay. Estimation engineers can inspect the report, protocols, code, and evidence boundaries.</p>
+          <p>Recruiters can start with the replay and portfolio packet. GNC and estimation reviewers can inspect the equations, workflows, protocols, tests, and source.</p>
         </div>
         <div class="review-links">
           <a class="review-link" href="demo.html">
-            <strong>Interactive replay</strong>
-            <span>Scrub the hardware run and inspect trajectories, IMM mode probabilities, status, and prediction-only behavior.</span>
+            <strong>Interactive hardware replay</strong>
+            <span>Scrub the preserved run and inspect trajectories, mode probabilities, status, measurement age, and prediction-only behavior.</span>
           </a>
-          <a class="review-link" href="https://github.com/XpiredRuby/ghost-vins-eskf/blob/main/ghost_sim_ros2/docs/GHOST_PROJECT_REPORT.md">
-            <strong>Technical report</strong>
-            <span>Architecture, estimator semantics, hardware metrics, validation status, and reproducibility.</span>
+          <a class="review-link" href="GHOST_PORTFOLIO_PACKET.md">
+            <strong>Portfolio packet</strong>
+            <span>Fast technical summary, hardware metrics, SIL results, differentiators, status matrix, and reviewer links.</span>
           </a>
-          <a class="review-link" href="https://github.com/XpiredRuby/ghost-vins-eskf/blob/main/docs/CONTROLLED_R_COLLECTION_PROTOCOL.md">
-            <strong>Validation protocol</strong>
-            <span>Predeclared camera-control, fixed-window covariance, and no-post-hoc-trimming methodology.</span>
+          <a class="review-link" href="GHOST_CLOSED_LOOP_GNC_SIL.md">
+            <strong>Closed-loop GNC SIL</strong>
+            <span>Guidance and control equations, supervisor states, deterministic scenarios, metrics, and claims boundary.</span>
+          </a>
+          <a class="review-link" href="GHOST_PROJECT_REPORT.md">
+            <strong>Full technical report</strong>
+            <span>Architecture, evidence, estimator semantics, GNC integration, validation methodology, and next experimental sequence.</span>
+          </a>
+          <a class="review-link" href="CONTROLLED_R_COLLECTION_RUNBOOK.md">
+            <strong>Controlled-R runbook</strong>
+            <span>One-terminal physical collection with live-topic preflight, V4L2 checks, fixed-window quality gates, and preserved rejection evidence.</span>
+          </a>
+          <a class="review-link" href="IMM_MH_HARDWARE_CAMPAIGN_PROTOCOL.md">
+            <strong>Paired hardware campaign</strong>
+            <span>55 predeclared trials, endpoint truth, acceptance rules, condition-specific metrics, and statistical plan.</span>
+          </a>
+          <a class="review-link" href="GHOST_LIVE_BAG_PLOTS.md">
+            <strong>Hardware evidence notes</strong>
+            <span>Recorded topic rates, status behavior, trajectories, and plot-generation context.</span>
+          </a>
+          <a class="review-link" href="https://github.com/XpiredRuby/ghost-vins-eskf">
+            <strong>Source repository</strong>
+            <span>ROS 2 nodes, formal IMM, analysis tools, tests, workflows, evidence files, and development history.</span>
           </a>
         </div>
       </section>
     </main>
 
     <footer>
-      <strong>Vinayak Manoj Nair</strong> · Texas A&amp;M University · Aerospace Engineering · GHOST is a student engineering portfolio project.
+      <strong>Vinayak Manoj Nair</strong> · Texas A&amp;M University · Aerospace Engineering · GHOST is a student aerospace/robotics engineering portfolio project.
     </footer>
   </div>
 </body>
