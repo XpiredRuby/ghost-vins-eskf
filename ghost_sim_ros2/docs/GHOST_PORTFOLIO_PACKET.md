@@ -2,26 +2,36 @@
 
 ## One-sentence summary
 
-GHOST is a Raspberry Pi and ROS 2 target-estimation system that uses AprilTag measurements to compare a formal Interacting Multiple Model estimator with a bounded heuristic multi-hypothesis tracker during temporary target occlusion.
+GHOST is a Raspberry Pi and ROS 2 target-estimation system that compares a formal Interacting Multiple Model estimator with a bounded heuristic multi-hypothesis tracker during temporary AprilTag occlusion, then connects the formal IMM to a deterministic software-in-the-loop guidance, control, and safe-hold chain.
 
 ## Why the project exists
 
-A detector only reports a target while the target is visible. A tracking system must maintain a state estimate, represent uncertainty, distinguish live measurement updates from prediction-only propagation, and recover cleanly after observations return.
+A detector only reports a target while the target is visible. A useful tracking and autonomy stack must maintain state, represent uncertainty, distinguish measurement-backed updates from prediction-only propagation, constrain stale estimates, and recover cleanly after observations return.
 
-GHOST was built to demonstrate that complete engineering chain:
+GHOST was built to demonstrate that engineering chain:
 
 ```text
-camera measurement
+real camera measurement
         ->
-state estimation
+formal and heuristic target estimation
         ->
-dropout-aware prediction
+dropout supervision
         ->
-ROS 2 telemetry
+ROS 2 telemetry and evidence
+```
+
+and, separately in deterministic simulation:
+
+```text
+formal IMM estimate
         ->
-recorded evidence
+relative-standoff guidance
         ->
-replay and analysis
+bounded velocity control
+        ->
+actuator lag and follower dynamics
+        ->
+tracking / prediction / safe hold
 ```
 
 ## What is implemented
@@ -32,9 +42,13 @@ replay and analysis
 - Explicit visible, prediction-only, and degraded-dropout status telemetry.
 - Full symmetric `2 x 2` measurement covariance plumbing.
 - Split IMM/MH trial recording to prevent evidence loss.
-- Hardware-bag plotting and a dependency-free replay dashboard.
-- Controlled covariance, ground-truth grid, and paired statistical analysis tooling.
-- Automated Python and portable C++ tests through GitHub Actions.
+- Hardware-bag plotting, exported JSON, and a dependency-free replay dashboard.
+- Public GitHub Pages showcase for one-click review.
+- Deterministic formal-IMM closed-loop GNC software-in-the-loop harness.
+- Bounded acceleration, actuator lag, follower dynamics, prediction horizon, safe hold, and reacquisition in SIL.
+- Hardened controlled covariance collection with V4L2 readbacks, timing gates, fixed-window analysis, and physical-integrity attestation.
+- Measured-grid accuracy analysis and a predeclared 55-trial paired IMM/MH hardware campaign.
+- Automated Python, portable C++, GNC SIL, and collection-pipeline tests through GitHub Actions.
 
 ## Preserved hardware evidence
 
@@ -50,39 +64,64 @@ The run `live_camera_calibrated_R_01` contains real AprilTag measurements and si
 | Maximum IMM prediction-only steps | `77` |
 | Maximum IMM measurement age | `2.849 s` |
 
-The evidence demonstrates live pipeline operation, real-time publication, target-loss state transitions, prediction-only propagation, and reacquisition. It does not establish ground-truth tracking accuracy.
+The evidence demonstrates live pipeline operation, real-time publication, target-loss state transitions, prediction-only propagation, degraded-dropout labeling, and reacquisition. It does not establish ground-truth tracking accuracy.
+
+## Formal-IMM closed-loop GNC SIL evidence
+
+The dedicated Actions workflow executes three fixed-seed scenarios through the repository's actual formal IMM.
+
+| Scenario | Final standoff error | RMS standoff error after 5 s | Maximum estimator error | Safe-hold time |
+|---|---:|---:|---:|---:|
+| `nominal_visible` | `0.00114 m` | `0.05319 m` | `0.02673 m` | `0.0 s` |
+| `short_dropout` | `0.000353 m` | `0.05535 m` | `0.16357 m` | `0.0 s` |
+| `long_dropout_safe_hold` | `0.00986 m` | `0.31648 m` | `0.41683 m` | `2.0 s` |
+
+The long-dropout scenario enters safe hold after the `2.0 s` prediction horizon and reacquires after measurements return. Command acceleration remains bounded by `2.5 m/s²`.
+
+These are deterministic synthetic-truth software-in-the-loop results. They are not PX4, HIL, hardware-controller, vehicle, or flight results.
 
 ## Technical differentiators
 
 ### Formal estimator, not only a visual effect
 
-The IMM executes model-conditioned filtering, model mixing, probability updates, and combined state/covariance output. Tracker status makes the distinction between measurement-backed tracking and open-loop prediction explicit.
+The IMM executes model-conditioned filtering, state/covariance mixing, likelihood-based mode-probability updates, and combined state/covariance output. Tracker status exposes whether the estimate is measurement-backed, prediction-only, or degraded.
 
 ### Honest comparison baseline
 
-GHOST-MH is retained as a heuristic contextual tracker. Its candidate rankings are called relative hypothesis weights rather than probabilities. The repository does not present the heuristic output as formal Bayesian certainty.
+GHOST-MH is retained as a heuristic contextual tracker. Its candidate rankings are relative hypothesis weights rather than probabilities. The repository does not present heuristic output as formal Bayesian certainty.
+
+### Closed-loop integration with explicit scope
+
+The same formal IMM is used in a deterministic guidance-controller-plant loop with acceleration saturation, actuator lag, prediction-horizon supervision, safe hold, and reacquisition. The project calls this software-in-the-loop evidence and does not inflate it into a flight-control claim.
 
 ### Validation designed before data collection
 
-The controlled covariance protocol fixes the collection duration and analysis window before new data are observed. The ground-truth protocol specifies measured grid points and required metrics. This prevents selecting favorable windows or metrics after seeing results.
+The controlled covariance protocol fixes duration and the `15–75 s` analysis window before new data are observed. The hardened helper records physical setup, camera controls, timing criteria, sample gaps, fixed subwindows, and operator attestation. The paired campaign predeclares 55 trial slots, rejection handling, metrics, bootstrap seed, and condition-specific analysis.
 
 ### Reviewable without ROS
 
-The final hardware bag is converted into plots, Markdown reports, exported JSON, and a static HTML replay. A reviewer can inspect the engineering evidence without installing the full runtime stack.
+The hardware bag is converted into plots, Markdown reports, JSON, and a static HTML replay. Recruiters can use the public GitHub Pages site; engineers can inspect the reports, protocols, tests, and source.
 
 ## GNC relevance and current boundary
 
-GHOST demonstrates the navigation/estimation portion of GNC:
+GHOST now demonstrates:
 
-- measurement and covariance modeling;
-- target state estimation;
-- motion-model interaction;
-- uncertainty propagation;
-- sensor dropout handling;
-- estimator health/status telemetry;
-- downstream state and setpoint interfaces.
+- hardware-integrated navigation/estimation;
+- measurement and covariance handling;
+- formal multiple-model state estimation;
+- uncertainty and stale-measurement supervision;
+- deterministic software-only guidance and control;
+- acceleration limits and actuator lag;
+- safe hold after prolonged dropout;
+- estimator-driven reacquisition.
 
-A validated guidance law and closed-loop controller are not part of the current hardware evidence. The repository therefore does not claim full autonomous vehicle control or flight readiness.
+It does not demonstrate:
+
+- PX4 SITL or hardware-in-the-loop;
+- real vehicle command;
+- validated real vehicle dynamics;
+- flight control or flight test;
+- production safety or certification.
 
 ## Validation status
 
@@ -92,21 +131,28 @@ A validated guidance law and closed-loop controller are not part of the current 
 | Do both trackers publish at real-time rates? | Yes |
 | Are dropout and stale-measurement states exposed? | Yes |
 | Is full covariance metadata wired through the live trackers? | Yes |
-| Is controlled stationary covariance finalized? | No — collection pending |
+| Is there a closed-loop estimator-guidance-controller-plant demonstration? | Yes — deterministic SIL |
+| Does prolonged dropout trigger safe hold in SIL? | Yes |
+| Is controlled stationary covariance finalized? | No — hardened collection pending physical run |
 | Is position accuracy measured against physical truth? | No — grid trial pending |
-| Is IMM statistically superior to MH? | No claim — harness exists, real paired trials pending |
-| Is the system closed-loop on a vehicle? | No |
+| Is IMM statistically superior to MH? | No claim — 55-trial campaign pending |
+| Does the system command a real vehicle? | No |
+| Has it been flight tested? | No |
 
 ## Reviewer paths
 
+- Public showcase: [GHOST GitHub Pages](https://xpiredruby.github.io/ghost-vins-eskf/)
 - Root overview: [`../../README.md`](../../README.md)
 - Full technical report: [`GHOST_PROJECT_REPORT.md`](GHOST_PROJECT_REPORT.md)
 - Hardware plots: [`GHOST_LIVE_BAG_PLOTS.md`](GHOST_LIVE_BAG_PLOTS.md)
 - Replay dashboard: [`GHOST_LIVE_REPLAY_DASHBOARD.html`](GHOST_LIVE_REPLAY_DASHBOARD.html)
+- Closed-loop GNC SIL: [`GHOST_CLOSED_LOOP_GNC_SIL.md`](GHOST_CLOSED_LOOP_GNC_SIL.md)
 - Career snippets: [`GHOST_CAREER_SNIPPETS.md`](GHOST_CAREER_SNIPPETS.md)
 - Controlled covariance protocol: [`../../docs/CONTROLLED_R_COLLECTION_PROTOCOL.md`](../../docs/CONTROLLED_R_COLLECTION_PROTOCOL.md)
+- Controlled collection runbook: [`CONTROLLED_R_COLLECTION_RUNBOOK.md`](CONTROLLED_R_COLLECTION_RUNBOOK.md)
 - Ground-truth grid protocol: [`GROUND_TRUTH_GRID_VALIDATION_PROTOCOL.md`](GROUND_TRUTH_GRID_VALIDATION_PROTOCOL.md)
+- Paired campaign protocol: [`IMM_MH_HARDWARE_CAMPAIGN_PROTOCOL.md`](IMM_MH_HARDWARE_CAMPAIGN_PROTOCOL.md)
 
 ## Current portfolio statement
 
-> Built a Raspberry Pi/ROS 2 intermittent-visibility target-estimation pipeline with a formal IMM estimator, a bounded heuristic MH comparison tracker, explicit dropout-state telemetry, full measurement-covariance plumbing, and reproducible hardware replay artifacts; controlled covariance and ground-truth accuracy validation are predeclared and pending physical collection.
+> Built a Raspberry Pi/ROS 2 intermittent-visibility target-estimation system with a formal IMM, heuristic MH comparison tracker, explicit dropout telemetry, full covariance plumbing, reproducible hardware replay, and a deterministic formal-IMM closed-loop GNC software-in-the-loop harness with bounded control and long-dropout safe hold; physical covariance, ground-truth accuracy, and paired hardware validation remain predeclared and pending collection.
