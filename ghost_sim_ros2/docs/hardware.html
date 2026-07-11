@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="GHOST hardware architecture, USB UVC webcam interface record, reproducible bill of materials and photo evidence checklist.">
+  <meta name="theme-color" content="#07111f">
+  <title>GHOST — Hardware & BOM</title>
+  <style>
+    :root {
+      --bg:#07111f; --bg2:#040913; --panel:#102036; --panel2:#132a47;
+      --text:#f4f8ff; --muted:#a9bbd3; --line:rgba(255,255,255,.12);
+      --cyan:#5de2ff; --green:#62e6a7; --yellow:#ffd166; --orange:#ffb454;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55;background:radial-gradient(circle at 12% 0%,rgba(93,226,255,.14),transparent 34rem),linear-gradient(180deg,var(--bg),var(--bg2) 80%)}
+    a{color:inherit}.shell{width:min(1160px,calc(100% - 34px));margin:auto}
+    .banner{padding:10px 18px;text-align:center;color:#ffe0b2;background:#201506;border-bottom:1px solid rgba(255,180,84,.35);font-size:13px}
+    nav{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:20px 0}.brand{font-weight:900;letter-spacing:.14em}.nav{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:14px}.nav a{text-decoration:none}
+    header{padding:52px 0 26px}.eyebrow{display:inline-block;border:1px solid rgba(93,226,255,.35);background:rgba(93,226,255,.08);border-radius:999px;padding:6px 10px;color:#b8f4ff;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+    h1{font-size:clamp(42px,7vw,76px);line-height:.98;letter-spacing:-.05em;margin:18px 0 14px}h1 span{display:block;font-size:clamp(21px,3vw,31px);color:var(--muted);letter-spacing:-.025em;margin-top:10px}
+    .lede{max-width:850px;color:var(--muted);font-size:18px}.buttons{display:flex;gap:11px;flex-wrap:wrap;margin-top:24px}.button{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:9px;border:1px solid var(--line);text-decoration:none;font-weight:800;background:rgba(255,255,255,.05)}.button.primary{background:linear-gradient(135deg,#167a91,#3251a6);border-color:rgba(93,226,255,.5)}
+    section{padding:34px 0}.heading h2{font-size:clamp(28px,4vw,42px);letter-spacing:-.035em;margin:0 0 7px}.heading p{color:var(--muted);margin:0;max-width:850px}
+    .flow{display:grid;grid-template-columns:repeat(9,auto);gap:8px;align-items:center;justify-content:center;padding:22px;border:1px solid var(--line);border-radius:17px;background:rgba(16,32,54,.9);overflow-x:auto}.node{min-width:120px;padding:13px;border:1px solid var(--line);background:var(--panel2);border-radius:11px;text-align:center;font-weight:800}.arrow{color:var(--cyan);font-size:20px}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.card{padding:18px;border:1px solid var(--line);border-radius:15px;background:rgba(16,32,54,.9)}.card h3{margin:0 0 7px}.card p{margin:0;color:var(--muted)}.tag{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:850;letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}.verified{color:#b7ffe0;background:rgba(98,230,167,.12)}.pending{color:#ffe0b2;background:rgba(255,180,84,.12)}
+    .table-wrap{border:1px solid var(--line);border-radius:16px;overflow:auto;background:rgba(16,32,54,.9)}table{border-collapse:collapse;width:100%;min-width:860px}th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:13px;background:rgba(255,255,255,.04)}td{color:var(--muted)}td strong{color:var(--text)}tr:last-child td{border-bottom:0}
+    .photos{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.photo{padding:16px;border:1px dashed rgba(255,255,255,.23);border-radius:14px;background:rgba(16,32,54,.68)}.photo strong{display:block}.photo span{color:var(--muted);font-size:14px}
+    .notice{padding:18px;border-left:4px solid var(--orange);background:rgba(255,180,84,.08);border-radius:10px;color:#ffe2bb}
+    footer{margin-top:38px;padding:32px 0 44px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+    @media(max-width:900px){.cards{grid-template-columns:1fr}.photos{grid-template-columns:1fr}.flow{justify-content:flex-start}}@media(max-width:560px){.shell{width:calc(100% - 22px)}nav{align-items:flex-start}.nav{justify-content:flex-end}}
+  </style>
+</head>
+<body>
+  <div class="banner">USB UVC webcam baseline. Exact labels, costs and photographs remain pending physical inventory; unverified fields are shown honestly.</div>
+  <div class="shell">
+    <nav>
+      <div class="brand">GHOST</div>
+      <div class="nav"><a href="index.html">Overview</a><a href="#bom">BOM</a><a href="#interfaces">Interfaces</a><a href="#photos">Photo plan</a><a href="https://github.com/XpiredRuby/ghost-vins-eskf">GitHub</a></div>
+    </nav>
+    <header>
+      <div class="eyebrow">USB UVC · V4L2 · Raspberry Pi · ROS 2</div>
+      <h1>Hardware & BOM<span>Reproducible physical architecture with explicit verification status</span></h1>
+      <p class="lede">GHOST uses a standard USB UVC webcam—not a CSI camera—to provide calibrated AprilTag imagery to the Raspberry Pi. This page separates components already used in hardware evidence from exact manufacturer/model fields that must be verified during the next physical inventory.</p>
+      <div class="buttons"><a class="button primary" href="hardware_bom.json">Open machine-readable BOM</a><a class="button" href="GHOST_HARDWARE_BOM.md">Read engineering record</a><a class="button" href="demo.html">Launch hardware replay</a></div>
+    </header>
+
+    <section>
+      <div class="heading"><h2>Implemented hardware path</h2><p>The sensor backend remains replaceable, but the validated baseline is USB/UVC through Linux V4L2.</p></div>
+      <div class="flow"><div class="node">AprilTag target</div><div class="arrow">→</div><div class="node">USB UVC webcam</div><div class="arrow">→</div><div class="node">Raspberry Pi</div><div class="arrow">→</div><div class="node">ROS 2 trackers</div><div class="arrow">→</div><div class="node">Evidence</div></div>
+    </section>
+
+    <section>
+      <div class="cards">
+        <article class="card"><span class="tag verified">Used in hardware run</span><h3>USB vision pipeline</h3><p>USB/UVC frames, calibrated AprilTag pose, shared formal IMM and heuristic MH inputs, and recorded ROS telemetry.</p></article>
+        <article class="card"><span class="tag pending">Physical inventory pending</span><h3>Exact labels and costs</h3><p>Webcam vendor/product ID, Pi revision/RAM, power rating, cable length, mount details and replacement costs await physical verification.</p></article>
+        <article class="card"><span class="tag pending">Photo evidence pending</span><h3>Rebuildable setup</h3><p>Ten prescribed photographs will document geometry, interfaces, cable routing, metrology, occluder placement and the final clean setup.</p></article>
+      </div>
+    </section>
+
+    <section id="bom">
+      <div class="heading"><h2>Bill of materials</h2><p>Null or pending fields are intentional. They prevent the public portfolio from inventing a product model or price before the real hardware is inspected.</p></div>
+      <div class="table-wrap"><table><thead><tr><th>Component</th><th>Interface</th><th>Engineering role</th><th>Verification</th><th>Cost</th></tr></thead><tbody id="bom-body"><tr><td colspan="5">Loading hardware_bom.json…</td></tr></tbody></table></div>
+    </section>
+
+    <section id="interfaces">
+      <div class="heading"><h2>Interface control record</h2><p>Interfaces are part of the engineering product: they define where measurements, power, commands and evidence cross system boundaries.</p></div>
+      <div class="table-wrap"><table><thead><tr><th>From</th><th>To</th><th>Interface</th><th>Purpose</th></tr></thead><tbody id="interface-body"><tr><td colspan="4">Loading interfaces…</td></tr></tbody></table></div>
+    </section>
+
+    <section id="photos">
+      <div class="heading"><h2>Required physical evidence</h2><p>The photo package is predeclared so the next session captures the setup before anything is moved.</p></div>
+      <div class="photos" id="photo-grid"><div class="photo">Loading photo checklist…</div></div>
+    </section>
+
+    <section>
+      <div class="notice"><strong>Privacy gate:</strong> do not publish serial numbers, MAC addresses, Wi-Fi credentials, IP addresses, account information or unrelated personal documents. Exact component claims require either an OS/device query or a privacy-reviewed label photograph.</div>
+    </section>
+
+    <footer><strong>GHOST Hardware Record</strong> · USB UVC webcam baseline · Reproducibility template pending physical inventory</footer>
+  </div>
+  <script>
+    const esc = value => String(value ?? 'Pending').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    fetch('hardware_bom.json').then(r => { if(!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }).then(data => {
+      document.getElementById('bom-body').innerHTML = data.components.map(c => `<tr><td><strong>${esc(c.item)}</strong><br><small>${esc(c.category)} · qty ${esc(c.quantity)}</small></td><td>${esc((c.interface||[]).join(', '))}</td><td>${esc(c.purpose)}</td><td>${esc(c.verification_status)}</td><td>${c.cost_usd == null ? 'Pending' : '$'+Number(c.cost_usd).toFixed(2)}</td></tr>`).join('');
+      document.getElementById('interface-body').innerHTML = data.interfaces.map(i => `<tr><td><strong>${esc(i.from)}</strong></td><td>${esc(i.to)}</td><td>${esc(i.interface)}</td><td>${esc(i.purpose)}</td></tr>`).join('');
+      document.getElementById('photo-grid').innerHTML = data.required_photos.map((p,index) => `<div class="photo"><strong>${index+1}. ${esc(p.filename)}</strong><span>${esc(p.description)}</span></div>`).join('');
+    }).catch(error => {
+      document.getElementById('bom-body').innerHTML = `<tr><td colspan="5">Could not load BOM: ${esc(error.message)}</td></tr>`;
+      document.getElementById('interface-body').innerHTML = '<tr><td colspan="4">BOM data unavailable.</td></tr>';
+      document.getElementById('photo-grid').innerHTML = '<div class="photo">Photo checklist unavailable.</div>';
+    });
+  </script>
+</body>
+</html>

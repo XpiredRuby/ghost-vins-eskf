@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "project": "GHOST",
+  "configuration_id": "ghost_usb_uvc_hardware_v1",
+  "evidence_status": "TEMPLATE_PENDING_PHYSICAL_INVENTORY_AND_PHOTOS",
+  "camera_backend": "USB_UVC_WEBCAM",
+  "claims_boundary": "COMPONENT_CATEGORIES_AND_INTERFACES_ARE_DOCUMENTED; EXACT LABELS_COSTS_AND_PHOTOS_REQUIRE_PHYSICAL_VERIFICATION",
+  "components": [
+    {
+      "id": "compute",
+      "category": "Edge computer",
+      "item": "Raspberry Pi",
+      "manufacturer_model": null,
+      "quantity": 1,
+      "interface": ["USB", "Ethernet_or_WiFi"],
+      "purpose": "Runs Ubuntu, ROS 2 Jazzy, AprilTag pose publication, formal IMM and heuristic MH trackers, recording and operator services.",
+      "used_in_preserved_hardware_run": true,
+      "verification_status": "EXACT_MODEL_RAM_AND_REVISION_PENDING_OS_QUERY_OR_LABEL_PHOTO",
+      "cost_usd": null
+    },
+    {
+      "id": "vision_sensor",
+      "category": "Vision sensor",
+      "item": "Standard USB UVC webcam",
+      "manufacturer_model": null,
+      "quantity": 1,
+      "interface": ["USB", "V4L2_UVC"],
+      "purpose": "Captures AprilTag imagery for calibrated pose estimation.",
+      "used_in_preserved_hardware_run": true,
+      "verification_status": "EXACT_VENDOR_PRODUCT_ID_MODEL_RESOLUTION_AND_LENS_PENDING_LSUSB_V4L2_AND_LABEL_PHOTO",
+      "cost_usd": null
+    },
+    {
+      "id": "fiducial",
+      "category": "Visual target",
+      "item": "AprilTag 36h11 tag 0",
+      "manufacturer_model": "Printed fiducial",
+      "quantity": 1,
+      "interface": ["Optical"],
+      "purpose": "Provides a known target geometry for solvePnP pose estimation.",
+      "used_in_preserved_hardware_run": true,
+      "verification_status": "TAG_FAMILY_AND_ID_DOCUMENTED; PRINTED_SIZE_TO_REMEASURE",
+      "nominal_tag_size_m": 0.1,
+      "cost_usd": null
+    },
+    {
+      "id": "camera_mount",
+      "category": "Mechanical mounting",
+      "item": "Rigid USB webcam mount",
+      "manufacturer_model": null,
+      "quantity": 1,
+      "interface": ["Mechanical"],
+      "purpose": "Maintains fixed camera geometry during covariance, grid and paired trials.",
+      "used_in_preserved_hardware_run": true,
+      "verification_status": "MOUNT_TYPE_MATERIAL_AND_ATTACHMENT_PENDING_PHOTO",
+      "cost_usd": null
+    },
+    {
+      "id": "tag_carrier",
+      "category": "Mechanical target carrier",
+      "item": "Rigid AprilTag backing or carrier",
+      "manufacturer_model": null,
+      "quantity": 1,
+      "interface": ["Mechanical"],
+      "purpose": "Prevents tag flex and preserves target geometry during movement and occlusion.",
+      "used_in_preserved_hardware_run": true,
+      "verification_status": "MATERIAL_ATTACHMENT_AND_DIMENSIONS_PENDING_PHOTO",
+      "cost_usd": null
+    },
+    {
+      "id": "power_supply",
+      "category": "Power",
+      "item": "Raspberry Pi power supply",
+      "manufacturer_model": null,
+      "quantity": 1,
+      "interface": ["USB_C_or_model_specific_power"],
+      "purpose": "Provides regulated power to the Raspberry Pi and attached USB webcam.",
+      "used_in_preserved_hardware_run": true,
+      "verification_status": "VOLTAGE_CURRENT_RATING_AND_MODEL_PENDING_LABEL_PHOTO",
+      "cost_usd": null
+    },
+    {
+      "id": "usb_cable",
+      "category": "Data cable",
+      "item": "USB webcam cable",
+      "manufacturer_model": null,
+      "quantity": 1,
+      "interface": ["USB"],
+      "purpose": "Carries webcam video data and power between the UVC camera and Raspberry Pi.",
+      "used_in_preserved_hardware_run": true,
+      "verification_status": "CONNECTOR_TYPE_AND_LENGTH_PENDING_PHOTO",
+      "cost_usd": null
+    },
+    {
+      "id": "network",
+      "category": "Operator network",
+      "item": "Local Ethernet or Wi-Fi connection",
+      "manufacturer_model": null,
+      "quantity": 1,
+      "interface": ["SSH", "HTTP", "ROS_2_DDS_when_used"],
+      "purpose": "Supports remote operation, logs and dashboard access without changing estimator measurements.",
+      "used_in_preserved_hardware_run": true,
+      "verification_status": "CONNECTION_METHOD_PENDING_SESSION_METADATA",
+      "cost_usd": null
+    },
+    {
+      "id": "occluder",
+      "category": "Test fixture",
+      "item": "Opaque occluder",
+      "manufacturer_model": null,
+      "quantity": 1,
+      "interface": ["Optical"],
+      "purpose": "Creates controlled AprilTag measurement gaps without moving the camera.",
+      "used_in_preserved_hardware_run": true,
+      "verification_status": "MATERIAL_DIMENSIONS_AND_POSITION_PENDING_PHOTO",
+      "cost_usd": null
+    },
+    {
+      "id": "metrology",
+      "category": "Measurement fixture",
+      "item": "Measuring tape, ruler and marked grid/path",
+      "manufacturer_model": null,
+      "quantity": 1,
+      "interface": ["Physical_ground_truth"],
+      "purpose": "Defines measured camera standoff, grid points, start/end points and campaign geometry.",
+      "used_in_preserved_hardware_run": false,
+      "verification_status": "REQUIRED_FOR_NEXT_VALIDATION_SESSION",
+      "cost_usd": null
+    }
+  ],
+  "interfaces": [
+    {
+      "from": "USB UVC webcam",
+      "to": "Raspberry Pi",
+      "interface": "USB + V4L2/UVC",
+      "purpose": "Image acquisition"
+    },
+    {
+      "from": "AprilTag pose publisher",
+      "to": "Formal IMM and GHOST-MH trackers",
+      "interface": "ROS 2 DDS topic /ghost/vision/target_pose",
+      "purpose": "Timestamped target position and covariance metadata"
+    },
+    {
+      "from": "Raspberry Pi",
+      "to": "Operator computer",
+      "interface": "SSH and HTTP over local network",
+      "purpose": "Operation, status, evidence transfer and replay"
+    },
+    {
+      "from": "Trial recorder",
+      "to": "Analysis and public replay",
+      "interface": "JSONL, JSON, CSV and static HTML",
+      "purpose": "Reproducible evidence packaging"
+    }
+  ],
+  "cost_summary": {
+    "core_functional_hardware_usd": null,
+    "mounting_and_consumables_usd": null,
+    "optional_development_hardware_usd": null,
+    "total_reproducible_build_cost_usd": null,
+    "status": "PENDING_RECEIPTS_OR_OWNER_ESTIMATES"
+  },
+  "required_photos": [
+    {
+      "filename": "01_complete_setup_front.jpg",
+      "description": "Full USB webcam, Pi, target, occluder and marked path from the front."
+    },
+    {
+      "filename": "02_complete_setup_side.jpg",
+      "description": "Side view showing camera-to-tag geometry and mount rigidity."
+    },
+    {
+      "filename": "03_raspberry_pi_closeup.jpg",
+      "description": "Pi enclosure and connections; hide serial numbers and network credentials."
+    },
+    {
+      "filename": "04_usb_webcam_closeup.jpg",
+      "description": "USB UVC webcam and mount, including model label only when no serial number is exposed."
+    },
+    {
+      "filename": "05_apriltag_carrier.jpg",
+      "description": "Tag 0, measured physical size and rigid backing."
+    },
+    {
+      "filename": "06_power_and_cable_routing.jpg",
+      "description": "Power supply, USB routing and strain relief."
+    },
+    {
+      "filename": "07_standoff_measurement.jpg",
+      "description": "Measured camera-to-tag standoff with origin definition visible."
+    },
+    {
+      "filename": "08_ground_truth_grid.jpg",
+      "description": "Measured non-collinear grid points and coordinate axes."
+    },
+    {
+      "filename": "09_occluder_and_motion_path.jpg",
+      "description": "Occluder location, start, turn and endpoint markings."
+    },
+    {
+      "filename": "10_hero_hardware_setup.jpg",
+      "description": "Clean portfolio photograph without private data or clutter."
+    }
+  ],
+  "privacy_rules": [
+    "Do not publish serial numbers, MAC addresses, Wi-Fi credentials, IP addresses or account information.",
+    "Do not expose unrelated personal objects, documents or screens.",
+    "Crop or blur labels that contain unique identifiers while preserving manufacturer and model fields when safe.",
+    "Do not claim an exact component model or price until it is physically verified."
+  ]
+}
