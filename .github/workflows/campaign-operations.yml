@@ -5,8 +5,11 @@ on:
     paths:
       - 'ghost_sim_ros2/tools/campaign_operations.py'
       - 'ghost_sim_ros2/tools/trial_conductor.py'
+      - 'ghost_sim_ros2/tools/update_campaign_trial.py'
       - 'ghost_sim_ros2/test/test_campaign_operations.py'
+      - 'ghost_sim_ros2/test/test_update_campaign_trial.py'
       - 'ghost_sim_ros2/docs/GHOST_CAMPAIGN_OPERATIONS.md'
+      - 'ghost_sim_ros2/docs/GHOST_CAMPAIGN_STATE.md'
       - '.github/workflows/campaign-operations.yml'
   workflow_dispatch:
 
@@ -31,9 +34,13 @@ jobs:
           python -m py_compile \
             ghost_sim_ros2/tools/campaign_operations.py \
             ghost_sim_ros2/tools/trial_conductor.py \
-            ghost_sim_ros2/test/test_campaign_operations.py
+            ghost_sim_ros2/tools/update_campaign_trial.py \
+            ghost_sim_ros2/test/test_campaign_operations.py \
+            ghost_sim_ros2/test/test_update_campaign_trial.py
 
       - name: Run focused campaign operations tests
         run: |
           PYTHONPATH=ghost_sim_ros2:ghost_sim_ros2/tools \
-          python -m pytest -q ghost_sim_ros2/test/test_campaign_operations.py
+          python -m pytest -q \
+            ghost_sim_ros2/test/test_campaign_operations.py \
+            ghost_sim_ros2/test/test_update_campaign_trial.py
