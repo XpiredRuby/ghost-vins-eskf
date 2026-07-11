@@ -1,0 +1,37 @@
+name: GHOST Evidence Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'ghost_sim_ros2/tools/evidence_integrity.py'
+      - 'ghost_sim_ros2/test/test_evidence_integrity.py'
+      - 'ghost_sim_ros2/docs/GHOST_EVIDENCE_INTEGRITY.md'
+      - '.github/workflows/evidence-integrity.yml'
+  workflow_dispatch:
+
+jobs:
+  evidence-integrity:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependency
+        run: python -m pip install --upgrade pip pytest
+
+      - name: Compile evidence tool
+        run: |
+          python -m py_compile \
+            ghost_sim_ros2/tools/evidence_integrity.py \
+            ghost_sim_ros2/test/test_evidence_integrity.py
+
+      - name: Run focused evidence-integrity tests
+        run: |
+          PYTHONPATH=ghost_sim_ros2/tools \
+          python -m pytest -q ghost_sim_ros2/test/test_evidence_integrity.py
