@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "session_id": "ghost_physical_validation_v1",
+  "session_status": "PLANNED_NOT_STARTED",
+  "camera_backend": "USB_UVC_WEBCAM",
+  "setup_change_policy": "DO_NOT_MOVE_CAMERA_BETWEEN_CONTROLLED_R_AND_GRID; RECORD_AND_BLOCK_POOLING_AFTER_ANY_SETUP_CHANGE",
+  "phases": [
+    {
+      "phase_id": "hardware_inventory",
+      "title": "USB hardware inventory and privacy-reviewed photographs",
+      "depends_on": [],
+      "status": "pending",
+      "required_artifacts": [
+        "hardware_inventory_public.json",
+        "private_raw_do_not_publish",
+        "01_complete_setup_front.jpg",
+        "02_complete_setup_side.jpg",
+        "04_usb_webcam_closeup.jpg"
+      ],
+      "notes": "Do not publish private raw inventory or unique identifiers."
+    },
+    {
+      "phase_id": "rigid_setup_lock",
+      "title": "Rigid camera, tag, lighting and coordinate-frame setup",
+      "depends_on": ["hardware_inventory"],
+      "status": "pending",
+      "required_artifacts": [
+        "setup_photo_or_diagram",
+        "coordinate_origin_description",
+        "camera_control_readback"
+      ],
+      "notes": "Camera and tag must not be hand-held."
+    },
+    {
+      "phase_id": "controlled_r",
+      "title": "Predeclared 90-second stationary covariance collection",
+      "depends_on": ["rigid_setup_lock"],
+      "status": "pending",
+      "required_artifacts": [
+        "collection_quality.json",
+        "noise_summary.json",
+        "noise_summary.md",
+        "operator_attestation.txt",
+        "final_collection_status.txt"
+      ],
+      "notes": "No grid or motion collection begins until this phase passes its quality gate."
+    },
+    {
+      "phase_id": "ground_truth_grid",
+      "title": "Six-point measured ground-truth grid",
+      "depends_on": ["controlled_r"],
+      "status": "pending",
+      "required_artifacts": [
+        "grid_definition.csv",
+        "grid_validation_summary.json",
+        "grid_validation_summary.md",
+        "grid_validation_dashboard.html"
+      ],
+      "notes": "Use the same camera setup and controls as controlled R."
+    },
+    {
+      "phase_id": "campaign_dry_runs",
+      "title": "One dry run for each of six campaign conditions",
+      "depends_on": ["ground_truth_grid"],
+      "status": "pending",
+      "required_artifacts": [
+        "dry_run_notes",
+        "measured_gap_checks",
+        "recorder_integrity_check"
+      ],
+      "notes": "Dry runs are never included in formal statistics."
+    },
+    {
+      "phase_id": "parameter_lock",
+      "title": "Estimator, camera and analysis parameter lock",
+      "depends_on": ["campaign_dry_runs"],
+      "status": "pending",
+      "required_artifacts": [
+        "parameter_lock.json",
+        "git_commit.txt",
+        "camera_control_snapshot.txt"
+      ],
+      "notes": "No tuning after formal campaign outcomes are observed."
+    },
+    {
+      "phase_id": "formal_campaign",
+      "title": "Predeclared 55-slot paired IMM/MH campaign",
+      "depends_on": ["parameter_lock"],
+      "status": "pending",
+      "required_artifacts": [
+        "campaign_manifest.json",
+        "campaign_lock.json",
+        "campaign_state.json",
+        "campaign_amendments.jsonl",
+        "randomized_trial_order.csv",
+        "trial_directories"
+      ],
+      "notes": "Retain rejections and follow randomized order."
+    },
+    {
+      "phase_id": "runtime_characterization",
+      "title": "Representative Pi runtime and USB timing blocks",
+      "depends_on": ["parameter_lock"],
+      "status": "pending",
+      "required_artifacts": [
+        "runtime_resources_summary.json",
+        "camera_timing_summary.json"
+      ],
+      "notes": "Session-specific characterization, not worst-case qualification."
+    },
+    {
+      "phase_id": "hero_demo",
+      "title": "Three preserved recruiter-facing demonstration takes",
+      "depends_on": ["formal_campaign"],
+      "status": "pending",
+      "required_artifacts": [
+        "hero_take_01",
+        "hero_take_02",
+        "hero_take_03",
+        "hero_selection_record.json"
+      ],
+      "notes": "Chosen take is representative presentation evidence, not the statistical dataset."
+    },
+    {
+      "phase_id": "analysis_and_integrity",
+      "title": "Audited analysis, plots, archive packaging and verification",
+      "depends_on": ["formal_campaign", "runtime_characterization", "hero_demo"],
+      "status": "pending",
+      "required_artifacts": [
+        "campaign_summary.json",
+        "campaign_summary.md",
+        "campaign_report.html",
+        "EVIDENCE_MANIFEST.json",
+        "archive_verification.json"
+      ],
+      "notes": "Verify local archive and second-device copy."
+    },
+    {
+      "phase_id": "public_release_review",
+      "title": "Claims, privacy and public-site release review",
+      "depends_on": ["analysis_and_integrity"],
+      "status": "pending",
+      "required_artifacts": [
+        "release_claims_matrix.md",
+        "privacy_review.md",
+        "public_asset_inventory.json"
+      ],
+      "notes": "Only validated metrics are promoted to README, resume and Pages."
+    }
+  ]
+}
