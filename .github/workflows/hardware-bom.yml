@@ -1,0 +1,60 @@
+name: GHOST USB Hardware BOM
+
+on:
+  pull_request:
+    paths:
+      - 'ghost_sim_ros2/tools/capture_usb_hardware_inventory.py'
+      - 'ghost_sim_ros2/test/test_usb_hardware_inventory.py'
+      - 'ghost_sim_ros2/docs/hardware_bom.json'
+      - 'ghost_sim_ros2/docs/GHOST_HARDWARE_BOM.md'
+      - 'ghost_sim_ros2/docs/GHOST_USB_HARDWARE_INVENTORY.md'
+      - 'ghost_sim_ros2/docs/hardware.html'
+      - '.github/workflows/hardware-bom.yml'
+  workflow_dispatch:
+
+jobs:
+  hardware-bom:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependency
+        run: python -m pip install --upgrade pip pytest
+
+      - name: Compile inventory tool
+        run: |
+          python -m py_compile \
+            ghost_sim_ros2/tools/capture_usb_hardware_inventory.py \
+            ghost_sim_ros2/test/test_usb_hardware_inventory.py
+
+      - name: Validate BOM JSON and HTML
+        run: |
+          python - <<'PY'
+          import json
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          bom = json.loads(Path('ghost_sim_ros2/docs/hardware_bom.json').read_text())
+          assert bom['camera_backend'] == 'USB_UVC_WEBCAM'
+          assert bom['components']
+          assert bom['interfaces']
+          assert bom['required_photos']
+
+          class Parser(HTMLParser):
+              pass
+
+          for path in ('ghost_sim_ros2/docs/hardware.html',):
+              Parser().feed(Path(path).read_text())
+          PY
+
+      - name: Run privacy-separation tests
+        run: |
+          PYTHONPATH=ghost_sim_ros2/tools \
+          python -m pytest -q ghost_sim_ros2/test/test_usb_hardware_inventory.py
