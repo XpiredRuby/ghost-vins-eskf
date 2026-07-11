@@ -1,59 +1,174 @@
 # Controlled R Collection Runbook
 
-This runbook is for the later manual camera and AprilTag session. Do not run collection until the physical setup is ready.
+## Purpose
 
-## Manual Sequence
+Collect one predeclared 90-second stationary AprilTag dataset for empirical measurement covariance `R`.
 
-1. Checkout `main` containing the committed protocol, then use the review branch containing the helper scripts only after confirming the protocol commit exists in history:
+This estimates camera/AprilTag measurement noise under one controlled setup. It does **not** validate tracker accuracy.
 
-   ```bash
-   cd ~/ghost_ws/src/ghost-vins-eskf
-   git log --oneline --decorate -8
-   git log -n 1 --format=%H -- docs/CONTROLLED_R_COLLECTION_PROTOCOL.md
-   ```
+## Before the physical session
 
-2. Confirm the protocol commit hash is recorded before collection. The protocol file is predeclared and must not be edited after data collection begins.
+The collection helper now performs the full evidence path in one terminal:
 
-3. Start preview and verify the camera sees the AprilTag clearly.
+- records the committed protocol hash and current repository head;
+- requires a calibrated camera file and `v4l2-ctl`;
+- prompts for measured camera-to-tag standoff and setup notes;
+- records camera controls before setting, after setting, after opening the camera, and after the trial;
+- verifies supported controls against requested values;
+- uses an existing AprilTag publisher or starts one automatically;
+- requires a live `/ghost/vision/target_pose` sample before the 90-second clock;
+- resolves the recorder's timestamped child directory automatically;
+- validates fixed-window coverage, sample rate, and maximum sample gap;
+- exports the raw pose CSV;
+- computes raw covariance and correlation over seconds `15–75`;
+- computes the required `15–35`, `35–55`, and `55–75 s` diagnostics;
+- preserves rejected collections and writes an explicit final status.
 
-4. Lock camera controls and keep readbacks:
+The formal IMM and GHOST-MH trackers are not required for this stationary measurement-noise trial. The raw vision topic is the source of record.
 
-   ```bash
-   DEVICE=/dev/video0 ghost_sim_ros2/tools/collect_controlled_r_trial.sh
-   ```
+## Physical setup
 
-   The helper records `camera_controls_before.txt`, `camera_controls_after_set.txt`, `camera_controls_after_trial.txt`, `protocol_metadata.txt`, and `git_status.txt` under a timestamped `~/ghost_trials/controlled_R_<timestamp>` directory. Unsupported camera controls must remain documented in `camera_control_lock_log.txt`.
+Before pressing Enter in the helper:
 
-5. Place the stationary tag rigidly. Measure and record standoff distance. Keep the camera, tag, table, and lighting fixed.
+1. Rigidly mount the camera.
+2. Rigidly mount or tape the AprilTag.
+3. Keep the tag clearly visible and approximately fronto-parallel.
+4. Measure the camera-to-tag standoff in meters.
+5. Keep the table, camera, tag, cable, and lighting unchanged.
+6. Do not hold either object by hand.
 
-6. Run collection for exactly 90 seconds. The helper uses the known repo recorder command:
+## Run
 
-   ```bash
-   cd ~/ghost_ws
-   source /opt/ros/jazzy/setup.bash
-   source install/setup.bash
-   ros2 run ghost_sim_ros2 trial_recorder --ros-args -p trial_root:="$TRIAL_DIR"
-   ```
+From the repository root:
 
-7. Run stationary noise analysis on seconds 15-75 only:
+```bash
+cd ~/ghost_ws/src/ghost-vins-eskf
+DEVICE=/dev/video0 ghost_sim_ros2/tools/collect_controlled_r_trial.sh
+```
 
-   ```bash
-   cd ~/ghost_ws/src/ghost-vins-eskf/ghost_sim_ros2
-   python3 tools/export_vision_pose_csv.py \
-     "$TRIAL_DIR/vision_pose.jsonl" \
-     --out "$TRIAL_DIR/vision_pose_log.csv"
+Default predeclared collection-quality criteria recorded before the trial:
 
-   awk -F, 'NR==1 || ($1 >= 15 && $1 <= 75)' \
-     "$TRIAL_DIR/vision_pose_log.csv" \
-     > "$TRIAL_DIR/vision_pose_log_15_75.csv"
+```text
+record duration: 90 s
+primary analysis window: 15-75 s
+minimum fixed-window rate: 10.0 Hz
+maximum fixed-window sample gap: 0.25 s
+```
 
-   python3 tools/make_stationary_noise_summary.py \
-     --csv "$TRIAL_DIR/vision_pose_log_15_75.csv" \
-     --json-out "$TRIAL_DIR/noise_summary.json" \
-     --md-out "$TRIAL_DIR/noise_summary.md" \
-     --include-detrended-r
-   ```
+Override values only before collection and preserve them in the trial metadata:
 
-8. Save `noise_summary.md` and `noise_summary.json` in the trial directory with the raw log, camera readbacks, git status, and protocol metadata.
+```bash
+MIN_ANALYSIS_RATE_HZ=10.0 \
+MAX_ANALYSIS_GAP_S=0.25 \
+DEVICE=/dev/video0 \
+ghost_sim_ros2/tools/collect_controlled_r_trial.sh
+```
 
-9. Only after those artifacts exist, use the raw seconds 15-75 covariance as a candidate controlled `R`. This estimates measurement noise only and does not validate tracker accuracy.
+Do not modify thresholds after seeing the data.
+
+## AprilTag publisher behavior
+
+The helper first checks for a live sample.
+
+- If `/ghost/vision/target_pose` is already publishing, it uses that source.
+- Otherwise, with `AUTO_START_PUBLISHER=1` (default), it starts:
+
+```bash
+~/ghost_venv/bin/python \
+  ghost_sim_ros2/ghost_sim_ros2/apriltag_ros_only.py \
+  --device /dev/video0 \
+  --tag-size 0.10 \
+  --calib ~/ghost_camera_calibration.json
+```
+
+The old `--use-controlled-r-candidate` flag is intentionally not used during empirical `R` collection. The covariance metadata published with each pose does not determine the raw position samples used to estimate empirical `R`.
+
+Set `AUTO_START_PUBLISHER=0` only when an externally managed publisher must be used.
+
+## Required and additional artifacts
+
+The helper creates:
+
+```text
+~/ghost_trials/controlled_R_<UTC timestamp>/
+├── protocol_metadata.txt
+├── git_status.txt
+├── camera_control_lock_log.txt
+├── camera_control_readbacks.tsv
+├── camera_controls_before.txt
+├── camera_controls_after_set.txt
+├── camera_controls_pre_record.txt
+├── camera_controls_after_trial.txt
+├── operator_attestation.txt
+├── preflight_vision_sample.txt
+├── apriltag_publisher.log
+├── trial_recorder.log
+├── recorder_child_dir.txt
+├── vision_pose.jsonl -> recorder/<trial id>/vision_pose.jsonl
+├── vision_pose_log.csv
+├── collection_quality.json
+├── collection_quality.md
+├── noise_summary.json
+├── noise_summary.md
+└── final_collection_status.txt
+```
+
+Tracker-related recorder files may exist but can be empty because the trackers are not required for this trial.
+
+## Acceptance logic
+
+The helper rejects and preserves the trial when:
+
+- a supported camera control cannot be set or read back;
+- the operator does not explicitly attest that the physical setup and lighting remained unchanged;
+- a supported control changes after camera open or during the trial;
+- no live vision sample is available;
+- the recorder child directory or vision log is missing;
+- timestamps are malformed or non-monotonic;
+- the first/last samples do not cover the 90-second record within tolerance;
+- fixed-window rate falls below the declared minimum;
+- a fixed-window sample gap exceeds the declared maximum.
+
+Physical movement or lighting changes cannot be inferred perfectly from software. After recording, the helper requires the operator to type exactly `NO` to attest that no physical setup or lighting change occurred; any other response rejects and preserves the run.
+
+Accepted status:
+
+```text
+ACCEPTABLE_FOR_ENGINEER_REVIEW_DOES_NOT_VALIDATE_TRACKER_ACCURACY
+```
+
+Rejected status:
+
+```text
+REJECT_COLLECTION_PRESERVE_ALL_ARTIFACTS
+```
+
+## Analysis output
+
+`noise_summary.json` and `noise_summary.md` report:
+
+- `R_xx`
+- `R_xy`
+- `R_yy`
+- x/y correlation
+- x/y standard deviation
+- linear drift slopes
+- sample count and sample rate
+- all three fixed sub-window covariance matrices
+- relative covariance variation and centroid drift diagnostics
+
+Protocol v1 did not predeclare a numerical stability pass/fail threshold. Sub-window stability is therefore reported for engineering review and must not be converted into a post-hoc acceptance threshold.
+
+## Claims boundary
+
+Safe statement after an accepted collection:
+
+> A predeclared 90-second controlled stationary trial produced an empirical raw AprilTag position covariance over the fixed 15–75 second window, with camera-control readbacks and sub-window stability diagnostics.
+
+Unsafe statements:
+
+- validated tracker accuracy;
+- production-grade covariance;
+- white-noise proof;
+- general robustness;
+- final estimator tuning without engineering review.

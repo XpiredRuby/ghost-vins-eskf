@@ -1,0 +1,37 @@
+name: GHOST Controlled R Pipeline
+
+on:
+  pull_request:
+    paths:
+      - 'ghost_sim_ros2/analysis/controlled_r_collection_quality.py'
+      - 'ghost_sim_ros2/analysis/controlled_r_protocol_analysis.py'
+      - 'ghost_sim_ros2/test/test_controlled_r_collection_pipeline.py'
+      - 'ghost_sim_ros2/tools/collect_controlled_r_trial.sh'
+      - 'ghost_sim_ros2/docs/CONTROLLED_R_COLLECTION_RUNBOOK.md'
+      - '.github/workflows/controlled-r-pipeline.yml'
+  workflow_dispatch:
+
+jobs:
+  controlled-r-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip numpy pytest
+
+      - name: Validate helper shell syntax
+        run: bash -n ghost_sim_ros2/tools/collect_controlled_r_trial.sh
+
+      - name: Run focused collection and analysis tests
+        run: |
+          PYTHONPATH=ghost_sim_ros2 \
+          python -m pytest -q \
+            ghost_sim_ros2/test/test_controlled_r_collection_pipeline.py
