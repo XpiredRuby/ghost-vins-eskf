@@ -342,6 +342,21 @@ link_recorder_artifacts "$RECORDER_CHILD"
 
 capture_controls "$TRIAL_DIR/camera_controls_after_trial.txt"
 verify_all_controls after_trial
+
+cat <<EOF
+
+Physical integrity attestation:
+Type exactly NO only if the camera, tag, table, cable, and lighting remained unchanged
+and nobody touched the setup during the full recording.
+EOF
+read -r -p "Did any physical setup or lighting change occur? Type NO to attest: " PHYSICAL_CHANGE_ATTESTATION
+printf 'physical_change_question=Did any physical setup or lighting change occur?\nresponse=%s\nrecorded_at_utc=%s\n' \
+  "$PHYSICAL_CHANGE_ATTESTATION" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  > "$TRIAL_DIR/operator_attestation.txt"
+if [[ "$PHYSICAL_CHANGE_ATTESTATION" != "NO" ]]; then
+  log "REJECT: operator did not attest that the physical setup remained unchanged"
+  COLLECTION_FAILURE=1
+fi
 if [[ "$CONTROL_FAILURE" -ne 0 ]]; then
   log "REJECT: supported camera controls changed or could not be read after trial"
   COLLECTION_FAILURE=1
