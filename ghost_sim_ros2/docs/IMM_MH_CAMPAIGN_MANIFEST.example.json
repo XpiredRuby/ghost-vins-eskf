@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "campaign_id": "ghost_imm_mh_hardware_v1",
+  "protocol_commit": "0000000",
+  "randomization_seed": 260710,
+  "coordinate_frame": "camera",
+  "conditions": [
+    {
+      "condition_id": "static_visible",
+      "description": "Target remains stationary and visible at a measured grid point.",
+      "planned_repetitions": 5,
+      "target_occlusion_duration_s": 0.0,
+      "motion_profile": "stationary_visible",
+      "ground_truth_method": "measured_stationary_endpoint",
+      "primary_metric": "steady_state_position_error_m"
+    },
+    {
+      "condition_id": "endpoint_no_occlusion",
+      "description": "Move from measured start to measured endpoint without intentional occlusion, then hold.",
+      "planned_repetitions": 10,
+      "target_occlusion_duration_s": 0.0,
+      "motion_profile": "measured_endpoint_straight_line",
+      "ground_truth_method": "measured_stationary_endpoint",
+      "primary_metric": "endpoint_prediction_error_m"
+    },
+    {
+      "condition_id": "endpoint_occ_1s",
+      "description": "Straight-line endpoint trial with approximately 1 second of measurement loss.",
+      "planned_repetitions": 10,
+      "target_occlusion_duration_s": 1.0,
+      "motion_profile": "measured_endpoint_straight_line",
+      "ground_truth_method": "measured_stationary_endpoint",
+      "primary_metric": "endpoint_prediction_error_m"
+    },
+    {
+      "condition_id": "endpoint_occ_2s",
+      "description": "Straight-line endpoint trial with approximately 2 seconds of measurement loss.",
+      "planned_repetitions": 10,
+      "target_occlusion_duration_s": 2.0,
+      "motion_profile": "measured_endpoint_straight_line",
+      "ground_truth_method": "measured_stationary_endpoint",
+      "primary_metric": "endpoint_prediction_error_m"
+    },
+    {
+      "condition_id": "endpoint_occ_3s",
+      "description": "Straight-line endpoint trial with approximately 3 seconds of measurement loss.",
+      "planned_repetitions": 10,
+      "target_occlusion_duration_s": 3.0,
+      "motion_profile": "measured_endpoint_straight_line",
+      "ground_truth_method": "measured_stationary_endpoint",
+      "primary_metric": "endpoint_prediction_error_m"
+    },
+    {
+      "condition_id": "maneuver_occ_2s",
+      "description": "Measured start and endpoint with a predeclared direction change during a 2 second occlusion.",
+      "planned_repetitions": 10,
+      "target_occlusion_duration_s": 2.0,
+      "motion_profile": "measured_endpoint_single_turn",
+      "ground_truth_method": "measured_stationary_endpoint",
+      "primary_metric": "endpoint_prediction_error_m"
+    }
+  ],
+  "trials": [],
+  "protocol_commit_status": "PLACEHOLDER_REPLACE_BEFORE_COLLECTION"
+}
