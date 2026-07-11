@@ -99,6 +99,7 @@ The helper creates:
 ├── camera_controls_after_set.txt
 ├── camera_controls_pre_record.txt
 ├── camera_controls_after_trial.txt
+├── operator_attestation.txt
 ├── preflight_vision_sample.txt
 ├── apriltag_publisher.log
 ├── trial_recorder.log
@@ -119,6 +120,7 @@ Tracker-related recorder files may exist but can be empty because the trackers a
 The helper rejects and preserves the trial when:
 
 - a supported camera control cannot be set or read back;
+- the operator does not explicitly attest that the physical setup and lighting remained unchanged;
 - a supported control changes after camera open or during the trial;
 - no live vision sample is available;
 - the recorder child directory or vision log is missing;
@@ -127,7 +129,7 @@ The helper rejects and preserves the trial when:
 - fixed-window rate falls below the declared minimum;
 - a fixed-window sample gap exceeds the declared maximum.
 
-Physical movement or lighting changes cannot be inferred perfectly from software. The operator must still reject the trial manually when the camera, tag, table, cable, or lighting changed.
+Physical movement or lighting changes cannot be inferred perfectly from software. After recording, the helper requires the operator to type exactly `NO` to attest that no physical setup or lighting change occurred; any other response rejects and preserves the run.
 
 Accepted status:
 
