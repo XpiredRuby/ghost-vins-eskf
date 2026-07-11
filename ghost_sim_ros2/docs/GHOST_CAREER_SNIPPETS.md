@@ -1,64 +1,81 @@
 # GHOST Career Snippets
 
-Copy-paste friendly wording for presenting GHOST on resumes, LinkedIn, GitHub, and in interviews. These snippets describe the current evidence honestly: ROS 2 target tracking with Raspberry Pi AprilTag hardware replay artifacts, static replay tooling, and no claim of validated estimator accuracy, flight test, production deployment, or closed-loop vehicle command.
+Use these statements only while the controlled covariance and measured ground-truth trials remain pending. They describe the current evidence without claiming validated accuracy, tracker superiority, closed-loop control, flight test, or production readiness.
 
-## Resume Bullets
+## Resume bullets
 
-Short one-line bullet:
+### Concise
 
-- Built a ROS 2 target-tracking prototype using Raspberry Pi AprilTag measurements, with formal IMM and heuristic MH trackers replayed side by side in hardware pipeline artifacts.
+- Built a Raspberry Pi/ROS 2 target-estimation pipeline using AprilTag measurements, a formal IMM estimator, and a bounded heuristic multi-hypothesis tracker for temporary target occlusion.
 
-Technical bullet:
+### Technical
 
-- Developed a ROS 2 AprilTag target-tracking pipeline with Raspberry Pi camera input, a real formal IMM implementation, heuristic MH tracker context, live-bag plotting, and a static replay dashboard; final hardware bag `live_camera_calibrated_R_01` ran for 48.28 s with 655 vision measurements and near-30 Hz tracker odometry.
+- Developed a hardware-integrated ROS 2 tracking system with full `2 x 2` measurement-covariance plumbing, IMM mode probabilities, MH relative hypothesis weights, explicit prediction-only telemetry, split trial recording, and reproducible hardware-bag replay.
 
-Senior/industry-style bullet:
+### Results-focused
 
-- Owned end-to-end robotics evidence packaging for intermittent-visibility target tracking, integrating ROS 2 topics, Raspberry Pi AprilTag sensing, IMM/MH side-by-side replay, dropout-state telemetry, reproducible plots, and a dependency-free dashboard showing up to 77 IMM prediction-only steps and 2.849 s max measurement age during target loss.
+- Recorded and analyzed a `48.28 s` Raspberry Pi AprilTag run with `655` vision measurements, `13.57 Hz` camera poses, near-`30 Hz` IMM/MH odometry, and documented dropout behavior reaching `77` IMM prediction-only steps and `2.849 s` measurement age.
 
-## LinkedIn Project Description
+### Validation-focused
 
-GHOST is a ROS 2 target-tracking project that uses Raspberry Pi AprilTag measurements to replay a formal IMM tracker and a heuristic MH tracker side by side during intermittent visibility. The final calibrated hardware bag (`live_camera_calibrated_R_01`) produced 48.28 s of pipeline evidence with 655 vision measurements, camera poses at 13.57 Hz, and tracker odometry near 30 Hz. I packaged the results as a project report, hardware plots, and a fully static replay dashboard so reviewers can inspect measurement streams, tracker estimates, status transitions, and dropout prediction behavior without running ROS; estimator accuracy validation and statistical baseline superiority are future work.
+- Predeclared controlled covariance and measured-grid validation protocols before collection, then implemented automated covariance, RMSE/bias, bootstrap confidence-interval, and paired Wilcoxon analysis tooling to prevent post-hoc metric selection.
 
-## GitHub Pinned Repo Description
+## LinkedIn project description
 
-ROS 2 target-tracking prototype with Raspberry Pi AprilTag hardware replay evidence, formal IMM plus heuristic MH side-by-side telemetry, dropout prediction status, plots, report, and a static dashboard.
+GHOST is a Raspberry Pi and ROS 2 target-estimation project for intermittent vision. A live AprilTag measurement stream drives a formal Interacting Multiple Model estimator and a bounded heuristic multi-hypothesis tracker side by side. The preserved hardware run contains 48.28 seconds of real pipeline evidence with 655 vision measurements, camera poses at 13.57 Hz, tracker odometry near 30 Hz, and explicit prediction-only/dropout telemetry. I also built split trial recording, full measurement-covariance plumbing, hardware replay plots, a static interactive dashboard, a predeclared controlled covariance protocol, measured-grid accuracy analysis, and a paired statistical comparison harness. Controlled covariance and ground-truth accuracy collection are still pending, so I do not claim validated tracking accuracy or statistical superiority yet.
 
-## Interview Talking Points
+## GitHub pinned-repository description
 
-- I treated dropout as a first-class behavior: the tracker status, measurement age, and prediction-only steps are exposed instead of hidden behind a smooth-looking plot.
-- I replayed a formal IMM estimator beside a heuristic MH baseline to make behavior visible during live replay and target loss; statistical comparison is pending a dedicated harness.
-- I separated evidence packaging from ROS runtime so a reviewer can inspect the final hardware run through Markdown, PNG plots, exported JSON, and static HTML.
-- The final evidence used a calibrated Raspberry Pi AprilTag hardware bag, not only synthetic measurements, to show end-to-end ROS 2 pipeline operation.
-- I kept the PX4/drone-facing scope conservative: this package publishes target-state/setpoint topics for downstream work but does not arm or command a vehicle.
-- The project reinforced how much validation depends on timestamped telemetry, explicit status labels, and reproducible artifacts.
+Hardware-integrated ROS 2 target estimation with Raspberry Pi AprilTag sensing, formal IMM tracking, bounded MH futures, dropout telemetry, validation tooling, and static hardware replay.
 
-## STAR Story
+## Interview talking points
 
-Situation: I wanted GHOST to be more than a synthetic ROS 2 tracking demo, so I needed evidence that the pipeline could process live camera measurements and behave predictably when the target disappeared.
+- I made target loss explicit: measurement age, prediction-only steps, and degraded status are telemetry outputs rather than hidden implementation details.
+- The formal IMM publishes valid model probabilities; the heuristic MH tracker publishes relative hypothesis weights, not probabilities.
+- Both trackers consume the same measurement stream, which enables paired comparison under identical inputs.
+- The full covariance path supports `R_xx`, `R_xy`, and `R_yy` rather than assuming independent measurement axes.
+- I split IMM and MH future logs after identifying that a shared recorder path could silently lose one tracker's evidence.
+- I committed the controlled covariance protocol before collecting the new data and fixed the analysis window at seconds 15–75.
+- The paired statistical harness exists; the honest remaining gap is repeated measured-truth hardware trials.
+- The current project is strong in navigation/estimation but does not yet claim validated guidance, control, vehicle command, or flight testing.
 
-Task: Build and package a hardware-integrated target-tracking workflow that showed raw AprilTag detections, formal IMM tracking, heuristic MH tracking, and dropout behavior in a form that other engineers could review quickly without claiming estimator accuracy before controlled R characterization.
+## STAR story
 
-Action: I integrated Raspberry Pi AprilTag measurements with the ROS 2 tracking pipeline, recorded the final calibrated bag, exported key odometry/status/future data, generated hardware plots, and built a dependency-free static replay dashboard and report.
+**Situation:** I wanted GHOST to be more than a smooth AprilTag visualization or simulation-only Kalman filter.
 
-Result: The final bag `live_camera_calibrated_R_01` captured 48.28 s of data with 655 vision measurements, 13.57 Hz camera pose rate, IMM/MH odometry near 30 Hz, and documented dropout behavior reaching 77 IMM prediction-only steps and 2.849 s max measurement age.
+**Task:** Build a hardware-integrated estimator workflow that remained auditable during target occlusion and could later support defensible quantitative validation.
 
-## Metrics To Mention
+**Action:** I integrated Raspberry Pi AprilTag measurements with ROS 2, implemented and replayed formal IMM and heuristic MH trackers, exposed dropout-state telemetry, added full covariance plumbing, fixed evidence-recorder separation, generated plots and an interactive replay, and predeclared the next covariance and ground-truth experiments before collection.
+
+**Result:** The preserved run produced `48.28 s` of hardware pipeline evidence with `655` vision measurements, near-`30 Hz` tracker output, and explicit prediction-only behavior through `2.849 s` maximum measurement age. The repository now has the tooling required to report covariance, bias, RMSE, confidence intervals, and paired tracker comparisons once the physical trials are collected.
+
+## Current metrics that are safe to mention
 
 | Metric | Value |
-| --- | ---: |
-| Final bag | `live_camera_calibrated_R_01` |
+|---|---:|
+| Preserved run | `live_camera_calibrated_R_01` |
 | Duration | `48.28 s` |
 | Vision measurements | `655` |
 | Camera pose rate | `13.57 Hz` |
-| IMM odom rate | `30.01 Hz` |
-| MH odom rate | `29.99 Hz` |
-| Max IMM prediction-only steps | `77` |
-| Max IMM measurement age | `2.849 s` |
+| IMM odometry rate | `30.01 Hz` |
+| MH odometry rate | `29.99 Hz` |
+| Maximum IMM prediction-only steps | `77` |
+| Maximum IMM measurement age | `2.849 s` |
 
-## Links To Attach
+## Claims to avoid until validation is complete
 
-- Portfolio packet: `docs/GHOST_PORTFOLIO_PACKET.md`
-- Final report: `docs/GHOST_PROJECT_REPORT.md`
-- Final bag plots: `docs/GHOST_LIVE_BAG_PLOTS.md`
-- Live replay dashboard: `docs/GHOST_LIVE_REPLAY_DASHBOARD.html`
+Do not say:
+
+- “validated centimeter-level accuracy”;
+- “IMM outperforms MH”;
+- “production-ready”;
+- “autonomous drone guidance and control”;
+- “flight tested”;
+- “probabilistic MH predictions.”
+
+Use:
+
+- “hardware-integrated pipeline evidence”;
+- “formal IMM mode probabilities”;
+- “MH relative hypothesis weights”;
+- “controlled covariance and ground-truth validation pending.”
