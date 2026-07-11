@@ -1,125 +1,266 @@
 # GHOST Project Report
 
-## 1. Executive Summary
+_Last synchronized with repository main after the controlled covariance, ground-truth grid, paired statistics, and static demo tooling were merged._
 
-GHOST is a ROS 2 vision-tracking project that estimates and predicts the motion of a target from AprilTag camera measurements. The system was developed through staged integration work: synthetic tracking, measurement-noise analysis, observability/CRLB checks, heuristic multi-hypothesis tracking, formal IMM estimation, and final Raspberry Pi hardware pipeline replay evidence.
+## 1. Executive summary
 
-The final hardware run demonstrates a live AprilTag measurement stream feeding two real-time trackers side by side: the heuristic MH tracker and the formal IMM tracker. The calibrated run produced camera poses at 13.57 Hz while both trackers published near 30 Hz, including valid status transitions through temporary target dropout and recovery.
+GHOST is a Raspberry Pi and ROS 2 vision-tracking project for estimating a target's two-dimensional position and velocity when AprilTag measurements are intermittent. The current hardware pipeline runs two trackers from the same measurement stream:
 
-This report summarizes the engineering problem, system architecture, estimation methods, hardware calibration status, live pipeline evidence, limitations, and reproducibility steps.
+1. a formal Interacting Multiple Model (IMM) estimator; and
+2. a bounded heuristic multi-hypothesis (MH) tracker used as an operational comparison baseline.
 
-**Evidence caveat:** Current hardware evidence validates live ROS 2 pipeline operation, topic rates, dropout/status telemetry, and replay tooling. It does not yet constitute report-grade real-world estimator accuracy validation because controlled hardware measurement covariance R is pending verified stationary noise characterization.
+The preserved hardware run demonstrates live measurement ingestion, simultaneous tracker output near 30 Hz, explicit prediction-only behavior during target loss, degraded-dropout status, and recovery after measurements return.
 
-## 2. Problem Statement
+The repository now also contains predeclared controlled measurement-covariance collection, measured-grid accuracy analysis, paired statistical comparison, and static demo export tooling. Those tools are implemented, but the decisive new physical data have not yet been collected.
 
-Vision-based target tracking becomes difficult when the target is temporarily hidden, poorly detected, or moving unpredictably. A detector alone can only report the current visible position; it cannot maintain a physically reasonable estimate during occlusion or predict where the target may reappear.
+**Evidence boundary:** current hardware evidence validates integration, timing, telemetry, dropout-state behavior, and replay. It does not yet establish report-grade tracking accuracy, statistically proven tracker superiority, production robustness, closed-loop control, or flight readiness.
 
-The engineering problem for GHOST is to convert intermittent 2D target measurements into a stable real-time state estimate with uncertainty-aware prediction. The system must continue publishing useful tracker output when measurements disappear, clearly label degraded open-loop prediction, and recover cleanly when the target becomes visible again.
+## 2. Engineering problem
 
-The project focuses on estimator behavior, hardware replay evidence, and reproducible ROS 2 integration rather than only visual detection.
+A vision detector produces observations only while a target can be detected. During occlusion, motion blur, lighting degradation, or dropped frames, a useful tracking system must:
 
-## 3. System Architecture
+- propagate a state estimate without pretending that a measurement exists;
+- represent increasing uncertainty;
+- expose the age of the last valid observation;
+- constrain the duration and interpretation of open-loop prediction;
+- recover when measurements return;
+- preserve enough telemetry to audit the behavior afterward.
 
-GHOST is organized as a ROS 2 pipeline. The AprilTag publisher outputs the vision measurement topic. The heuristic MH tracker and formal IMM tracker subscribe to that same measurement stream and publish separate odometry, status, and future-trajectory topics.
+GHOST treats dropout as an estimator state rather than hiding it behind a smooth trajectory plot.
 
-Live path:
+## 3. Current system architecture
 
-camera + AprilTag -> /ghost/vision/target_pose -> /ghost/tracker_mh/* and /ghost/tracker_imm/*
+```text
+camera + AprilTag
+        |
+        v
+/ghost/vision/target_pose
+        |
+        +-----------------------------+
+        |                             |
+        v                             v
+formal IMM tracker              heuristic GHOST-MH tracker
+        |                             |
+        v                             v
+odom + futures + status         odom + futures + status
+        \                             /
+         +-- recorder / plots / replay / analysis --+
+```
 
-Keeping the two trackers separate allows side-by-side qualitative replay without replacing the existing tracker before a statistical comparison harness is built.
+### 3.1 Vision measurement
 
-## 4. Estimation Methods
+The AprilTag publisher provides a timestamped two-dimensional target position through:
 
-GHOST uses state-estimation methods instead of treating detection as the final answer. The tracker state represents 2D position and velocity, while the camera measurement provides observed 2D target position.
+```text
+/ghost/vision/target_pose
+```
 
-The heuristic MH tracker maintains practical live behavior for visible tracking, stationary hidden hold, and future prediction messages. It is useful for operational behavior and intuitive multi-future output.
+The live covariance path supports a full symmetric measurement matrix:
 
-The formal IMM tracker runs a bank of motion models with mode probabilities. In the current live configuration, it compares smooth constant-velocity behavior against higher-process-noise maneuver behavior. During measurement loss, the IMM continues prediction-only propagation and labels the output as prediction-only or dropout-degraded depending on measurement age.
+```text
+R = [[R_xx, R_xy],
+     [R_xy, R_yy]]
+```
 
-Both trackers consume the same live measurement stream, which allows side-by-side qualitative replay under identical input. Statistical baseline comparison remains pending a dedicated harness.
+Telemetry has confirmed that both trackers receive and report the expected full-`R` metadata. This verifies plumbing, not the correctness of the covariance values.
 
-## 5. Hardware Calibration Status
+### 3.2 Formal IMM tracker
 
-Initial stationary-tag recordings were analyzed to choose a conservative live measurement-noise candidate. Controlled hardware measurement covariance R characterization is still pending before report-grade real-world estimator accuracy validation. Two stationary bags were analyzed:
+The IMM maintains multiple motion-model filters, mixes their states and covariances, updates model probabilities from the measurement likelihoods, and combines the model-conditioned outputs into one estimate.
 
-- `stationary_tag_R_02`
-- `stationary_tag_R_03`
+Live outputs:
 
-Initial stationary noise estimates were approximately millimeter scale in these recordings:
+```text
+/ghost/tracker_imm/target_odom
+/ghost/tracker_imm/futures_json
+/ghost/tracker_imm/status
+```
 
-- R_02: std_x = 0.001181 m, std_y = 0.000499 m
-- R_03: std_x = 0.001222 m, std_y = 0.000330 m
+The live configuration distinguishes smooth constant-velocity behavior from a higher-process-noise maneuver model. Its mode values are valid IMM probabilities.
 
-For live tracking, GHOST uses `measurement_std_m = 0.005 m` as a conservative candidate value. It is intentionally larger than the initial stationary estimates to avoid overconfidence during motion, tag-angle changes, lighting changes, and handheld demonstration conditions.
+### 3.3 GHOST-MH tracker
 
-This does not close the measurement-noise gap for report-grade estimator accuracy claims. Controlled stationary noise characterization and covariance R documentation remain pending.
+The heuristic MH tracker provides bounded candidate futures and operational context during temporary target loss.
 
-## 6. Live Hardware Pipeline Evidence
+Live outputs:
 
-The final calibrated live hardware run was recorded as `live_camera_calibrated_R_01`. During the run, the AprilTag target was visible, moved, temporarily hidden, and then revealed again.
+```text
+/ghost/tracker_mh/target_odom
+/ghost/tracker_mh/futures_json
+/ghost/tracker_mh/status
+```
 
-The recorded bag included the live vision measurements, heuristic MH tracker outputs, and formal IMM tracker outputs. This validates live ROS 2 pipeline operation: the camera measurement source and both trackers ran together in real time and emitted reviewable telemetry. It does not validate estimator accuracy against controlled ground truth.
+Its candidate rankings are **relative hypothesis weights**, not calibrated probabilities. It is not presented as a replacement for a formal Bayesian estimator.
 
-The most important behavior observed was clean dropout handling. The IMM entered prediction-only and dropout-degraded states when measurements disappeared, then returned to tracking after the tag was visible again. The MH tracker also reported visible measurement lock and hidden stationary hold states.
+## 4. Hardware integration evidence
 
-## 7. Results
+The preserved run is:
 
-Final calibrated live bag: `live_camera_calibrated_R_01`
+```text
+live_camera_calibrated_R_01
+```
 
 | Metric | Result |
 |---|---:|
-| Duration | 48.280 s |
-| Total messages | 6810 |
-| Camera pose rate | 13.57 Hz |
-| IMM odom rate | 30.01 Hz |
-| MH odom rate | 29.99 Hz |
-| IMM tracking samples | 169 |
-| IMM prediction-only samples | 2 |
-| IMM dropout-degraded samples | 10 |
-| MH visible-lock samples | 168 |
-| MH hidden-hold samples | 13 |
-| Max IMM prediction-only steps | 77 |
-| Max IMM measurement age | 2.849 s |
+| Duration | `48.280 s` |
+| Vision measurements | `655` |
+| Camera pose rate | `13.57 Hz` |
+| IMM odometry rate | `30.01 Hz` |
+| MH odometry rate | `29.99 Hz` |
+| IMM tracking status samples | `169` |
+| IMM prediction-only status samples | `2` |
+| IMM dropout-degraded status samples | `10` |
+| MH visible-lock status samples | `168` |
+| MH hidden-hold status samples | `13` |
+| Maximum IMM prediction-only steps | `77` |
+| Maximum IMM measurement age | `2.849 s` |
 
-The result shows that the live camera stream and both trackers operated at real-time rates. The system also produced explicit status evidence for visible tracking, temporary hidden prediction, degraded dropout, and recovery.
+The run verifies that the camera measurement source and both trackers operated together in real time and emitted reviewable state, status, and future-path telemetry. During target loss, the IMM entered prediction-only and dropout-degraded states before returning to tracking after reacquisition.
 
-## 8. Engineering Significance
+## 5. Measurement covariance status
 
-The main engineering value of GHOST is the complete integration and evidence chain. The project does not stop at a visual demo; it connects estimator design, ROS integration, measurement-noise candidate selection, live bag recording, topic-rate analysis, status telemetry, and replay tooling.
+Earlier stationary recordings suggested millimeter-scale raw measurement variation, but they were not collected under the final predeclared protocol. They informed candidate values only.
 
-The system demonstrates that a live camera measurement stream can drive two independent real-time trackers while preserving explicit status information during visibility loss. This makes the project useful as evidence of robotics software integration, estimation theory implementation, hardware pipeline testing, and disciplined replay packaging.
+The current controlled protocol is committed at:
 
-The final result is stronger than a basic AprilTag demo because it shows live tracker telemetry through dropout and recovery, not just tag detection. Accuracy validation remains future work until controlled R characterization and ground-truth comparison are complete.
+```text
+docs/CONTROLLED_R_COLLECTION_PROTOCOL.md
+```
 
-## 9. Limitations and Future Work
+It fixes the following before data collection:
 
-GHOST has hardware-integrated AprilTag replay evidence, but it is not yet report-grade estimator accuracy validation and is not a general object tracker. The current live perception source depends on a visible AprilTag target and calibrated camera geometry.
+- exactly `90 s` of recording;
+- analysis only over seconds `15–75`;
+- no post-hoc trimming;
+- camera-control readback before, after setting, and after the trial;
+- raw `R_xx`, `R_xy`, and `R_yy`;
+- correlation coefficient;
+- fixed sub-window stability checks over `15–35`, `35–55`, and `55–75 s`.
 
-Initial stationary recordings informed a conservative measurement-noise candidate, but verified controlled covariance R characterization is still needed, along with aggressive motion, motion blur, lighting changes, longer occlusions, and non-AprilTag target tests.
+Required status until that trial is completed:
 
-Future work should include verified stationary covariance R characterization, a statistical IMM/MH comparison harness, larger hardware trial sets, NIS/innovation consistency checks, real object detection beyond AprilTags, and drone/PX4 integration behind safety gates.
+```text
+R status: CONTROLLED_R_PREDECLARED_PENDING_COLLECTION
+Accuracy status: DOES_NOT_VALIDATE_TRACKER_ACCURACY
+```
 
-## 10. Reproducibility
+## 6. Accuracy-validation status
 
-The committed hardware pipeline evidence state is available on GitHub main at commit 9c7873f.
+Ground-truth grid tooling is implemented in:
 
-Build command:
+```text
+ghost_sim_ros2/analysis/grid_validation_analysis.py
+```
 
-cd ~/ghost_ws
+The physical protocol requires 5 or 6 non-collinear measured points, variation in both axes, the same locked camera setup as the controlled covariance trial, and 10 seconds stationary per point.
+
+Planned outputs include:
+
+- per-point mean and standard deviation;
+- `dx` and `dy` bias;
+- Euclidean point error;
+- aggregate bias;
+- RMSE;
+- mean error;
+- maximum error;
+- sample count and sample rate.
+
+No grid results are reported because the physical trial has not yet been run.
+
+## 7. IMM/MH comparison status
+
+A paired comparison harness is implemented in:
+
+```text
+ghost_sim_ros2/analysis/statistical_comparison.py
+```
+
+It reports paired median errors, median MH-minus-IMM difference, error reduction, bootstrap confidence intervals, and a Wilcoxon signed-rank result when SciPy is available.
+
+This closes the software-tooling gap but does not establish performance superiority. Repeated paired hardware trials with measured truth are still required.
+
+## 8. Evidence packaging and replay
+
+The project includes:
+
+- split IMM and MH futures logs;
+- hardware-bag plotting;
+- machine-readable JSON export;
+- a dependency-free HTML replay dashboard;
+- project and portfolio reports;
+- a static hosted-demo export plan.
+
+The replay dashboard presents raw measurements, both tracker estimates, IMM mode probabilities, status, measurement age, prediction-only steps, and future tails. It is an integration and telemetry artifact. It is not an accuracy-validation artifact.
+
+## 9. Software engineering
+
+The repository includes:
+
+- ROS 2 Jazzy nodes and launch files;
+- portable estimator components;
+- unit tests for covariance, IMM, stationary gating, grid analysis, statistical comparison, and demo export;
+- GitHub Actions for Python tests and the portable C++ build;
+- runbooks for collection and replay;
+- explicit status strings and claims boundaries.
+
+Trial recording writes separate IMM and MH future logs so one tracker cannot silently overwrite the other's evidence.
+
+## 10. GNC relevance and limits
+
+GHOST currently demonstrates the navigation/estimation core of a GNC workflow:
+
+- sensor measurement handling;
+- state and covariance estimation;
+- multiple-model interaction;
+- uncertainty propagation;
+- stale-measurement supervision;
+- downstream ROS 2 state/setpoint interfaces.
+
+The current hardware package does not contain validated closed-loop guidance and control. It does not arm or command a vehicle and has not been flight tested. A future closed-loop simulation should connect the target estimate to a bounded guidance law, controller, vehicle dynamics, and safe-hold behavior during prolonged dropout.
+
+## 11. Reproducibility
+
+Build the ROS 2 package:
+
+```bash
 source /opt/ros/jazzy/setup.bash
-colcon build --symlink-install --packages-select ghost_sim_ros2
+cd ~/ghost_ws
+colcon build --packages-select ghost_sim_ros2 --symlink-install
 source install/setup.bash
+```
 
-Key evidence files and tools:
+Run the software-only pipeline:
 
-- HARDWARE_CALIBRATION_EVIDENCE.md
-- tools/analyze_stationary_R.py
-- tools/analyze_live_bag.py
-- ghost_sim_ros2/apriltag_ros_only.py
-- launch/pi_only_synthetic_imm.launch.py
+```bash
+ros2 launch ghost_sim_ros2 sim_tracking.launch.py
+```
 
-Final live-bag analysis command:
+Serve the static hardware replay:
 
-python3 tools/analyze_live_bag.py ~/ghost_ws/bags/live_camera_calibrated_R_01
+```bash
+cd ~/ghost_ws/src/ghost-vins-eskf/ghost_sim_ros2/docs
+python3 -m http.server 8000 --bind 0.0.0.0
+```
 
-The report should be read together with the committed evidence markdown and the ROS bag summaries from the calibrated hardware run.
+Open:
+
+```text
+http://localhost:8000/GHOST_LIVE_REPLAY_DASHBOARD.html
+```
+
+## 12. Next experimental sequence
+
+1. Execute the predeclared controlled covariance trial.
+2. Reject or accept the run using the documented criteria.
+3. Keep the camera fixed and execute the measured ground-truth grid.
+4. Publish covariance, stability, bias, RMSE, mean error, maximum error, and repeatability.
+5. Execute repeated visible and occluded trajectories under fixed scenario definitions.
+6. Apply the paired statistical harness.
+7. Add runtime, CPU, memory, and thermal evidence on the Raspberry Pi.
+8. Use only the resulting validated metrics in the public demo and resume material.
+
+## 13. Safe conclusion
+
+GHOST currently provides strong evidence of end-to-end robotics estimation integration: real camera measurements, ROS 2 transport, formal and heuristic trackers, explicit dropout supervision, and reproducible replay tooling.
+
+The project will cross from hardware-integrated prototype to quantitatively validated estimator only after the predeclared controlled covariance and ground-truth trials are completed.
