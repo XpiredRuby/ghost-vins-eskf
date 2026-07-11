@@ -1,0 +1,44 @@
+name: GHOST Physical Session Readiness
+
+on:
+  pull_request:
+    paths:
+      - 'ghost_sim_ros2/analysis/validate_physical_session.py'
+      - 'ghost_sim_ros2/test/test_validate_physical_session.py'
+      - 'ghost_sim_ros2/docs/PHYSICAL_VALIDATION_SESSION_CHECKLIST.example.json'
+      - 'ghost_sim_ros2/docs/GHOST_PHYSICAL_VALIDATION_MASTER_RUNBOOK.md'
+      - 'ghost_sim_ros2/docs/GHOST_HERO_DEMO_PROTOCOL.md'
+      - '.github/workflows/physical-session-readiness.yml'
+  workflow_dispatch:
+
+jobs:
+  physical-session-readiness:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependency
+        run: python -m pip install --upgrade pip pytest
+
+      - name: Compile session validator
+        run: |
+          python -m py_compile \
+            ghost_sim_ros2/analysis/validate_physical_session.py \
+            ghost_sim_ros2/test/test_validate_physical_session.py
+
+      - name: Validate committed session template
+        run: |
+          python ghost_sim_ros2/analysis/validate_physical_session.py \
+            ghost_sim_ros2/docs/PHYSICAL_VALIDATION_SESSION_CHECKLIST.example.json
+
+      - name: Run focused session-readiness tests
+        run: |
+          PYTHONPATH=ghost_sim_ros2 \
+          python -m pytest -q ghost_sim_ros2/test/test_validate_physical_session.py
