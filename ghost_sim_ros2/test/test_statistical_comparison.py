@@ -28,13 +28,37 @@ def test_paired_comparison_known_effect():
     assert ci["high"] < 0.0
 
 
-def test_paired_comparison_no_effect():
-    result = paired_comparison([0.1, 0.2, 0.3], [0.1, 0.2, 0.3], "no_effect", n_boot=50)
+def test_paired_comparison_all_zero_edge_case():
+    result = paired_comparison([0.1, 0.2, 0.3], [0.1, 0.2, 0.3], "all_zero", n_boot=50)
 
     assert result["median_error_difference_mh_minus_imm"] == 0.0
     assert result["median_error_reduction_mh_vs_imm"] == 0.0
     assert result["bootstrap_ci_95_mh_minus_imm"]["low"] == 0.0
     assert result["bootstrap_ci_95_mh_minus_imm"]["high"] == 0.0
+    if result["wilcoxon_available"]:
+        assert result["wilcoxon_p_value"] == 1.0
+
+
+def test_paired_comparison_noisy_null_effect_spans_zero():
+    imm = [0.20] * 10
+    paired_differences = [-0.05, -0.04, -0.03, -0.02, -0.01, 0.01, 0.02, 0.03, 0.04, 0.05]
+    mh = [imm_value + difference for imm_value, difference in zip(imm, paired_differences)]
+
+    result = paired_comparison(
+        imm,
+        mh,
+        "noisy_null",
+        n_boot=4000,
+        seed=260710,
+    )
+
+    assert result["n_trials"] == 10
+    assert result["median_error_difference_mh_minus_imm"] == pytest.approx(0.0, abs=1e-12)
+    assert result["median_error_reduction_mh_vs_imm"] == pytest.approx(0.0, abs=1e-12)
+    ci = result["bootstrap_ci_95_mh_minus_imm"]
+    assert ci["low"] < 0.0 < ci["high"]
+    if result["wilcoxon_available"]:
+        assert result["wilcoxon_p_value"] > 0.5
 
 
 def test_paired_comparison_rejects_mismatched_lengths():
