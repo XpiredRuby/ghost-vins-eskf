@@ -1,310 +1,254 @@
 # GHOST — GPS-Denied Hardware Occlusion-Survivable Tracker
 
-## Portfolio Snapshot
+[![GHOST CI](https://github.com/XpiredRuby/ghost-vins-eskf/actions/workflows/ci.yml/badge.svg)](https://github.com/XpiredRuby/ghost-vins-eskf/actions/workflows/ci.yml)
+![ROS 2 Jazzy](https://img.shields.io/badge/ROS%202-Jazzy-22314E)
+![Hardware](https://img.shields.io/badge/hardware-Raspberry%20Pi%20%2B%20AprilTag-2ea44f)
+![Validation](https://img.shields.io/badge/accuracy%20validation-in%20progress-f59e0b)
 
-ROS 2 target-tracking autonomy prototype for intermittent AprilTag visibility, integrated with Raspberry Pi AprilTag hardware replay evidence and live formal IMM plus heuristic MH tracking.
+**Hardware-integrated ROS 2 target-state estimation for intermittent vision and temporary target occlusion.**
 
-- **Author:** Vinayak Manoj Nair — Texas A&M University, B.S. Aerospace Engineering (Dec 2026)
-- **Repo:** `ghost-vins-eskf`
-- **Current status:** Hardware-integrated final replay package complete for pipeline, telemetry, and dashboard evidence.
-- **Evidence caveat:** Current hardware evidence validates live ROS 2 pipeline operation, topic rates, dropout/status telemetry, and replay tooling. It does not yet constitute report-grade real-world estimator accuracy validation because controlled hardware measurement covariance R is pending verified stationary noise characterization.
+GHOST consumes Raspberry Pi AprilTag pose measurements, runs a formal Interacting Multiple Model (IMM) estimator beside a bounded heuristic multi-hypothesis (MH) tracker, and exposes the estimator state, mode probabilities, relative hypothesis weights, measurement age, and prediction-only behavior through ROS 2 telemetry and replay artifacts.
 
-Key hardware replay metrics from the final calibrated hardware run:
+**Author:** Vinayak Manoj Nair — Texas A&M University, B.S. Aerospace Engineering, December 2026
 
-| Metric | Value |
-| --- | ---: |
-| Final bag | `live_camera_calibrated_R_01` |
-| Duration | `48.28 s` |
+> **Evidence boundary:** the preserved hardware run validates the live ROS 2 measurement and tracker pipeline, real-time publication rates, dropout-state telemetry, and replay tooling. Controlled measurement covariance and ground-truth accuracy trials are prepared but not yet collected. GHOST does not currently claim flight readiness, production accuracy, or closed-loop vehicle control.
+
+## Review GHOST in 60 seconds
+
+1. See the final hardware trajectory and tracker overlays below.
+2. Review the [portfolio packet](ghost_sim_ros2/docs/GHOST_PORTFOLIO_PACKET.md).
+3. Inspect the [full project report](ghost_sim_ros2/docs/GHOST_PROJECT_REPORT.md).
+4. Open the [static replay dashboard](ghost_sim_ros2/docs/GHOST_LIVE_REPLAY_DASHBOARD.html) through a local HTTP server.
+5. Audit the [controlled covariance protocol](docs/CONTROLLED_R_COLLECTION_PROTOCOL.md) and [ground-truth grid protocol](ghost_sim_ros2/docs/GROUND_TRUTH_GRID_VALIDATION_PROTOCOL.md).
+
+| Hardware XY replay | Position over time |
+|---|---|
+| ![Hardware XY path](ghost_sim_ros2/docs/assets/ghost_live_plots/ghost_live_xy_path.png) | ![Hardware position over time](ghost_sim_ros2/docs/assets/ghost_live_plots/ghost_live_position_vs_time.png) |
+
+## Verified hardware evidence
+
+The preserved run `live_camera_calibrated_R_01` contains a real Raspberry Pi AprilTag measurement stream and simultaneous outputs from both trackers.
+
+| Metric | Recorded value |
+|---|---:|
+| Run duration | `48.28 s` |
 | Vision measurements | `655` |
 | Camera pose rate | `13.57 Hz` |
-| IMM odom rate | `30.01 Hz` |
-| MH odom rate | `29.99 Hz` |
-| Max IMM prediction-only steps | `77` |
-| Max IMM measurement age | `2.849 s` |
+| Formal IMM odometry rate | `30.01 Hz` |
+| Heuristic MH odometry rate | `29.99 Hz` |
+| Maximum IMM prediction-only steps | `77` |
+| Maximum IMM measurement age | `2.849 s` |
 
-Direct review links:
+The run demonstrates visible tracking, temporary measurement loss, prediction-only propagation, degraded-dropout labeling, and reacquisition. These are pipeline and behavior results, not ground-truth accuracy results.
 
-- Career snippets: [`ghost_sim_ros2/docs/GHOST_CAREER_SNIPPETS.md`](ghost_sim_ros2/docs/GHOST_CAREER_SNIPPETS.md)
-- Portfolio packet: [`ghost_sim_ros2/docs/GHOST_PORTFOLIO_PACKET.md`](ghost_sim_ros2/docs/GHOST_PORTFOLIO_PACKET.md)
-- Final project report: [`ghost_sim_ros2/docs/GHOST_PROJECT_REPORT.md`](ghost_sim_ros2/docs/GHOST_PROJECT_REPORT.md)
-- Final hardware bag plots: [`ghost_sim_ros2/docs/GHOST_LIVE_BAG_PLOTS.md`](ghost_sim_ros2/docs/GHOST_LIVE_BAG_PLOTS.md)
-- Live replay dashboard: [`ghost_sim_ros2/docs/GHOST_LIVE_REPLAY_DASHBOARD.html`](ghost_sim_ros2/docs/GHOST_LIVE_REPLAY_DASHBOARD.html)
+## Current implemented pipeline
 
-View the static replay dashboard locally:
+```text
+Raspberry Pi camera
+        |
+        v
+AprilTag pose publisher
+/ghost/vision/target_pose
+        |
+        +-------------------------------+
+        |                               |
+        v                               v
+Formal IMM tracker                GHOST-MH tracker
+- motion-model bank               - bounded candidate futures
+- mode probabilities              - relative hypothesis weights
+- covariance propagation          - operational dropout context
+        |                               |
+        v                               v
+/ghost/tracker_imm/*              /ghost/tracker_mh/*
+        \                               /
+         \                             /
+          +---- recorder / analysis / replay ----+
+```
+
+Primary live outputs:
+
+```text
+/ghost/tracker_imm/target_odom
+/ghost/tracker_imm/futures_json
+/ghost/tracker_imm/status
+
+/ghost/tracker_mh/target_odom
+/ghost/tracker_mh/futures_json
+/ghost/tracker_mh/status
+```
+
+## Implementation and validation status
+
+| Capability | Implemented | Hardware evidence | Accuracy validated |
+|---|:---:|:---:|:---:|
+| AprilTag pose publisher | Yes | Yes | Pending grid trial |
+| Formal IMM tracker | Yes | Yes | Pending ground truth |
+| GHOST-MH tracker | Yes | Yes | Pending ground truth |
+| Full symmetric `2 x 2` measurement covariance `R` plumbing | Yes | Telemetry verified | Controlled collection pending |
+| Split IMM/MH trial recording | Yes | Yes | Not an accuracy claim |
+| Dropout status and measurement-age telemetry | Yes | Yes | Behavior evidence only |
+| Ground-truth grid analysis | Yes | Collection pending | Pending |
+| Paired IMM/MH statistical harness | Yes | Real paired trials pending | Pending |
+| Static replay dashboard | Yes | Existing hardware run | Integration demo only |
+| Public one-click hosted demo | Export plan exists | Pending deployment | Not applicable |
+| Closed-loop guidance and control | Planned | No | No |
+
+### GNC scope
+
+GHOST currently demonstrates the **navigation/estimation core** of a GNC stack: measurement modeling, state estimation, uncertainty propagation, motion-model interaction, dropout handling, and estimator telemetry.
+
+Guidance and control interfaces exist only as downstream-facing integration work. The current evidence does **not** show a validated guidance law, flight controller, autonomous vehicle command, or flight test. A closed-loop simulation and safety-supervised guidance/control layer are future milestones.
+
+## Formal IMM versus GHOST-MH
+
+### Formal IMM
+
+The formal tracker maintains a bank of motion models, performs model-conditioned Kalman updates, mixes model states and covariances, and publishes valid IMM mode probabilities. During measurement loss it propagates prediction-only state and explicitly labels stale or degraded output.
+
+### GHOST-MH
+
+The heuristic tracker publishes bounded candidate futures for operational context during occlusion. Its ranking values are **relative hypothesis weights**, not calibrated probabilities. It is retained as a transparent comparison baseline and visualization mechanism rather than presented as a formal Bayesian estimator.
+
+A paired bootstrap/Wilcoxon comparison harness is implemented in [`analysis/statistical_comparison.py`](ghost_sim_ros2/analysis/statistical_comparison.py). It has not yet been applied to the repeated ground-truth hardware trials required for a superiority claim.
+
+## Evidence and reproducibility
+
+### Static replay dashboard
+
+The dashboard replays the preserved hardware dataset with:
+
+- raw AprilTag measurements;
+- IMM and MH state estimates;
+- IMM mode probabilities;
+- tracker status transitions;
+- measurement age and prediction-only steps;
+- future prediction tails;
+- XY and position-versus-time views.
+
+Run it locally:
 
 ```bash
 cd ghost_sim_ros2/docs
 python3 -m http.server 8000 --bind 0.0.0.0
 ```
 
-Then open `http://localhost:8000/GHOST_LIVE_REPLAY_DASHBOARD.html`. GitHub may display the HTML source instead of executing the local JSON-backed dashboard, so local serving is the intended review path.
-
-## Current Evidence
-
-### Final Hardware Replay Package
-
-The completed evidence package replays the final calibrated Raspberry Pi AprilTag bag with raw vision measurements, formal IMM tracking, heuristic MH tracking, status transitions, prediction tails, plots, and a static dashboard. The live Raspberry Pi operator console remains useful for demos, while the replay package is the primary reviewer-facing artifact.
-
-![Final hardware XY path](ghost_sim_ros2/docs/assets/ghost_live_plots/ghost_live_xy_path.png)
-
-![Final hardware position over time](ghost_sim_ros2/docs/assets/ghost_live_plots/ghost_live_position_vs_time.png)
-
-![Formal IMM status timeline](ghost_sim_ros2/docs/assets/ghost_live_plots/ghost_live_imm_status_timeline.png)
-
-![Final hardware topic rates](ghost_sim_ros2/docs/assets/ghost_live_plots/ghost_live_topic_rates.png)
-
-### Live GHOST-MH Hardware Demo
-
-The live system runs on the Raspberry Pi with a USB webcam and 10 cm AprilTag target. It publishes calibrated target pose into ROS2, runs the GHOST-MH relative-hypothesis-weight tracker, and serves a combined browser operator console.
-
-- Operator console: `http://<pi-ip>:8090`
-- Camera-only view: `http://<pi-ip>:8081`
-
-### Earlier Synthetic / Parameter-Sweep Evidence
-
-These older artifacts remain useful for understanding the software-only development path, but the final hardware replay above is the primary review evidence.
-
-![GHOST synthetic tracking evidence](analysis/ghost_tracking_evidence.png)
-
-![Tracker parameter sweep summary](analysis/tracker_sweep_summary.png)
-
-## What Works Now
-
-- USB webcam bring-up and browser live stream
-- AprilTag detection and calibrated pose viewer
-- Camera calibration workflow
-- Real camera pose publisher into `/ghost/vision/target_pose`
-- GHOST-MH bounded multi-hypothesis tracker
-- Ranked probabilistic future paths during occlusion
-- Safe reset after max occlusion horizon instead of infinite hallucination
-- Combined browser operator console on port `8090`
-- Terminal monitor and background service-style launcher
-- ROS2 Jazzy synthetic target measurement publisher
-- 2D constant-velocity Kalman tracker baseline
-- Occlusion/dropout coasting simulation
-- CSV evidence logging
-- Offline tracker parameter sweep
-- MPU-6050 I2C watchdog ROS2 node with real bump-detection evidence
-- Gazebo/PX4-facing bridge topics:
-  - `/ghost/gazebo/target_pose`
-  - `/ghost/gazebo/target_twist`
-  - `/ghost/px4/target_setpoint`
-
-## Live Hardware Demo
-
-Start the live system on the Raspberry Pi:
-
-```bash
-~/ghost_start.sh
-```
-
-Check process health:
-
-```bash
-~/ghost_status.sh
-```
-
-Stop everything:
-
-```bash
-~/ghost_stop.sh
-```
-
-Open the operator console from a browser on the same network:
+Then open:
 
 ```text
-http://<pi-ip>:8090
+http://localhost:8000/GHOST_LIVE_REPLAY_DASHBOARD.html
 ```
 
-The camera-only feed remains available at:
+GitHub displays HTML source rather than reliably running the local JSON-backed application. A public hosted replay remains a planned presentation milestone.
 
-```text
-http://<pi-ip>:8081
-```
+### Hardware evidence pages
 
-## No-Hardware Demo
+- [Hardware bag plots](ghost_sim_ros2/docs/GHOST_LIVE_BAG_PLOTS.md)
+- [Portfolio packet](ghost_sim_ros2/docs/GHOST_PORTFOLIO_PACKET.md)
+- [Full project report](ghost_sim_ros2/docs/GHOST_PROJECT_REPORT.md)
+- [Career and interview snippets](ghost_sim_ros2/docs/GHOST_CAREER_SNIPPETS.md)
+- [Static replay dashboard](ghost_sim_ros2/docs/GHOST_LIVE_REPLAY_DASHBOARD.html)
 
-The software-only pipeline runs without camera, AprilTag print, IMU, Gazebo, or PX4 hardware:
+### Validation infrastructure already merged
+
+- Controlled stationary covariance protocol: [`docs/CONTROLLED_R_COLLECTION_PROTOCOL.md`](docs/CONTROLLED_R_COLLECTION_PROTOCOL.md)
+- Controlled collection helper: [`collect_controlled_r_trial.sh`](ghost_sim_ros2/tools/collect_controlled_r_trial.sh)
+- Controlled collection runbook: [`CONTROLLED_R_COLLECTION_RUNBOOK.md`](ghost_sim_ros2/docs/CONTROLLED_R_COLLECTION_RUNBOOK.md)
+- Ground-truth grid protocol: [`GROUND_TRUTH_GRID_VALIDATION_PROTOCOL.md`](ghost_sim_ros2/docs/GROUND_TRUTH_GRID_VALIDATION_PROTOCOL.md)
+- Grid analysis: [`grid_validation_analysis.py`](ghost_sim_ros2/analysis/grid_validation_analysis.py)
+- Paired statistical comparison: [`statistical_comparison.py`](ghost_sim_ros2/analysis/statistical_comparison.py)
+- Static demo export: [`export_demo_artifact.py`](ghost_sim_ros2/tools/export_demo_artifact.py)
+- Hosted-demo plan: [`REPLIT_DEMO_PLAN.md`](ghost_sim_ros2/docs/REPLIT_DEMO_PLAN.md)
+
+## Next validation campaign
+
+The next physical session is predeclared and deliberately sequenced:
+
+1. Rigidly mount the camera and AprilTag.
+2. Lock and record supported camera controls.
+3. Record exactly `90 s` for stationary covariance estimation.
+4. Analyze only the fixed `15–75 s` window.
+5. Check covariance stability across three fixed sub-windows.
+6. Keep the same camera setup for a measured 5–6 point ground-truth grid.
+7. Report bias, RMSE, mean error, maximum error, repeatability, sample count, and sample rate.
+8. Run repeated visible/occluded trajectories for paired IMM/MH comparison.
+
+No validated accuracy number will be published before those data exist.
+
+## Build and run
+
+### ROS 2 package
 
 ```bash
 source /opt/ros/jazzy/setup.bash
 cd ~/ghost_ws
-colcon build --packages-select ghost_sim_ros2
+colcon build --packages-select ghost_sim_ros2 --symlink-install
 source install/setup.bash
+```
+
+### Software-only tracker demo
+
+```bash
 ros2 launch ghost_sim_ros2 sim_tracking.launch.py
 ```
 
-Expected ROS2 topics:
-
-```text
-/ghost/vision/target_pose
-/ghost/tracker/target_odom
-/ghost/gazebo/target_pose
-/ghost/gazebo/target_twist
-/ghost/px4/target_setpoint
-/ghost/sim/target_truth
-```
-
-Full runbook: [`docs/NO_HARDWARE_DEMO.md`](docs/NO_HARDWARE_DEMO.md)
-
-Integrated hardware/software demo: [ghost_sim_ros2/docs/FULL_INTEGRATED_DEMO.md](ghost_sim_ros2/docs/FULL_INTEGRATED_DEMO.md)
+### Full integrated demo
 
 ```bash
 ros2 launch ghost_sim_ros2 ghost_full_demo.launch.py
 ```
 
-## Completed Review Package
+### Raspberry Pi operator scripts
 
-The previous replay and report packaging milestone is complete for the final calibrated AprilTag hardware bag. Reviewers can inspect:
-
-1. Static replay dashboard with local JSON-backed playback.
-2. Formal IMM and heuristic MH side-by-side qualitative replay, with statistical comparison pending a dedicated harness.
-3. Hardware bag plots for XY path, position over time, status timelines, and topic rates.
-4. A final project report and concise portfolio packet.
-5. Career-facing snippets for resume, LinkedIn, GitHub, and interview use.
-
-The critical review roadmap remains available for historical context and future extensions: [`docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md`](docs/CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md).
-
-## Hardware Scope And Future Work
-
-Current hardware replay evidence covers a calibrated Raspberry Pi AprilTag run with both trackers running side by side. The package does not claim flight test, production deployment, closed-loop vehicle command, real drone autonomy, or onboard vehicle command.
-
-Useful future work includes verified stationary noise characterization for measurement covariance R, a statistical IMM/MH comparison harness, larger trial sets, measured ground-truth trajectories, more lighting and motion-blur tests, longer occlusions, and non-AprilTag perception after the AprilTag pipeline path.
-
-## Architecture
-
-```text
-┌─────────────────────────────────────────────────────────────────────┐
-│                     CAMERA PLATFORM (static tripod)                 │
-│                                                                     │
-│  [ICM-42688-P]──SPI 1000Hz + DRDY ISR──┐                           │
-│  [MPU-6050]────I2C  400Hz + DRDY ISR──┤                           │
-│  [IMX296 CSI]──728×544 decimated───────┤                           │
-│  [IMX296 Strobe]──GPIO22 HW timestamp──┘                           │
-│                            │                                        │
-│                    ┌───────▼────────┐                               │
-│                    │  Raspberry Pi  │                               │
-│                    │     4B 4GB     │                               │
-│                    └───────┬────────┘                               │
-└───────────────────────────┼─────────────────────────────────────────┘
-                            │
-         ┌──────────────────┼──────────────────┐
-         │                  │                  │
-         ▼                  ▼                  ▼
-  ┌─────────────┐   ┌──────────────┐   ┌──────────────┐
-  │  FILTER 1   │   │  FILTER 2    │   │   GUIDANCE   │
-  │  9-state    │   │  CV / CTRV   │   │   ProNav TPN │
-  │  ESKF       │──▶│  UKF         │──▶│  a_cmd (NED) │
-  │  1000 Hz    │   │  vision Hz   │   │              │
-  │             │   │ [px,py,v,    │   └──────┬───────┘
-  │ q_cam       │   │  psi,ψ̇]     │          │
-  │ b_a  b_g    │   │              │          │ UDP MAVLink
-  └─────────────┘   └──────────────┘          │ port 14540
-         ▲                  ▲                  ▼
-         │                  │        ┌──────────────────┐
-     IMU only          AprilTag      │  PX4 SITL +      │
-    (no camera)       + opt-flow     │  Gazebo Fortress  │
-                                     │  (laptop)        │
-                                     └──────────────────┘
+```bash
+~/ghost_start.sh
+~/ghost_status.sh
+~/ghost_stop.sh
 ```
 
-- **Target:** RC car or hand-moved target with 10 cm × 10 cm AprilTag 36h11 on a flat floor.
-- **Occlusion:** Target moves behind an object. GHOST-MH predicts bounded relative-weight future hypotheses and resets after the configured validity horizon.
+The live operator console is served on port `8090`, and the camera-only view is served on port `8081` when the hardware stack is active.
 
----
-
-## Hardware
-
-| Component        | Part                                  | Role                              |
-|------------------|---------------------------------------|-----------------------------------|
-| Compute          | Raspberry Pi 4B 4GB                   | Runs both filters at full rate    |
-| Camera           | USB webcam / IMX296 Global Shutter    | AprilTag detection + pose source  |
-| Primary IMU      | ICM-42688-P SPI breakout              | Future 1000 Hz attitude ESKF input |
-| Watchdog IMU     | MPU-6050 I2C breakout                 | 100 ms disagreement fault flag    |
-| RC Car / target  | 1:20 scale or hand-moved tag board    | Tracked target                    |
-| AprilTag         | 36h11 tag0, 10 cm × 10 cm laminated   | Vision measurement source         |
-| Occlusion object | Shoebox / board / wall segment        | Occlusion test scenario           |
-
-**Budget target: ~$190 total.** No GPS. Optional future guidance closes over UDP MAVLink to PX4 SITL.
-
----
-
-## The Two Filters
-
-### Filter 1 — 9-State Attitude ESKF (`src/attitude_filter/`)
-
-Runs at **1000 Hz**, driven by the ICM-42688-P IMU over SPI.
-
-Estimates the camera platform's orientation as a quaternion (`q_cam`) plus accelerometer bias (`b_a`) and gyro bias (`b_g`). The output rotation matrix `R_cam_to_NED` is used by Filter 2 to convert AprilTag detections from camera frame into NED world coordinates.
-
-**Three update mechanisms:**
-
-- **Gravity update** — uses the accelerometer reading as a gravity direction measurement when the platform is not accelerating. Produces NIS logged to `logs/nis_camera_gravity.csv`.
-- **ZARU (Zero Angular Rate Update)** — fires at 1 Hz on a static platform; treats the absence of angular rate as a pseudo-measurement to correct gyro bias.
-- **Sage-Husa adaptive noise** — recursively updates the measurement noise estimate R̂ with a forgetting factor of 0.98; enforces positive definiteness via eigenvalue floor.
-
-### Filter 2 — Target Tracker
-
-The original design contains CV/CTRV filters. The current live ROS2 demo additionally includes `ghost_sim_ros2.mh_tracker`, a bounded multi-hypothesis relative-weight tracker that subscribes to `/ghost/vision/target_pose` and publishes:
-
-```text
-/ghost/tracker_mh/target_odom
-/ghost/tracker_mh/futures_json
-/ghost/tracker_mh/status
-```
-
-During occlusion, the live tracker maintains ranked future hypotheses such as constant velocity, braking/hovering, lateral motion, turning, and acceleration. It does not claim hidden-state certainty.
-
----
-
-## Repository Structure
+## Repository map
 
 ```text
 ghost-vins-eskf/
 ├── README.md
-├── GHOST_V10.md                          # Legacy design document
-├── GHOST_V12_USB_WEBCAM.md               # USB webcam design document
+├── .github/workflows/ci.yml
 ├── docs/
-│   ├── NO_HARDWARE_DEMO.md
+│   ├── CONTROLLED_R_COLLECTION_PROTOCOL.md
 │   └── CRITICAL_REVIEW_AND_UPGRADE_ROADMAP.md
 ├── ghost_sim_ros2/
-│   ├── docs/
-│   │   ├── GHOST_CAREER_SNIPPETS.md
-│   │   ├── GHOST_PORTFOLIO_PACKET.md
-│   │   ├── GHOST_PROJECT_REPORT.md
-│   │   ├── GHOST_LIVE_BAG_PLOTS.md
-│   │   └── GHOST_LIVE_REPLAY_DASHBOARD.html
-│   ├── ghost_sim_ros2/
-│   │   ├── cv_tracker.py
-│   │   ├── mh_tracker.py
-│   │   ├── mh_monitor.py
-│   │   └── mh_web_dashboard.py
-│   └── analysis/
-│       ├── ghost_mh_engine.py
-│       ├── ghost_mh_calibrated.py
-│       └── ghost_mh_final_no_camera_benchmark.py
-├── tools/
-│   ├── ghost_start_bg.sh
-│   ├── ghost_stop_bg.sh
-│   └── ghost_status_bg.sh
-├── src/
-│   ├── attitude_filter/
-│   ├── target_tracker/
-│   └── guidance/
-├── analysis/
-├── test/
-└── logs/                                 # Runtime-generated — not committed
+│   ├── analysis/          # IMM/MH analysis, covariance, grid and statistics
+│   ├── docs/              # reports, runbooks, replay dashboard and evidence
+│   ├── ghost_sim_ros2/    # ROS 2 nodes
+│   ├── launch/            # ROS 2 launch files
+│   ├── test/              # unit and integration-focused tests
+│   └── tools/             # collection, replay, plotting and export tools
+├── src/                   # portable / legacy C++ estimator components
+└── tools/                 # Raspberry Pi operator scripts
 ```
 
----
+Legacy design documents remain in the repository as development history. They should not be interpreted as evidence that every historical ESKF, UKF, guidance, PX4, or flight-test concept is implemented in the current hardware package.
 
-## Build
+## Safe claims
 
-> Requires: ROS2 Jazzy for the live Python demo. Legacy C++ components require CMake ≥ 3.16, Eigen3, and Google Test.
+GHOST can currently claim:
 
-```bash
-source /opt/ros/jazzy/setup.bash
-cd ~/ghost_ws
-colcon build --packages-select ghost_sim_ros2
-source install/setup.bash
-```
+- a hardware-integrated Raspberry Pi and ROS 2 AprilTag tracking pipeline;
+- a live formal IMM tracker and heuristic MH comparison tracker;
+- full covariance plumbing and explicit uncertainty/status telemetry;
+- preserved hardware replay evidence through temporary target loss;
+- reproducible analysis, reporting, testing, and replay infrastructure;
+- predeclared controlled covariance and ground-truth validation protocols.
+
+GHOST does not currently claim:
+
+- validated real-world tracking accuracy;
+- statistically proven IMM superiority;
+- production robustness;
+- general object tracking beyond AprilTags;
+- closed-loop autonomous guidance or control;
+- flight readiness or flight-test validation.
+
+## License and contact
+
+This repository is a student aerospace/robotics engineering portfolio project. Technical review, reproducibility feedback, and GNC/estimation discussion are welcome through GitHub issues.
