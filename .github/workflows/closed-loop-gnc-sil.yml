@@ -1,0 +1,46 @@
+name: GHOST Closed-Loop GNC SIL
+
+on:
+  pull_request:
+    paths:
+      - 'ghost_sim_ros2/analysis/closed_loop_gnc_sil.py'
+      - 'ghost_sim_ros2/test/test_closed_loop_gnc_sil.py'
+      - 'ghost_sim_ros2/docs/GHOST_CLOSED_LOOP_GNC_SIL.md'
+      - '.github/workflows/closed-loop-gnc-sil.yml'
+  workflow_dispatch:
+
+jobs:
+  closed-loop-gnc-sil:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip numpy pytest
+
+      - name: Run focused closed-loop tests
+        run: |
+          PYTHONPATH=ghost_sim_ros2 \
+          python -m pytest -q ghost_sim_ros2/test/test_closed_loop_gnc_sil.py
+
+      - name: Generate deterministic SIL evidence
+        run: |
+          PYTHONPATH=ghost_sim_ros2 \
+          python ghost_sim_ros2/analysis/closed_loop_gnc_sil.py \
+            --out ghost_gnc_sil/ci
+
+      - name: Upload SIL evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ghost-closed-loop-gnc-sil
+          path: |
+            ghost_gnc_sil/ci/closed_loop_gnc_summary.json
+            ghost_gnc_sil/ci/closed_loop_gnc_summary.md
+            ghost_gnc_sil/ci/*.csv
