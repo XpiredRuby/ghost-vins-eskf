@@ -5,6 +5,7 @@ import rclpy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from visualization_msgs.msg import Marker
 
 
@@ -42,7 +43,7 @@ class CvTracker(Node):
             PoseWithCovarianceStamped,
             "/ghost/vision/target_pose",
             self.on_measurement,
-            20,
+            qos_profile_sensor_data,
         )
         self.odom_pub = self.create_publisher(Odometry, "/ghost/tracker/target_odom", 10)
         self.marker_pub = self.create_publisher(Marker, "/ghost/tracker/target_marker", 10)

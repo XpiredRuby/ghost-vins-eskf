@@ -5,6 +5,7 @@ import rclpy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 
 
 class EvidenceLogger(Node):
@@ -43,13 +44,13 @@ class EvidenceLogger(Node):
             PoseWithCovarianceStamped,
             "/ghost/vision/target_pose",
             self.on_measurement,
-            20,
+            qos_profile_sensor_data,
         )
         self.create_subscription(
             PoseWithCovarianceStamped,
             "/ghost/sim/target_truth",
             self.on_truth,
-            20,
+            qos_profile_sensor_data,
         )
         self.create_subscription(Odometry, "/ghost/tracker/target_odom", self.on_odom, 20)
         self.timer = self.create_timer(0.1, self.flush_row)

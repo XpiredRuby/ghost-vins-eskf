@@ -7,6 +7,8 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from analysis.measurement_covariance_config import (  # noqa: E402
+    CONTROLLED_R_CANDIDATE_DATASET,
+    CONTROLLED_R_CANDIDATE_XY_M2,
     build_measurement_r_xy,
     covariance_to_list,
 )
@@ -39,3 +41,13 @@ def test_nonfinite_r_is_rejected():
         assert "finite" in str(exc)
     else:
         raise AssertionError("nonfinite covariance should fail")
+
+
+def test_direct_controlled_r_candidate_is_exact_and_psd():
+    expected = (
+        (1.1285530537472441e-06, 9.517042606937477e-08),
+        (9.517042606937477e-08, 1.396619108865118e-08),
+    )
+    assert CONTROLLED_R_CANDIDATE_XY_M2 == expected
+    assert CONTROLLED_R_CANDIDATE_DATASET == "controlled_R_direct_01_fixed_15_75_s_n885"
+    assert np.linalg.eigvalsh(np.asarray(expected)).min() > 0.0

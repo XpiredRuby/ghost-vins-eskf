@@ -20,7 +20,7 @@ class TrialConfig:
     occlusion_duration_s: float
 
 
-def parse_args():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Final no-camera GHOST-MH benchmark suite")
     parser.add_argument("--duration", type=float, default=16.0)
     parser.add_argument("--rate", type=float, default=20.0)
@@ -32,7 +32,7 @@ def parse_args():
     parser.add_argument("--coverage-radius", type=float, default=0.25)
     parser.add_argument("--accel-temperature", type=float, default=0.30)
     parser.add_argument("--out", default=str(Path.home() / "ghost_logs" / "ghost_mh_final_no_camera.csv"))
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def parse_float_list(text: str) -> list[float]:

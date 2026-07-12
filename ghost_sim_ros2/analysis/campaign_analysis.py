@@ -403,6 +403,13 @@ def _plot_endpoint_errors(summary: dict[str, Any], path: Path) -> None:
     fig.tight_layout(); fig.savefig(path, dpi=180); plt.close(fig)
 
 
+
+def _boxplot_compat(ax, values, labels, **kwargs):
+    try:
+        return ax.boxplot(values, tick_labels=labels, **kwargs)
+    except TypeError:
+        return ax.boxplot(values, labels=labels, **kwargs)
+
 def _plot_paired_differences(summary: dict[str, Any], path: Path) -> None:
     labels, data = [], []
     for condition in summary["conditions"]:
@@ -417,7 +424,7 @@ def _plot_paired_differences(summary: dict[str, Any], path: Path) -> None:
             labels.append(condition["condition_id"]); data.append(values)
     fig, ax = plt.subplots(figsize=(max(8, 1.7 * len(labels)), 5.5))
     if data:
-        ax.boxplot(data, tick_labels=labels)
+        _boxplot_compat(ax, data, labels)
         ax.tick_params(axis="x", rotation=25)
     ax.axhline(0.0, linewidth=1)
     ax.set_ylabel("MH error - IMM error (m)")
@@ -454,7 +461,7 @@ def _plot_reacquisition_latency(summary: dict[str, Any], path: Path) -> None:
             labels.append(condition["condition_id"]); data.append(values)
     fig, ax = plt.subplots(figsize=(max(8, 1.7 * len(labels)), 5.5))
     if data:
-        ax.boxplot(data, tick_labels=labels); ax.tick_params(axis="x", rotation=25)
+        _boxplot_compat(ax, data, labels); ax.tick_params(axis="x", rotation=25)
     ax.set_ylabel("IMM reacquisition latency (s)"); ax.set_title("Measurement-backed reacquisition latency")
     ax.grid(True, axis="y", alpha=0.3); fig.tight_layout(); fig.savefig(path, dpi=180); plt.close(fig)
 

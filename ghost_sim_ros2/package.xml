@@ -2,7 +2,7 @@
 <package format="3">
   <name>ghost_sim_ros2</name>
   <version>0.1.0</version>
-  <description>Simulation-only ROS2 tools for GHOST target tracking.</description>
+  <description>ROS 2 simulation, live tracking, validation, and evidence tools for GHOST target estimation.</description>
   <maintainer email="vinayak@example.com">Vinayak Manoj Nair</maintainer>
   <license>MIT</license>
 

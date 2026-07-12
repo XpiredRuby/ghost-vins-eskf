@@ -18,7 +18,7 @@ def test_calibrated_mode_bank_priors_normalize_on_occlusion():
 
 
 def test_final_no_camera_benchmark_reports_calibrated_coverage():
-    args = parse_args()
+    args = parse_args([])
     args.duration = 6.0
     args.rate = 20.0
     args.noise_std = 0.035
@@ -35,7 +35,7 @@ def test_final_no_camera_benchmark_reports_calibrated_coverage():
 
 
 def test_future_export_emits_ranked_hypotheses():
-    args = export_parse_args()
+    args = export_parse_args([])
     args.duration = 6.0
     args.rate = 20.0
     args.seed = 7

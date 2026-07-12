@@ -27,7 +27,7 @@ def test_mode_bank_stops_after_occlusion_horizon():
 
 
 def test_multi_future_benchmark_reports_coverage():
-    args = parse_args()
+    args = parse_args([])
     args.duration = 6.0
     args.rate = 20.0
     args.noise_std = 0.035

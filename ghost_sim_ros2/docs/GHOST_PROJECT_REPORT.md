@@ -1,6 +1,6 @@
 # GHOST Project Report
 
-_Last synchronized after the USB hardware/BOM, campaign operations, audited analysis, evidence integrity, runtime/timing, physical-session, parameter-lock, and release-claims tooling were merged._
+_Last synchronized after the Phase 1 camera-pipeline hardening, accepted direct stationary covariance collection, campaign integrity lock, ROS continuity validation, and Phase 2 operator preparation._
 
 ## 1. Executive summary
 
@@ -14,6 +14,8 @@ The preserved hardware run demonstrates live USB-camera measurement ingestion, s
 The repository also contains a deterministic software-in-the-loop GNC harness that connects the same formal IMM to relative-standoff guidance, an acceleration-limited velocity controller, first-order actuator lag, follower dynamics, and a three-state `TRACKING` / `PREDICTION` / `SAFE_HOLD` supervisor.
 
 All meaningful hardware-free preparation for the next physical phase is implemented: privacy-safe USB hardware inventory, machine-readable BOM, hardened controlled covariance collection, fixed-window/sub-window analysis, measured-grid accuracy analysis and visuals, a 55-slot paired IMM/MH campaign, balanced randomization, local trial conductor, immutable plan/audited outcome state, condition-specific statistics, runtime/timing instrumentation, SHA-256 evidence packaging, formal parameter locking, a public claims gate, a dependency-gated session checklist, and a three-take hero demonstration protocol.
+
+Phase 1 physical preparation is now complete. The accepted direct-source stationary trial `controlled_R_direct_01` retained 885 samples in the predeclared 15–75 s window at 14.7489 Hz with a 0.076186 s maximum gap, producing the engineering-review covariance candidate `R_xx=1.1285530537472441e-06 m²`, `R_xy=9.517042606937477e-08 m²`, and `R_yy=1.396619108865118e-08 m²`. A separate hardened ROS source/receipt test passed at 14.6993 Hz with a 0.141084 s maximum source gap, and an integrated camera/IMM/MH smoke test confirmed exact shared covariance and live initialization. These results establish stationary measurement-covariance and integration evidence only; they do not establish tracker accuracy, dynamic performance, or residual whiteness.
 
 **Evidence boundary:** current hardware evidence validates integration, publication timing, telemetry, dropout-state behavior, and replay. Current GNC evidence validates deterministic software-only estimator-guidance-controller-plant integration. Neither establishes physical tracking accuracy, hardware controller performance, PX4/HIL integration, vehicle command, production readiness, flight readiness, or flight testing.
 

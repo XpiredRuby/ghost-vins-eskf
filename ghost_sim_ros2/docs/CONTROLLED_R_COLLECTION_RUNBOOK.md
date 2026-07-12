@@ -15,9 +15,13 @@ The collection helper now performs the full evidence path in one terminal:
 - prompts for measured camera-to-tag standoff and setup notes;
 - records camera controls before setting, after setting, after opening the camera, and after the trial;
 - verifies supported controls against requested values;
+- locks both legacy and modern V4L2/UVC exposure and white-balance control names, including `auto_exposure`, `exposure_time_absolute`, `white_balance_automatic`, and dynamic frame-rate where supported;
 - treats a rejected redundant control write as acceptable only when immediate readback already equals the requested value;
 - uses an existing AprilTag publisher or starts one automatically;
 - requires a live `/ghost/vision/target_pose` sample before the 90-second clock;
+- uses a throttled AprilTag publisher status log and avoids per-frame executor spinning so console I/O cannot stall the pose stream;
+- disables annotated JPEG preview generation by default and constrains OpenCV to one thread; preview is opt-in so tracking evidence does not pay unnecessary rendering/allocation cost;
+- transports `/ghost/vision/target_pose` with ROS sensor-data QoS so reliable-consumer backpressure cannot stall camera detection; tracker/status outputs remain reliable;
 - resolves the recorder's timestamped child directory automatically;
 - includes a predeclared recorder startup margin so the retained pose span can still cover the required 90 seconds;
 - uses the first received vision sample as the controlled-R relative-time origin, excluding ROS discovery latency from the evidence clock;
@@ -161,6 +165,17 @@ REJECT_COLLECTION_PRESERVE_ALL_ARTIFACTS
 - relative covariance variation and centroid drift diagnostics
 
 Protocol v1 did not predeclare a numerical stability pass/fail threshold. Sub-window stability is therefore reported for engineering review and must not be converted into a post-hoc acceptance threshold.
+
+## Direct-source fallback
+
+When the calibrated camera/detector/`solvePnP` pipeline is continuous but ROS DDS receipt logs contain transport gaps, use the separately labeled direct-source helper:
+
+```bash
+DEVICE=/dev/video0 TAG_SIZE_M=0.100 \
+  ghost_sim_ros2/tools/collect_controlled_r_direct_trial.sh
+```
+
+The direct source bypasses ROS transport and must not be silently pooled with ROS-received evidence. See [`DIRECT_CONTROLLED_R_COLLECTION.md`](DIRECT_CONTROLLED_R_COLLECTION.md). It supports measurement-noise review only and does not validate tracker accuracy or live ROS continuity.
 
 ## Claims boundary
 

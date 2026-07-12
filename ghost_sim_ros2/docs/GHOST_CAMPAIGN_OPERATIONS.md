@@ -158,7 +158,9 @@ Once the formal campaign starts:
 - preserve the conductor event log even if the trial is rejected;
 - update status and rejection reason through an auditable post-trial workflow rather than deleting a slot;
 - use the recorded vision stream to calculate actual occlusion duration;
-- require actual gaps within the protocol tolerance before acceptance.
+- require actual gaps within the protocol tolerance before acceptance;
+- reject only with a canonical predeclared acquisition/protocol code;
+- never reject or exclude a run because of tracker error, winner, effect direction, significance, or impact on a desired claim.
 
 ## Test
 

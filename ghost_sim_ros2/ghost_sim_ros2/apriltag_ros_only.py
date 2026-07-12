@@ -10,12 +10,12 @@ import numpy as np
 import rclpy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import Odometry
+from rclpy.qos import qos_profile_sensor_data
 from flask import Flask, Response
 from pupil_apriltags import Detector
 
-CONTROLLED_R_XX_M2 = 2.17492633008e-06
-CONTROLLED_R_XY_M2 = 6.31889067707e-07
-CONTROLLED_R_YY_M2 = 1.98048863448e-07
+from analysis.measurement_covariance_config import CONTROLLED_R_CANDIDATE_XY_M2
+
 DEFAULT_COV_M2 = 0.005 * 0.005
 
 
@@ -32,11 +32,16 @@ def parse_args():
     parser.add_argument("--cov-xy-m2", type=float, default=0.0, help="Pose covariance xy in m^2")
     parser.add_argument("--cov-yy-m2", type=float, default=DEFAULT_COV_M2, help="Pose covariance yy in m^2")
     parser.add_argument("--use-controlled-r-candidate", action="store_true", help="Use controlled stable-window candidate R_xy; not estimator accuracy validation")
+    parser.add_argument(
+        "--enable-preview-jpeg",
+        action="store_true",
+        help="Enable annotated JPEG generation for a preview client; disabled by default for deterministic tracking",
+    )
     parsed = parser.parse_args()
     if parsed.use_controlled_r_candidate:
-        parsed.cov_xx_m2 = CONTROLLED_R_XX_M2
-        parsed.cov_xy_m2 = CONTROLLED_R_XY_M2
-        parsed.cov_yy_m2 = CONTROLLED_R_YY_M2
+        parsed.cov_xx_m2 = CONTROLLED_R_CANDIDATE_XY_M2[0][0]
+        parsed.cov_xy_m2 = CONTROLLED_R_CANDIDATE_XY_M2[0][1]
+        parsed.cov_yy_m2 = CONTROLLED_R_CANDIDATE_XY_M2[1][1]
     return parsed
 
 
@@ -57,6 +62,8 @@ TRACK_STATE = {
     "stamp": 0.0,
 }
 LAST_TAG_CENTER_Y = None
+LAST_POSE_LOG_MONO = 0.0
+POSE_LOG_PERIOD_S = 1.0
 
 
 def load_calibration():
@@ -116,6 +123,7 @@ def estimate_pose(tag):
 
 
 def publish_ros_pose(tvec):
+    global LAST_POSE_LOG_MONO
     if ROS_PUB is None or ROS_NODE is None:
         return
 
@@ -142,8 +150,18 @@ def publish_ros_pose(tvec):
     msg.pose.covariance[35] = 999.0
 
     ROS_PUB.publish(msg)
-    rclpy.spin_once(ROS_NODE, timeout_sec=0.0)
-    print(f'ROS_ONLY publish x={msg.pose.pose.position.x:.4f} y={msg.pose.pose.position.y:.4f}', flush=True)
+
+    # Publishing does not require spinning the node. Per-frame spin_once plus a
+    # flushed console write adds avoidable latency and can stall a long physical
+    # collection when stdout or the executor is briefly delayed.
+    now_mono = time.monotonic()
+    if now_mono - LAST_POSE_LOG_MONO >= POSE_LOG_PERIOD_S:
+        print(
+            f'ROS_ONLY publish x={msg.pose.pose.position.x:.4f} '
+            f'y={msg.pose.pose.position.y:.4f}',
+            flush=True,
+        )
+        LAST_POSE_LOG_MONO = now_mono
 
 
 def draw_axis(frame, rvec, tvec):
@@ -167,6 +185,10 @@ def draw_axis(frame, rvec, tvec):
 def camera_loop():
     global latest_jpeg
 
+    # The direct controlled-R path demonstrated that single-threaded OpenCV
+    # without per-frame JPEG allocation is continuous on this Pi. Keep the
+    # tracking path deterministic; preview rendering is explicitly opt-in.
+    cv2.setNumThreads(1)
     cap = cv2.VideoCapture(args.device, cv2.CAP_V4L2)
     cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
@@ -193,26 +215,32 @@ def camera_loop():
         range_m = None
         bearing_deg = None
 
-        for tag in tags:
-            corners = tag.corners.astype(int)
-            for i in range(4):
-                cv2.line(frame, tuple(corners[i]), tuple(corners[(i + 1) % 4]), (0, 255, 0), 2)
-
-            center = tuple(tag.center.astype(int))
+        tag = max(tags, key=lambda item: float(getattr(item, "decision_margin", 0.0))) if tags else None
+        if tag is not None:
             last_id = int(tag.tag_id)
-            cv2.circle(frame, center, 5, (0, 0, 255), -1)
-
             pose = estimate_pose(tag)
             if pose is not None:
-                rvec, tvec, range_m, bearing_deg = pose
+                _rvec, tvec, range_m, bearing_deg = pose
                 publish_ros_pose(tvec)
-                # Axis drawing disabled: OpenCV point conversion is unstable on Pi.
                 text = f"id={tag.tag_id} range={range_m:.2f}m bearing={bearing_deg:.1f}deg"
             else:
                 text = f"id={tag.tag_id} pose=FAILED"
 
-            cv2.putText(frame, text, (center[0] + 8, center[1] - 8),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.58, (0, 255, 0), 2)
+            if args.enable_preview_jpeg:
+                corners = tag.corners.astype(int)
+                for i in range(4):
+                    cv2.line(frame, tuple(corners[i]), tuple(corners[(i + 1) % 4]), (0, 255, 0), 2)
+                center = tuple(tag.center.astype(int))
+                cv2.circle(frame, center, 5, (0, 0, 255), -1)
+                cv2.putText(
+                    frame,
+                    text,
+                    (center[0] + 8, center[1] - 8),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.58,
+                    (0, 255, 0),
+                    2,
+                )
 
         count += 1
         now = time.time()
@@ -225,20 +253,27 @@ def camera_loop():
             count = 0
             t0 = now
 
-        range_txt = "NA" if range_m is None else f"{range_m:.2f}m"
-        bearing_txt = "NA" if bearing_deg is None else f"{bearing_deg:.1f}deg"
-        overlay = (
-            f"FPS {stats['fps']:.1f} | Tags {len(tags)} | ID {last_id} | "
-            f"Range {range_txt} | Bearing {bearing_txt} | {CALIB_STATUS}"
-        )
-        cv2.rectangle(frame, (0, 0), (args.width, 38), (0, 0, 0), -1)
-        cv2.putText(frame, overlay, (10, 25), cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5, (255, 255, 255), 2)
-
-        ok, jpg = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
-        if ok:
-            with lock:
-                latest_jpeg = jpg.tobytes()
+        if args.enable_preview_jpeg:
+            range_txt = "NA" if range_m is None else f"{range_m:.2f}m"
+            bearing_txt = "NA" if bearing_deg is None else f"{bearing_deg:.1f}deg"
+            overlay = (
+                f"FPS {stats['fps']:.1f} | Tags {len(tags)} | ID {last_id} | "
+                f"Range {range_txt} | Bearing {bearing_txt} | {CALIB_STATUS}"
+            )
+            cv2.rectangle(frame, (0, 0), (args.width, 38), (0, 0, 0), -1)
+            cv2.putText(
+                frame,
+                overlay,
+                (10, 25),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (255, 255, 255),
+                2,
+            )
+            ok, jpg = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+            if ok:
+                with lock:
+                    latest_jpeg = jpg.tobytes()
 
 
 def mjpeg_stream():
@@ -289,13 +324,14 @@ if __name__ == "__main__":
     ROS_PUB = ROS_NODE.create_publisher(
         PoseWithCovarianceStamped,
         "/ghost/vision/target_pose",
-        10,
+        qos_profile_sensor_data,
     )
 
     cov_source = "CONTROLLED_R_CANDIDATE_STABLE_60S_PENDING_ENGINEER_REVIEW" if args.use_controlled_r_candidate else "SCALAR_OR_USER_PROVIDED_COVARIANCE"
     print(f"Calibration: {CALIB_STATUS}")
     print(f"ROS_ONLY covariance source: {cov_source}; R_xy=[[{args.cov_xx_m2}, {args.cov_xy_m2}], [{args.cov_xy_m2}, {args.cov_yy_m2}]]")
     print("ROS_ONLY: publishing /ghost/vision/target_pose")
+    print(f"ROS_ONLY preview JPEG: {'ENABLED' if args.enable_preview_jpeg else 'DISABLED_FOR_TRACKING_CONTINUITY'}")
     print("Press Ctrl+C to stop")
     try:
         camera_loop()

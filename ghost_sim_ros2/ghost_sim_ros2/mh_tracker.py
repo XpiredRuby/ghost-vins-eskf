@@ -7,7 +7,7 @@ import rclpy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
-from rclpy.qos import QoSProfile
+from rclpy.qos import QoSProfile, qos_profile_sensor_data
 from std_msgs.msg import String
 
 from analysis.ghost_mh_calibrated import CalibratedModeBankTracker
@@ -137,18 +137,18 @@ class GhostMHTrackerNode(Node):
         self.measurement_count: int = 0
         self.sequence: int = 0
 
-        # Depth-1 QoS is intentional for live tracking: use the newest sample and
-        # do not let old camera measurements build up in the ROS queue.
-        live_qos = QoSProfile(depth=1)
+        # Camera measurements use sensor-data QoS so a slow consumer cannot
+        # backpressure the live detector. Tracker outputs remain reliable.
+        output_qos = QoSProfile(depth=1)
         self.sub = self.create_subscription(
             PoseWithCovarianceStamped,
             self.input_topic,
             self.on_measurement,
-            live_qos,
+            qos_profile_sensor_data,
         )
-        self.odom_pub = self.create_publisher(Odometry, self.odom_topic, live_qos)
-        self.futures_pub = self.create_publisher(String, self.futures_topic, live_qos)
-        self.status_pub = self.create_publisher(String, self.status_topic, live_qos)
+        self.odom_pub = self.create_publisher(Odometry, self.odom_topic, output_qos)
+        self.futures_pub = self.create_publisher(String, self.futures_topic, output_qos)
+        self.status_pub = self.create_publisher(String, self.status_topic, output_qos)
 
         period = 1.0 / max(self.tick_hz, 1.0)
         self.timer = self.create_timer(period, self.on_timer)

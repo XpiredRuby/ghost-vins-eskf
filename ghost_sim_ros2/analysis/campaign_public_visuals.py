@@ -115,6 +115,13 @@ def _paired_trial_plot(summary: dict[str, Any], path: Path) -> None:
     plt.close(fig)
 
 
+
+def _boxplot_compat(ax, values, labels, **kwargs):
+    try:
+        return ax.boxplot(values, tick_labels=labels, **kwargs)
+    except TypeError:
+        return ax.boxplot(values, labels=labels, **kwargs)
+
 def _distribution_plot(summary: dict[str, Any], path: Path) -> None:
     labels, values = [], []
     for condition in summary.get("conditions", []):
@@ -136,7 +143,7 @@ def _distribution_plot(summary: dict[str, Any], path: Path) -> None:
                 values.append(data)
     fig, ax = plt.subplots(figsize=(max(9, 1.1 * len(labels)), 5.8))
     if values:
-        ax.boxplot(values, tick_labels=labels, showmeans=True)
+        _boxplot_compat(ax, values, labels, showmeans=True)
         ax.tick_params(axis="x", rotation=35)
     else:
         ax.text(0.5, 0.5, "No protocol-compliant distributions available", ha="center", va="center")

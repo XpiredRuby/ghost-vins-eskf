@@ -17,7 +17,7 @@ from analysis.ghost_mh_research_benchmark import (
 )
 
 
-def parse_args():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Evaluate GHOST-MH as a multi-future predictor")
     parser.add_argument("--duration", type=float, default=16.0)
     parser.add_argument("--rate", type=float, default=20.0)
@@ -28,7 +28,7 @@ def parse_args():
     parser.add_argument("--occlusion-durations", default="0.5,1.5,2.5,3.0")
     parser.add_argument("--coverage-radius", type=float, default=0.25)
     parser.add_argument("--out", default=str(Path.home() / "ghost_logs" / "ghost_mh_multi_future.csv"))
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def run_trial(args, config: TrialConfig) -> dict[str, float | str | int]:

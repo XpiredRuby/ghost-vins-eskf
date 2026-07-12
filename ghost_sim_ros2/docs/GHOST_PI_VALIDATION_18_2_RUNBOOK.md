@@ -217,25 +217,25 @@ Formal IMM tracker parameters:
 
 ```bash
 ros2 run ghost_sim_ros2 formal_imm_tracker --ros-args \
-  -p measurement_r_xx_m2:=2.17492633008e-06 \
-  -p measurement_r_xy_m2:=6.31889067707e-07 \
-  -p measurement_r_yy_m2:=1.98048863448e-07
+  -p measurement_r_xx_m2:=1.1285530537472441e-06 \
+  -p measurement_r_xy_m2:=9.517042606937477e-08 \
+  -p measurement_r_yy_m2:=1.396619108865118e-08
 ```
 
 MH tracker parameters:
 
 ```bash
 ros2 run ghost_sim_ros2 mh_tracker --ros-args \
-  -p measurement_r_xx_m2:=2.17492633008e-06 \
-  -p measurement_r_xy_m2:=6.31889067707e-07 \
-  -p measurement_r_yy_m2:=1.98048863448e-07
+  -p measurement_r_xx_m2:=1.1285530537472441e-06 \
+  -p measurement_r_xy_m2:=9.517042606937477e-08 \
+  -p measurement_r_yy_m2:=1.396619108865118e-08
 ```
 
 The candidate matrix is:
 
 ```text
-R_xy = [[2.17492633008e-06, 6.31889067707e-07],
-        [6.31889067707e-07, 1.98048863448e-07]]
+R_xy = [[1.1285530537472441e-06, 9.517042606937477e-08],
+        [9.517042606937477e-08, 1.396619108865118e-08]]
 ```
 
 Live futures JSON should report `measurement_r_source=CONTROLLED_R_CANDIDATE_STABLE_60S_PENDING_ENGINEER_REVIEW` and `measurement_r_status=DOES_NOT_VALIDATE_ESTIMATOR_ACCURACY`.

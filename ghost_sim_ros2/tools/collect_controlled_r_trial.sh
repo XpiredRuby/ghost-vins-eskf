@@ -16,8 +16,9 @@ Major environment variables:
   RECORD_DURATION_S, RECORDER_STARTUP_MARGIN_S, ANALYSIS_START_S, ANALYSIS_END_S
   MIN_ANALYSIS_RATE_HZ, MAX_ANALYSIS_GAP_S, AUTO_START_PUBLISHER
   EXPOSURE_AUTO, EXPOSURE_ABSOLUTE
-  WHITE_BALANCE_TEMPERATURE_AUTO, WHITE_BALANCE_TEMPERATURE
-  FOCUS_AUTO, FOCUS_ABSOLUTE
+  AUTO_EXPOSURE, EXPOSURE_TIME_ABSOLUTE, EXPOSURE_DYNAMIC_FRAMERATE
+  WHITE_BALANCE_TEMPERATURE_AUTO, WHITE_BALANCE_AUTOMATIC, WHITE_BALANCE_TEMPERATURE
+  POWER_LINE_FREQUENCY, FOCUS_AUTO, FOCUS_ABSOLUTE
 EOF
 }
 
@@ -98,8 +99,13 @@ AUTO_START_PUBLISHER="${AUTO_START_PUBLISHER:-1}"
 
 EXPOSURE_AUTO="${EXPOSURE_AUTO:-1}"
 EXPOSURE_ABSOLUTE="${EXPOSURE_ABSOLUTE:-157}"
+AUTO_EXPOSURE="${AUTO_EXPOSURE:-1}"
+EXPOSURE_TIME_ABSOLUTE="${EXPOSURE_TIME_ABSOLUTE:-157}"
+EXPOSURE_DYNAMIC_FRAMERATE="${EXPOSURE_DYNAMIC_FRAMERATE:-0}"
 WHITE_BALANCE_TEMPERATURE_AUTO="${WHITE_BALANCE_TEMPERATURE_AUTO:-0}"
+WHITE_BALANCE_AUTOMATIC="${WHITE_BALANCE_AUTOMATIC:-0}"
 WHITE_BALANCE_TEMPERATURE="${WHITE_BALANCE_TEMPERATURE:-4600}"
+POWER_LINE_FREQUENCY="${POWER_LINE_FREQUENCY:-2}"
 FOCUS_AUTO="${FOCUS_AUTO:-0}"
 FOCUS_ABSOLUTE="${FOCUS_ABSOLUTE:-0}"
 
@@ -177,7 +183,13 @@ control_supported() {
 read_control_value() {
   local name="$1"
   v4l2-ctl -d "$DEVICE" --get-ctrl="$name" 2>/dev/null |
-    awk -F: 'NF >= 2 {gsub(/[[:space:]]/, "", $2); print $2; exit}'
+    awk -F: 'NF >= 2 {
+      value=$2
+      sub(/^[[:space:]]+/, "", value)
+      split(value, parts, /[[:space:]]+/)
+      print parts[1]
+      exit
+    }'
 }
 
 set_control_if_supported() {
@@ -229,9 +241,14 @@ verify_control_if_supported() {
 verify_all_controls() {
   local stage="$1"
   verify_control_if_supported "$stage" exposure_auto "$EXPOSURE_AUTO"
+  verify_control_if_supported "$stage" auto_exposure "$AUTO_EXPOSURE"
   verify_control_if_supported "$stage" exposure_absolute "$EXPOSURE_ABSOLUTE"
+  verify_control_if_supported "$stage" exposure_time_absolute "$EXPOSURE_TIME_ABSOLUTE"
+  verify_control_if_supported "$stage" exposure_dynamic_framerate "$EXPOSURE_DYNAMIC_FRAMERATE"
   verify_control_if_supported "$stage" white_balance_temperature_auto "$WHITE_BALANCE_TEMPERATURE_AUTO"
+  verify_control_if_supported "$stage" white_balance_automatic "$WHITE_BALANCE_AUTOMATIC"
   verify_control_if_supported "$stage" white_balance_temperature "$WHITE_BALANCE_TEMPERATURE"
+  verify_control_if_supported "$stage" power_line_frequency "$POWER_LINE_FREQUENCY"
   verify_control_if_supported "$stage" focus_auto "$FOCUS_AUTO"
   verify_control_if_supported "$stage" focus_absolute "$FOCUS_ABSOLUTE"
 }
@@ -364,9 +381,14 @@ git -C "$REPO_ROOT" status --short --branch > "$TRIAL_DIR/git_status.txt"
 capture_controls "$TRIAL_DIR/camera_controls_before.txt"
 
 set_control_if_supported exposure_auto "$EXPOSURE_AUTO"
+set_control_if_supported auto_exposure "$AUTO_EXPOSURE"
 set_control_if_supported exposure_absolute "$EXPOSURE_ABSOLUTE"
+set_control_if_supported exposure_time_absolute "$EXPOSURE_TIME_ABSOLUTE"
+set_control_if_supported exposure_dynamic_framerate "$EXPOSURE_DYNAMIC_FRAMERATE"
 set_control_if_supported white_balance_temperature_auto "$WHITE_BALANCE_TEMPERATURE_AUTO"
+set_control_if_supported white_balance_automatic "$WHITE_BALANCE_AUTOMATIC"
 set_control_if_supported white_balance_temperature "$WHITE_BALANCE_TEMPERATURE"
+set_control_if_supported power_line_frequency "$POWER_LINE_FREQUENCY"
 set_control_if_supported focus_auto "$FOCUS_AUTO"
 set_control_if_supported focus_absolute "$FOCUS_ABSOLUTE"
 

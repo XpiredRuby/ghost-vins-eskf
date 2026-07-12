@@ -67,3 +67,24 @@ def test_controlled_r_uses_first_vision_time_origin():
 
     assert '-p relative_time_origin:=first_vision' in source
     assert 'recorder_relative_time_origin=first_vision' in source
+
+
+def test_modern_uvc_controls_are_locked_when_supported():
+    source = SCRIPT.read_text()
+
+    for control in (
+        "auto_exposure",
+        "exposure_time_absolute",
+        "exposure_dynamic_framerate",
+        "white_balance_automatic",
+        "power_line_frequency",
+    ):
+        assert f"set_control_if_supported {control}" in source
+        assert f"verify_control_if_supported \"$stage\" {control}" in source
+
+
+def test_menu_control_readback_uses_numeric_token_only():
+    source = SCRIPT.read_text()
+
+    assert 'split(value, parts, /[[:space:]]+/)' in source
+    assert 'print parts[1]' in source

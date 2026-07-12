@@ -1,0 +1,41 @@
+# GHOST Phase 2 dry-run candidate configuration.
+# NOT A FORMAL PARAMETER LOCK. Freeze only after all six physical dry runs pass.
+# Measurement covariance source: controlled_R_direct_01, fixed 15-75 s window,
+# n=885 at 14.7489 Hz. This estimates stationary measurement covariance only.
+
+ghost_formal_imm_tracker:
+  ros__parameters:
+    tick_hz: 30.0
+    measurement_timeout_s: 0.30
+    measurement_std_m: 0.005
+    measurement_r_xx_m2: 1.1285530537472441e-06
+    measurement_r_xy_m2: 9.517042606937477e-08
+    measurement_r_yy_m2: 1.396619108865118e-08
+    smooth_acceleration_std_mps2: 0.015
+    maneuver_acceleration_std_mps2: 0.75
+    future_horizon_s: 1.5
+    future_dt_s: 0.10
+    max_workspace_range_m: 5.0
+    dropout_degraded_after_steps: 10
+
+ghost_mh_tracker:
+  ros__parameters:
+    tick_hz: 30.0
+    measurement_timeout_s: 0.30
+    measurement_std_m: 0.005
+    measurement_r_xx_m2: 1.1285530537472441e-06
+    measurement_r_xy_m2: 9.517042606937477e-08
+    measurement_r_yy_m2: 1.396619108865118e-08
+    max_occlusion_s: 3.0
+    max_workspace_range_m: 5.0
+    top_n: 5
+    future_horizon_s: 1.5
+    future_dt_s: 0.10
+    accel_temperature: 0.30
+    stationary_gate_enabled: true
+    stationary_window_s: 1.5
+    stationary_enter_speed_mps: 0.065
+    stationary_exit_speed_mps: 0.090
+    stationary_min_samples: 5
+    stationary_hold_prior: 0.95
+    stationary_hold_max_s: 4.0

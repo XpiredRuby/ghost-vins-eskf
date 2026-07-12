@@ -24,7 +24,7 @@ def test_mh_tracker_stops_after_occlusion_horizon():
 
 
 def test_mh_benchmark_runs_and_reports_errors():
-    args = parse_args()
+    args = parse_args([])
     args.duration = 5.0
     args.rate = 20.0
     args.noise_std = 0.035

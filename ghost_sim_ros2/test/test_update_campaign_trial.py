@@ -104,36 +104,47 @@ def test_accept_requires_raw_logs_and_endpoint_truth(tmp_path: Path):
 
 def test_rejection_requires_reason_and_preserves_slot(tmp_path: Path):
     root = make_campaign(tmp_path)
-    with pytest.raises(ValueError, match="non-empty reason"):
+    with pytest.raises(ValueError, match="predeclared rejection code"):
         update_trial_state(root, "endpoint_occ_1s_01", action="reject", reason="")
     update_trial_state(
         root,
         "endpoint_occ_1s_01",
         action="reject",
-        reason="camera mount was bumped",
+        reason="CAMERA_OR_MOUNT_TOUCHED",
         actual_gap_s=0.8,
     )
     state = json.loads((root / "campaign_state.json").read_text())
     assert state["trials"][0]["status"] == "rejected"
-    assert state["trials"][0]["rejection_reason"] == "camera mount was bumped"
+    assert state["trials"][0]["rejection_reason"] == "CAMERA_OR_MOUNT_TOUCHED"
     assert (root / "trial_directories" / "endpoint_occ_1s_01").exists()
+
+
+def test_rejection_cannot_be_based_on_tracker_outcome(tmp_path: Path):
+    root = make_campaign(tmp_path)
+    with pytest.raises(ValueError, match="which tracker won"):
+        update_trial_state(
+            root,
+            "endpoint_occ_1s_01",
+            action="reject",
+            reason="IMM_LOST_TO_MH",
+        )
 
 
 def test_amendment_requires_reason_and_finalization_requires_no_planned_slots(tmp_path: Path):
     root = make_campaign(tmp_path, repetitions=2)
-    update_trial_state(root, "endpoint_occ_1s_01", action="reject", reason="invalid gap")
+    update_trial_state(root, "endpoint_occ_1s_01", action="reject", reason="OCCLUSION_GAP_OUTSIDE_TOLERANCE")
     with pytest.raises(ValueError, match="explicit --amend-reason"):
-        update_trial_state(root, "endpoint_occ_1s_01", action="reject", reason="better wording")
+        update_trial_state(root, "endpoint_occ_1s_01", action="reject", reason="OCCLUSION_GAP_OUTSIDE_TOLERANCE")
     update_trial_state(
         root,
         "endpoint_occ_1s_01",
         action="reject",
-        reason="measured gap outside tolerance",
+        reason="OCCLUSION_GAP_OUTSIDE_TOLERANCE",
         amend_reason="clarify the original rejection reason",
     )
     with pytest.raises(ValueError, match="remain planned"):
         finalize_campaign(root)
-    update_trial_state(root, "endpoint_occ_1s_02", action="reject", reason="lighting changed")
+    update_trial_state(root, "endpoint_occ_1s_02", action="reject", reason="CAMERA_CONTROLS_DRIFTED")
     result = finalize_campaign(root)
     assert result["campaign_collection_status"] == "COLLECTION_COMPLETE_PENDING_ANALYSIS"
     assert result["validation"]["valid"] is True

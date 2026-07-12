@@ -9,7 +9,7 @@ from analysis.ghost_mh_calibrated import CalibratedModeBankTracker
 from analysis.ghost_mh_scenarios import in_occlusion, scenario_names, truth_state
 
 
-def parse_args():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="Export GHOST-MH future hypotheses for visualization")
     parser.add_argument("--scenario", default="turn_left", choices=scenario_names())
     parser.add_argument("--seed", type=int, default=7)
@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument("--occlusion-duration", type=float, default=2.5)
     parser.add_argument("--top-n", type=int, default=5)
     parser.add_argument("--out", default=str(Path.home() / "ghost_logs" / "ghost_mh_futures.csv"))
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def run_export(args) -> list[dict[str, float | int | str]]:

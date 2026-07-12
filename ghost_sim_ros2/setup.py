@@ -13,13 +13,15 @@ setup(
         (f"share/{package_name}", ["package.xml"]),
         (f"share/{package_name}/launch", glob("launch/*.launch.py")),
         (f"share/{package_name}/rviz", glob("rviz/*.rviz")),
+        (f"share/{package_name}/config", glob("config/*.yaml")),
         (f"share/{package_name}/analysis", glob("analysis/*.py")),
     ],
     install_requires=["setuptools", "numpy"],
+    tests_require=["pytest"],
     zip_safe=True,
     maintainer="Vinayak Manoj Nair",
     maintainer_email="vinayak@example.com",
-    description="Simulation-only ROS2 tools for GHOST target tracking.",
+    description="ROS 2 simulation, live tracking, validation, and evidence tools for GHOST target estimation.",
     license="MIT",
     entry_points={
         "console_scripts": [

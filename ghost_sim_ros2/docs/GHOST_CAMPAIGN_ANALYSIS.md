@@ -148,7 +148,8 @@ Real campaign or grid plots may replace placeholders on the public site only aft
 4. all condition labels and sample counts are visible;
 5. exploratory conditions remain labeled exploratory;
 6. plots retain the hardware-versus-SIL claims boundary;
-7. rejected trials remain counted in failure and quality summaries.
+7. rejected trials remain counted in failure and quality summaries;
+8. no accepted run is removed because it favors or harms either tracker, changes effect direction, or weakens significance.
 
 ## Test
 

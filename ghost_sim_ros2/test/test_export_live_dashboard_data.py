@@ -3,24 +3,32 @@ import json
 import sys
 import types
 from pathlib import Path
+from unittest.mock import patch
 
 
 def _load_module():
-    sys.modules.setdefault("rosbag2_py", types.SimpleNamespace(SequentialReader=object, StorageOptions=object, ConverterOptions=object))
-    sys.modules.setdefault("rclpy", types.ModuleType("rclpy"))
     serialization = types.ModuleType("rclpy.serialization")
     serialization.deserialize_message = lambda *args, **kwargs: None
-    sys.modules["rclpy.serialization"] = serialization
     utilities = types.ModuleType("rosidl_runtime_py.utilities")
     utilities.get_message = lambda *args, **kwargs: object
-    sys.modules.setdefault("rosidl_runtime_py", types.ModuleType("rosidl_runtime_py"))
-    sys.modules["rosidl_runtime_py.utilities"] = utilities
+    stubs = {
+        "rosbag2_py": types.SimpleNamespace(
+            SequentialReader=object,
+            StorageOptions=object,
+            ConverterOptions=object,
+        ),
+        "rclpy": types.ModuleType("rclpy"),
+        "rclpy.serialization": serialization,
+        "rosidl_runtime_py": types.ModuleType("rosidl_runtime_py"),
+        "rosidl_runtime_py.utilities": utilities,
+    }
 
     path = Path(__file__).resolve().parents[1] / "tools" / "export_live_dashboard_data.py"
     spec = importlib.util.spec_from_file_location("export_live_dashboard_data", path)
     mod = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
-    spec.loader.exec_module(mod)
+    with patch.dict(sys.modules, stubs, clear=False):
+        spec.loader.exec_module(mod)
     return mod
 
 

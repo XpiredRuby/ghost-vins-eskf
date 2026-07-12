@@ -249,6 +249,23 @@ Reject a trial when any of the following occurs:
 
 Rejected trials remain in the evidence package with their reasons.
 
+### Outcome-independent rejection lock
+
+A run may be rejected only for an acquisition or protocol failure that is identifiable without comparing IMM and MH performance. The update tool accepts only these predeclared codes:
+
+- `CAMERA_OR_ENDPOINT_MARKER_MOVED`
+- `TAG_GEOMETRY_CHANGED`
+- `CAMERA_CONTROLS_DRIFTED`
+- `ENDPOINT_NOT_REACHED_OR_HELD`
+- `PATH_PROTOCOL_VIOLATION`
+- `OCCLUSION_GAP_OUTSIDE_TOLERANCE`
+- `REQUIRED_LOGS_MISSING`
+- `TIMESTAMPS_NONMONOTONIC_OR_UNUSABLE`
+- `CAMERA_OR_MOUNT_TOUCHED`
+- `TRIAL_METADATA_MISMATCH`
+
+Tracker error magnitude, which tracker won, effect size, statistical significance, visual appearance of a plot, or whether a trial helps or harms a desired claim are never valid rejection criteria. Such results remain in the accepted paired analysis when the acquisition and protocol checks pass. Free-text details belong in operator notes; they do not replace the canonical code.
+
 ## Required final language
 
 Before accepted data exist:

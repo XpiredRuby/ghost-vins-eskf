@@ -10,7 +10,7 @@ from typing import Any
 import rclpy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from rclpy.node import Node
-from rclpy.qos import QoSProfile
+from rclpy.qos import QoSProfile, qos_profile_sensor_data
 from std_msgs.msg import String
 
 
@@ -129,7 +129,7 @@ class GhostTrialRecorder(Node):
             PoseWithCovarianceStamped,
             str(self.get_parameter("vision_topic").value),
             self.on_vision,
-            qos,
+            qos_profile_sensor_data,
         )
         self.events_pub = self.create_publisher(String, str(self.get_parameter("events_topic").value), qos)
         self.summary_pub = self.create_publisher(String, str(self.get_parameter("summary_topic").value), qos)

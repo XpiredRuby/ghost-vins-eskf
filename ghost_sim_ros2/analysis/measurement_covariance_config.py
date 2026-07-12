@@ -10,10 +10,17 @@ import numpy as np
 CONTROLLED_R_CANDIDATE_STABLE_60S_PENDING_ENGINEER_REVIEW = "CONTROLLED_R_CANDIDATE_STABLE_60S_PENDING_ENGINEER_REVIEW"
 SCALAR_MEASUREMENT_STD_FALLBACK = "SCALAR_MEASUREMENT_STD_FALLBACK"
 DOES_NOT_VALIDATE_ESTIMATOR_ACCURACY = "DOES_NOT_VALIDATE_ESTIMATOR_ACCURACY"
+CONTROLLED_R_CANDIDATE_XY_M2 = (
+    (1.1285530537472441e-06, 9.517042606937477e-08),
+    (9.517042606937477e-08, 1.396619108865118e-08),
+)
+CONTROLLED_R_CANDIDATE_DATASET = "controlled_R_direct_01_fixed_15_75_s_n885"
 CONTROLLED_R_CANDIDATE_PROVENANCE = (
-    "Candidate empirical raw R_xy from controlled stable 60 s stationary AprilTag log "
-    "vision_pose_log_stable_60s.csv (t=143.747..203.716 s, n=728). Pending engineer review; "
-    "does not prove white noise and does not validate estimator accuracy."
+    "Candidate empirical raw R_xy from the direct calibrated camera -> AprilTag -> solvePnP "
+    "stationary dataset controlled_R_direct_01, using the predeclared fixed t=15..75 s window "
+    "(n=885, 14.7489 Hz). The source bypasses ROS DDS. It estimates stationary measurement "
+    "covariance only, does not prove white noise, and does not validate estimator accuracy or "
+    "dynamic performance."
 )
 SCALAR_R_PROVENANCE = (
     "Isotropic position R from measurement_std_m scalar fallback. Backward-compatible live default; "

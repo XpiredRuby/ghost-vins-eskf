@@ -15,7 +15,7 @@ import rclpy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
-from rclpy.qos import QoSProfile
+from rclpy.qos import QoSProfile, qos_profile_sensor_data
 from std_msgs.msg import String
 
 from analysis.measurement_covariance_config import build_measurement_r_xy
@@ -95,11 +95,16 @@ class FormalImmTrackerNode(Node):
         self.sequence = 0
         self.last_log_s = 0.0
 
-        live_qos = QoSProfile(depth=1)
-        self.sub = self.create_subscription(PoseWithCovarianceStamped, self.input_topic, self.on_measurement, live_qos)
-        self.odom_pub = self.create_publisher(Odometry, self.odom_topic, live_qos)
-        self.futures_pub = self.create_publisher(String, self.futures_topic, live_qos)
-        self.status_pub = self.create_publisher(String, self.status_topic, live_qos)
+        output_qos = QoSProfile(depth=1)
+        self.sub = self.create_subscription(
+            PoseWithCovarianceStamped,
+            self.input_topic,
+            self.on_measurement,
+            qos_profile_sensor_data,
+        )
+        self.odom_pub = self.create_publisher(Odometry, self.odom_topic, output_qos)
+        self.futures_pub = self.create_publisher(String, self.futures_topic, output_qos)
+        self.status_pub = self.create_publisher(String, self.status_topic, output_qos)
         self.timer = self.create_timer(dt_s, self.on_timer)
 
         self.get_logger().info(

@@ -14,6 +14,18 @@ from typing import Any
 
 REQUIRED_RAW_LOGS = ("vision_pose.jsonl", "imm_futures.jsonl", "mh_futures.jsonl")
 STATE_SCHEMA_VERSION = 1
+REJECTION_CODES = (
+    "CAMERA_OR_ENDPOINT_MARKER_MOVED",
+    "TAG_GEOMETRY_CHANGED",
+    "CAMERA_CONTROLS_DRIFTED",
+    "ENDPOINT_NOT_REACHED_OR_HELD",
+    "PATH_PROTOCOL_VIOLATION",
+    "OCCLUSION_GAP_OUTSIDE_TOLERANCE",
+    "REQUIRED_LOGS_MISSING",
+    "TIMESTAMPS_NONMONOTONIC_OR_UNUSABLE",
+    "CAMERA_OR_MOUNT_TOUCHED",
+    "TRIAL_METADATA_MISMATCH",
+)
 
 
 def update_trial_state(
@@ -77,11 +89,19 @@ def update_trial_state(
         )
     elif action == "reject":
         if not isinstance(reason, str) or not reason.strip():
-            raise ValueError("rejected trials require a non-empty reason")
+            raise ValueError("rejected trials require a predeclared rejection code")
+        rejection_code = reason.strip().upper()
+        if rejection_code not in REJECTION_CODES:
+            allowed = ", ".join(REJECTION_CODES)
+            raise ValueError(
+                "rejection reason must be one of the predeclared acquisition/protocol codes; "
+                "tracker error, which tracker won, or whether a trial helps a claim are not valid "
+                f"rejection criteria. Allowed codes: {allowed}"
+            )
         current.update(
             {
                 "status": "rejected",
-                "rejection_reason": reason.strip(),
+                "rejection_reason": rejection_code,
                 "endpoint_truth_m": (
                     _validated_endpoint(endpoint_x, endpoint_y)
                     if endpoint_x is not None or endpoint_y is not None
@@ -393,7 +413,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--trial-id")
     actions = parser.add_mutually_exclusive_group()
     actions.add_argument("--accept", action="store_true")
-    actions.add_argument("--reject")
+    actions.add_argument("--reject", choices=REJECTION_CODES, metavar="CODE")
     parser.add_argument("--endpoint-x", type=float)
     parser.add_argument("--endpoint-y", type=float)
     parser.add_argument("--actual-gap-s", type=float)

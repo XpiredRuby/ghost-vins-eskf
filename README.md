@@ -102,15 +102,15 @@ The SIL harness uses the repository's formal IMM implementation. It does not arm
 
 | Capability | Implemented | Evidence | Current status |
 |---|:---:|---|---|
-| USB UVC / V4L2 AprilTag pose pipeline | Yes | Preserved hardware run | Exact webcam identity pending physical inventory |
+| USB UVC / V4L2 AprilTag pose pipeline | Yes | EMEET C960 live continuity + calibration evidence | Live source/receipt continuity passed; ground-truth dynamic accuracy pending |
 | Formal IMM tracker | Yes | Hardware behavior + SIL | Ground-truth hardware performance pending |
 | GHOST-MH comparison tracker | Yes | Hardware behavior | Ground-truth hardware performance pending |
-| Full symmetric `2 x 2` measurement covariance plumbing | Yes | Telemetry verified | Controlled empirical collection pending |
+| Full symmetric `2 x 2` measurement covariance plumbing | Yes | Accepted direct stationary trial, 885 fixed-window samples | Engineering-review candidate collected; does not validate accuracy or whiteness |
 | Prediction-only / degraded / reacquisition telemetry | Yes | Hardware replay | Behavior evidence |
 | Closed-loop formal-IMM GNC SIL | Yes | Dedicated CI artifact | Deterministic software-only evidence |
-| USB hardware BOM and interface-control record | Yes | Public template/page | Labels, prices and photos pending inventory |
-| Privacy-separated USB hardware inventory capture | Yes | Tested offline | Physical execution pending |
-| Hardened controlled-`R` collection | Yes | Tests/CI | Pi/camera execution pending |
+| USB hardware BOM and interface-control record | Yes | Physical machine-readable inventory captured | Public presentation photographs and release review pending |
+| Privacy-separated USB hardware inventory capture | Yes | Physical inventory evidence preserved | Public review pending; private identifiers remain excluded |
+| Hardened controlled-`R` collection | Yes | `controlled_R_direct_01` + ROS continuity evidence | Stationary covariance gate passed; tracker accuracy still pending grid/campaign |
 | Six-point grid analysis and visuals | Yes | Synthetic fixtures/CI | Physical grid pending |
 | 55-slot paired IMM/MH campaign protocol | Yes | Predeclared | Physical collection pending |
 | Balanced randomized campaign initializer | Yes | Tests/CI | Formal campaign initialization pending |
@@ -166,8 +166,11 @@ The repository now contains every major software, methodology and presentation c
 
 - [Controlled covariance protocol](docs/CONTROLLED_R_COLLECTION_PROTOCOL.md)
 - [Hardened controlled-R runbook](ghost_sim_ros2/docs/CONTROLLED_R_COLLECTION_RUNBOOK.md)
+- [Direct controlled-R source path](ghost_sim_ros2/docs/DIRECT_CONTROLLED_R_COLLECTION.md)
 - [Ground-truth grid protocol](ghost_sim_ros2/docs/GROUND_TRUTH_GRID_VALIDATION_PROTOCOL.md)
 - [55-trial IMM/MH protocol](ghost_sim_ros2/docs/IMM_MH_HARDWARE_CAMPAIGN_PROTOCOL.md)
+- [Consolidated Phase 2 operator session](ghost_sim_ros2/docs/GHOST_PHASE2_OPERATOR_SESSION.md)
+- [Phase 2 candidate tracker parameters](ghost_sim_ros2/config/phase2_candidate_parameters.yaml)
 - [Campaign initializer and local conductor](ghost_sim_ros2/docs/GHOST_CAMPAIGN_OPERATIONS.md)
 - [Immutable plan / audited outcomes](ghost_sim_ros2/docs/GHOST_CAMPAIGN_STATE.md)
 - [Master physical-session runbook](ghost_sim_ros2/docs/GHOST_PHYSICAL_VALIDATION_MASTER_RUNBOOK.md)

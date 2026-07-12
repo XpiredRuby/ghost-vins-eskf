@@ -16,7 +16,7 @@ class BaselineState:
     initialized: bool = False
 
 
-def parse_args():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description="No-camera GHOST-MH occlusion benchmark")
     parser.add_argument("--duration", type=float, default=24.0)
     parser.add_argument("--rate", type=float, default=20.0)
@@ -25,7 +25,7 @@ def parse_args():
     parser.add_argument("--occlusion-duration", type=float, default=2.5)
     parser.add_argument("--seed", type=int, default=11)
     parser.add_argument("--out", default=str(Path.home() / "ghost_logs" / "ghost_mh_benchmark.csv"))
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def truth_state(t: float) -> np.ndarray:
