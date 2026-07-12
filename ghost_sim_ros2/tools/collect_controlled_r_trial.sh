@@ -13,7 +13,7 @@ Options:
 
 Major environment variables:
   DEVICE, CALIB_PATH, TAG_SIZE_M, TRIAL_ROOT, TRIAL_DIR
-  RECORD_DURATION_S, ANALYSIS_START_S, ANALYSIS_END_S
+  RECORD_DURATION_S, RECORDER_STARTUP_MARGIN_S, ANALYSIS_START_S, ANALYSIS_END_S
   MIN_ANALYSIS_RATE_HZ, MAX_ANALYSIS_GAP_S, AUTO_START_PUBLISHER
   EXPOSURE_AUTO, EXPOSURE_ABSOLUTE
   WHITE_BALANCE_TEMPERATURE_AUTO, WHITE_BALANCE_TEMPERATURE
@@ -88,6 +88,8 @@ PROTOCOL_REL="docs/CONTROLLED_R_COLLECTION_PROTOCOL.md"
 PROTOCOL_COMMIT="$(git -C "$REPO_ROOT" log -n 1 --format=%H -- "$PROTOCOL_REL")"
 
 RECORD_DURATION_S="${RECORD_DURATION_S:-90}"
+RECORDER_STARTUP_MARGIN_S="${RECORDER_STARTUP_MARGIN_S:-4}"
+RECORDER_TIMEOUT_S="$(awk -v duration="$RECORD_DURATION_S" -v margin="$RECORDER_STARTUP_MARGIN_S" 'BEGIN { printf "%.3f", duration + margin }')"
 ANALYSIS_START_S="${ANALYSIS_START_S:-15}"
 ANALYSIS_END_S="${ANALYSIS_END_S:-75}"
 MIN_ANALYSIS_RATE_HZ="${MIN_ANALYSIS_RATE_HZ:-10.0}"
@@ -185,8 +187,16 @@ set_control_if_supported() {
     if v4l2-ctl -d "$DEVICE" --set-ctrl="${name}=${value}" >> "$LOG_FILE" 2>&1; then
       log "SET: $name=$value"
     else
-      log "FAILED_SET: $name=$value"
-      CONTROL_FAILURE=1
+      local actual
+      actual="$(read_control_value "$name" || true)"
+      if [[ "$actual" == "$value" ]]; then
+        log "SET_REJECTED_BUT_READBACK_OK: $name=$actual"
+        printf 'set\t%s\t%s\t%s\tREADBACK_OK_AFTER_REJECTED_WRITE\n' \
+          "$name" "$value" "$actual" >> "$READBACK_TSV"
+      else
+        log "FAILED_SET: $name=$value actual=${actual:-MISSING}"
+        CONTROL_FAILURE=1
+      fi
     fi
   else
     log "UNSUPPORTED: $name"
@@ -341,6 +351,9 @@ standoff_m=$STANDOFF_M
 setup_note=$SETUP_NOTE
 analysis_window_s=$ANALYSIS_START_S-$ANALYSIS_END_S
 record_duration_s=$RECORD_DURATION_S
+recorder_startup_margin_s=$RECORDER_STARTUP_MARGIN_S
+recorder_timeout_s=$RECORDER_TIMEOUT_S
+recorder_relative_time_origin=first_vision
 minimum_acceptable_analysis_rate_hz=$MIN_ANALYSIS_RATE_HZ
 maximum_acceptable_analysis_gap_s=$MAX_ANALYSIS_GAP_S
 publisher_covariance_note=POSE_COVARIANCE_METADATA_NOT_USED_TO_ESTIMATE_EMPIRICAL_R
@@ -380,16 +393,18 @@ fi
 
 cat <<EOF
 
-Preflight passed. The helper will now record exactly $RECORD_DURATION_S seconds.
+Preflight passed. The helper will collect at least $RECORD_DURATION_S seconds of samples.
+The recorder process timeout is $RECORDER_TIMEOUT_S seconds, including a predeclared startup margin.
 Do not touch the table, camera, AprilTag, cable, or lighting.
 Press Enter to start.
 EOF
 read -r
 
 set +e
-timeout --signal=INT --kill-after=5s "${RECORD_DURATION_S}s" \
+timeout --signal=INT --kill-after=5s "${RECORDER_TIMEOUT_S}s" \
   ros2 run ghost_sim_ros2 trial_recorder --ros-args \
   -p trial_root:="$RECORDER_ROOT" \
+  -p relative_time_origin:=first_vision \
   > "$TRIAL_DIR/trial_recorder.log" 2>&1
 RECORDER_STATUS=$?
 set -e

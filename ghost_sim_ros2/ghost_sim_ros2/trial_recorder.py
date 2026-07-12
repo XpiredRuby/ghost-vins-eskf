@@ -62,6 +62,12 @@ class GhostTrialRecorder(Node):
         self.declare_parameter("events_topic", "/ghost/trial/events_json")
         self.declare_parameter("summary_topic", "/ghost/trial/summary_json")
         self.declare_parameter("report_period_s", 1.0)
+        self.declare_parameter("relative_time_origin", "node_start")
+
+        self.relative_time_origin = str(self.get_parameter("relative_time_origin").value)
+        if self.relative_time_origin not in {"node_start", "first_vision"}:
+            raise ValueError("relative_time_origin must be node_start or first_vision")
+        self.first_vision_ros_s: float | None = None
 
         self.imm_futures_topic = str(self.get_parameter("imm_futures_topic").value)
         self.mh_futures_topic = str(self.get_parameter("mh_futures_topic").value)
@@ -145,7 +151,10 @@ class GhostTrialRecorder(Node):
         return self.get_clock().now().nanoseconds * 1e-9
 
     def t_rel(self) -> float:
-        return max(0.0, self.now_s() - self.start_ros_s)
+        origin_ros_s = self.start_ros_s
+        if self.relative_time_origin == "first_vision" and self.first_vision_ros_s is not None:
+            origin_ros_s = self.first_vision_ros_s
+        return max(0.0, self.now_s() - origin_ros_s)
 
     def base_row(self) -> dict[str, Any]:
         return {
@@ -168,6 +177,7 @@ class GhostTrialRecorder(Node):
                 "events": str(self.get_parameter("events_topic").value),
                 "summary": str(self.get_parameter("summary_topic").value),
             },
+            "relative_time_origin": self.relative_time_origin,
             "purpose": "Live GHOST-MH trial recording for replay, baseline comparison, and report export.",
         }
         (self.trial_dir / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
@@ -178,6 +188,8 @@ class GhostTrialRecorder(Node):
         self.status_log.write(row)
 
     def on_vision(self, msg: PoseWithCovarianceStamped) -> None:
+        if self.relative_time_origin == "first_vision" and self.first_vision_ros_s is None:
+            self.first_vision_ros_s = self.now_s()
         row = self.base_row()
         row["position"] = {
             "x_m": float(msg.pose.pose.position.x),

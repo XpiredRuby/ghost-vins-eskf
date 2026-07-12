@@ -46,3 +46,24 @@ def test_ros_setup_is_nounset_safe_and_does_not_start_collection(tmp_path: Path)
     assert result.returncode == 0, result.stderr
     assert "nounset restored" in result.stdout
     assert_no_evidence(tmp_path)
+
+def test_rejected_redundant_control_write_uses_matching_readback():
+    source = SCRIPT.read_text()
+
+    assert "SET_REJECTED_BUT_READBACK_OK" in source
+    assert 'if [[ "$actual" == "$value" ]]' in source
+    assert "READBACK_OK_AFTER_REJECTED_WRITE" in source
+    assert 'CONTROL_FAILURE=1' in source
+
+def test_recorder_timeout_includes_predeclared_startup_margin():
+    source = SCRIPT.read_text()
+
+    assert 'RECORDER_STARTUP_MARGIN_S="${RECORDER_STARTUP_MARGIN_S:-4}"' in source
+    assert '"${RECORDER_TIMEOUT_S}s"' in source
+    assert 'recorder_timeout_s=$RECORDER_TIMEOUT_S' in source
+
+def test_controlled_r_uses_first_vision_time_origin():
+    source = SCRIPT.read_text()
+
+    assert '-p relative_time_origin:=first_vision' in source
+    assert 'recorder_relative_time_origin=first_vision' in source

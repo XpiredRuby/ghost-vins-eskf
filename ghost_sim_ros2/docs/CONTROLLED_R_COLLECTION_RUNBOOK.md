@@ -15,9 +15,12 @@ The collection helper now performs the full evidence path in one terminal:
 - prompts for measured camera-to-tag standoff and setup notes;
 - records camera controls before setting, after setting, after opening the camera, and after the trial;
 - verifies supported controls against requested values;
+- treats a rejected redundant control write as acceptable only when immediate readback already equals the requested value;
 - uses an existing AprilTag publisher or starts one automatically;
 - requires a live `/ghost/vision/target_pose` sample before the 90-second clock;
 - resolves the recorder's timestamped child directory automatically;
+- includes a predeclared recorder startup margin so the retained pose span can still cover the required 90 seconds;
+- uses the first received vision sample as the controlled-R relative-time origin, excluding ROS discovery latency from the evidence clock;
 - validates fixed-window coverage, sample rate, and maximum sample gap;
 - exports the raw pose CSV;
 - computes raw covariance and correlation over seconds `15–75`;
