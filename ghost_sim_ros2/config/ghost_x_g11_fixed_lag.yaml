@@ -1,0 +1,23 @@
+schema_version: 1
+phase: G11_FIXED_LAG_SMOOTHER
+source_campaign: /home/xpired/ghost_trials/ghost_x_g4_controlled_truth_v1
+split:
+  tuning_repeat: 1
+  frozen_evaluation_repeat: 2
+  out_of_distribution_repeat: 3
+ablation:
+  lag_steps: [0, 5, 10, 20, 40]
+  acceleration_std_mps2: [0.30, 0.65, 1.00]
+selection:
+  score_formula: position_rmse_m + 1.5*hidden_rmse_m + 0.02*latency_s + 0.00002*compute_us_per_step
+  simpler_tie_fraction: 0.02
+out_of_distribution:
+  measurement_noise_scale: 2.0
+  additional_dropout_period_steps: 37
+  additional_dropout_length_steps: 5
+acceptance:
+  classical_baseline_required: true
+  require_frozen_evaluation: true
+  require_ablation: true
+  require_ood: true
+claim_boundary: OFFLINE_FIXED_LAG_SMOOTHER_NOT_A_CAUSAL_ZERO_LATENCY_LIVE_ESTIMATOR
