@@ -26,10 +26,11 @@ Active development continues on the `ghost-x` branch under a requirements-driven
 - [G0 immutable baseline](ghost_sim_ros2/docs/GHOST_X_G0_BASELINE.md)
 - [G1 requirements and V&V architecture](ghost_sim_ros2/docs/GHOST_X_G1_REQUIREMENTS_AND_VNV.md)
 - [G2 frames, timing, and data contracts](ghost_sim_ros2/docs/GHOST_X_G2_DATA_CONTRACTS.md)
+- [G3 measurement characterization protocol](ghost_sim_ros2/docs/GHOST_X_G3_MEASUREMENT_PROTOCOL.md)
 - [Requirements-to-test traceability](ghost_sim_ros2/docs/GHOST_X_TRACEABILITY.csv)
 - [Current claim boundaries](ghost_sim_ros2/docs/GHOST_X_CLAIM_BOUNDARIES.md)
 
-Current phase status: **G0 complete, G1 complete, G2 complete, G3 next**.
+Current phase status: **G0–G2 complete; G3 software ready, physical collection pending**.
 
 ## Complete drone/robot mission demo
 
