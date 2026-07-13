@@ -1,5 +1,6 @@
 import json
 import math
+import os
 from typing import Any
 
 import numpy as np
@@ -10,6 +11,13 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, qos_profile_sensor_data
 from std_msgs.msg import String
 
+from ghost_sim_ros2.data_contract import (
+    build_run_identity,
+    build_timestamps,
+    build_validity,
+    contract_envelope,
+    short_identifier,
+)
 from analysis.ghost_mh_calibrated import CalibratedModeBankTracker
 from analysis.measurement_covariance_config import build_measurement_r_xy
 from analysis.ghost_mh_mode_bank import mode_bank
@@ -55,6 +63,11 @@ class GhostMHTrackerNode(Node):
         self.declare_parameter("odom_topic", "/ghost/tracker_mh/target_odom")
         self.declare_parameter("futures_topic", "/ghost/tracker_mh/futures_json")
         self.declare_parameter("status_topic", "/ghost/tracker_mh/status")
+        self.declare_parameter("status_json_topic", "/ghost/tracker_mh/status_json")
+        self.declare_parameter(
+            "calibration_artifact_path", os.environ.get("GHOST_CALIBRATION_ARTIFACT", "")
+        )
+        self.declare_parameter("configuration_label", "ghost-mh-live-v1")
         self.declare_parameter("frame_id", "camera")
         self.declare_parameter("child_frame_id", "ghost_target_mh")
         self.declare_parameter("tick_hz", 30.0)
@@ -86,6 +99,9 @@ class GhostMHTrackerNode(Node):
         self.odom_topic = str(self.get_parameter("odom_topic").value)
         self.futures_topic = str(self.get_parameter("futures_topic").value)
         self.status_topic = str(self.get_parameter("status_topic").value)
+        self.status_json_topic = str(self.get_parameter("status_json_topic").value)
+        self.calibration_artifact_path = str(self.get_parameter("calibration_artifact_path").value)
+        self.configuration_label = str(self.get_parameter("configuration_label").value)
         self.frame_id = str(self.get_parameter("frame_id").value)
         self.child_frame_id = str(self.get_parameter("child_frame_id").value)
         self.tick_hz = float(self.get_parameter("tick_hz").value)
@@ -111,15 +127,46 @@ class GhostMHTrackerNode(Node):
         if r_xx > 0.0 and r_yy > 0.0:
             measurement_covariance_xy = build_measurement_r_xy(measurement_std_m, r_xx, r_xy, r_yy)
 
+        self.max_occlusion_s = float(self.get_parameter("max_occlusion_s").value)
+        self.max_workspace_range_m = float(self.get_parameter("max_workspace_range_m").value)
+        self.accel_temperature = float(self.get_parameter("accel_temperature").value)
         self.tracker = CalibratedModeBankTracker(
             measurement_std_m=measurement_std_m,
             measurement_covariance_xy=measurement_covariance_xy,
-            max_occlusion_s=float(self.get_parameter("max_occlusion_s").value),
-            max_workspace_range_m=float(self.get_parameter("max_workspace_range_m").value),
-            accel_temperature=float(self.get_parameter("accel_temperature").value),
+            max_occlusion_s=self.max_occlusion_s,
+            max_workspace_range_m=self.max_workspace_range_m,
+            accel_temperature=self.accel_temperature,
             allow_signed_local_coordinates=self.allow_signed_local_coordinates,
         )
         self.model_lookup = {model.name: model for model in mode_bank()}
+        self.provenance = build_run_identity(
+            node_name="ghost_mh_tracker",
+            frame_id=self.frame_id,
+            configuration_label=self.configuration_label,
+            configuration={
+                "tick_hz": self.tick_hz,
+                "measurement_timeout_s": self.measurement_timeout_s,
+                "measurement_std_m": measurement_std_m,
+                "measurement_r_xx_m2": r_xx,
+                "measurement_r_xy_m2": r_xy,
+                "measurement_r_yy_m2": r_yy,
+                "max_occlusion_s": self.max_occlusion_s,
+                "max_workspace_range_m": self.max_workspace_range_m,
+                "allow_signed_local_coordinates": self.allow_signed_local_coordinates,
+                "top_n": self.top_n,
+                "future_horizon_s": self.future_horizon_s,
+                "future_dt_s": self.future_dt_s,
+                "accel_temperature": self.accel_temperature,
+                "stationary_gate_enabled": self.stationary_gate_enabled,
+                "stationary_window_s": self.stationary_window_s,
+                "stationary_enter_speed_mps": self.stationary_enter_speed_mps,
+                "stationary_exit_speed_mps": self.stationary_exit_speed_mps,
+                "stationary_min_samples": self.stationary_min_samples,
+                "stationary_hold_prior": self.stationary_hold_prior,
+                "stationary_hold_max_s": self.stationary_hold_max_s,
+            },
+            calibration_artifact_path=self.calibration_artifact_path,
+        )
 
         self.stationary_gate = WindowedVelocityGate(
             StationaryGateConfig(
@@ -138,6 +185,8 @@ class GhostMHTrackerNode(Node):
         self.last_tick_s: float | None = None
         self.last_log_s: float = 0.0
         self.measurement_count: int = 0
+        self.rejected_measurement_count: int = 0
+        self.last_rejection_reason: str | None = None
         self.sequence: int = 0
 
         # Camera measurements use sensor-data QoS so a slow consumer cannot
@@ -152,6 +201,7 @@ class GhostMHTrackerNode(Node):
         self.odom_pub = self.create_publisher(Odometry, self.odom_topic, output_qos)
         self.futures_pub = self.create_publisher(String, self.futures_topic, output_qos)
         self.status_pub = self.create_publisher(String, self.status_topic, output_qos)
+        self.status_json_pub = self.create_publisher(String, self.status_json_topic, output_qos)
 
         period = 1.0 / max(self.tick_hz, 1.0)
         self.timer = self.create_timer(period, self.on_timer)
@@ -165,7 +215,9 @@ class GhostMHTrackerNode(Node):
             f"measurement_r_source={self.tracker.measurement_r_source}; "
             f"measurement_r_xy={self.tracker.measurement_r_xy}; "
             f"stationary_enter={self.stationary_enter_speed_mps:.3f}m/s; "
-            f"stationary_exit={self.stationary_exit_speed_mps:.3f}m/s"
+            f"stationary_exit={self.stationary_exit_speed_mps:.3f}m/s; "
+            f"cal={short_identifier(self.provenance['calibration_id'])}; "
+            f"cfg={short_identifier(self.provenance['configuration_id'])}"
         )
 
     def now_s(self) -> float:
@@ -176,13 +228,19 @@ class GhostMHTrackerNode(Node):
         x = float(msg.pose.pose.position.x)
         y = float(msg.pose.pose.position.y)
         if not math.isfinite(x) or not math.isfinite(y):
+            self.rejected_measurement_count += 1
+            self.last_rejection_reason = "REJECT_NONFINITE_MEASUREMENT"
             return
         # V1 AprilTag pose uses camera-frame forward range as +x. Negative x is
         # behind the camera/invalid for the current single-camera bench geometry;
         # y is lateral and may legitimately be positive or negative.
-        if ((not self.allow_signed_local_coordinates) and x < 0.0) or math.hypot(x, y) > float(
-            self.get_parameter("max_workspace_range_m").value
-        ):
+        if ((not self.allow_signed_local_coordinates) and x < 0.0) or math.hypot(x, y) > self.max_workspace_range_m:
+            self.rejected_measurement_count += 1
+            self.last_rejection_reason = (
+                "REJECT_BEHIND_CAMERA_MEASUREMENT"
+                if ((not self.allow_signed_local_coordinates) and x < 0.0)
+                else "REJECT_OUT_OF_WORKSPACE_MEASUREMENT"
+            )
             return
 
         msg_stamp_s = float(msg.header.stamp.sec) + 1e-9 * float(msg.header.stamp.nanosec)
@@ -193,6 +251,7 @@ class GhostMHTrackerNode(Node):
         self.latest_stamp_s = msg_stamp_s
         self.latest_arrival_s = now
         self.measurement_count += 1
+        self.last_rejection_reason = None
 
         if self.stationary_gate_enabled:
             self.stationary_state = self.stationary_gate.update(msg_stamp_s, x, y)
@@ -231,10 +290,11 @@ class GhostMHTrackerNode(Node):
             and measurement_age_s <= self.stationary_hold_max_s
         )
 
+        processing_time_s = self.now_s()
         if estimate.initialized:
-            self.publish_odom(now, estimate)
-        self.publish_futures(now, visible, measurement_age_s, estimate)
-        self.publish_status(now, visible, measurement_age_s, estimate)
+            self.publish_odom(processing_time_s, estimate)
+        self.publish_futures(processing_time_s, visible, measurement_age_s, estimate)
+        self.publish_status(processing_time_s, visible, measurement_age_s, estimate)
 
     def publish_odom(self, now: float, estimate: Any) -> None:
         msg = Odometry()
@@ -277,21 +337,66 @@ class GhostMHTrackerNode(Node):
         msg.twist.covariance = twist_cov
         self.odom_pub.publish(msg)
 
-    def publish_futures(self, now: float, visible: bool, measurement_age_s: float, estimate: Any) -> None:
+    def validity_for_output(self, visible: bool, measurement_age_s: float, estimate: Any) -> dict[str, Any]:
+        if not estimate.initialized:
+            if self.latest_xy is None:
+                return build_validity(
+                    is_valid=False,
+                    state="WAITING_FOR_TARGET",
+                    reason="Tracker has not accepted an initialization measurement.",
+                )
+            return build_validity(
+                is_valid=False,
+                state="DEGRADED",
+                reason="No bounded hypotheses remain inside the declared occlusion envelope.",
+            )
+        if visible:
+            return build_validity(is_valid=True, state="VALID_TRACKING")
+        if measurement_age_s > self.max_occlusion_s:
+            return build_validity(
+                is_valid=False,
+                state="DEGRADED",
+                reason="Measurement age exceeded max_occlusion_s.",
+            )
+        return build_validity(is_valid=True, state="VALID_PREDICTION_ONLY")
+
+    def contract_fields(
+        self,
+        processing_time_s: float,
+        visible: bool,
+        measurement_age_s: float,
+        estimate: Any,
+    ) -> dict[str, Any]:
+        return contract_envelope(
+            frame_id=self.frame_id,
+            provenance=self.provenance,
+            timestamps=build_timestamps(
+                source_time_s=self.latest_stamp_s,
+                receipt_time_s=self.latest_arrival_s,
+                processing_time_s=processing_time_s,
+                publication_time_s=self.now_s(),
+            ),
+            validity=self.validity_for_output(visible, measurement_age_s, estimate),
+        )
+
+    def publish_futures(self, processing_time_s: float, visible: bool, measurement_age_s: float, estimate: Any) -> None:
         self.sequence += 1
         rx_latency_s = math.inf
         if self.latest_stamp_s is not None and self.latest_arrival_s is not None:
             rx_latency_s = self.latest_arrival_s - self.latest_stamp_s
 
         payload: dict[str, Any] = {
+            **self.contract_fields(processing_time_s, visible, measurement_age_s, estimate),
+            "tracker": "ghost_mh",
             "sequence": self.sequence,
-            "stamp_s": now,
+            "stamp_s": processing_time_s,
             "visible": visible,
             "measurement_age_s": finite_or_none(measurement_age_s),
             "measurement_rx_latency_s": finite_or_none(rx_latency_s),
             "measurement_count": self.measurement_count,
+            "rejected_measurement_count": self.rejected_measurement_count,
+            "last_rejection_reason": self.last_rejection_reason,
             "initialized": bool(estimate.initialized),
-            "frame_id": self.frame_id,
             "top_n": self.top_n,
             "tick_hz": self.tick_hz,
             "future_horizon_s": self.future_horizon_s,
@@ -354,30 +459,57 @@ class GhostMHTrackerNode(Node):
 
         self.futures_pub.publish(String(data=json.dumps(payload, separators=(",", ":"))))
 
-    def publish_status(self, now: float, visible: bool, measurement_age_s: float, estimate: Any) -> None:
-        if now - self.last_log_s < 0.25:
+    def publish_status(self, processing_time_s: float, visible: bool, measurement_age_s: float, estimate: Any) -> None:
+        if processing_time_s - self.last_log_s < 0.25:
             return
-        self.last_log_s = now
+        self.last_log_s = processing_time_s
 
         if not estimate.initialized:
-            text = "WAITING_FOR_TARGET"
+            if self.latest_xy is None:
+                live_status = "WAITING_FOR_TARGET"
+                text = "WAITING_FOR_TARGET"
+            else:
+                live_status = "DEGRADED_NO_HYPOTHESES"
+                text = "DEGRADED - NO BOUNDED HYPOTHESES"
         elif visible:
+            live_status = "VISIBLE_MEASUREMENT_LOCK"
             text = (
                 "VISIBLE - MEASUREMENT LOCK "
                 f"stationary={self.stationary_state.active} "
                 f"window_speed={finite_or_none(self.stationary_state.speed_mps)}"
             )
         elif self.hidden_stationary_hold_active:
+            live_status = "HIDDEN_STATIONARY_HOLD"
             text = (
                 "HIDDEN - STATIONARY HOLD "
                 f"age={finite_or_none(measurement_age_s)} "
                 f"window_speed={finite_or_none(self.stationary_state.speed_mps)}"
             )
         else:
+            live_status = "OCCLUDED_HYPOTHESIS_BANK"
             tops = self.tracker.top_hypotheses(min(3, self.top_n))
             top_text = ", ".join(f"{h.model}:{100.0*h.weight:.1f}%" for h in tops)
             text = f"OCCLUDED - HYPOTHESIS BANK age={finite_or_none(measurement_age_s)} top=[{top_text}]"
+        if self.last_rejection_reason is not None:
+            text += f" rejected={self.last_rejection_reason} rejected_count={self.rejected_measurement_count}"
+        text += (
+            f" cal={short_identifier(self.provenance['calibration_id'])}"
+            f" cfg={short_identifier(self.provenance['configuration_id'])}"
+        )
         self.status_pub.publish(String(data=text))
+        status_payload = {
+            **self.contract_fields(processing_time_s, visible, measurement_age_s, estimate),
+            "tracker": "ghost_mh",
+            "sequence": self.sequence,
+            "visible": visible,
+            "status_text": text,
+            "live_status": live_status,
+            "measurement_age_s": finite_or_none(measurement_age_s),
+            "rejected_measurement_count": self.rejected_measurement_count,
+            "last_rejection_reason": self.last_rejection_reason,
+        }
+        self.status_json_pub.publish(String(data=json.dumps(status_payload, separators=(",", ":"))))
+
 
     def current_output_state(self, estimate: Any) -> tuple[float, float, float, float]:
         if self.hidden_stationary_hold_active and self.latest_xy is not None:

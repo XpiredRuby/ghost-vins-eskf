@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ghost-x.local/schemas/ghost_mh_futures.schema.json",
+  "title": "GHOST-X Multi-Hypothesis Futures Payload",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "contract_version",
+    "tracker",
+    "sequence",
+    "frame_id",
+    "visible",
+    "initialized",
+    "units",
+    "provenance",
+    "timestamps",
+    "validity",
+    "hypotheses"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "contract_version": {"const": "ghost-x-data-contract-v1"},
+    "tracker": {"const": "ghost_mh"},
+    "sequence": {"type": "integer", "minimum": 0},
+    "frame_id": {"type": "string", "minLength": 1},
+    "visible": {"type": "boolean"},
+    "initialized": {"type": "boolean"},
+    "measurement_age_s": {"type": ["number", "null"], "minimum": 0},
+    "estimate": {"type": ["object", "null"]},
+    "hypotheses": {"type": "array", "items": {"type": "object"}},
+    "units": {"$ref": "#/definitions/units"},
+    "provenance": {"$ref": "#/definitions/provenance"},
+    "timestamps": {"$ref": "#/definitions/timestamps"},
+    "validity": {"$ref": "#/definitions/validity"}
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "units": {
+      "type": "object",
+      "required": ["position", "velocity", "covariance_position", "time"],
+      "properties": {
+        "position": {"const": "m"},
+        "velocity": {"const": "m/s"},
+        "covariance_position": {"const": "m^2"},
+        "time": {"const": "s"}
+      },
+      "additionalProperties": true
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["calibration_id", "configuration_id", "configuration_label"],
+      "properties": {
+        "calibration_id": {"type": "string", "minLength": 1},
+        "configuration_id": {"type": "string", "minLength": 1},
+        "configuration_label": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
+    },
+    "timestamps": {
+      "type": "object",
+      "required": ["source_time_s", "receipt_time_s", "processing_time_s", "publication_time_s"],
+      "properties": {
+        "source_time_s": {"type": ["number", "null"]},
+        "receipt_time_s": {"type": ["number", "null"]},
+        "processing_time_s": {"type": ["number", "null"]},
+        "publication_time_s": {"type": ["number", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "validity": {
+      "type": "object",
+      "required": ["is_valid", "state"],
+      "properties": {
+        "is_valid": {"type": "boolean"},
+        "state": {"enum": ["WAITING_FOR_TARGET", "VALID_TRACKING", "VALID_PREDICTION_ONLY", "DEGRADED", "INVALID", "MISSION_COMPLETE"]},
+        "reason": {"type": "string"}
+      },
+      "additionalProperties": true
+    }
+  }
+}

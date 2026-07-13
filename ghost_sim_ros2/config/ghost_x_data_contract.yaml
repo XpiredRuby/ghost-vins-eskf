@@ -1,0 +1,107 @@
+schema_version: 1
+contract_version: ghost-x-data-contract-v1
+project: GHOST-X
+
+frames:
+  ghost_local:
+    purpose: software mission world and observer navigation frame
+    handedness: right-handed
+    axes:
+      x: local map east/right
+      y: local map north/up
+      z: local vertical up
+  camera:
+    purpose: hardware single-camera AprilTag measurement frame
+    handedness: right-handed after publisher remapping
+    axes:
+      x: forward range from camera
+      y: lateral camera-space displacement
+      z: unused by current planar estimator
+  truth:
+    requirement: truth frame shall be identical to or explicitly transformed into the estimator evaluation frame
+    transform_provenance_required: true
+
+units:
+  position: m
+  velocity: m/s
+  acceleration: m/s^2
+  angle: rad
+  angular_rate: rad/s
+  covariance_position: m^2
+  covariance_velocity: (m/s)^2
+  time: s
+  latency: s
+
+covariance:
+  state_order: [x_m, y_m, vx_mps, vy_mps]
+  position_block_order: [[xx, xy], [yx, yy]]
+  symmetry_tolerance: 1.0e-10
+  minimum_eigenvalue_tolerance: -1.0e-10
+  semantics: estimator uncertainty in the declared frame, not ground-truth uncertainty
+  invalid_when:
+    - nonfinite
+    - wrong dimensions
+    - asymmetric beyond tolerance
+    - minimum eigenvalue below tolerance
+    - provenance or assumptions required by a public claim are missing
+
+timestamps:
+  clock_domain: active ROS clock unless an evidence manifest declares otherwise
+  source_time_s: sensor or simulator source timestamp
+  receipt_time_s: consumer callback receipt timestamp
+  processing_time_s: estimator processing completion timestamp
+  publication_time_s: output publication timestamp
+  ordering_rule: source_time_s <= receipt_time_s <= processing_time_s <= publication_time_s when all values share a synchronized clock
+  unsynchronized_rule: retain values but label synchronization uncertainty; do not infer end-to-end latency
+
+measurement_handling:
+  stale:
+    action: exclude from measurement update and publish prediction/degraded validity
+    threshold_source: versioned runtime configuration
+  duplicate:
+    action: count and reject unless a versioned replay contract explicitly permits idempotent reuse
+  out_of_order:
+    action: count and reject in live mode until an explicit out-of-sequence update algorithm is implemented
+  nonfinite:
+    action: reject and publish invalid/degraded status
+  invalid_range:
+    action: reject according to the active camera or local-map geometry contract
+  covariance_corruption:
+    action: reject or use an explicitly identified bounded fallback; silent acceptance is prohibited
+
+validity_states:
+  WAITING_FOR_TARGET: estimator not initialized
+  VALID_TRACKING: fresh accepted measurement used
+  VALID_PREDICTION_ONLY: initialized and propagating without a fresh measurement inside the declared prediction envelope
+  DEGRADED: output available but a declared limit, fault, or uncertainty condition is exceeded
+  INVALID: output shall not be used for navigation or accuracy claims
+  MISSION_COMPLETE: deterministic mission has reached its terminal condition
+
+provenance:
+  required_fields:
+    - calibration_id
+    - configuration_id
+    - configuration_label
+  identifier_format: sha256:<64 lowercase hexadecimal characters> or UNSPECIFIED
+  formal_hardware_acceptance:
+    calibration_id_may_be_unspecified: false
+    configuration_id_may_be_unspecified: false
+  software_development:
+    calibration_id_may_be_unspecified: true
+
+json_outputs:
+  schema_version: 1
+  allow_additional_fields: true
+  required_envelope:
+    - schema_version
+    - contract_version
+    - frame_id
+    - units
+    - provenance
+    - timestamps
+    - validity
+
+historical_evidence:
+  baseline_v0:
+    description: bags recorded before G2 do not contain the complete GHOST-X contract envelope
+    policy: preserve without modification and identify through the G0 manifest; never retrofit provenance into raw historical data

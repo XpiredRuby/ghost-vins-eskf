@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from typing import Any
 
 import rclpy
@@ -18,6 +19,13 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, qos_profile_sensor_data
 from std_msgs.msg import String
 
+from ghost_sim_ros2.data_contract import (
+    build_run_identity,
+    build_timestamps,
+    build_validity,
+    contract_envelope,
+    short_identifier,
+)
 from analysis.measurement_covariance_config import build_measurement_r_xy
 from analysis.imm_live_bridge import (
     DROPOUT_DEGRADED_AFTER_STEPS_DEFAULT,
@@ -40,6 +48,11 @@ class FormalImmTrackerNode(Node):
         self.declare_parameter("odom_topic", "/ghost/tracker_imm/target_odom")
         self.declare_parameter("futures_topic", "/ghost/tracker_imm/futures_json")
         self.declare_parameter("status_topic", "/ghost/tracker_imm/status")
+        self.declare_parameter("status_json_topic", "/ghost/tracker_imm/status_json")
+        self.declare_parameter(
+            "calibration_artifact_path", os.environ.get("GHOST_CALIBRATION_ARTIFACT", "")
+        )
+        self.declare_parameter("configuration_label", "formal-imm-live-v1")
         self.declare_parameter("frame_id", "camera")
         self.declare_parameter("child_frame_id", "ghost_target_imm")
         self.declare_parameter("tick_hz", 30.0)
@@ -60,6 +73,9 @@ class FormalImmTrackerNode(Node):
         self.odom_topic = str(self.get_parameter("odom_topic").value)
         self.futures_topic = str(self.get_parameter("futures_topic").value)
         self.status_topic = str(self.get_parameter("status_topic").value)
+        self.status_json_topic = str(self.get_parameter("status_json_topic").value)
+        self.calibration_artifact_path = str(self.get_parameter("calibration_artifact_path").value)
+        self.configuration_label = str(self.get_parameter("configuration_label").value)
         self.frame_id = str(self.get_parameter("frame_id").value)
         self.child_frame_id = str(self.get_parameter("child_frame_id").value)
         self.tick_hz = float(self.get_parameter("tick_hz").value)
@@ -75,17 +91,43 @@ class FormalImmTrackerNode(Node):
         measurement_covariance_xy = None
         if r_xx > 0.0 and r_yy > 0.0:
             measurement_covariance_xy = build_measurement_r_xy(measurement_std_m, r_xx, r_xy, r_yy)
+        smooth_acceleration_std_mps2 = float(self.get_parameter("smooth_acceleration_std_mps2").value)
+        maneuver_acceleration_std_mps2 = float(self.get_parameter("maneuver_acceleration_std_mps2").value)
+        future_horizon_s = float(self.get_parameter("future_horizon_s").value)
+        future_dt_s = float(self.get_parameter("future_dt_s").value)
+        dropout_degraded_after_steps = int(self.get_parameter("dropout_degraded_after_steps").value)
         self.bridge = FormalImmLiveAdapter(
             FormalImmLiveConfig(
                 dt_s=dt_s,
                 measurement_std_m=measurement_std_m,
                 measurement_covariance_xy=measurement_covariance_xy,
-                smooth_acceleration_std_mps2=float(self.get_parameter("smooth_acceleration_std_mps2").value),
-                maneuver_acceleration_std_mps2=float(self.get_parameter("maneuver_acceleration_std_mps2").value),
-                future_horizon_s=float(self.get_parameter("future_horizon_s").value),
-                future_dt_s=float(self.get_parameter("future_dt_s").value),
-                dropout_degraded_after_steps=int(self.get_parameter("dropout_degraded_after_steps").value),
+                smooth_acceleration_std_mps2=smooth_acceleration_std_mps2,
+                maneuver_acceleration_std_mps2=maneuver_acceleration_std_mps2,
+                future_horizon_s=future_horizon_s,
+                future_dt_s=future_dt_s,
+                dropout_degraded_after_steps=dropout_degraded_after_steps,
             )
+        )
+        self.provenance = build_run_identity(
+            node_name="ghost_formal_imm_tracker",
+            frame_id=self.frame_id,
+            configuration_label=self.configuration_label,
+            configuration={
+                "tick_hz": self.tick_hz,
+                "measurement_timeout_s": self.measurement_timeout_s,
+                "measurement_std_m": measurement_std_m,
+                "measurement_r_xx_m2": r_xx,
+                "measurement_r_xy_m2": r_xy,
+                "measurement_r_yy_m2": r_yy,
+                "smooth_acceleration_std_mps2": smooth_acceleration_std_mps2,
+                "maneuver_acceleration_std_mps2": maneuver_acceleration_std_mps2,
+                "future_horizon_s": future_horizon_s,
+                "future_dt_s": future_dt_s,
+                "max_workspace_range_m": self.max_workspace_range_m,
+                "allow_signed_local_coordinates": self.allow_signed_local_coordinates,
+                "dropout_degraded_after_steps": dropout_degraded_after_steps,
+            },
+            calibration_artifact_path=self.calibration_artifact_path,
         )
 
         self.latest_xy: tuple[float, float] | None = None
@@ -107,6 +149,7 @@ class FormalImmTrackerNode(Node):
         self.odom_pub = self.create_publisher(Odometry, self.odom_topic, output_qos)
         self.futures_pub = self.create_publisher(String, self.futures_topic, output_qos)
         self.status_pub = self.create_publisher(String, self.status_topic, output_qos)
+        self.status_json_pub = self.create_publisher(String, self.status_json_topic, output_qos)
         self.timer = self.create_timer(dt_s, self.on_timer)
 
         self.get_logger().info(
@@ -115,7 +158,9 @@ class FormalImmTrackerNode(Node):
             f"tick={self.tick_hz:.1f}Hz; timeout={self.measurement_timeout_s:.2f}s; "
             f"measurement_r_source={self.bridge.measurement_r_source()}; "
             f"measurement_r_xy={self.bridge.measurement_r_xy()}; "
-            f"status={LIVE_IMM_NOT_HARDWARE_CALIBRATED}"
+            f"status={LIVE_IMM_NOT_HARDWARE_CALIBRATED}; "
+            f"cal={short_identifier(self.provenance['calibration_id'])}; "
+            f"cfg={short_identifier(self.provenance['configuration_id'])}"
         )
 
     def now_s(self) -> float:
@@ -165,10 +210,11 @@ class FormalImmTrackerNode(Node):
                 visible = True
 
         output = self.bridge.step(measurement)
+        processing_time_s = self.now_s()
         if output.initialized and output.estimate is not None:
             self.publish_odom(output)
-        self.publish_futures(now, visible, measurement_age_s, output)
-        self.publish_status(now, visible, measurement_age_s, output)
+        self.publish_futures(processing_time_s, visible, measurement_age_s, output)
+        self.publish_status(processing_time_s, visible, measurement_age_s, output)
 
     def publish_odom(self, output: Any) -> None:
         estimate = output.estimate
@@ -206,19 +252,50 @@ class FormalImmTrackerNode(Node):
         msg.twist.covariance = twist_cov
         self.odom_pub.publish(msg)
 
-    def publish_futures(self, now: float, visible: bool, measurement_age_s: float, output: Any) -> None:
+    def validity_for_output(self, visible: bool, output: Any) -> dict[str, Any]:
+        if not output.initialized:
+            return build_validity(
+                is_valid=False,
+                state="WAITING_FOR_TARGET",
+                reason="Estimator has not accepted an initialization measurement.",
+            )
+        if visible:
+            return build_validity(is_valid=True, state="VALID_TRACKING")
+        if output.live_status == "LIVE_IMM_DROPOUT_DEGRADED":
+            return build_validity(
+                is_valid=False,
+                state="DEGRADED",
+                reason="Prediction-only duration exceeded the declared live threshold.",
+            )
+        return build_validity(is_valid=True, state="VALID_PREDICTION_ONLY")
+
+    def contract_fields(self, processing_time_s: float, visible: bool, output: Any) -> dict[str, Any]:
+        publication_time_s = self.now_s()
+        return contract_envelope(
+            frame_id=self.frame_id,
+            provenance=self.provenance,
+            timestamps=build_timestamps(
+                source_time_s=self.latest_stamp_s,
+                receipt_time_s=self.latest_arrival_s,
+                processing_time_s=processing_time_s,
+                publication_time_s=publication_time_s,
+            ),
+            validity=self.validity_for_output(visible, output),
+        )
+
+    def publish_futures(self, processing_time_s: float, visible: bool, measurement_age_s: float, output: Any) -> None:
         self.sequence += 1
         rx_latency_s = math.inf
         if self.latest_stamp_s is not None and self.latest_arrival_s is not None:
             rx_latency_s = self.latest_arrival_s - self.latest_stamp_s
         payload = {
+            **self.contract_fields(processing_time_s, visible, output),
             "sequence": self.sequence,
-            "stamp_s": now,
+            "stamp_s": processing_time_s,
             "visible": visible,
             "measurement_age_s": finite_or_none(measurement_age_s),
             "measurement_rx_latency_s": finite_or_none(rx_latency_s),
             "measurement_count": self.measurement_count,
-            "frame_id": self.frame_id,
             "tracker": "formal_imm",
             "live_status": output.live_status,
             "workspace_range_m": self.max_workspace_range_m,
@@ -250,13 +327,15 @@ class FormalImmTrackerNode(Node):
         }
         self.futures_pub.publish(String(data=json.dumps(payload, separators=(",", ":"))))
 
-    def publish_status(self, now: float, visible: bool, measurement_age_s: float, output: Any) -> None:
-        if now - self.last_log_s < 0.25:
+    def publish_status(self, processing_time_s: float, visible: bool, measurement_age_s: float, output: Any) -> None:
+        if processing_time_s - self.last_log_s < 0.25:
             return
-        self.last_log_s = now
+        self.last_log_s = processing_time_s
         if not output.initialized:
+            live_status = "WAITING_FOR_TARGET"
             text = f"FORMAL_IMM WAITING_FOR_TARGET status={LIVE_IMM_NOT_HARDWARE_CALIBRATED}"
         else:
+            live_status = output.live_status
             probs = ", ".join(f"{k}:{100.0*v:.1f}%" for k, v in output.mode_probabilities.items())
             rejection = ""
             if self.last_rejection_reason is not None:
@@ -264,11 +343,25 @@ class FormalImmTrackerNode(Node):
             text = (
                 f"FORMAL_IMM {output.live_status} visible={visible} "
                 f"age={finite_or_none(measurement_age_s)} prediction_only_steps={output.prediction_only_steps} "
-                f"modes=[{probs}] "
-                f"covariance={output.covariance_validity_status}"
-                f"{rejection}"
+                f"modes=[{probs}] covariance={output.covariance_validity_status}{rejection}"
             )
+        text += (
+            f" cal={short_identifier(self.provenance['calibration_id'])}"
+            f" cfg={short_identifier(self.provenance['configuration_id'])}"
+        )
         self.status_pub.publish(String(data=text))
+        status_payload = {
+            **self.contract_fields(processing_time_s, visible, output),
+            "tracker": "formal_imm",
+            "sequence": self.sequence,
+            "visible": visible,
+            "status_text": text,
+            "live_status": live_status,
+            "measurement_age_s": finite_or_none(measurement_age_s),
+            "rejected_measurement_count": self.rejected_measurement_count,
+            "last_rejection_reason": self.last_rejection_reason,
+        }
+        self.status_json_pub.publish(String(data=json.dumps(status_payload, separators=(",", ":"))))
 
 
 def finite_or_none(value: float) -> float | None:

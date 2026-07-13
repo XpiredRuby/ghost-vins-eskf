@@ -1,0 +1,64 @@
+{
+  "checks": {
+    "data_contract_version": "ghost-x-data-contract-v1",
+    "mission_validation": {
+      "contract_version": "ghost-x-data-contract-v1",
+      "frame_id": "ghost_local",
+      "passed": true,
+      "provenance": {
+        "calibration_id": "UNSPECIFIED",
+        "configuration_id": "sha256:0ed158b0c9c91a2c1cadbb41b12bd609b8c2b35b04fb1c6a158afcbe2b2cd062",
+        "configuration_label": "ghost-drone-mission-evaluator-v1"
+      },
+      "validity": {
+        "is_valid": true,
+        "state": "MISSION_COMPLETE"
+      }
+    },
+    "runtime_contract_probe": {
+      "errors": [],
+      "missing_topics": [],
+      "passed": true,
+      "validated_topics": [
+        "/ghost/evaluation/status_json",
+        "/ghost/tracker_imm/futures_json",
+        "/ghost/tracker_imm/status_json",
+        "/ghost/tracker_mh/futures_json",
+        "/ghost/tracker_mh/status_json"
+      ]
+    },
+    "schemas": {
+      "formal_imm_futures.schema.json": true,
+      "ghost_mh_futures.schema.json": true,
+      "mission_validation.schema.json": true,
+      "tracker_status.schema.json": true
+    },
+    "source_integration": {
+      "ghost_sim_ros2/formal_imm_tracker.py": {
+        "\"tracker\": \"formal_imm\"": true,
+        "build_run_identity": true,
+        "contract_envelope": true,
+        "status_json_topic": true
+      },
+      "ghost_sim_ros2/mh_tracker.py": {
+        "\"tracker\": \"ghost_mh\"": true,
+        "build_run_identity": true,
+        "contract_envelope": true,
+        "status_json_topic": true
+      },
+      "ghost_sim_ros2/mission_evaluator.py": {
+        "\"frame_id\"": true,
+        "build_run_identity": true,
+        "contract_envelope": true
+      }
+    }
+  },
+  "errors": [],
+  "formal_hardware_gate": "Future formal hardware bags must contain non-UNSPECIFIED calibration_id and configuration_id in recorded tracker futures/status JSON payloads.",
+  "generated_at_utc": "2026-07-13T04:05:37.576339Z",
+  "historical_bag_policy": "Pre-G2 bags remain immutable baseline-v0 evidence and are identified by the G0 manifest; their raw messages are never retroactively modified.",
+  "passed": true,
+  "phase": "G2_FRAMES_TIMING_DATA_CONTRACTS",
+  "project": "GHOST-X",
+  "schema_version": 1
+}

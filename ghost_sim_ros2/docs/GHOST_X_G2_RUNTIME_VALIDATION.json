@@ -1,0 +1,138 @@
+{
+  "errors": [],
+  "expected_topics": [
+    "/ghost/evaluation/status_json",
+    "/ghost/tracker_imm/futures_json",
+    "/ghost/tracker_imm/status_json",
+    "/ghost/tracker_mh/futures_json",
+    "/ghost/tracker_mh/status_json"
+  ],
+  "missing_topics": [],
+  "passed": true,
+  "phase": "G2_RUNTIME_CONTRACT_PROBE",
+  "results": {
+    "/ghost/evaluation/status_json": {
+      "contract_version": "ghost-x-data-contract-v1",
+      "frame_id": "ghost_local",
+      "payload_sha256": "sha256:e684142c203a6a1028e8d8d4fd4c51dde9c817aec05754fd6148dbcbe6ba5dba",
+      "provenance": {
+        "calibration_id": "UNSPECIFIED",
+        "configuration_id": "sha256:0ed158b0c9c91a2c1cadbb41b12bd609b8c2b35b04fb1c6a158afcbe2b2cd062",
+        "configuration_label": "ghost-drone-mission-evaluator-v1"
+      },
+      "schema": "mission_validation.schema.json",
+      "schema_version": 1,
+      "timestamps": {
+        "processing_time_s": 1783914801.1202574,
+        "publication_time_s": 1783914801.1202574,
+        "receipt_time_s": 1783914801.1202574,
+        "source_time_s": 1783914757.5850537
+      },
+      "tracker": null,
+      "validity": {
+        "is_valid": true,
+        "state": "MISSION_COMPLETE"
+      }
+    },
+    "/ghost/tracker_imm/futures_json": {
+      "contract_version": "ghost-x-data-contract-v1",
+      "frame_id": "ghost_local",
+      "payload_sha256": "sha256:cc197b34da921ddb1a8c69e0102da8f86a838b2bd878fd61764b30834a761b00",
+      "provenance": {
+        "calibration_id": "UNSPECIFIED",
+        "configuration_id": "sha256:85497a7bd4f860cbe3e153c59aba59d956cc7d3952c20bee7a47bfdc4f2e210d",
+        "configuration_label": "formal-imm-live-v1"
+      },
+      "schema": "formal_imm_futures.schema.json",
+      "schema_version": 1,
+      "timestamps": {
+        "processing_time_s": 1783914801.12754,
+        "publication_time_s": 1783914801.1282833,
+        "receipt_time_s": 1783914801.0998962,
+        "source_time_s": 1783914801.0971375
+      },
+      "tracker": "formal_imm",
+      "validity": {
+        "is_valid": true,
+        "state": "VALID_TRACKING"
+      }
+    },
+    "/ghost/tracker_imm/status_json": {
+      "contract_version": "ghost-x-data-contract-v1",
+      "frame_id": "ghost_local",
+      "payload_sha256": "sha256:97c416595bddef29e1faeca597eeb1a19778b7f508515d77a35756a84fd611da",
+      "provenance": {
+        "calibration_id": "UNSPECIFIED",
+        "configuration_id": "sha256:85497a7bd4f860cbe3e153c59aba59d956cc7d3952c20bee7a47bfdc4f2e210d",
+        "configuration_label": "formal-imm-live-v1"
+      },
+      "schema": "tracker_status.schema.json",
+      "schema_version": 1,
+      "timestamps": {
+        "processing_time_s": 1783914801.2246466,
+        "publication_time_s": 1783914801.2270522,
+        "receipt_time_s": 1783914801.2065165,
+        "source_time_s": 1783914801.1974373
+      },
+      "tracker": "formal_imm",
+      "validity": {
+        "is_valid": true,
+        "state": "VALID_TRACKING"
+      }
+    },
+    "/ghost/tracker_mh/futures_json": {
+      "contract_version": "ghost-x-data-contract-v1",
+      "frame_id": "ghost_local",
+      "payload_sha256": "sha256:7027a5b8ca694e2fabbbde9d07584b7c041368ce94478413f26c589f7e021b19",
+      "provenance": {
+        "calibration_id": "UNSPECIFIED",
+        "configuration_id": "sha256:c7e30b5212203f87079de85d8349b24fbeadab6fc1a691f552b9f72133f8fd0f",
+        "configuration_label": "ghost-mh-live-v1"
+      },
+      "schema": "ghost_mh_futures.schema.json",
+      "schema_version": 1,
+      "timestamps": {
+        "processing_time_s": 1783914801.0387855,
+        "publication_time_s": 1783914801.0428343,
+        "receipt_time_s": 1783914801.010569,
+        "source_time_s": 1783914800.9992762
+      },
+      "tracker": "ghost_mh",
+      "validity": {
+        "is_valid": true,
+        "state": "VALID_TRACKING"
+      }
+    },
+    "/ghost/tracker_mh/status_json": {
+      "contract_version": "ghost-x-data-contract-v1",
+      "frame_id": "ghost_local",
+      "payload_sha256": "sha256:b215667d7ba632b86690e3005d35ae69465ba3678c5b5d1d0ebda3baec829444",
+      "provenance": {
+        "calibration_id": "UNSPECIFIED",
+        "configuration_id": "sha256:c7e30b5212203f87079de85d8349b24fbeadab6fc1a691f552b9f72133f8fd0f",
+        "configuration_label": "ghost-mh-live-v1"
+      },
+      "schema": "tracker_status.schema.json",
+      "schema_version": 1,
+      "timestamps": {
+        "processing_time_s": 1783914801.198538,
+        "publication_time_s": 1783914801.201013,
+        "receipt_time_s": 1783914801.1744618,
+        "source_time_s": 1783914801.1657395
+      },
+      "tracker": "ghost_mh",
+      "validity": {
+        "is_valid": true,
+        "state": "VALID_TRACKING"
+      }
+    }
+  },
+  "schema_version": 1,
+  "validated_topics": [
+    "/ghost/evaluation/status_json",
+    "/ghost/tracker_imm/futures_json",
+    "/ghost/tracker_imm/status_json",
+    "/ghost/tracker_mh/futures_json",
+    "/ghost/tracker_mh/status_json"
+  ]
+}
