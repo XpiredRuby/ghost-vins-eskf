@@ -37,7 +37,15 @@ def parse_args():
         action="store_true",
         help="Enable annotated JPEG generation for a preview client; disabled by default for deterministic tracking",
     )
+    parser.add_argument(
+        "--preview-fps",
+        type=float,
+        default=5.0,
+        help="Maximum annotated preview JPEG rate when preview is enabled; tracking and ROS publishing remain full-rate",
+    )
     parsed = parser.parse_args()
+    if parsed.preview_fps <= 0.0:
+        parser.error("--preview-fps must be greater than zero")
     if parsed.use_controlled_r_candidate:
         parsed.cov_xx_m2 = CONTROLLED_R_CANDIDATE_XY_M2[0][0]
         parsed.cov_xy_m2 = CONTROLLED_R_CANDIDATE_XY_M2[0][1]
@@ -50,6 +58,7 @@ app = Flask(__name__)
 
 lock = threading.Lock()
 latest_jpeg = None
+latest_jpeg_seq = 0
 stats = {"fps": 0.0, "tags": 0, "last_id": None, "range_m": None, "bearing_deg": None}
 ROS_NODE = None
 ROS_PUB = None
@@ -64,6 +73,7 @@ TRACK_STATE = {
 LAST_TAG_CENTER_Y = None
 LAST_POSE_LOG_MONO = 0.0
 POSE_LOG_PERIOD_S = 1.0
+LAST_PREVIEW_JPEG_MONO = 0.0
 
 
 def load_calibration():
@@ -183,7 +193,7 @@ def draw_axis(frame, rvec, tvec):
 
 
 def camera_loop():
-    global latest_jpeg
+    global latest_jpeg, latest_jpeg_seq, LAST_PREVIEW_JPEG_MONO
 
     # The direct controlled-R path demonstrated that single-threaded OpenCV
     # without per-frame JPEG allocation is continuous on this Pi. Keep the
@@ -210,6 +220,11 @@ def camera_loop():
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         tags = detector.detect(gray)
+        preview_now_mono = time.monotonic()
+        preview_due = bool(
+            args.enable_preview_jpeg
+            and preview_now_mono - LAST_PREVIEW_JPEG_MONO >= 1.0 / args.preview_fps
+        )
 
         last_id = None
         range_m = None
@@ -226,7 +241,7 @@ def camera_loop():
             else:
                 text = f"id={tag.tag_id} pose=FAILED"
 
-            if args.enable_preview_jpeg:
+            if preview_due:
                 corners = tag.corners.astype(int)
                 for i in range(4):
                     cv2.line(frame, tuple(corners[i]), tuple(corners[(i + 1) % 4]), (0, 255, 0), 2)
@@ -253,7 +268,7 @@ def camera_loop():
             count = 0
             t0 = now
 
-        if args.enable_preview_jpeg:
+        if preview_due:
             range_txt = "NA" if range_m is None else f"{range_m:.2f}m"
             bearing_txt = "NA" if bearing_deg is None else f"{bearing_deg:.1f}deg"
             overlay = (
@@ -274,17 +289,22 @@ def camera_loop():
             if ok:
                 with lock:
                     latest_jpeg = jpg.tobytes()
+                    latest_jpeg_seq += 1
+            LAST_PREVIEW_JPEG_MONO = preview_now_mono
 
 
 def mjpeg_stream():
+    last_seq = -1
     while True:
         with lock:
             frame = latest_jpeg
+            seq = latest_jpeg_seq
 
-        if frame is None:
+        if frame is None or seq == last_seq:
             time.sleep(0.01)
             continue
 
+        last_seq = seq
         yield (
             b"--frame\r\n"
             b"Content-Type: image/jpeg\r\n"
@@ -331,7 +351,22 @@ if __name__ == "__main__":
     print(f"Calibration: {CALIB_STATUS}")
     print(f"ROS_ONLY covariance source: {cov_source}; R_xy=[[{args.cov_xx_m2}, {args.cov_xy_m2}], [{args.cov_xy_m2}, {args.cov_yy_m2}]]")
     print("ROS_ONLY: publishing /ghost/vision/target_pose")
-    print(f"ROS_ONLY preview JPEG: {'ENABLED' if args.enable_preview_jpeg else 'DISABLED_FOR_TRACKING_CONTINUITY'}")
+    preview_status = f"ENABLED_AT_MAX_{args.preview_fps:.1f}_FPS" if args.enable_preview_jpeg else "DISABLED_FOR_TRACKING_CONTINUITY"
+    print(f"ROS_ONLY preview JPEG: {preview_status}")
+    if args.enable_preview_jpeg:
+        preview_thread = threading.Thread(
+            target=lambda: app.run(
+                host="0.0.0.0",
+                port=args.port,
+                debug=False,
+                use_reloader=False,
+                threaded=True,
+            ),
+            name="ghost-preview-http",
+            daemon=True,
+        )
+        preview_thread.start()
+        print(f"ROS_ONLY preview URL: http://0.0.0.0:{args.port}/")
     print("Press Ctrl+C to stop")
     try:
         camera_loop()

@@ -1,5 +1,37 @@
 # GHOST ROS 2 Package
 
+## Complete GPS-denied drone/robot mission
+
+The recommended software demo is now the complete intended GHOST mission—not the legacy oval/dropout generator:
+
+```bash
+ros2 launch ghost_sim_ros2 ghost_drone_mission.launch.py
+```
+
+Open `http://<RASPBERRY_PI_IP>:8088` for the live 2D mission dashboard.
+
+The demo runs a mobile observer, camera range/FOV/obstacle line-of-sight sensing, formal IMM and GHOST-MH prediction, bounded hidden-target guidance, named-obstacle vantage selection, inflated-obstacle A* planning, collision checks, and measured reacquisition acceptance.
+
+Final deterministic acceptance:
+
+| Metric | Value |
+|---|---:|
+| Mission duration | `32.0816 s` |
+| Obstacle LOS losses | `2` |
+| Longest LOS loss | `9.5332 s` |
+| IMM outputs during occlusion | `456` |
+| GHOST-MH outputs during occlusion | `457` |
+| Reacquisitions | `2` |
+| Observer travel | `12.3016 m` |
+| Collisions / boundary violations | `0 / 0` |
+| Overall result | **PASS** |
+
+- [Mission software and architecture](docs/GHOST_DRONE_MISSION_SOFTWARE.md)
+- [Implementation and validation report](docs/GHOST_DRONE_MISSION_IMPLEMENTATION_REPORT.md)
+- [Machine-readable validation](docs/GHOST_DRONE_MISSION_VALIDATION.json)
+
+The observer's own pose is supplied by the local software simulator. This is not a SLAM/VIO, PX4, HIL, or real-flight claim.
+
 ## Scope
 
 `ghost_sim_ros2` contains the active ROS 2 Jazzy target-estimation package, deterministic software-in-the-loop GNC harness, hardware replay, physical-validation tools, campaign operations, analysis, and public documentation for Project GHOST.

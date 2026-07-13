@@ -65,6 +65,7 @@ class GhostMHTrackerNode(Node):
         self.declare_parameter("measurement_r_yy_m2", -1.0)
         self.declare_parameter("max_occlusion_s", 3.0)
         self.declare_parameter("max_workspace_range_m", 5.0)
+        self.declare_parameter("allow_signed_local_coordinates", False)
         self.declare_parameter("top_n", 5)
         self.declare_parameter("future_horizon_s", 1.5)
         self.declare_parameter("future_dt_s", 0.10)
@@ -90,6 +91,7 @@ class GhostMHTrackerNode(Node):
         self.tick_hz = float(self.get_parameter("tick_hz").value)
         self.measurement_timeout_s = float(self.get_parameter("measurement_timeout_s").value)
         self.top_n = int(self.get_parameter("top_n").value)
+        self.allow_signed_local_coordinates = bool(self.get_parameter("allow_signed_local_coordinates").value)
         self.future_horizon_s = float(self.get_parameter("future_horizon_s").value)
         self.future_dt_s = float(self.get_parameter("future_dt_s").value)
         self.stationary_gate_enabled = bool(self.get_parameter("stationary_gate_enabled").value)
@@ -115,6 +117,7 @@ class GhostMHTrackerNode(Node):
             max_occlusion_s=float(self.get_parameter("max_occlusion_s").value),
             max_workspace_range_m=float(self.get_parameter("max_workspace_range_m").value),
             accel_temperature=float(self.get_parameter("accel_temperature").value),
+            allow_signed_local_coordinates=self.allow_signed_local_coordinates,
         )
         self.model_lookup = {model.name: model for model in mode_bank()}
 
@@ -177,7 +180,9 @@ class GhostMHTrackerNode(Node):
         # V1 AprilTag pose uses camera-frame forward range as +x. Negative x is
         # behind the camera/invalid for the current single-camera bench geometry;
         # y is lateral and may legitimately be positive or negative.
-        if x < 0.0 or math.hypot(x, y) > float(self.get_parameter("max_workspace_range_m").value):
+        if ((not self.allow_signed_local_coordinates) and x < 0.0) or math.hypot(x, y) > float(
+            self.get_parameter("max_workspace_range_m").value
+        ):
             return
 
         msg_stamp_s = float(msg.header.stamp.sec) + 1e-9 * float(msg.header.stamp.nanosec)

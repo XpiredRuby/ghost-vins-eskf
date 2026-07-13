@@ -18,6 +18,27 @@ A separate deterministic software-in-the-loop harness connects the same formal I
 
 > **Evidence boundary:** the preserved hardware run validates the USB-camera-to-ROS-to-tracker pipeline, real-time publication, dropout-state telemetry and replay. The closed-loop GNC results are deterministic software-in-the-loop evidence using synthetic truth and candidate noise parameters. Controlled measurement covariance, physical ground-truth accuracy, paired hardware superiority, vehicle control and flight readiness are not yet validated.
 
+## Complete drone/robot mission demo
+
+GHOST now includes the full intended software mission: a mobile drone/robot-style observer tracks a moving target in a local GPS-denied map, loses camera line of sight behind buildings, continues formal IMM and GHOST-MH prediction, navigates to a collision-free obstacle-corner vantage point, and reacquires the target.
+
+```bash
+source /opt/ros/jazzy/setup.bash
+cd ~/ghost_ws
+source install/setup.bash
+ros2 launch ghost_sim_ros2 ghost_drone_mission.launch.py
+```
+
+Dashboard: `http://<RASPBERRY_PI_IP>:8088`
+
+Final deterministic mission result: **PASS** — two obstacle-caused LOS losses, `456` IMM and `457` GHOST-MH hidden outputs, two reacquisitions, `12.30 m` observer travel, and zero collisions or boundary violations.
+
+- [Mission architecture and run guide](ghost_sim_ros2/docs/GHOST_DRONE_MISSION_SOFTWARE.md)
+- [Final implementation report](ghost_sim_ros2/docs/GHOST_DRONE_MISSION_IMPLEMENTATION_REPORT.md)
+- [Machine-readable mission evidence](ghost_sim_ros2/docs/GHOST_DRONE_MISSION_VALIDATION.json)
+
+This demonstrates local-frame target estimation, prediction, guidance, and reacquisition. It does not claim SLAM/VIO, GPS-denied self-localization, PX4 integration, or real autonomous flight.
+
 ## Review GHOST in 60 seconds
 
 1. Open the [public GHOST showcase](https://xpiredruby.github.io/ghost-vins-eskf/).

@@ -53,6 +53,7 @@ class FormalImmTrackerNode(Node):
         self.declare_parameter("future_horizon_s", 1.5)
         self.declare_parameter("future_dt_s", 0.10)
         self.declare_parameter("max_workspace_range_m", MAX_WORKSPACE_RANGE_M_DEFAULT)
+        self.declare_parameter("allow_signed_local_coordinates", False)
         self.declare_parameter("dropout_degraded_after_steps", DROPOUT_DEGRADED_AFTER_STEPS_DEFAULT)
 
         self.input_topic = str(self.get_parameter("input_topic").value)
@@ -64,6 +65,7 @@ class FormalImmTrackerNode(Node):
         self.tick_hz = float(self.get_parameter("tick_hz").value)
         self.measurement_timeout_s = float(self.get_parameter("measurement_timeout_s").value)
         self.max_workspace_range_m = float(self.get_parameter("max_workspace_range_m").value)
+        self.allow_signed_local_coordinates = bool(self.get_parameter("allow_signed_local_coordinates").value)
 
         dt_s = 1.0 / max(self.tick_hz, 1.0)
         measurement_std_m = float(self.get_parameter("measurement_std_m").value)
@@ -123,17 +125,29 @@ class FormalImmTrackerNode(Node):
         now = self.now_s()
         x = float(msg.pose.pose.position.x)
         y = float(msg.pose.pose.position.y)
-        validation = validate_live_measurement_xy(x, y, self.max_workspace_range_m)
-        if not validation.valid:
-            self.rejected_measurement_count += 1
-            self.last_rejection_reason = validation.rejection_reason
-            return
+        if self.allow_signed_local_coordinates:
+            if not math.isfinite(x) or not math.isfinite(y):
+                self.rejected_measurement_count += 1
+                self.last_rejection_reason = "REJECT_NONFINITE_MEASUREMENT"
+                return
+            if math.hypot(x, y) > self.max_workspace_range_m:
+                self.rejected_measurement_count += 1
+                self.last_rejection_reason = "REJECT_OUT_OF_WORKSPACE_MEASUREMENT"
+                return
+            measurement_xy = (x, y)
+        else:
+            validation = validate_live_measurement_xy(x, y, self.max_workspace_range_m)
+            if not validation.valid:
+                self.rejected_measurement_count += 1
+                self.last_rejection_reason = validation.rejection_reason
+                return
+            measurement_xy = (validation.measurement_xy[0], validation.measurement_xy[1])
 
         msg_stamp_s = float(msg.header.stamp.sec) + 1e-9 * float(msg.header.stamp.nanosec)
         if msg_stamp_s <= 0.0 or abs(now - msg_stamp_s) > 30.0:
             msg_stamp_s = now
 
-        self.latest_xy = (validation.measurement_xy[0], validation.measurement_xy[1])
+        self.latest_xy = measurement_xy
         self.latest_stamp_s = msg_stamp_s
         self.latest_arrival_s = now
         self.measurement_count += 1

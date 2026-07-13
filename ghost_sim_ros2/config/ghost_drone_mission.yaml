@@ -1,0 +1,75 @@
+ghost_mission_simulator:
+  ros__parameters:
+    rate_hz: 30.0
+    mission_duration_s: 42.0
+    random_seed: 20260712
+    frame_id: ghost_local
+    target_speed_mps: 0.55
+    measurement_std_m: 0.025
+    camera_range_m: 8.0
+    camera_fov_deg: 118.0
+    observer_radius_m: 0.22
+    observer_initial_x_m: -4.55
+    observer_initial_y_m: -2.45
+    observer_initial_yaw_rad: 0.55
+    status_rate_hz: 10.0
+
+ghost_formal_imm_tracker:
+  ros__parameters:
+    input_topic: /ghost/vision/target_pose
+    odom_topic: /ghost/tracker_imm/target_odom
+    futures_topic: /ghost/tracker_imm/futures_json
+    status_topic: /ghost/tracker_imm/status
+    frame_id: ghost_local
+    child_frame_id: ghost_target_imm
+    tick_hz: 30.0
+    measurement_timeout_s: 0.30
+    measurement_std_m: 0.025
+    max_workspace_range_m: 10.0
+    allow_signed_local_coordinates: true
+    future_horizon_s: 2.0
+    future_dt_s: 0.10
+
+ghost_mh_tracker:
+  ros__parameters:
+    input_topic: /ghost/vision/target_pose
+    odom_topic: /ghost/tracker_mh/target_odom
+    futures_topic: /ghost/tracker_mh/futures_json
+    status_topic: /ghost/tracker_mh/status
+    frame_id: ghost_local
+    child_frame_id: ghost_target_mh
+    tick_hz: 30.0
+    measurement_timeout_s: 0.30
+    measurement_std_m: 0.025
+    max_workspace_range_m: 10.0
+    allow_signed_local_coordinates: true
+    max_occlusion_s: 15.0
+    future_horizon_s: 2.0
+    future_dt_s: 0.10
+    stationary_gate_enabled: true
+
+ghost_observer_guidance:
+  ros__parameters:
+    tracker_source: mh
+    rate_hz: 20.0
+    frame_id: ghost_local
+    max_speed_mps: 1.15
+    max_accel_mps2: 1.4
+    max_yaw_rate_rps: 1.5
+    standoff_m: 2.2
+    obstacle_clearance_m: 0.38
+    goal_tolerance_m: 0.20
+    grid_resolution_m: 0.25
+    estimate_timeout_s: 1.0
+    initial_observation_hold_s: 8.0
+
+ghost_mission_evaluator:
+  ros__parameters:
+    metrics_path: ""
+    publish_rate_hz: 4.0
+    minimum_occlusion_s: 0.25
+
+ghost_mission_dashboard:
+  ros__parameters:
+    host: 0.0.0.0
+    port: 8088

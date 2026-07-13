@@ -59,6 +59,7 @@ class ModeBankTracker:
         measurement_std_m: float = 0.05,
         gate_chi2: float = 16.0,
         measurement_covariance_xy: Iterable[Iterable[float]] | None = None,
+        allow_signed_local_coordinates: bool = False,
     ):
         self.models = models if models is not None else mode_bank()
         self.max_occlusion_s = float(max_occlusion_s)
@@ -70,6 +71,7 @@ class ModeBankTracker:
             else None
         )
         self.gate_chi2 = float(gate_chi2)
+        self.allow_signed_local_coordinates = bool(allow_signed_local_coordinates)
         self.h = np.array([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]], dtype=float)
         self.r = np.asarray(
             build_measurement_r_xy(
@@ -216,13 +218,15 @@ class ModeBankTracker:
             return False
         px = float(hyp.x[0, 0])
         py = float(hyp.x[1, 0])
-        return px >= -0.25 and math.hypot(px, py) <= self.max_workspace_range_m
+        signed_coordinate_ok = self.allow_signed_local_coordinates or px >= -0.25
+        return signed_coordinate_ok and math.hypot(px, py) <= self.max_workspace_range_m
 
     def _collapse_after_update(self, hypotheses: list[ModeHypothesis]) -> list[ModeHypothesis]:
         normalized = self._normalize(hypotheses)
         estimate = ModeBankTracker(
             measurement_std_m=self.measurement_std_m,
             measurement_covariance_xy=self.measurement_covariance_xy,
+            allow_signed_local_coordinates=self.allow_signed_local_coordinates,
         )
         estimate.hypotheses = normalized
         est = estimate.estimate()

@@ -6,7 +6,7 @@ package_name = "ghost_sim_ros2"
 
 setup(
     name=package_name,
-    version="0.1.0",
+    version="0.2.0",
     packages=[package_name, "analysis"],
     data_files=[
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
@@ -15,17 +15,25 @@ setup(
         (f"share/{package_name}/rviz", glob("rviz/*.rviz")),
         (f"share/{package_name}/config", glob("config/*.yaml")),
         (f"share/{package_name}/analysis", glob("analysis/*.py")),
+        (f"share/{package_name}/docs", glob("docs/*.md")),
     ],
     install_requires=["setuptools", "numpy"],
     tests_require=["pytest"],
     zip_safe=True,
     maintainer="Vinayak Manoj Nair",
     maintainer_email="vinayak@example.com",
-    description="ROS 2 simulation, live tracking, validation, and evidence tools for GHOST target estimation.",
+    description=(
+        "ROS 2 GPS-denied occlusion-aware target tracking, prediction, navigation, "
+        "hardware validation, and evidence tools for GHOST."
+    ),
     license="MIT",
     entry_points={
         "console_scripts": [
             "synthetic_measurements = ghost_sim_ros2.synthetic_measurements:main",
+            "mission_simulator = ghost_sim_ros2.mission_simulator:main",
+            "observer_guidance = ghost_sim_ros2.observer_guidance:main",
+            "mission_evaluator = ghost_sim_ros2.mission_evaluator:main",
+            "mission_dashboard = ghost_sim_ros2.mission_dashboard:main",
             "cv_tracker = ghost_sim_ros2.cv_tracker:main",
             "mh_tracker = ghost_sim_ros2.mh_tracker:main",
             "formal_imm_tracker = ghost_sim_ros2.formal_imm_tracker:main",
