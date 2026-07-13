@@ -55,6 +55,11 @@ def main() -> int:
         errors.append("G3 v1 fixed analysis window must be [15.0, 75.0]")
     if len(design["candidate_covariance_models"]) < 3:
         errors.append("G3 requires multiple predeclared covariance candidates")
+    if not design["truth"].get("camera_range_reference"):
+        errors.append("G3 requires an explicit camera range reference plane")
+    yaw_sign = design["truth"].get("yaw_sign_convention", {})
+    if not all(key in yaw_sign for key in ("zero_deg", "positive_deg", "negative_deg")):
+        errors.append("G3 requires an explicit physical yaw sign convention")
 
     required_files = [
         "tools/init_ghost_x_g3_campaign.py",

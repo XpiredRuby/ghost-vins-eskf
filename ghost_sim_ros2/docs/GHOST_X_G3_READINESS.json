@@ -61,7 +61,7 @@
   },
   "claim_boundary": "Readiness validation does not complete G3. Physical multi-condition capture and analysis remain required.",
   "errors": [],
-  "generated_at_utc": "2026-07-13T04:14:57.967356Z",
+  "generated_at_utc": "2026-07-13T04:26:10.208274Z",
   "passed": true,
   "phase": "G3_MEASUREMENT_CHARACTERIZATION",
   "physical_exit_pending": {

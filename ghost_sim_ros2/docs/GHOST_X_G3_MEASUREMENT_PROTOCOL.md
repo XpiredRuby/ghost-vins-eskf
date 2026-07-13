@@ -41,11 +41,20 @@ Trial order is deterministically randomized with seed `20260713` when the campai
 
 Use a borrowed measuring tape, existing measured floor marks, or university lab markings. Do not buy a new sensor or metrology system.
 
-Declared fixture uncertainties:
+Declared fixture reference and uncertainties:
 
-- range: `±0.01 m`;
-- lateral centering: `±0.005 m`;
-- yaw: `±2°`.
+- range is measured from the **vertical plane tangent to the front camera housing at the lens centerline** to the AprilTag center;
+- this is a repeatable housing reference, not an assertion that the optical center lies exactly in that plane;
+- camera-reference offset uncertainty: `±0.01 m`;
+- combined declared range uncertainty: `±0.02 m`;
+- lateral centering uncertainty: `±0.005 m`;
+- yaw uncertainty: `±2°`.
+
+Yaw is about the vertical axis through the tag center:
+
+- `0°`: tag plane is front-facing and parallel to the camera-front reference plane;
+- `+20°`: **as viewed by the camera, the tag's right edge is farther from the camera** than its left edge;
+- `−20°`: **as viewed by the camera, the tag's right edge is closer to the camera** than its left edge.
 
 These are fixture uncertainty declarations, not camera accuracy results.
 
@@ -71,7 +80,7 @@ Any setup change requires a new campaign identifier or a formally recorded discr
 
 For each trial:
 
-1. Place the AprilTag center at the declared range from the camera reference plane.
+1. Place the AprilTag center at the declared range from the defined front-camera-housing reference plane.
 2. Align the tag center to the lateral-zero mark.
 3. Set the declared yaw relative to front-facing zero.
 4. Keep pitch and roll nominally zero.

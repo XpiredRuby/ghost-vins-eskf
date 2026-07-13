@@ -34,9 +34,16 @@ collection:
 truth:
   frame_id: camera
   expected_lateral_m: 0.0
-  range_uncertainty_m: 0.01
+  camera_range_reference: vertical plane tangent to the front camera housing at the lens centerline; this is a repeatable fixture reference, not a claim of exact optical-center location
+  camera_reference_offset_uncertainty_m: 0.01
+  range_uncertainty_m: 0.02
   lateral_uncertainty_m: 0.005
   yaw_uncertainty_deg: 2.0
+  yaw_axis: vertical through the AprilTag center
+  yaw_sign_convention:
+    zero_deg: tag plane front-facing and parallel to the camera-front reference plane
+    positive_deg: as viewed by the camera, the tag right edge is farther from the camera than the left edge
+    negative_deg: as viewed by the camera, the tag right edge is closer to the camera than the left edge
   measurement_method: borrowed tape or measured floor marks; no purchase required
   warning: These stationary fixture values characterize measurement bias/noise and do not validate dynamic tracker accuracy.
 

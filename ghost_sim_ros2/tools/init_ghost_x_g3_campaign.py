@@ -140,7 +140,13 @@ def main() -> int:
                 "sequence": sequence,
                 **slot,
                 "frame_id": design["truth"]["frame_id"],
+                "truth_reference": {
+                    "camera_range_reference": design["truth"]["camera_range_reference"],
+                    "yaw_axis": design["truth"]["yaw_axis"],
+                    "yaw_sign_convention": design["truth"]["yaw_sign_convention"],
+                },
                 "truth_uncertainty": {
+                    "camera_reference_offset_m": design["truth"]["camera_reference_offset_uncertainty_m"],
                     "range_m": design["truth"]["range_uncertainty_m"],
                     "lateral_m": design["truth"]["lateral_uncertainty_m"],
                     "yaw_deg": design["truth"]["yaw_uncertainty_deg"],
