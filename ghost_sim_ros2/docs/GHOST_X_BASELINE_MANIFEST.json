@@ -1,0 +1,326 @@
+{
+  "baseline_release": {
+    "commit": "8c0adea5ab024cfc5f74ce6dc819148267ae0159",
+    "tag": "ghost-drone-mission-v1",
+    "tag_resolves_to_commit": true
+  },
+  "camera_calibration": {
+    "artifact": {
+      "exists": true,
+      "path": "/home/xpired/ghost_camera_calibration.json",
+      "sha256": "ed29b6caf678476e80389a7b9f94694e86f69b4658c0d35c787c646976fd262b",
+      "size_bytes": 1464
+    },
+    "summary": {
+      "camera_matrix": [
+        [
+          487.694011940488,
+          0.0,
+          324.0024545829782
+        ],
+        [
+          0.0,
+          489.39343663448244,
+          237.18588500734555
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "dist_coeffs": [
+        0.20589558478596218,
+        -0.4882931099771136,
+        0.0018112673832167666,
+        -0.005492510563408476,
+        0.4032885284879294
+      ],
+      "image_height": 480,
+      "image_width": 640,
+      "max_per_view_error_px": 0.2892017605836158,
+      "mean_per_view_error_px": 0.07405861769715849,
+      "model": "pinhole",
+      "rms_reprojection_error_px": 0.6484223428868449,
+      "square_size_m": 0.02
+    }
+  },
+  "controlled_measurement_covariance": {
+    "artifacts": {
+      "collection_quality": {
+        "exists": true,
+        "path": "/home/xpired/ghost_trials/physical_validation_20260711T183400Z/controlled_R_direct_01/collection_quality.json",
+        "sha256": "fe9d8cb97181fcc47309820a4767c6b159e4f0717106d9a2aa45f47c97de46c6",
+        "size_bytes": 809
+      },
+      "noise_summary": {
+        "exists": true,
+        "path": "/home/xpired/ghost_trials/physical_validation_20260711T183400Z/controlled_R_direct_01/noise_summary.json",
+        "sha256": "822049596305cead3e8cefcc330ca46dee69a7315f23b6e7ed854553e1e0cef3",
+        "size_bytes": 4674
+      },
+      "vision_pose_csv": {
+        "exists": true,
+        "path": "/home/xpired/ghost_trials/physical_validation_20260711T183400Z/controlled_R_direct_01/vision_pose_log.csv",
+        "sha256": "85302fd649b24a832f1e88b2bb652405d9529c072454e6348506ef382d72d86f",
+        "size_bytes": 66311
+      },
+      "vision_pose_jsonl": {
+        "exists": true,
+        "path": "/home/xpired/ghost_trials/physical_validation_20260711T183400Z/controlled_R_direct_01/vision_pose.jsonl",
+        "sha256": "88a2713076ed87d0191c0987a670b2de93a1c88ae58b422455c4864f34096243",
+        "size_bytes": 458618
+      }
+    },
+    "claim_boundary": "Does not establish tracker accuracy, independent truth, or residual whiteness.",
+    "quality": {
+      "acceptable": true,
+      "accuracy_status": "DOES_NOT_VALIDATE_TRACKER_ACCURACY",
+      "analysis_first_sample_s": 15.050381868997647,
+      "analysis_last_sample_s": 74.9870491279944,
+      "analysis_rate_hz": 14.748901472617462,
+      "analysis_samples": 885,
+      "analysis_span_s": 59.93666725899675,
+      "declared_criteria": {
+        "analysis_window_s": [
+          15.0,
+          75.0
+        ],
+        "max_analysis_gap_s": 0.25,
+        "min_analysis_rate_hz": 10.0,
+        "record_duration_s": 90.0
+      },
+      "errors": [],
+      "first_sample_s": 0.0,
+      "last_sample_s": 90.03803139899537,
+      "max_analysis_gap_s": 0.07618596700194757,
+      "source": "/home/xpired/ghost_trials/physical_validation_20260711T183400Z/controlled_R_direct_01/vision_pose.jsonl",
+      "status": "ACCEPTABLE_FOR_FIXED_WINDOW_ANALYSIS",
+      "total_samples": 1329,
+      "warnings": []
+    },
+    "status": "ACCEPTED_STATIONARY_MEASUREMENT_COVARIANCE_ONLY",
+    "summary": {
+      "correlation_xy": 0.7580572986885923,
+      "mean_x_m": 1.0458964506022599,
+      "mean_y_m": 0.0816724081480226,
+      "r_xx_m2": 1.1285530537472441e-06,
+      "r_xy_m2": 9.517042606937477e-08,
+      "r_yy_m2": 1.396619108865118e-08,
+      "sample_count": 885,
+      "sample_rate_hz": 14.748901472616664,
+      "source": "RAW_RESIDUAL_COVARIANCE_FIXED_15_75",
+      "status": "CONTROLLED_R_COLLECTED_PENDING_ENGINEER_REVIEW",
+      "std_x_m": 0.0010623337769963092,
+      "std_y_m": 0.00011817864057709913,
+      "window_end_s": 75.0,
+      "window_start_s": 15.0
+    }
+  },
+  "generated_at_utc": "2026-07-13T02:53:50.524110Z",
+  "hardware": {
+    "camera_device": "/dev/video0",
+    "camera_interface": "USB UVC / V4L2",
+    "camera_name": "HD Webcam eMeet C960: HD Webcam",
+    "compute": "Raspberry Pi 4 Model B Rev 1.5",
+    "target_proxy": "printed AprilTag"
+  },
+  "missing_required_evidence": [],
+  "phase": "G0_BASELINE_FREEZE",
+  "physical_validation": {
+    "completion_report": {
+      "exists": true,
+      "path": "/home/xpired/ghost_trials/physical_validation_20260711T183400Z/PHASE2_ACCELERATED_COMPLETION_REPORT.md",
+      "sha256": "cde6bf1b691597bd9f5280100302c4df8481b7d3cc694da24f8899c215981dee",
+      "size_bytes": 5709
+    },
+    "formal_55_trial_campaign": "DEFERRED_NOT_COMPLETED",
+    "independent_ground_truth_grid": "NOT_COMPLETED",
+    "protocol_amendment": {
+      "exists": true,
+      "path": "/home/xpired/ghost_trials/physical_validation_20260711T183400Z/PHASE2_MEASURED_GAP_PROTOCOL_AMENDMENT.md",
+      "sha256": "2960d0ff74223e78f15911c30919ad8fa7143b3d580c0be2bb530f3240ecc9fb",
+      "size_bytes": 4107
+    },
+    "scope": "accelerated representative guided camera-space validation"
+  },
+  "platform": {
+    "kernel": "6.8.0-1060-raspi",
+    "machine": "aarch64",
+    "os_release": {
+      "BUG_REPORT_URL": "https://bugs.launchpad.net/ubuntu/",
+      "HOME_URL": "https://www.ubuntu.com/",
+      "ID": "ubuntu",
+      "ID_LIKE": "debian",
+      "LOGO": "ubuntu-logo",
+      "NAME": "Ubuntu",
+      "PRETTY_NAME": "Ubuntu 24.04.4 LTS",
+      "PRIVACY_POLICY_URL": "https://www.ubuntu.com/legal/terms-and-policies/privacy-policy",
+      "SUPPORT_URL": "https://help.ubuntu.com/",
+      "UBUNTU_CODENAME": "noble",
+      "VERSION": "24.04.4 LTS (Noble Numbat)",
+      "VERSION_CODENAME": "noble",
+      "VERSION_ID": "24.04"
+    },
+    "python": "3.12.3",
+    "raspberry_pi_model": "Raspberry Pi 4 Model B Rev 1.5",
+    "ros_distro": "jazzy"
+  },
+  "preserved_hardware_bag": {
+    "data_files": [
+      {
+        "exists": true,
+        "path": "/home/xpired/ghost_ws/bags/live_camera_calibrated_R_01/live_camera_calibrated_R_01_0.mcap",
+        "sha256": "99910a57508c8c729ca84a69f4ad601f45f1806668ccbc4db1b6ac9de6ad03ea",
+        "size_bytes": 13545938
+      }
+    ],
+    "duration_s": 48.280496118,
+    "message_count": 6810,
+    "metadata": {
+      "exists": true,
+      "path": "/home/xpired/ghost_ws/bags/live_camera_calibrated_R_01/metadata.yaml",
+      "sha256": "42462317abe661aaa65fc33e30161b1a34255053e5be6d00c88df96e83085c2c",
+      "size_bytes": 5902
+    },
+    "ros_distro": "jazzy",
+    "starting_time_ns": 1783452021132934743,
+    "storage_identifier": "mcap",
+    "topics": {
+      "/ghost/tracker_imm/futures_json": {
+        "mean_rate_hz": 29.991406808683447,
+        "message_count": 1448,
+        "type": "std_msgs/msg/String"
+      },
+      "/ghost/tracker_imm/status": {
+        "mean_rate_hz": 3.748925851085431,
+        "message_count": 181,
+        "type": "std_msgs/msg/String"
+      },
+      "/ghost/tracker_imm/target_odom": {
+        "mean_rate_hz": 30.012119106203254,
+        "message_count": 1449,
+        "type": "nav_msgs/msg/Odometry"
+      },
+      "/ghost/tracker_mh/futures_json": {
+        "mean_rate_hz": 29.991406808683447,
+        "message_count": 1448,
+        "type": "std_msgs/msg/String"
+      },
+      "/ghost/tracker_mh/status": {
+        "mean_rate_hz": 3.748925851085431,
+        "message_count": 181,
+        "type": "std_msgs/msg/String"
+      },
+      "/ghost/tracker_mh/target_odom": {
+        "mean_rate_hz": 29.991406808683447,
+        "message_count": 1448,
+        "type": "nav_msgs/msg/Odometry"
+      },
+      "/ghost/vision/target_pose": {
+        "mean_rate_hz": 13.566554875474901,
+        "message_count": 655,
+        "type": "geometry_msgs/msg/PoseWithCovarianceStamped"
+      }
+    }
+  },
+  "project": "GHOST-X",
+  "public_claim_boundaries": {
+    "not_supported_yet": [
+      "physical trajectory RMSE or bias against independent truth",
+      "formal statistical superiority of GHOST-MH over IMM",
+      "completed 55-trial physical campaign",
+      "GPS-denied self-localization, VIO, or SLAM",
+      "PX4 integration or real autonomous drone flight",
+      "production, safety-critical, or flight-qualified readiness"
+    ],
+    "supported": [
+      "ROS 2 camera-to-tracker hardware pipeline",
+      "prediction-only behavior and reacquisition telemetry",
+      "deterministic local-frame software observer navigation",
+      "obstacle line-of-sight gating and tracker propagation during loss",
+      "accepted stationary measurement covariance artifact"
+    ]
+  },
+  "reproduction": {
+    "clean_checkout_expectation": "Repository-owned software, tests, documents, and deterministic simulation reproduce from checkout. Hardware plots additionally require the preserved external bag.",
+    "external_evidence_required": [
+      "/home/xpired/ghost_camera_calibration.json",
+      "/home/xpired/ghost_ws/bags/live_camera_calibrated_R_01",
+      "/home/xpired/ghost_trials/physical_validation_20260711T183400Z"
+    ],
+    "one_command": "bash ghost_sim_ros2/tools/rebuild_ghost_x_baseline.sh"
+  },
+  "schema_version": 1,
+  "software_mission_validation": {
+    "artifact": {
+      "exists": true,
+      "path": "/home/xpired/ghost_ws/src/ghost-vins-eskf/ghost_sim_ros2/docs/GHOST_DRONE_MISSION_VALIDATION.json",
+      "sha256": "805e8f63460bc4a1db600ed5bd16820cacb54931e8476ab96335dd8ec3c96f36",
+      "size_bytes": 1985
+    },
+    "result": {
+      "acceptance": {
+        "camera_measurements_received": true,
+        "hidden_vantage_reposition_used": true,
+        "imm_predicted_during_occlusion": true,
+        "mh_predicted_during_occlusion": true,
+        "mission_completed": true,
+        "observer_collision_free": true,
+        "observer_inside_bounds": true,
+        "observer_navigated": true,
+        "obstacle_occlusion_observed": true,
+        "target_reacquired": true
+      },
+      "claim_boundary": "Deterministic local-frame software simulation with camera LOS gating. It demonstrates tracking, prediction, navigation, and reacquisition logic; it does not claim GPS-denied self-localization or real autonomous flight.",
+      "collision_count": 0,
+      "elapsed_s": 32.08157968521118,
+      "errors_m": {
+        "imm_max_all": 4.186526816774335,
+        "imm_max_hidden": 4.186526816774335,
+        "imm_rms_all": 0.7618355321120962,
+        "imm_rms_hidden": 1.7265389660895778,
+        "mh_max_all": 4.039363820993622,
+        "mh_max_hidden": 3.545606781740288,
+        "mh_rms_all": 0.715300920928037,
+        "mh_rms_hidden": 1.6080627010261395
+      },
+      "final_target_observer_separation_m": 2.337902864351844,
+      "hidden_vantage_command_count": 291,
+      "imm_outputs_during_obstacle_occlusion": 456,
+      "imm_total_outputs": 2344,
+      "longest_obstacle_occlusion_s": 9.533205032348633,
+      "max_commanded_speed_mps": 1.15,
+      "measurement_count": 1910,
+      "mh_outputs_during_obstacle_occlusion": 457,
+      "mh_total_outputs": 2342,
+      "mission_complete": true,
+      "navigation_command_count": 343,
+      "navigation_safety_intervention_count": 0,
+      "observer_distance_traveled_m": 12.301612497450835,
+      "observer_update_count": 2344,
+      "obstacle_occlusion_count": 2,
+      "occlusion_durations_s": [
+        9.533205032348633,
+        5.678248167037964
+      ],
+      "out_of_bounds_count": 0,
+      "passed": true,
+      "reacquisition_count": 2,
+      "schema_version": 1,
+      "system": "GHOST GPS-denied occlusion-aware target tracking and prediction software demo",
+      "target_finished": true,
+      "visibility_reason": "VISIBLE",
+      "visible": true
+    }
+  },
+  "software_verification": {
+    "full_pytest_log": {
+      "exists": true,
+      "path": "/home/xpired/ghost_trials/physical_validation_20260711T183400Z/ghost_full_pytest_final.log",
+      "sha256": "0b159ad2da7297244c8f2a1e493794d2119af7c30de3ef7121185392b3e580d9",
+      "size_bytes": 272
+    },
+    "last_verified_result": "214 passed in 204.56s"
+  }
+}
