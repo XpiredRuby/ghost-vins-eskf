@@ -41,6 +41,14 @@ scenarios:
     subscriber_delay_ms: 8.0
     allow_receive_fraction_below_min: true
     cpu_stress_workers: 0
+  - id: reliable_estimator_30hz
+    publisher_reliability: reliable
+    subscriber_reliability: reliable
+    history: keep_last
+    depth: 10
+    rate_hz: 30.0
+    subscriber_delay_ms: 0.0
+    cpu_stress_workers: 0
   - id: reliable_deadline_liveliness_pause
     publisher_reliability: reliable
     subscriber_reliability: reliable

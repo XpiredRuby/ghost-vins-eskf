@@ -293,9 +293,12 @@ def run_qos_scenario(
     wall_s = time.perf_counter() - wall_start
 
     receive_fraction = subscriber.received / max(1, publisher.published)
+    publication_rate_hz = publisher.published / max(wall_s, 1.0e-9)
+    receive_rate_hz = subscriber.received / max(wall_s, 1.0e-9)
     deadline_ms = float(scenario.get("deadline_ms", 1000.0 / float(scenario["rate_hz"])))
     deadline_threshold_ms = max(deadline_ms * 1.5, 1.5 * 1000.0 / float(scenario["rate_hz"]))
     application_deadline_misses = sum(value > deadline_threshold_ms for value in subscriber.interarrival_ms)
+    application_deadline_miss_fraction = application_deadline_misses / max(1, len(subscriber.interarrival_ms))
     lease_ms = scenario.get("liveliness_lease_ms")
     application_liveliness_gaps = (
         sum(value > float(lease_ms) for value in subscriber.interarrival_ms) if lease_ms is not None else 0
@@ -330,11 +333,14 @@ def run_qos_scenario(
         "published": publisher.published,
         "received": subscriber.received,
         "receive_fraction": receive_fraction,
+        "publication_rate_hz": publication_rate_hz,
+        "receive_rate_hz": receive_rate_hz,
         "sequence_gap_count": subscriber.sequence_gaps,
         "bad_payloads": subscriber.bad_payloads,
         "latency_ms": summarize_samples(subscriber.latency_ms),
         "interarrival_ms": summarize_samples(subscriber.interarrival_ms),
         "application_deadline_miss_count": application_deadline_misses,
+        "application_deadline_miss_fraction": application_deadline_miss_fraction,
         "application_liveliness_gap_count": application_liveliness_gaps,
         "publisher_events": publisher.events,
         "subscriber_events": subscriber.events,
@@ -384,6 +390,9 @@ def write_outputs(report: dict[str, Any], out_dir: Path) -> None:
                 "published",
                 "received",
                 "receive_fraction",
+                "publication_rate_hz",
+                "receive_rate_hz",
+                "deadline_miss_fraction",
                 "sequence_gaps",
                 "latency_mean_ms",
                 "latency_p99_ms",
@@ -406,6 +415,9 @@ def write_outputs(report: dict[str, Any], out_dir: Path) -> None:
                     scenario["published"],
                     scenario["received"],
                     scenario["receive_fraction"],
+                    scenario["publication_rate_hz"],
+                    scenario["receive_rate_hz"],
+                    scenario["application_deadline_miss_fraction"],
                     scenario["sequence_gap_count"],
                     scenario["latency_ms"]["mean"],
                     scenario["latency_ms"]["p99"],
@@ -435,6 +447,12 @@ def write_outputs(report: dict[str, Any], out_dir: Path) -> None:
             f"| `{scenario['id']}` | {scenario['published']} | {scenario['received']} | {scenario['receive_fraction']:.3f} | "
             f"{'NA' if p99 is None else f'{p99:.3f}'} | {'NA' if maximum is None else f'{maximum:.3f}'} | "
             f"{scenario['event_counts']['deadline']} | {scenario['event_counts']['liveliness']} | {'PASS' if scenario['passed'] else 'FAIL'} |"
+        )
+    lines.extend(["", "## Predeclared runtime requirements", ""])
+    lines.extend(["| Requirement | Result | Evidence summary |", "|---|---|---|"])
+    for requirement_id, result in report.get("requirements", {}).items():
+        lines.append(
+            f"| `{requirement_id}` | {'PASS' if result.get('passed') else 'FAIL'} | {result.get('summary', '')} |"
         )
     lines.extend(
         [
@@ -500,15 +518,73 @@ def main() -> int:
         and deadline_pause["liveliness_detection_ok"]
         and incompatible["compatibility_ok"]
     )
+    nominal_ids = {"best_effort_depth_1", "reliable_depth_10"}
+    nominal = [result for result in qos_results if result["id"] in nominal_ids]
+    nominal_latency_p95_ms = max(
+        (float(result["latency_ms"]["p95"]) for result in nominal if result["latency_ms"]["p95"] is not None),
+        default=float("inf"),
+    )
+    nominal_latency_p99_ms = max(
+        (float(result["latency_ms"]["p99"]) for result in nominal if result["latency_ms"]["p99"] is not None),
+        default=float("inf"),
+    )
+    nominal_sample_count = sum(int(result["latency_ms"]["count"]) for result in nominal)
+    rt001_passed = (
+        len(nominal) == 2
+        and nominal_sample_count >= 30
+        and nominal_latency_p95_ms <= 150.0
+        and nominal_latency_p99_ms <= 250.0
+    )
+    estimator_30hz = next(result for result in qos_results if result["id"] == "reliable_estimator_30hz")
+    rt002_passed = (
+        estimator_30hz["publication_rate_hz"] >= 29.7
+        and estimator_30hz["application_deadline_miss_fraction"] <= 0.01
+        and estimator_30hz["interarrival_ms"]["p99"] is not None
+    )
+    throttling_clear = all(
+        (result.get("throttled_before") in {None, "throttled=0x0"})
+        and (result.get("throttled_after") in {None, "throttled=0x0"})
+        for result in qos_results
+    )
+    thermal_samples = sum(int(result["resource_summary"]["temperature_c"]["count"]) for result in qos_results)
+    rt003_passed = throttling_clear and thermal_samples > 0
+    requirements = {
+        "RT-001": {
+            "passed": rt001_passed,
+            "p95_ms": nominal_latency_p95_ms,
+            "p99_ms": nominal_latency_p99_ms,
+            "sample_count": nominal_sample_count,
+            "limits_ms": {"p95": 150.0, "p99": 250.0},
+            "summary": "Nominal source-to-receipt latency did not meet the predeclared bounds." if not rt001_passed else "Nominal latency met the predeclared bounds.",
+        },
+        "RT-002": {
+            "passed": rt002_passed,
+            "publication_rate_hz": estimator_30hz["publication_rate_hz"],
+            "deadline_miss_fraction": estimator_30hz["application_deadline_miss_fraction"],
+            "interarrival_ms": estimator_30hz["interarrival_ms"],
+            "limits": {"minimum_rate_hz": 29.7, "maximum_deadline_miss_fraction": 0.01},
+            "summary": "The 30 Hz publication/deadline requirement was not met on this bench run." if not rt002_passed else "The 30 Hz publication/deadline requirement was met on this bench run.",
+        },
+        "RT-003": {
+            "passed": rt003_passed,
+            "thermal_sample_count": thermal_samples,
+            "throttling_clear": throttling_clear,
+            "summary": "Resource and thermal evidence was collected without a reported throttling flag." if rt003_passed else "Resource or thermal evidence was incomplete or reported throttling.",
+        },
+    }
+    requirements_all_passed = all(item["passed"] for item in requirements.values())
     real_time_status = (
-        "BENCH_30HZ_DEADLINE_SUPPORTED_NOT_HARD_REAL_TIME_CERTIFICATION"
-        if deadline["all_max_below_deadline"] and evidence_complete
-        else "HARD_REAL_TIME_NOT_CLAIMED"
+        "BENCH_REQUIREMENTS_MET_NOT_HARD_REAL_TIME_CERTIFICATION"
+        if deadline["all_max_below_deadline"] and evidence_complete and requirements_all_passed
+        else "HARD_REAL_TIME_NOT_CLAIMED_REQUIREMENTS_NOT_MET"
     )
     report = {
         "schema_version": 1,
         "phase": "G9_DDS_AND_REAL_TIME",
         "passed": evidence_complete,
+        "campaign_completed": evidence_complete,
+        "requirements_all_passed": requirements_all_passed,
+        "requirements": requirements,
         "qos_passed_count": qos_passed,
         "qos_scenarios": qos_results,
         "estimator_benchmarks": estimator_benchmarks,
