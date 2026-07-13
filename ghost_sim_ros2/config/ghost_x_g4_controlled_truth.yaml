@@ -1,0 +1,26 @@
+schema_version: 1
+phase: G4_CONTROLLED_TRUTH_CAMPAIGN
+campaign:
+  seed: 260713
+  repeats_per_family: 3
+  dt_s: 0.1
+  duration_s: 16.0
+  measurement_covariance_xy:
+    - [0.0004, 0.00005]
+    - [0.00005, 0.00025]
+  truth_position_variance_m2: 1.0e-8
+  truth_velocity_variance_m2ps2: 1.0e-8
+  bootstrap_samples: 2000
+scenario_families:
+  - stationary
+  - constant_velocity
+  - acceleration_deceleration
+  - coordinated_arc
+  - stop_and_go
+  - abrupt_maneuver
+  - complete_occlusion
+  - repeated_reentry
+identical_input_policy: ONE_CANONICAL_HASHED_STREAM_PER_TRIAL_REPLAYED_BY_ALL_ESTIMATORS
+invalid_trial_policy: RETAIN_WITH_EXPLICIT_FAILURE_REASON
+public_reporting_policy: BLINDED_ESTIMATOR_LABELS_WITH_PRIVATE_UNBLINDING_KEY
+claim_boundary: SOFTWARE_CONTROLLED_TRUTH_ONLY_NOT_PHYSICAL_ACCURACY_OR_UNIVERSAL_SUPERIORITY

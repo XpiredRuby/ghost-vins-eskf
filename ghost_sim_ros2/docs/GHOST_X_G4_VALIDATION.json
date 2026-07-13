@@ -1,0 +1,29 @@
+{
+  "campaign": {
+    "accepted_trials": 24,
+    "identical_input_trials": 24,
+    "invalid_trials": 0,
+    "planned_trials": 24
+  },
+  "errors": [],
+  "estimators": [
+    "cv_kalman",
+    "formal_imm",
+    "ghost_mh"
+  ],
+  "passed": true,
+  "phase": "G4_CONTROLLED_TRUTH",
+  "planned_trials": 24,
+  "scenario_families": [
+    "stationary",
+    "constant_velocity",
+    "acceleration_deceleration",
+    "coordinated_arc",
+    "stop_and_go",
+    "abrupt_maneuver",
+    "complete_occlusion",
+    "repeated_reentry"
+  ],
+  "schema_version": 1,
+  "status": "READY_OR_VALIDATED"
+}
