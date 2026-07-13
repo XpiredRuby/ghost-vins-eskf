@@ -1,0 +1,83 @@
+schema_version: 1
+phase: G9_DDS_AND_REAL_TIME
+runtime:
+  warmup_s: 1.0
+  default_duration_s: 5.0
+  payload_bytes: 512
+  thermal_sample_hz: 10.0
+  estimator_deadline_ms: 33.333
+scenarios:
+  - id: best_effort_depth_1
+    publisher_reliability: best_effort
+    subscriber_reliability: best_effort
+    history: keep_last
+    depth: 1
+    rate_hz: 100.0
+    subscriber_delay_ms: 0.0
+    cpu_stress_workers: 0
+  - id: best_effort_depth_10_overload
+    publisher_reliability: best_effort
+    subscriber_reliability: best_effort
+    history: keep_last
+    depth: 10
+    rate_hz: 250.0
+    subscriber_delay_ms: 8.0
+    allow_receive_fraction_below_min: true
+    cpu_stress_workers: 0
+  - id: reliable_depth_10
+    publisher_reliability: reliable
+    subscriber_reliability: reliable
+    history: keep_last
+    depth: 10
+    rate_hz: 100.0
+    subscriber_delay_ms: 0.0
+    cpu_stress_workers: 0
+  - id: reliable_depth_100_overload
+    publisher_reliability: reliable
+    subscriber_reliability: reliable
+    history: keep_last
+    depth: 100
+    rate_hz: 250.0
+    subscriber_delay_ms: 8.0
+    allow_receive_fraction_below_min: true
+    cpu_stress_workers: 0
+  - id: reliable_deadline_liveliness_pause
+    publisher_reliability: reliable
+    subscriber_reliability: reliable
+    history: keep_last
+    depth: 10
+    rate_hz: 50.0
+    subscriber_delay_ms: 0.0
+    deadline_ms: 50.0
+    liveliness_lease_ms: 150.0
+    liveliness: manual_by_topic
+    pause_start_s: 2.0
+    pause_duration_s: 0.40
+    cpu_stress_workers: 0
+  - id: reliable_cpu_stress
+    publisher_reliability: reliable
+    subscriber_reliability: reliable
+    history: keep_last
+    depth: 10
+    rate_hz: 100.0
+    subscriber_delay_ms: 0.0
+    allow_receive_fraction_below_min: true
+    cpu_stress_workers: 2
+  - id: incompatible_best_effort_to_reliable
+    publisher_reliability: best_effort
+    subscriber_reliability: reliable
+    history: keep_last
+    depth: 10
+    rate_hz: 50.0
+    subscriber_delay_ms: 0.0
+    cpu_stress_workers: 0
+    expected_compatible: false
+acceptance:
+  compatible_min_receive_fraction: 0.90
+  require_deadline_detection: true
+  require_liveliness_detection: true
+  require_incompatible_detection: true
+  estimator_hard_deadline_rule: max_execution_ms_below_deadline
+claim_boundary: BENCH_AND_LOOPBACK_DDS_EVIDENCE_NOT_FLIGHT_HARD_REAL_TIME_CERTIFICATION
+references:
+  ros2_qos_source: ros2/ros2_documentation jazzy About-Quality-of-Service-Settings.rst

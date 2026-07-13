@@ -1,0 +1,8 @@
+scenario,expected_compatible,published,received,receive_fraction,sequence_gaps,latency_mean_ms,latency_p99_ms,latency_max_ms,deadline_events,liveliness_events,incompatible_events,max_temperature_c,min_cpu_frequency_mhz,passed
+best_effort_depth_1,True,11,11,1.0,0,499.30581727272727,2330.1982262000006,2443.067383,0,0,0,41.381,1800.0,True
+best_effort_depth_10_overload,True,4,4,1.0,0,1376.014244,1853.11394275,1856.307052,0,0,0,40.894,1800.0,True
+reliable_depth_10,True,4,4,1.0,0,1376.9241655,2960.73913365,2993.798271,0,0,0,41.381,1800.0,True
+reliable_depth_100_overload,True,10,10,1.0,0,548.9114671,1476.16546715,1485.692369,0,0,0,40.407,1800.0,True
+reliable_deadline_liveliness_pause,True,8,8,1.0,0,684.85894375,2297.2047795099998,2399.824787,12,11,0,41.868,800.0,True
+reliable_cpu_stress,True,83,82,0.9879518072289156,0,60.43942007317074,954.8993297699977,1740.684285,0,0,0,46.251,1500.0,True
+incompatible_best_effort_to_reliable,False,276,0,0.0,0,,,,0,0,0,42.842,700.0,True

@@ -1,0 +1,1627 @@
+{
+  "claim_boundary": "BENCH_AND_LOOPBACK_DDS_EVIDENCE_NOT_FLIGHT_HARD_REAL_TIME_CERTIFICATION",
+  "environment": {
+    "cpu_count": 4,
+    "machine": "aarch64",
+    "max_process_rss_mb": 69.5546875,
+    "platform": "Linux-6.8.0-1060-raspi-aarch64-with-glibc2.39",
+    "python": "3.12.3",
+    "rmw_implementation": "rmw_fastrtps_cpp",
+    "ros_distro": "jazzy",
+    "throttled_status_final": "throttled=0x0"
+  },
+  "estimator_benchmarks": [
+    {
+      "execution_us": {
+        "cv_kalman": {
+          "count": 966,
+          "max": 576.064,
+          "mean": 296.9576314699793,
+          "min": 123.22,
+          "p50": 352.53049999999996,
+          "p90": 380.2715,
+          "p95": 386.132,
+          "p99": 438.3269500000001,
+          "std": 106.95519832707643
+        },
+        "formal_imm": {
+          "count": 966,
+          "max": 9689.142,
+          "mean": 3923.782448240165,
+          "min": 2987.91,
+          "p50": 4138.4075,
+          "p90": 4315.599,
+          "p95": 4413.139,
+          "p99": 4783.515350000007,
+          "std": 572.2572938782854
+        },
+        "ghost_mh": {
+          "count": 966,
+          "max": 3793.784,
+          "mean": 1275.2169565217391,
+          "min": 312.216,
+          "p50": 1301.033,
+          "p90": 1353.883,
+          "p95": 1396.34025,
+          "p99": 3703.1753500000004,
+          "std": 381.0500654789405
+        }
+      },
+      "implementation": "python_reference",
+      "process_cpu_fraction_of_one_core": 1.0314047386854643,
+      "process_cpu_s": 5.500996360000002,
+      "repeats": 6,
+      "resource_summary": {
+        "cpu_frequency_mhz": {
+          "count": 9,
+          "max": 1800.0,
+          "mean": 1800.0,
+          "min": 1800.0,
+          "p50": 1800.0,
+          "p90": 1800.0,
+          "p95": 1800.0,
+          "p99": 1800.0,
+          "std": 0.0
+        },
+        "load_1m": {
+          "count": 9,
+          "max": 1.6220703125,
+          "mean": 1.5941297743055556,
+          "min": 1.57177734375,
+          "p50": 1.57177734375,
+          "p90": 1.6220703125,
+          "p95": 1.6220703125,
+          "p99": 1.6220703125,
+          "std": 0.026506721923611903
+        },
+        "memory_available_mb": {
+          "count": 9,
+          "max": 3230.86328125,
+          "mean": 3230.86328125,
+          "min": 3230.86328125,
+          "p50": 3230.86328125,
+          "p90": 3230.86328125,
+          "p95": 3230.86328125,
+          "p99": 3230.86328125,
+          "std": 0.0
+        },
+        "process_rss_mb": {
+          "count": 9,
+          "max": 70.04296875,
+          "mean": 69.95355902777777,
+          "min": 69.83203125,
+          "p50": 69.953125,
+          "p90": 70.03046875,
+          "p95": 70.03671875,
+          "p99": 70.04171875,
+          "std": 0.06639029117878471
+        },
+        "sample_count": 9,
+        "temperature_c": {
+          "count": 9,
+          "max": 41.868,
+          "mean": 40.94811111111111,
+          "min": 40.407,
+          "p50": 40.894,
+          "p90": 41.4784,
+          "p95": 41.6732,
+          "p99": 41.82904,
+          "std": 0.5133430735006689
+        }
+      },
+      "steps_per_repeat": 161,
+      "stream": "/home/xpired/ghost_trials/ghost_x_g4_controlled_truth_v1/canonical_streams/g4_repeated_reentry_rep01.jsonl",
+      "stress_workers": 0,
+      "throttled_after": "throttled=0x0",
+      "throttled_before": "throttled=0x0",
+      "wall_s": 5.333499210999435
+    },
+    {
+      "execution_us": {
+        "cv_kalman": {
+          "count": 644,
+          "max": 471.565,
+          "mean": 300.27850310559006,
+          "min": 116.239,
+          "p50": 354.9755,
+          "p90": 383.4592,
+          "p95": 394.2473,
+          "p99": 439.10021,
+          "std": 107.99454569075854
+        },
+        "formal_imm": {
+          "count": 644,
+          "max": 9796.455,
+          "mean": 3937.3836692546583,
+          "min": 2960.022,
+          "p50": 4119.3435,
+          "p90": 4334.2157,
+          "p95": 4442.6878,
+          "p99": 6213.640780000007,
+          "std": 620.3209690860286
+        },
+        "ghost_mh": {
+          "count": 644,
+          "max": 3867.543,
+          "mean": 1277.4680496894407,
+          "min": 312.143,
+          "p50": 1296.4769999999999,
+          "p90": 1353.9389,
+          "p95": 1420.9888,
+          "p99": 3727.3731000000007,
+          "std": 398.55147922015806
+        }
+      },
+      "implementation": "python_reference",
+      "process_cpu_fraction_of_one_core": 1.018455137795623,
+      "process_cpu_s": 3.6883241049999995,
+      "repeats": 4,
+      "resource_summary": {
+        "cpu_frequency_mhz": {
+          "count": 12,
+          "max": 1800.0,
+          "mean": 1800.0,
+          "min": 1800.0,
+          "p50": 1800.0,
+          "p90": 1800.0,
+          "p95": 1800.0,
+          "p99": 1800.0,
+          "std": 0.0
+        },
+        "load_1m": {
+          "count": 12,
+          "max": 1.6865234375,
+          "mean": 1.6482747395833333,
+          "min": 1.57177734375,
+          "p50": 1.6865234375,
+          "p90": 1.6865234375,
+          "p95": 1.6865234375,
+          "p99": 1.6865234375,
+          "std": 0.056497071054967166
+        },
+        "memory_available_mb": {
+          "count": 12,
+          "max": 3230.87109375,
+          "mean": 3230.8704427083335,
+          "min": 3230.86328125,
+          "p50": 3230.87109375,
+          "p90": 3230.87109375,
+          "p95": 3230.87109375,
+          "p99": 3230.87109375,
+          "std": 0.0022552744890219755
+        },
+        "process_rss_mb": {
+          "count": 12,
+          "max": 70.08203125,
+          "mean": 70.06315104166667,
+          "min": 70.0546875,
+          "p50": 70.0625,
+          "p90": 70.0625,
+          "p95": 70.0712890625,
+          "p99": 70.0798828125,
+          "std": 0.00641502078827615
+        },
+        "sample_count": 12,
+        "temperature_c": {
+          "count": 12,
+          "max": 46.251,
+          "mean": 44.70883333333334,
+          "min": 42.842,
+          "p50": 44.79,
+          "p90": 45.764,
+          "p95": 45.98315,
+          "p99": 46.19743,
+          "std": 1.1342231489064016
+        }
+      },
+      "steps_per_repeat": 161,
+      "stream": "/home/xpired/ghost_trials/ghost_x_g4_controlled_truth_v1/canonical_streams/g4_repeated_reentry_rep01.jsonl",
+      "stress_workers": 2,
+      "throttled_after": "throttled=0x0",
+      "throttled_before": "throttled=0x0",
+      "wall_s": 3.6214890259998356
+    },
+    {
+      "driver_process_cpu_s": 0.2927103680000016,
+      "execution_us_per_step": {
+        "cv": {
+          "count": 12,
+          "max": 3562.8160807453414,
+          "mean": 1160.6943498964802,
+          "min": 65.79684472049689,
+          "p50": 993.3892453416149,
+          "p90": 2167.0536149068325,
+          "p95": 2859.2100310558994,
+          "p99": 3422.094870807454,
+          "std": 937.84259246158
+        },
+        "imm": {
+          "count": 12,
+          "max": 3916.041906832298,
+          "mean": 1224.0073856107663,
+          "min": 80.26944720496894,
+          "p50": 1009.4824751552796,
+          "p90": 1930.295848447205,
+          "p95": 2830.179373291924,
+          "p99": 3698.8694001242247,
+          "std": 1009.3637212222798
+        },
+        "mh": {
+          "count": 12,
+          "max": 1457.4476894409938,
+          "mean": 982.4219922360248,
+          "min": 75.8445155279503,
+          "p50": 1060.1082670807455,
+          "p90": 1423.4021807453416,
+          "p95": 1442.3323195652174,
+          "p99": 1454.4246154658385,
+          "std": 451.03870684398714
+        }
+      },
+      "implementation": "cpp_production",
+      "repeats": 12,
+      "resource_summary": {
+        "cpu_frequency_mhz": {
+          "count": 65,
+          "max": 1800.0,
+          "mean": 798.4615384615385,
+          "min": 600.0,
+          "p50": 600.0,
+          "p90": 1460.0000000000002,
+          "p95": 1600.0,
+          "p99": 1736.0,
+          "std": 357.7238406282787
+        },
+        "load_1m": {
+          "count": 65,
+          "max": 1.6865234375,
+          "mean": 1.6559645432692307,
+          "min": 1.63134765625,
+          "p50": 1.63134765625,
+          "p90": 1.6865234375,
+          "p95": 1.6865234375,
+          "p99": 1.6865234375,
+          "std": 0.027640893345572893
+        },
+        "memory_available_mb": {
+          "count": 65,
+          "max": 3233.37109375,
+          "mean": 3233.298377403846,
+          "min": 3233.18359375,
+          "p50": 3233.29296875,
+          "p90": 3233.37109375,
+          "p95": 3233.37109375,
+          "p99": 3233.37109375,
+          "std": 0.057433550659206314
+        },
+        "process_rss_mb": {
+          "count": 65,
+          "max": 70.0625,
+          "mean": 70.0625,
+          "min": 70.0625,
+          "p50": 70.0625,
+          "p90": 70.0625,
+          "p95": 70.0625,
+          "p99": 70.0625,
+          "std": 0.0
+        },
+        "sample_count": 65,
+        "temperature_c": {
+          "count": 65,
+          "max": 45.277,
+          "mean": 41.163723076923084,
+          "min": 38.946,
+          "p50": 40.894,
+          "p90": 42.842,
+          "p95": 43.329,
+          "p99": 45.277,
+          "std": 1.3962309142349574
+        }
+      },
+      "steps_per_repeat": 161,
+      "stream": "/home/xpired/ghost_trials/ghost_x_g4_controlled_truth_v1/canonical_streams/g4_repeated_reentry_rep01.jsonl",
+      "stress_workers": 0,
+      "throttled_after": "throttled=0x0",
+      "throttled_before": "throttled=0x0",
+      "wall_s": 6.666932328998882
+    },
+    {
+      "driver_process_cpu_s": 0.21987487300000197,
+      "execution_us_per_step": {
+        "cv": {
+          "count": 8,
+          "max": 1381.3485155279504,
+          "mean": 767.7854184782608,
+          "min": 63.87935403726708,
+          "p50": 901.1932795031055,
+          "p90": 1141.7416720496894,
+          "p95": 1261.5450937888197,
+          "p99": 1357.3878311801243,
+          "std": 466.1398417634494
+        },
+        "imm": {
+          "count": 8,
+          "max": 4923.070080745342,
+          "mean": 2631.519572204969,
+          "min": 72.73978881987577,
+          "p50": 3396.889773291925,
+          "p90": 4103.477598136646,
+          "p95": 4513.2738394409935,
+          "p99": 4841.110832484473,
+          "std": 1803.6542276232087
+        },
+        "mh": {
+          "count": 8,
+          "max": 7031.147068322982,
+          "mean": 3425.8286413043475,
+          "min": 74.05377639751552,
+          "p50": 3577.893391304348,
+          "p90": 4954.799772670807,
+          "p95": 5992.973420496894,
+          "p99": 6823.512338757763,
+          "std": 1973.7100546100073
+        }
+      },
+      "implementation": "cpp_production",
+      "repeats": 8,
+      "resource_summary": {
+        "cpu_frequency_mhz": {
+          "count": 91,
+          "max": 1800.0,
+          "mean": 1742.857142857143,
+          "min": 600.0,
+          "p50": 1800.0,
+          "p90": 1800.0,
+          "p95": 1800.0,
+          "p99": 1800.0,
+          "std": 249.9523764163695
+        },
+        "load_1m": {
+          "count": 91,
+          "max": 1.92236328125,
+          "mean": 1.7864440247252746,
+          "min": 1.63134765625,
+          "p50": 1.7412109375,
+          "p90": 1.92236328125,
+          "p95": 1.92236328125,
+          "p99": 1.92236328125,
+          "std": 0.1023683711903121
+        },
+        "memory_available_mb": {
+          "count": 91,
+          "max": 3233.3828125,
+          "mean": 3233.352249313187,
+          "min": 3233.2578125,
+          "p50": 3233.34765625,
+          "p90": 3233.3828125,
+          "p95": 3233.3828125,
+          "p99": 3233.3828125,
+          "std": 0.02910145126396414
+        },
+        "process_rss_mb": {
+          "count": 91,
+          "max": 70.06640625,
+          "mean": 70.06640625,
+          "min": 70.06640625,
+          "p50": 70.06640625,
+          "p90": 70.06640625,
+          "p95": 70.06640625,
+          "p99": 70.06640625,
+          "std": 0.0
+        },
+        "sample_count": 91,
+        "temperature_c": {
+          "count": 91,
+          "max": 45.764,
+          "mean": 43.403923076923085,
+          "min": 39.92,
+          "p50": 43.816,
+          "p90": 44.79,
+          "p95": 44.79,
+          "p99": 45.3257,
+          "std": 1.1816329683090565
+        }
+      },
+      "steps_per_repeat": 161,
+      "stream": "/home/xpired/ghost_trials/ghost_x_g4_controlled_truth_v1/canonical_streams/g4_repeated_reentry_rep01.jsonl",
+      "stress_workers": 2,
+      "throttled_after": "throttled=0x0",
+      "throttled_before": "throttled=0x0",
+      "wall_s": 9.25821069399899
+    }
+  ],
+  "estimator_deadline": {
+    "all_max_below_deadline": true,
+    "deadline_ms": 33.333,
+    "rows": [
+      {
+        "deadline_us": 33333.0,
+        "estimator": "cv_kalman",
+        "implementation": "python_reference",
+        "max_below_deadline": true,
+        "max_execution_us": 576.064,
+        "p99_execution_us": 438.3269500000001,
+        "stress_workers": 0
+      },
+      {
+        "deadline_us": 33333.0,
+        "estimator": "formal_imm",
+        "implementation": "python_reference",
+        "max_below_deadline": true,
+        "max_execution_us": 9689.142,
+        "p99_execution_us": 4783.515350000007,
+        "stress_workers": 0
+      },
+      {
+        "deadline_us": 33333.0,
+        "estimator": "ghost_mh",
+        "implementation": "python_reference",
+        "max_below_deadline": true,
+        "max_execution_us": 3793.784,
+        "p99_execution_us": 3703.1753500000004,
+        "stress_workers": 0
+      },
+      {
+        "deadline_us": 33333.0,
+        "estimator": "cv_kalman",
+        "implementation": "python_reference",
+        "max_below_deadline": true,
+        "max_execution_us": 471.565,
+        "p99_execution_us": 439.10021,
+        "stress_workers": 2
+      },
+      {
+        "deadline_us": 33333.0,
+        "estimator": "formal_imm",
+        "implementation": "python_reference",
+        "max_below_deadline": true,
+        "max_execution_us": 9796.455,
+        "p99_execution_us": 6213.640780000007,
+        "stress_workers": 2
+      },
+      {
+        "deadline_us": 33333.0,
+        "estimator": "ghost_mh",
+        "implementation": "python_reference",
+        "max_below_deadline": true,
+        "max_execution_us": 3867.543,
+        "p99_execution_us": 3727.3731000000007,
+        "stress_workers": 2
+      },
+      {
+        "deadline_us": 33333.0,
+        "estimator": "cv",
+        "implementation": "cpp_production",
+        "max_below_deadline": true,
+        "max_execution_us": 3562.8160807453414,
+        "p99_execution_us": 3422.094870807454,
+        "stress_workers": 0
+      },
+      {
+        "deadline_us": 33333.0,
+        "estimator": "imm",
+        "implementation": "cpp_production",
+        "max_below_deadline": true,
+        "max_execution_us": 3916.041906832298,
+        "p99_execution_us": 3698.8694001242247,
+        "stress_workers": 0
+      },
+      {
+        "deadline_us": 33333.0,
+        "estimator": "mh",
+        "implementation": "cpp_production",
+        "max_below_deadline": true,
+        "max_execution_us": 1457.4476894409938,
+        "p99_execution_us": 1454.4246154658385,
+        "stress_workers": 0
+      },
+      {
+        "deadline_us": 33333.0,
+        "estimator": "cv",
+        "implementation": "cpp_production",
+        "max_below_deadline": true,
+        "max_execution_us": 1381.3485155279504,
+        "p99_execution_us": 1357.3878311801243,
+        "stress_workers": 2
+      },
+      {
+        "deadline_us": 33333.0,
+        "estimator": "imm",
+        "implementation": "cpp_production",
+        "max_below_deadline": true,
+        "max_execution_us": 4923.070080745342,
+        "p99_execution_us": 4841.110832484473,
+        "stress_workers": 2
+      },
+      {
+        "deadline_us": 33333.0,
+        "estimator": "mh",
+        "implementation": "cpp_production",
+        "max_below_deadline": true,
+        "max_execution_us": 7031.147068322982,
+        "p99_execution_us": 6823.512338757763,
+        "stress_workers": 2
+      }
+    ],
+    "rule": "MAX_EXECUTION_TIME_BELOW_DEADLINE"
+  },
+  "passed": true,
+  "phase": "G9_DDS_AND_REAL_TIME",
+  "qos_passed_count": 7,
+  "qos_scenarios": [
+    {
+      "application_deadline_miss_count": 6,
+      "application_liveliness_gap_count": 0,
+      "bad_payloads": 0,
+      "compatibility_ok": true,
+      "configuration": {
+        "cpu_stress_workers": 0,
+        "depth": 1,
+        "history": "keep_last",
+        "id": "best_effort_depth_1",
+        "publisher_reliability": "best_effort",
+        "rate_hz": 100.0,
+        "subscriber_delay_ms": 0.0,
+        "subscriber_reliability": "best_effort"
+      },
+      "deadline_detection_ok": true,
+      "event_counts": {
+        "deadline": 0,
+        "incompatible_qos": 0,
+        "liveliness": 0,
+        "matched": 0,
+        "message_lost": 0
+      },
+      "expected_compatible": true,
+      "id": "best_effort_depth_1",
+      "incompatible_detection_basis": null,
+      "interarrival_ms": {
+        "count": 10,
+        "max": 2443.263639,
+        "mean": 490.9569829,
+        "min": 6.165724,
+        "p50": 109.9521345,
+        "p90": 1427.4147614999997,
+        "p95": 1935.3392002499986,
+        "p99": 2341.67875125,
+        "std": 803.5268206006002
+      },
+      "latency_ms": {
+        "count": 11,
+        "max": 2443.067383,
+        "mean": 499.30581727272727,
+        "min": 2.487086,
+        "p50": 111.691585,
+        "p90": 1314.375815,
+        "p95": 1878.721599,
+        "p99": 2330.1982262000006,
+        "std": 763.4220084656075
+      },
+      "liveliness_detection_ok": true,
+      "passed": true,
+      "process_cpu_fraction_of_one_core": 1.0473785556480937,
+      "process_cpu_s": 5.778068681000001,
+      "published": 11,
+      "publisher_events": {
+        "deadline": [],
+        "incompatible_qos": [],
+        "liveliness": [],
+        "matched": []
+      },
+      "publisher_matches_after_warmup": 1,
+      "receive_fraction": 1.0,
+      "received": 11,
+      "resource_summary": {
+        "cpu_frequency_mhz": {
+          "count": 2,
+          "max": 1800.0,
+          "mean": 1800.0,
+          "min": 1800.0,
+          "p50": 1800.0,
+          "p90": 1800.0,
+          "p95": 1800.0,
+          "p99": 1800.0,
+          "std": 0.0
+        },
+        "load_1m": {
+          "count": 2,
+          "max": 1.6025390625,
+          "mean": 1.578369140625,
+          "min": 1.55419921875,
+          "p50": 1.578369140625,
+          "p90": 1.597705078125,
+          "p95": 1.6001220703125,
+          "p99": 1.6020556640625,
+          "std": 0.034181431317123145
+        },
+        "memory_available_mb": {
+          "count": 2,
+          "max": 3233.35546875,
+          "mean": 3233.353515625,
+          "min": 3233.3515625,
+          "p50": 3233.353515625,
+          "p90": 3233.355078125,
+          "p95": 3233.3552734375,
+          "p99": 3233.3554296875,
+          "std": 0.0027621358640099515
+        },
+        "process_rss_mb": {
+          "count": 2,
+          "max": 67.7109375,
+          "mean": 67.697265625,
+          "min": 67.68359375,
+          "p50": 67.697265625,
+          "p90": 67.708203125,
+          "p95": 67.7095703125,
+          "p99": 67.7106640625,
+          "std": 0.01933495104806966
+        },
+        "sample_count": 2,
+        "temperature_c": {
+          "count": 2,
+          "max": 41.381,
+          "mean": 40.407,
+          "min": 39.433,
+          "p50": 40.407,
+          "p90": 41.1862,
+          "p95": 41.2836,
+          "p99": 41.36152,
+          "std": 1.3774440097513947
+        }
+      },
+      "sequence_gap_count": 0,
+      "subscriber_events": {
+        "deadline": [],
+        "incompatible_qos": [],
+        "liveliness": [],
+        "matched": [],
+        "message_lost": []
+      },
+      "subscriber_matches_after_warmup": 1,
+      "throttled_after": "throttled=0x0",
+      "throttled_before": "throttled=0x0",
+      "wall_s": 5.516695611000614
+    },
+    {
+      "application_deadline_miss_count": 3,
+      "application_liveliness_gap_count": 0,
+      "bad_payloads": 0,
+      "compatibility_ok": true,
+      "configuration": {
+        "allow_receive_fraction_below_min": true,
+        "cpu_stress_workers": 0,
+        "depth": 10,
+        "history": "keep_last",
+        "id": "best_effort_depth_10_overload",
+        "publisher_reliability": "best_effort",
+        "rate_hz": 250.0,
+        "subscriber_delay_ms": 8.0,
+        "subscriber_reliability": "best_effort"
+      },
+      "deadline_detection_ok": true,
+      "event_counts": {
+        "deadline": 0,
+        "incompatible_qos": 0,
+        "liveliness": 0,
+        "matched": 0,
+        "message_lost": 0
+      },
+      "expected_compatible": true,
+      "id": "best_effort_depth_10_overload",
+      "incompatible_detection_basis": null,
+      "interarrival_ms": {
+        "count": 3,
+        "max": 1857.997911,
+        "mean": 1252.073516,
+        "min": 837.990853,
+        "p50": 1060.231784,
+        "p90": 1698.4446856,
+        "p95": 1778.2212983,
+        "p99": 1842.04258846,
+        "std": 536.3823610028797
+      },
+      "latency_ms": {
+        "count": 4,
+        "max": 1856.307052,
+        "mean": 1376.014244,
+        "min": 837.815079,
+        "p50": 1404.9674224999999,
+        "p90": 1824.3759595000001,
+        "p95": 1840.3415057500001,
+        "p99": 1853.11394275,
+        "std": 503.29970457505766
+      },
+      "liveliness_detection_ok": true,
+      "passed": true,
+      "process_cpu_fraction_of_one_core": 1.0485438908051719,
+      "process_cpu_s": 5.778703555,
+      "published": 4,
+      "publisher_events": {
+        "deadline": [],
+        "incompatible_qos": [],
+        "liveliness": [],
+        "matched": []
+      },
+      "publisher_matches_after_warmup": 1,
+      "receive_fraction": 1.0,
+      "received": 4,
+      "resource_summary": {
+        "cpu_frequency_mhz": {
+          "count": 1,
+          "max": 1800.0,
+          "mean": 1800.0,
+          "min": 1800.0,
+          "p50": 1800.0,
+          "p90": 1800.0,
+          "p95": 1800.0,
+          "p99": 1800.0,
+          "std": 0.0
+        },
+        "load_1m": {
+          "count": 1,
+          "max": 1.55419921875,
+          "mean": 1.55419921875,
+          "min": 1.55419921875,
+          "p50": 1.55419921875,
+          "p90": 1.55419921875,
+          "p95": 1.55419921875,
+          "p99": 1.55419921875,
+          "std": 0.0
+        },
+        "memory_available_mb": {
+          "count": 1,
+          "max": 3233.359375,
+          "mean": 3233.359375,
+          "min": 3233.359375,
+          "p50": 3233.359375,
+          "p90": 3233.359375,
+          "p95": 3233.359375,
+          "p99": 3233.359375,
+          "std": 0.0
+        },
+        "process_rss_mb": {
+          "count": 1,
+          "max": 68.3984375,
+          "mean": 68.3984375,
+          "min": 68.3984375,
+          "p50": 68.3984375,
+          "p90": 68.3984375,
+          "p95": 68.3984375,
+          "p99": 68.3984375,
+          "std": 0.0
+        },
+        "sample_count": 1,
+        "temperature_c": {
+          "count": 1,
+          "max": 40.894,
+          "mean": 40.894,
+          "min": 40.894,
+          "p50": 40.894,
+          "p90": 40.894,
+          "p95": 40.894,
+          "p99": 40.894,
+          "std": 0.0
+        }
+      },
+      "sequence_gap_count": 0,
+      "subscriber_events": {
+        "deadline": [],
+        "incompatible_qos": [],
+        "liveliness": [],
+        "matched": [],
+        "message_lost": []
+      },
+      "subscriber_matches_after_warmup": 1,
+      "throttled_after": "throttled=0x0",
+      "throttled_before": "throttled=0x0",
+      "wall_s": 5.511169924000569
+    },
+    {
+      "application_deadline_miss_count": 3,
+      "application_liveliness_gap_count": 0,
+      "bad_payloads": 0,
+      "compatibility_ok": true,
+      "configuration": {
+        "cpu_stress_workers": 0,
+        "depth": 10,
+        "history": "keep_last",
+        "id": "reliable_depth_10",
+        "publisher_reliability": "reliable",
+        "rate_hz": 100.0,
+        "subscriber_delay_ms": 0.0,
+        "subscriber_reliability": "reliable"
+      },
+      "deadline_detection_ok": true,
+      "event_counts": {
+        "deadline": 0,
+        "incompatible_qos": 0,
+        "liveliness": 0,
+        "matched": 0,
+        "message_lost": 0
+      },
+      "expected_compatible": true,
+      "id": "reliable_depth_10",
+      "incompatible_detection_basis": null,
+      "interarrival_ms": {
+        "count": 3,
+        "max": 1891.992653,
+        "mean": 838.1336893333333,
+        "min": 182.463769,
+        "p50": 439.944646,
+        "p90": 1601.5830516,
+        "p95": 1746.7878523,
+        "p99": 1862.95169286,
+        "std": 921.7039313036522
+      },
+      "latency_ms": {
+        "count": 4,
+        "max": 2993.798271,
+        "mean": 1376.9241655,
+        "min": 182.296642,
+        "p50": 1165.8008745,
+        "p90": 2663.2068975,
+        "p95": 2828.50258425,
+        "p99": 2960.73913365,
+        "std": 1314.634401176402
+      },
+      "liveliness_detection_ok": true,
+      "passed": true,
+      "process_cpu_fraction_of_one_core": 1.0475637729204228,
+      "process_cpu_s": 5.775259074000001,
+      "published": 4,
+      "publisher_events": {
+        "deadline": [],
+        "incompatible_qos": [],
+        "liveliness": [],
+        "matched": []
+      },
+      "publisher_matches_after_warmup": 1,
+      "receive_fraction": 1.0,
+      "received": 4,
+      "resource_summary": {
+        "cpu_frequency_mhz": {
+          "count": 1,
+          "max": 1800.0,
+          "mean": 1800.0,
+          "min": 1800.0,
+          "p50": 1800.0,
+          "p90": 1800.0,
+          "p95": 1800.0,
+          "p99": 1800.0,
+          "std": 0.0
+        },
+        "load_1m": {
+          "count": 1,
+          "max": 1.61669921875,
+          "mean": 1.61669921875,
+          "min": 1.61669921875,
+          "p50": 1.61669921875,
+          "p90": 1.61669921875,
+          "p95": 1.61669921875,
+          "p99": 1.61669921875,
+          "std": 0.0
+        },
+        "memory_available_mb": {
+          "count": 1,
+          "max": 3233.37890625,
+          "mean": 3233.37890625,
+          "min": 3233.37890625,
+          "p50": 3233.37890625,
+          "p90": 3233.37890625,
+          "p95": 3233.37890625,
+          "p99": 3233.37890625,
+          "std": 0.0
+        },
+        "process_rss_mb": {
+          "count": 1,
+          "max": 68.47265625,
+          "mean": 68.47265625,
+          "min": 68.47265625,
+          "p50": 68.47265625,
+          "p90": 68.47265625,
+          "p95": 68.47265625,
+          "p99": 68.47265625,
+          "std": 0.0
+        },
+        "sample_count": 1,
+        "temperature_c": {
+          "count": 1,
+          "max": 41.381,
+          "mean": 41.381,
+          "min": 41.381,
+          "p50": 41.381,
+          "p90": 41.381,
+          "p95": 41.381,
+          "p99": 41.381,
+          "std": 0.0
+        }
+      },
+      "sequence_gap_count": 0,
+      "subscriber_events": {
+        "deadline": [],
+        "incompatible_qos": [],
+        "liveliness": [],
+        "matched": [],
+        "message_lost": []
+      },
+      "subscriber_matches_after_warmup": 1,
+      "throttled_after": "throttled=0x0",
+      "throttled_before": "throttled=0x0",
+      "wall_s": 5.513038177999988
+    },
+    {
+      "application_deadline_miss_count": 8,
+      "application_liveliness_gap_count": 0,
+      "bad_payloads": 0,
+      "compatibility_ok": true,
+      "configuration": {
+        "allow_receive_fraction_below_min": true,
+        "cpu_stress_workers": 0,
+        "depth": 100,
+        "history": "keep_last",
+        "id": "reliable_depth_100_overload",
+        "publisher_reliability": "reliable",
+        "rate_hz": 250.0,
+        "subscriber_delay_ms": 8.0,
+        "subscriber_reliability": "reliable"
+      },
+      "deadline_detection_ok": true,
+      "event_counts": {
+        "deadline": 0,
+        "incompatible_qos": 0,
+        "liveliness": 0,
+        "matched": 0,
+        "message_lost": 0
+      },
+      "expected_compatible": true,
+      "id": "reliable_depth_100_overload",
+      "incompatible_detection_basis": null,
+      "interarrival_ms": {
+        "count": 9,
+        "max": 1486.949773,
+        "mean": 601.7605673333333,
+        "min": 4.011947,
+        "p50": 578.047741,
+        "p90": 1401.4551778,
+        "p95": 1444.2024754,
+        "p99": 1478.40031348,
+        "std": 546.7315763544375
+      },
+      "latency_ms": {
+        "count": 10,
+        "max": 1485.692369,
+        "mean": 548.9114671,
+        "min": 3.749119,
+        "p50": 410.6654165,
+        "p90": 1390.4233505,
+        "p95": 1438.05785975,
+        "p99": 1476.16546715,
+        "std": 540.9989908558848
+      },
+      "liveliness_detection_ok": true,
+      "passed": true,
+      "process_cpu_fraction_of_one_core": 1.0478427801466776,
+      "process_cpu_s": 5.768221987,
+      "published": 10,
+      "publisher_events": {
+        "deadline": [],
+        "incompatible_qos": [],
+        "liveliness": [],
+        "matched": []
+      },
+      "publisher_matches_after_warmup": 1,
+      "receive_fraction": 1.0,
+      "received": 10,
+      "resource_summary": {
+        "cpu_frequency_mhz": {
+          "count": 2,
+          "max": 1800.0,
+          "mean": 1800.0,
+          "min": 1800.0,
+          "p50": 1800.0,
+          "p90": 1800.0,
+          "p95": 1800.0,
+          "p99": 1800.0,
+          "std": 0.0
+        },
+        "load_1m": {
+          "count": 2,
+          "max": 1.56689453125,
+          "mean": 1.544189453125,
+          "min": 1.521484375,
+          "p50": 1.544189453125,
+          "p90": 1.562353515625,
+          "p95": 1.5646240234375,
+          "p99": 1.5664404296875,
+          "std": 0.032109829419115686
+        },
+        "memory_available_mb": {
+          "count": 2,
+          "max": 3233.140625,
+          "mean": 3233.017578125,
+          "min": 3232.89453125,
+          "p50": 3233.017578125,
+          "p90": 3233.116015625,
+          "p95": 3233.1283203125,
+          "p99": 3233.1381640625,
+          "std": 0.17401455943262692
+        },
+        "process_rss_mb": {
+          "count": 2,
+          "max": 68.65625,
+          "mean": 68.654296875,
+          "min": 68.65234375,
+          "p50": 68.654296875,
+          "p90": 68.655859375,
+          "p95": 68.6560546875,
+          "p99": 68.6562109375,
+          "std": 0.0027621358640099515
+        },
+        "sample_count": 2,
+        "temperature_c": {
+          "count": 2,
+          "max": 40.407,
+          "mean": 40.1635,
+          "min": 39.92,
+          "p50": 40.1635,
+          "p90": 40.3583,
+          "p95": 40.38265,
+          "p99": 40.40213,
+          "std": 0.34436100243784495
+        }
+      },
+      "sequence_gap_count": 0,
+      "subscriber_events": {
+        "deadline": [],
+        "incompatible_qos": [],
+        "liveliness": [],
+        "matched": [],
+        "message_lost": []
+      },
+      "subscriber_matches_after_warmup": 1,
+      "throttled_after": "throttled=0x0",
+      "throttled_before": "throttled=0x0",
+      "wall_s": 5.504854446000536
+    },
+    {
+      "application_deadline_miss_count": 7,
+      "application_liveliness_gap_count": 6,
+      "bad_payloads": 0,
+      "compatibility_ok": true,
+      "configuration": {
+        "cpu_stress_workers": 0,
+        "deadline_ms": 50.0,
+        "depth": 10,
+        "history": "keep_last",
+        "id": "reliable_deadline_liveliness_pause",
+        "liveliness": "manual_by_topic",
+        "liveliness_lease_ms": 150.0,
+        "pause_duration_s": 0.4,
+        "pause_start_s": 2.0,
+        "publisher_reliability": "reliable",
+        "rate_hz": 50.0,
+        "subscriber_delay_ms": 0.0,
+        "subscriber_reliability": "reliable"
+      },
+      "deadline_detection_ok": true,
+      "event_counts": {
+        "deadline": 12,
+        "incompatible_qos": 0,
+        "liveliness": 11,
+        "matched": 0,
+        "message_lost": 0
+      },
+      "expected_compatible": true,
+      "id": "reliable_deadline_liveliness_pause",
+      "incompatible_detection_basis": null,
+      "interarrival_ms": {
+        "count": 7,
+        "max": 2399.997432,
+        "mean": 784.955062,
+        "min": 100.090254,
+        "p50": 503.673194,
+        "p90": 1520.3973126000005,
+        "p95": 1960.1973722999992,
+        "p99": 2312.0374200599995,
+        "std": 776.8171805573784
+      },
+      "latency_ms": {
+        "count": 8,
+        "max": 2399.824787,
+        "mean": 684.85894375,
+        "min": 2.810969,
+        "p50": 444.052525,
+        "p90": 1373.6247120999997,
+        "p95": 1886.7247495499992,
+        "p99": 2297.2047795099998,
+        "std": 771.4475180153732
+      },
+      "liveliness_detection_ok": true,
+      "passed": true,
+      "process_cpu_fraction_of_one_core": 1.052842276062344,
+      "process_cpu_s": 5.800363013000002,
+      "published": 8,
+      "publisher_events": {
+        "deadline": [
+          {
+            "t_s": 0.4156524289992376,
+            "total_count": 7,
+            "total_count_change": 7
+          },
+          {
+            "t_s": 1.3164258469987544,
+            "total_count": 25,
+            "total_count_change": 18
+          },
+          {
+            "t_s": 3.7164217049994477,
+            "total_count": 73,
+            "total_count_change": 48
+          },
+          {
+            "t_s": 4.650412233999305,
+            "total_count": 92,
+            "total_count_change": 19
+          },
+          {
+            "t_s": 4.7505318019993865,
+            "total_count": 94,
+            "total_count_change": 2
+          },
+          {
+            "t_s": 5.0044213159999344,
+            "total_count": 99,
+            "total_count_change": 5
+          }
+        ],
+        "incompatible_qos": [],
+        "liveliness": [
+          {
+            "t_s": 0.41589423999903374,
+            "total_count": 1,
+            "total_count_change": 1
+          },
+          {
+            "t_s": 1.3166604909984017,
+            "total_count": 2,
+            "total_count_change": 1
+          },
+          {
+            "t_s": 3.7166532749997714,
+            "total_count": 3,
+            "total_count_change": 1
+          },
+          {
+            "t_s": 4.650647803999163,
+            "total_count": 4,
+            "total_count_change": 1
+          },
+          {
+            "t_s": 5.0046508309987985,
+            "total_count": 5,
+            "total_count_change": 1
+          }
+        ],
+        "matched": []
+      },
+      "publisher_matches_after_warmup": 1,
+      "receive_fraction": 1.0,
+      "received": 8,
+      "resource_summary": {
+        "cpu_frequency_mhz": {
+          "count": 2,
+          "max": 1800.0,
+          "mean": 1300.0,
+          "min": 800.0,
+          "p50": 1300.0,
+          "p90": 1700.0,
+          "p95": 1750.0,
+          "p99": 1790.0,
+          "std": 707.1067811865476
+        },
+        "load_1m": {
+          "count": 2,
+          "max": 1.521484375,
+          "mean": 1.521484375,
+          "min": 1.521484375,
+          "p50": 1.521484375,
+          "p90": 1.521484375,
+          "p95": 1.521484375,
+          "p99": 1.521484375,
+          "std": 0.0
+        },
+        "memory_available_mb": {
+          "count": 2,
+          "max": 3232.8984375,
+          "mean": 3232.896484375,
+          "min": 3232.89453125,
+          "p50": 3232.896484375,
+          "p90": 3232.898046875,
+          "p95": 3232.8982421875,
+          "p99": 3232.8983984375,
+          "std": 0.0027621358640099515
+        },
+        "process_rss_mb": {
+          "count": 2,
+          "max": 68.68359375,
+          "mean": 68.666015625,
+          "min": 68.6484375,
+          "p50": 68.666015625,
+          "p90": 68.680078125,
+          "p95": 68.6818359375,
+          "p99": 68.6832421875,
+          "std": 0.02485922277608956
+        },
+        "sample_count": 2,
+        "temperature_c": {
+          "count": 2,
+          "max": 41.868,
+          "mean": 40.894000000000005,
+          "min": 39.92,
+          "p50": 40.894000000000005,
+          "p90": 41.6732,
+          "p95": 41.7706,
+          "p99": 41.84852,
+          "std": 1.3774440097513947
+        }
+      },
+      "sequence_gap_count": 0,
+      "subscriber_events": {
+        "deadline": [
+          {
+            "t_s": 0.4157790009994642,
+            "total_count": 7,
+            "total_count_change": 7
+          },
+          {
+            "t_s": 1.316527306998978,
+            "total_count": 25,
+            "total_count_change": 18
+          },
+          {
+            "t_s": 3.7165205549990787,
+            "total_count": 73,
+            "total_count_change": 48
+          },
+          {
+            "t_s": 4.650508490998618,
+            "total_count": 92,
+            "total_count_change": 19
+          },
+          {
+            "t_s": 4.750678168999002,
+            "total_count": 94,
+            "total_count_change": 2
+          },
+          {
+            "t_s": 5.004513998999755,
+            "total_count": 99,
+            "total_count_change": 5
+          }
+        ],
+        "incompatible_qos": [],
+        "liveliness": [
+          {
+            "alive_count": 1,
+            "alive_count_change": 1,
+            "not_alive_count": 0,
+            "not_alive_count_change": 0,
+            "t_s": 0.012497869998696842
+          },
+          {
+            "alive_count": 1,
+            "alive_count_change": 0,
+            "not_alive_count": 0,
+            "not_alive_count_change": 0,
+            "t_s": 0.4159842379995098
+          },
+          {
+            "alive_count": 1,
+            "alive_count_change": 0,
+            "not_alive_count": 0,
+            "not_alive_count_change": 0,
+            "t_s": 1.3167483959987294
+          },
+          {
+            "alive_count": 1,
+            "alive_count_change": 0,
+            "not_alive_count": 0,
+            "not_alive_count_change": 0,
+            "t_s": 3.7167425509996974
+          },
+          {
+            "alive_count": 1,
+            "alive_count_change": 0,
+            "not_alive_count": 0,
+            "not_alive_count_change": 0,
+            "t_s": 4.650744302000021
+          },
+          {
+            "alive_count": 1,
+            "alive_count_change": 0,
+            "not_alive_count": 0,
+            "not_alive_count_change": 0,
+            "t_s": 5.004742754999825
+          }
+        ],
+        "matched": [],
+        "message_lost": []
+      },
+      "subscriber_matches_after_warmup": 1,
+      "throttled_after": "throttled=0x0",
+      "throttled_before": "throttled=0x0",
+      "wall_s": 5.509242120000636
+    },
+    {
+      "application_deadline_miss_count": 9,
+      "application_liveliness_gap_count": 0,
+      "bad_payloads": 0,
+      "compatibility_ok": true,
+      "configuration": {
+        "allow_receive_fraction_below_min": true,
+        "cpu_stress_workers": 2,
+        "depth": 10,
+        "history": "keep_last",
+        "id": "reliable_cpu_stress",
+        "publisher_reliability": "reliable",
+        "rate_hz": 100.0,
+        "subscriber_delay_ms": 0.0,
+        "subscriber_reliability": "reliable"
+      },
+      "deadline_detection_ok": true,
+      "event_counts": {
+        "deadline": 0,
+        "incompatible_qos": 0,
+        "liveliness": 0,
+        "matched": 0,
+        "message_lost": 0
+      },
+      "expected_compatible": true,
+      "id": "reliable_cpu_stress",
+      "incompatible_detection_basis": null,
+      "interarrival_ms": {
+        "count": 81,
+        "max": 1740.863856,
+        "mean": 67.09130591358026,
+        "min": 2.060167,
+        "p50": 10.013488,
+        "p90": 126.215807,
+        "p95": 368.845206,
+        "p99": 964.7707200000027,
+        "std": 227.92898247850343
+      },
+      "latency_ms": {
+        "count": 82,
+        "max": 1740.684285,
+        "mean": 60.43942007317074,
+        "min": 1.486363,
+        "p50": 2.173813,
+        "p90": 112.87314170000029,
+        "p95": 367.43694765000004,
+        "p99": 954.8993297699977,
+        "std": 227.92238420529605
+      },
+      "liveliness_detection_ok": true,
+      "passed": true,
+      "process_cpu_fraction_of_one_core": 0.9722306014437904,
+      "process_cpu_s": 5.404738461999997,
+      "published": 83,
+      "publisher_events": {
+        "deadline": [],
+        "incompatible_qos": [],
+        "liveliness": [],
+        "matched": []
+      },
+      "publisher_matches_after_warmup": 1,
+      "receive_fraction": 0.9879518072289156,
+      "received": 82,
+      "resource_summary": {
+        "cpu_frequency_mhz": {
+          "count": 11,
+          "max": 1800.0,
+          "mean": 1772.7272727272727,
+          "min": 1500.0,
+          "p50": 1800.0,
+          "p90": 1800.0,
+          "p95": 1800.0,
+          "p99": 1800.0,
+          "std": 90.4534033733291
+        },
+        "load_1m": {
+          "count": 11,
+          "max": 1.763671875,
+          "mean": 1.6655717329545454,
+          "min": 1.65576171875,
+          "p50": 1.65576171875,
+          "p90": 1.65576171875,
+          "p95": 1.709716796875,
+          "p99": 1.752880859375,
+          "std": 0.032536136304534065
+        },
+        "memory_available_mb": {
+          "count": 11,
+          "max": 3232.65625,
+          "mean": 3230.643465909091,
+          "min": 3230.44140625,
+          "p50": 3230.44140625,
+          "p90": 3230.4453125,
+          "p95": 3231.55078125,
+          "p99": 3232.43515625,
+          "std": 0.6675667899424677
+        },
+        "process_rss_mb": {
+          "count": 11,
+          "max": 68.8984375,
+          "mean": 68.75568181818181,
+          "min": 68.7109375,
+          "p50": 68.7109375,
+          "p90": 68.87109375,
+          "p95": 68.884765625,
+          "p99": 68.895703125,
+          "std": 0.07653386813889088
+        },
+        "sample_count": 11,
+        "temperature_c": {
+          "count": 11,
+          "max": 46.251,
+          "mean": 43.50609090909091,
+          "min": 40.894,
+          "p50": 43.329,
+          "p90": 46.251,
+          "p95": 46.251,
+          "p99": 46.251,
+          "std": 1.6482302906175128
+        }
+      },
+      "sequence_gap_count": 0,
+      "subscriber_events": {
+        "deadline": [],
+        "incompatible_qos": [],
+        "liveliness": [],
+        "matched": [],
+        "message_lost": []
+      },
+      "subscriber_matches_after_warmup": 1,
+      "throttled_after": "throttled=0x0",
+      "throttled_before": "throttled=0x0",
+      "wall_s": 5.559111648999533
+    },
+    {
+      "application_deadline_miss_count": 0,
+      "application_liveliness_gap_count": 0,
+      "bad_payloads": 0,
+      "compatibility_ok": true,
+      "configuration": {
+        "cpu_stress_workers": 0,
+        "depth": 10,
+        "expected_compatible": false,
+        "history": "keep_last",
+        "id": "incompatible_best_effort_to_reliable",
+        "publisher_reliability": "best_effort",
+        "rate_hz": 50.0,
+        "subscriber_delay_ms": 0.0,
+        "subscriber_reliability": "reliable"
+      },
+      "deadline_detection_ok": true,
+      "event_counts": {
+        "deadline": 0,
+        "incompatible_qos": 0,
+        "liveliness": 0,
+        "matched": 0,
+        "message_lost": 0
+      },
+      "expected_compatible": false,
+      "id": "incompatible_best_effort_to_reliable",
+      "incompatible_detection_basis": "ROS_GRAPH_ZERO_MATCH_ZERO_DELIVERY",
+      "interarrival_ms": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "min": null,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "std": null
+      },
+      "latency_ms": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "min": null,
+        "p50": null,
+        "p90": null,
+        "p95": null,
+        "p99": null,
+        "std": null
+      },
+      "liveliness_detection_ok": true,
+      "passed": true,
+      "process_cpu_fraction_of_one_core": 0.35679568804116735,
+      "process_cpu_s": 1.9698512619999988,
+      "published": 276,
+      "publisher_events": {
+        "deadline": [],
+        "incompatible_qos": [],
+        "liveliness": [],
+        "matched": []
+      },
+      "publisher_matches_after_warmup": 0,
+      "receive_fraction": 0.0,
+      "received": 0,
+      "resource_summary": {
+        "cpu_frequency_mhz": {
+          "count": 54,
+          "max": 1500.0,
+          "mean": 975.925925925926,
+          "min": 700.0,
+          "p50": 950.0,
+          "p90": 1200.0,
+          "p95": 1234.9999999999995,
+          "p99": 1500.0,
+          "std": 175.83781676798154
+        },
+        "load_1m": {
+          "count": 54,
+          "max": 1.763671875,
+          "mean": 1.6876265914351851,
+          "min": 1.6220703125,
+          "p50": 1.6220703125,
+          "p90": 1.763671875,
+          "p95": 1.763671875,
+          "p99": 1.763671875,
+          "std": 0.07126925748867761
+        },
+        "memory_available_mb": {
+          "count": 54,
+          "max": 3230.8671875,
+          "mean": 3230.865740740741,
+          "min": 3230.86328125,
+          "p50": 3230.8671875,
+          "p90": 3230.8671875,
+          "p95": 3230.8671875,
+          "p99": 3230.8671875,
+          "std": 0.0019040558206914195
+        },
+        "process_rss_mb": {
+          "count": 54,
+          "max": 69.0,
+          "mean": 68.92173032407408,
+          "min": 68.875,
+          "p50": 68.908203125,
+          "p90": 68.994921875,
+          "p95": 69.0,
+          "p99": 69.0,
+          "std": 0.045610922120663595
+        },
+        "sample_count": 54,
+        "temperature_c": {
+          "count": 54,
+          "max": 42.842,
+          "mean": 41.05633333333334,
+          "min": 39.433,
+          "p50": 40.894,
+          "p90": 42.355,
+          "p95": 42.842,
+          "p99": 42.842,
+          "std": 0.9876868535901024
+        }
+      },
+      "sequence_gap_count": 0,
+      "subscriber_events": {
+        "deadline": [],
+        "incompatible_qos": [],
+        "liveliness": [],
+        "matched": [],
+        "message_lost": []
+      },
+      "subscriber_matches_after_warmup": 0,
+      "throttled_after": "throttled=0x0",
+      "throttled_before": "throttled=0x0",
+      "wall_s": 5.520950303000063
+    }
+  ],
+  "real_time_claim_status": "BENCH_30HZ_DEADLINE_SUPPORTED_NOT_HARD_REAL_TIME_CERTIFICATION",
+  "reference_basis": "ROS 2 Jazzy QoS policies: history/depth, reliability, deadline, liveliness, lease duration, and compatibility.",
+  "schema_version": 1
+}
