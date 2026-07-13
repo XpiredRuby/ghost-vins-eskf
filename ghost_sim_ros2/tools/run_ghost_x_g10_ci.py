@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import shutil
 import subprocess
@@ -164,6 +165,19 @@ def main() -> int:
         deterministic["deterministic_root_files"],
     )
     comparison = compare_manifests(deterministic_one, deterministic_two)
+    deliberately_changed = copy.deepcopy(deterministic_two)
+    first_name = sorted(deliberately_changed["files"])[0]
+    deliberately_changed["files"][first_name] = "sha256:" + "0" * 64
+    negative_hash_comparison = compare_manifests(deterministic_one, deliberately_changed)
+
+    regressed_manifest = copy.deepcopy(manifest_one)
+    metric_path = regressed_manifest["aggregate"]["overall"]["estimators"]["formal_imm"]["position_rmse_m"]
+    metric_path["mean"] = float(acceptance["acceptance_bands"]["overall_position_rmse_m_max"]["formal_imm"]) * 10.0
+    negative_metric_checks = validate_g4_manifest(regressed_manifest, acceptance)
+    negative_metric_rejected = any(
+        check["id"] == "G4_FORMAL_IMM_POSITION_RMSE" and not check["passed"]
+        for check in negative_metric_checks
+    )
 
     commands: dict[str, dict[str, Any]] = {}
     commands["cpp_tests"] = run_command(
@@ -225,6 +239,24 @@ def main() -> int:
             "details": "Only predeclared deterministic artifacts are compared; timestamps and run paths are excluded.",
         }
     )
+    checks.extend(
+        [
+            {
+                "id": "G10_NEGATIVE_HASH_REGRESSION_REJECTED",
+                "passed": not negative_hash_comparison["identical"] and negative_hash_comparison["difference_count"] >= 1,
+                "actual": negative_hash_comparison["difference_count"],
+                "expected": {"minimum_detected_differences": 1},
+                "details": f"Deliberately corrupted deterministic digest for {first_name}.",
+            },
+            {
+                "id": "G10_NEGATIVE_METRIC_REGRESSION_REJECTED",
+                "passed": negative_metric_rejected,
+                "actual": negative_metric_rejected,
+                "expected": True,
+                "details": "Deliberately inflated formal-IMM RMSE must violate the stored acceptance band.",
+            },
+        ]
+    )
     if g5_out.is_file():
         checks.extend(validate_g5(load_json(g5_out), acceptance))
     else:
@@ -269,6 +301,8 @@ def main() -> int:
             "first": deterministic_one,
             "second": deterministic_two,
             "comparison": comparison,
+            "negative_hash_test": negative_hash_comparison,
+            "negative_metric_test_rejected": negative_metric_rejected,
         },
         "commands": commands,
         "summary": summary,

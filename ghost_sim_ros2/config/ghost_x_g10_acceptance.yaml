@@ -30,8 +30,8 @@ acceptance_bands:
   g7_mh_candidates: 27
   g8_faults: 12
   g8_passed_faults: 12
-  g9_qos_scenarios: 7
-  g9_qos_passed: 7
+  g9_qos_scenarios: 8
+  g9_qos_passed: 8
   g9_estimator_deadline_ms: 33.333
   g11_ablation_candidates: 15
 replay:

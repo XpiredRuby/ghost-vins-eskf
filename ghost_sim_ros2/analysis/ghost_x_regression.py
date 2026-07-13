@@ -179,7 +179,27 @@ def validate_pinned_reports(docs_dir: Path, acceptance: dict[str, Any]) -> list[
         _check(g8.get("passed") is True, "G8_REPORT_PASS", g8.get("passed"), True),
         _check(len(g9.get("qos_scenarios", [])) == int(bands["g9_qos_scenarios"]), "G9_QOS_SCENARIOS", len(g9.get("qos_scenarios", [])), bands["g9_qos_scenarios"]),
         _check(int(g9.get("qos_passed_count", 0)) == int(bands["g9_qos_passed"]), "G9_QOS_PASSED", g9.get("qos_passed_count"), bands["g9_qos_passed"]),
-        _check(g9.get("estimator_deadline", {}).get("all_max_below_deadline") is True, "G9_ESTIMATOR_DEADLINE", g9.get("estimator_deadline", {}).get("all_max_below_deadline"), True),
+        _check(g9.get("campaign_completed") is True, "G9_CAMPAIGN_COMPLETED", g9.get("campaign_completed"), True),
+        _check(
+            isinstance(g9.get("estimator_deadline", {}).get("all_max_below_deadline"), bool)
+            and abs(float(g9.get("estimator_deadline", {}).get("deadline_ms", 0.0)) - float(bands["g9_estimator_deadline_ms"])) <= 1.0e-6
+            and bool(g9.get("estimator_deadline", {}).get("rows")),
+            "G9_ESTIMATOR_DEADLINE_REPORTED",
+            {
+                "all_max_below_deadline": g9.get("estimator_deadline", {}).get("all_max_below_deadline"),
+                "deadline_ms": g9.get("estimator_deadline", {}).get("deadline_ms"),
+                "row_count": len(g9.get("estimator_deadline", {}).get("rows", [])),
+            },
+            {"deadline_ms": bands["g9_estimator_deadline_ms"], "result_may_pass_or_fail_but_must_be_reported": True},
+        ),
+        _check(g9.get("requirements", {}).get("RT-003", {}).get("passed") is True, "G9_RESOURCE_THERMAL_REQUIREMENT", g9.get("requirements", {}).get("RT-003", {}).get("passed"), True),
+        _check(
+            (g9.get("requirements_all_passed") is True and str(g9.get("real_time_claim_status", "")).startswith("BENCH_REQUIREMENTS_MET"))
+            or (g9.get("requirements_all_passed") is False and str(g9.get("real_time_claim_status", "")).startswith("HARD_REAL_TIME_NOT_CLAIMED")),
+            "G9_CLAIM_STATUS_MATCHES_REQUIREMENTS",
+            {"requirements_all_passed": g9.get("requirements_all_passed"), "claim_status": g9.get("real_time_claim_status")},
+            "Claim status must withhold hard-real-time wording whenever a runtime requirement fails.",
+        ),
         _check(int(g11.get("ablation_count", 0)) == int(bands["g11_ablation_candidates"]), "G11_ABLATION_COUNT", g11.get("ablation_count"), bands["g11_ablation_candidates"]),
         _check(g11.get("classical_baseline_retained") is True, "G11_CLASSICAL_BASELINE", g11.get("classical_baseline_retained"), True),
         _check(bool(g11.get("frozen_evaluation", {}).get("fixed_lag", {}).get("valid")), "G11_FROZEN_EVALUATION_VALID", g11.get("frozen_evaluation", {}).get("fixed_lag", {}).get("valid"), True),
