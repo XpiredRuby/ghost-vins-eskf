@@ -70,6 +70,7 @@ class FormalImmLiveConfig:
     smooth_acceleration_std_mps2: float = 0.015
     maneuver_acceleration_std_mps2: float = 0.75
     initial_mode_probabilities: tuple[float, float] = (0.8, 0.2)
+    transition_probabilities: tuple[tuple[float, float], tuple[float, float]] = ((0.97, 0.03), (0.03, 0.97))
     p0_diag: tuple[float, float, float, float] = (0.04, 0.04, 0.25, 0.25)
     future_horizon_s: float = 1.5
     future_dt_s: float = 0.10
@@ -102,6 +103,11 @@ class FormalImmLiveConfig:
             raise ValueError("initial mode probabilities must be finite and nonnegative")
         if sum(self.initial_mode_probabilities) <= 0.0:
             raise ValueError("initial mode probabilities must sum positive")
+        transition = np.asarray(self.transition_probabilities, dtype=float)
+        if transition.shape != (2, 2) or not np.isfinite(transition).all() or (transition < 0.0).any():
+            raise ValueError("transition_probabilities must be a finite nonnegative 2x2 matrix")
+        if not np.allclose(np.sum(transition, axis=1), 1.0, atol=1e-12, rtol=0.0):
+            raise ValueError("transition probability rows must sum to one")
         if len(self.p0_diag) != 4 or any(v <= 0.0 or not math.isfinite(v) for v in self.p0_diag):
             raise ValueError("p0_diag must contain four finite positive entries")
 
@@ -239,6 +245,7 @@ class FormalImmLiveAdapter:
                 smooth_acceleration_std_mps2=self.config.smooth_acceleration_std_mps2,
                 maneuver_acceleration_std_mps2=self.config.maneuver_acceleration_std_mps2,
                 initial_mode_probabilities=self.config.initial_mode_probabilities,
+                transition=np.asarray(self.config.transition_probabilities, dtype=float),
                 initial_state=[measurement[0], measurement[1], 0.0, 0.0],
                 p0_diag=self.config.p0_diag,
                 measurement_covariance_xy=self.config.measurement_covariance_xy,

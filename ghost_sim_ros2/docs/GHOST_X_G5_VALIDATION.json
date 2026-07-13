@@ -1,0 +1,36 @@
+{
+  "canonical_trials": 24,
+  "claims_boundary": "Numerical equivalence is limited to the pinned canonical streams, deterministic configuration, compiler/toolchain, and declared elementwise tolerances. It is not physical validation.",
+  "configuration": "/home/xpired/ghost_ws/src/ghost-vins-eskf/ghost_sim_ros2/cpp/ghost_x_estimators/config/default_estimator.cfg",
+  "cpp_tests": 10,
+  "equivalence_maxima": {
+    "cv": {
+      "covariance_abs": 2.220446049250313e-15,
+      "state_abs": 6.661338147750939e-15
+    },
+    "imm": {
+      "covariance_abs": 2.1649348980190553e-15,
+      "state_abs": 7.549516567451064e-15
+    },
+    "mh": {
+      "covariance_abs": 7.105427357601002e-15,
+      "state_abs": 9.325873406851315e-15
+    }
+  },
+  "errors": [],
+  "estimators": [
+    "cv",
+    "imm",
+    "mh"
+  ],
+  "passed": true,
+  "phase": "G5_MODERN_CPP_ESTIMATOR_LIBRARY",
+  "sanitizers": {
+    "all_tests_passed": true,
+    "asan_error": false,
+    "log": "/home/xpired/ghost_trials/g5_cpp_sanitized/tests.log",
+    "present": true,
+    "ubsan_error": false
+  },
+  "schema_version": 1
+}
