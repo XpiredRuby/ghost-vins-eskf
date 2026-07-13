@@ -1,0 +1,4094 @@
+{
+  "canonical_trials": 24,
+  "covariance_sensitivity": [
+    {
+      "cv_nis": {
+        "count": 3417,
+        "dof": 2,
+        "individual_bounds_95": {
+          "high": 7.377758908227871,
+          "low": 0.05063561596857975
+        },
+        "individual_inside_fraction": 0.8914252268071408,
+        "mean": 3.0102366399432583,
+        "mean_bounds_95": {
+          "high": 2.067611415652946,
+          "low": 1.9334973148223398
+        },
+        "mean_inside_95": false,
+        "median": 2.058345328752502,
+        "name": "NIS"
+      },
+      "cv_position_nees": {
+        "count": 3864,
+        "dof": 2,
+        "individual_bounds_95": {
+          "high": 7.377758908227871,
+          "low": 0.05063561596857975
+        },
+        "individual_inside_fraction": 0.8506728778467909,
+        "mean": 3.213292845986409,
+        "mean_bounds_95": {
+          "high": 2.0635496113909912,
+          "low": 1.937430859949063
+        },
+        "mean_inside_95": false,
+        "median": 2.095719596184521,
+        "name": "POSITION_NEES"
+      },
+      "measurement_covariance_scale": 0.5,
+      "selection_status": "SENSITIVITY_ONLY_NOT_A_PHYSICAL_MODEL_SELECTION"
+    },
+    {
+      "cv_nis": {
+        "count": 3417,
+        "dof": 2,
+        "individual_bounds_95": {
+          "high": 7.377758908227871,
+          "low": 0.05063561596857975
+        },
+        "individual_inside_fraction": 0.9546385718466491,
+        "mean": 1.5863891300438149,
+        "mean_bounds_95": {
+          "high": 2.067611415652946,
+          "low": 1.9334973148223398
+        },
+        "mean_inside_95": false,
+        "median": 1.0962604333917951,
+        "name": "NIS"
+      },
+      "cv_position_nees": {
+        "count": 3864,
+        "dof": 2,
+        "individual_bounds_95": {
+          "high": 7.377758908227871,
+          "low": 0.05063561596857975
+        },
+        "individual_inside_fraction": 0.9314182194616977,
+        "mean": 1.602772318237833,
+        "mean_bounds_95": {
+          "high": 2.0635496113909912,
+          "low": 1.937430859949063
+        },
+        "mean_inside_95": false,
+        "median": 1.0601702539301767,
+        "name": "POSITION_NEES"
+      },
+      "measurement_covariance_scale": 1.0,
+      "selection_status": "SENSITIVITY_ONLY_NOT_A_PHYSICAL_MODEL_SELECTION"
+    },
+    {
+      "cv_nis": {
+        "count": 3417,
+        "dof": 2,
+        "individual_bounds_95": {
+          "high": 7.377758908227871,
+          "low": 0.05063561596857975
+        },
+        "individual_inside_fraction": 0.9350307287093942,
+        "mean": 0.8298890588696389,
+        "mean_bounds_95": {
+          "high": 2.067611415652946,
+          "low": 1.9334973148223398
+        },
+        "mean_inside_95": false,
+        "median": 0.5798996487061682,
+        "name": "NIS"
+      },
+      "cv_position_nees": {
+        "count": 3864,
+        "dof": 2,
+        "individual_bounds_95": {
+          "high": 7.377758908227871,
+          "low": 0.05063561596857975
+        },
+        "individual_inside_fraction": 0.9153726708074534,
+        "mean": 0.8065361971903177,
+        "mean_bounds_95": {
+          "high": 2.0635496113909912,
+          "low": 1.937430859949063
+        },
+        "mean_inside_95": false,
+        "median": 0.5353230423434118,
+        "name": "POSITION_NEES"
+      },
+      "measurement_covariance_scale": 2.0,
+      "selection_status": "SENSITIVITY_ONLY_NOT_A_PHYSICAL_MODEL_SELECTION"
+    }
+  ],
+  "limitations": [
+    "Hardware NEES remains invalid until controlled physical truth and truth uncertainty are available.",
+    "IMM NIS is a moment-matched approximation because the predictive distribution is a Gaussian mixture.",
+    "A single formal NIS is not reported for GHOST-MH during multimodal intervals.",
+    "Colored or non-Gaussian residuals invalidate textbook chi-square interpretation."
+  ],
+  "phase": "G6_FORMAL_CONSISTENCY",
+  "pooled": {
+    "cv": {
+      "nis": {
+        "count": 3417,
+        "dof": 2,
+        "individual_bounds_95": {
+          "high": 7.377758908227871,
+          "low": 0.05063561596857975
+        },
+        "individual_inside_fraction": 0.9546385718466491,
+        "mean": 1.5863891300438149,
+        "mean_bounds_95": {
+          "high": 2.067611415652946,
+          "low": 1.9334973148223398
+        },
+        "mean_inside_95": false,
+        "median": 1.0962604333917951,
+        "name": "NIS"
+      },
+      "nis_validity": "FORMAL_ONLY_IF_LINEAR_WHITE_GAUSSIAN_ASSUMPTIONS_HOLD",
+      "position_nees": {
+        "count": 3864,
+        "dof": 2,
+        "individual_bounds_95": {
+          "high": 7.377758908227871,
+          "low": 0.05063561596857975
+        },
+        "individual_inside_fraction": 0.9314182194616977,
+        "mean": 1.602772318237833,
+        "mean_bounds_95": {
+          "high": 2.0635496113909912,
+          "low": 1.937430859949063
+        },
+        "mean_inside_95": false,
+        "median": 1.0601702539301767,
+        "name": "POSITION_NEES"
+      }
+    },
+    "formal_imm": {
+      "nis": {
+        "count": 3417,
+        "dof": 2,
+        "individual_bounds_95": {
+          "high": 7.377758908227871,
+          "low": 0.05063561596857975
+        },
+        "individual_inside_fraction": 0.9464442493415277,
+        "mean": 1.9950967461362752,
+        "mean_bounds_95": {
+          "high": 2.067611415652946,
+          "low": 1.9334973148223398
+        },
+        "mean_inside_95": true,
+        "median": 1.3541904659336912,
+        "name": "MOMENT_MATCHED_MIXTURE_NIS"
+      },
+      "nis_validity": "APPROXIMATE_MOMENT_MATCHED_GAUSSIAN_DIAGNOSTIC_NOT_EXACT_MIXTURE_NIS",
+      "position_nees": {
+        "count": 3864,
+        "dof": 2,
+        "individual_bounds_95": {
+          "high": 7.377758908227871,
+          "low": 0.05063561596857975
+        },
+        "individual_inside_fraction": 0.9265010351966874,
+        "mean": 1.621895402504537,
+        "mean_bounds_95": {
+          "high": 2.0635496113909912,
+          "low": 1.937430859949063
+        },
+        "mean_inside_95": false,
+        "median": 1.022748896286776,
+        "name": "POSITION_NEES"
+      }
+    },
+    "ghost_mh": {
+      "nees_validity": "SYNTHETIC_MOMENT_MATCHED_DIAGNOSTIC_ONLY",
+      "nis": {
+        "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF",
+        "valid": false
+      },
+      "position_nees": {
+        "count": 3864,
+        "dof": 2,
+        "individual_bounds_95": {
+          "high": 7.377758908227871,
+          "low": 0.05063561596857975
+        },
+        "individual_inside_fraction": 0.9516045548654244,
+        "mean": 1.6407891193280713,
+        "mean_bounds_95": {
+          "high": 2.0635496113909912,
+          "low": 1.937430859949063
+        },
+        "mean_inside_95": false,
+        "median": 1.0932778665401308,
+        "name": "MOMENT_MATCHED_POSITION_NEES"
+      }
+    }
+  },
+  "schema_version": 1,
+  "trials": [
+    {
+      "cv": {
+        "nis": {
+          "count": 136,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9338235294117647,
+          "mean": 1.5043926085704988,
+          "mean_bounds_95": {
+            "high": 2.3498358600675444,
+            "low": 1.6780068131112191
+          },
+          "mean_inside_95": false,
+          "median": 1.157287588105464,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.937888198757764,
+          "mean": 1.7180987869655076,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.3189036297191408,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 136,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 24766.6050434108,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.8888836780383703,
+              "ljung_box_statistic": 12.72463388646883,
+              "mean": -0.004134807475313704,
+              "std": 0.05276059968930152,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 136,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 37426.099553343025,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.7260257914791528,
+              "ljung_box_statistic": 15.847713302974949,
+              "mean": 0.0028164469841475506,
+              "std": 0.044599836272284005,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 136,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9485294117647058,
+          "mean": 1.8944070157477304,
+          "mean_bounds_95": {
+            "high": 2.3498358600675444,
+            "low": 1.6780068131112191
+          },
+          "mean_inside_95": true,
+          "median": 1.4473503842267008,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.968944099378882,
+          "mean": 2.10889918236039,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.5502652516350093,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 136,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 27609.165177586412,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.9120621352928956,
+              "ljung_box_statistic": 12.114964429555563,
+              "mean": -0.0036814687135685873,
+              "std": 0.047045260313069,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 136,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 42717.65523727101,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.849712558543222,
+              "ljung_box_statistic": 13.609877967166279,
+              "mean": 0.0032181173226589646,
+              "std": 0.04097050472972168,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9565217391304348,
+          "mean": 1.7874307943323138,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.3318862984949866,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "abrupt_maneuver",
+      "trial_id": "g4_abrupt_maneuver_rep01"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 136,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9705882352941176,
+          "mean": 1.7088232377658208,
+          "mean_bounds_95": {
+            "high": 2.3498358600675444,
+            "low": 1.6780068131112191
+          },
+          "mean_inside_95": true,
+          "median": 1.3947407180830083,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.968944099378882,
+          "mean": 1.586840153477442,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.1468749904594249,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 136,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 21679.41587921383,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.7631514502878843,
+              "ljung_box_statistic": 15.22910538903385,
+              "mean": -0.003649289569352642,
+              "std": 0.04839131381623441,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 136,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 50094.692313891166,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.9989386743292548,
+              "ljung_box_statistic": 5.96903939656652,
+              "mean": 0.004604451029889497,
+              "std": 0.06039007952156161,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 136,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9485294117647058,
+          "mean": 2.0854359050556828,
+          "mean_bounds_95": {
+            "high": 2.3498358600675444,
+            "low": 1.6780068131112191
+          },
+          "mean_inside_95": true,
+          "median": 1.5233034157991994,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9627329192546584,
+          "mean": 1.5500700349270076,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.8652981171512028,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 136,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 24754.479285000503,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.8977378323742528,
+              "ljung_box_statistic": 12.501415341526638,
+              "mean": -0.002300331864062699,
+              "std": 0.044549167573971156,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 136,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 42752.88069485389,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.9974802993426377,
+              "ljung_box_statistic": 6.73032325920642,
+              "mean": 0.003618316567177785,
+              "std": 0.044863291698766815,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.968944099378882,
+          "mean": 1.6286690870784954,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.0836879204068584,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "abrupt_maneuver",
+      "trial_id": "g4_abrupt_maneuver_rep02"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 136,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9779411764705882,
+          "mean": 1.519966153129605,
+          "mean_bounds_95": {
+            "high": 2.3498358600675444,
+            "low": 1.6780068131112191
+          },
+          "mean_inside_95": false,
+          "median": 1.141074872590843,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9627329192546584,
+          "mean": 1.908464914722865,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.6349047262506804,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 136,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 44579.880785860536,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.9939592634808595,
+              "ljung_box_statistic": 7.646663531561356,
+              "mean": -0.004384386591390918,
+              "std": 0.06566953081356099,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 136,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 50742.96618755154,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.9996956015038251,
+              "ljung_box_statistic": 5.060276489603601,
+              "mean": 0.0046365305296543705,
+              "std": 0.053745245178591694,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 136,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9705882352941176,
+          "mean": 1.8950688171141215,
+          "mean_bounds_95": {
+            "high": 2.3498358600675444,
+            "low": 1.6780068131112191
+          },
+          "mean_inside_95": true,
+          "median": 1.0972471282381342,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9751552795031055,
+          "mean": 1.9185330813484258,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.2482052563237132,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 136,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 30412.946505059463,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.98392981868238,
+              "ljung_box_statistic": 8.909692442542026,
+              "mean": -0.002664324071160252,
+              "std": 0.048112035599084696,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 136,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 39568.6226785042,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.9988234530218925,
+              "ljung_box_statistic": 6.053403074470317,
+              "mean": 0.0028983134003493383,
+              "std": 0.039525304908107135,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9627329192546584,
+          "mean": 1.9701596177081966,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.6600778463934167,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "abrupt_maneuver",
+      "trial_id": "g4_abrupt_maneuver_rep03"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.95625,
+          "mean": 1.6510600317384543,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": false,
+          "median": 1.085487422028157,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.968944099378882,
+          "mean": 1.839047484919778,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.360873308209625,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.08839379095963346,
+              "jarque_bera_statistic": 4.851907099637081,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.014261526914478316,
+              "ljung_box_statistic": 36.278457933705745,
+              "mean": -0.00019035990980295313,
+              "std": 0.027096573187489516,
+              "white_at_alpha_0_05": false
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.4109935087150849,
+              "jarque_bera_statistic": 1.7783557169823982,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.0010156023648461294,
+              "ljung_box_statistic": 45.26533460223098,
+              "mean": -6.505170200755885e-06,
+              "std": 0.02283219396520628,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.95625,
+          "mean": 2.139725193929288,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.3900242620539356,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9440993788819876,
+          "mean": 2.3148560039018617,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.6045968996793665,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.32266726231341186,
+              "jarque_bera_statistic": 2.262267268725467,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.15658159759673676,
+              "ljung_box_statistic": 26.28571518855548,
+              "mean": -0.00038826012448762645,
+              "std": 0.024694093083780767,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.9178969561254243,
+              "jarque_bera_statistic": 0.17134028578267171,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.11083248462199519,
+              "ljung_box_statistic": 27.93978419788546,
+              "mean": 0.00028532937463358914,
+              "std": 0.019334156272810238,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9751552795031055,
+          "mean": 1.8400314059042226,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.3943445787706885,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "acceleration_deceleration",
+      "trial_id": "g4_acceleration_deceleration_rep01"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9625,
+          "mean": 1.463761732898922,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": false,
+          "median": 1.2121662725374363,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9440993788819876,
+          "mean": 1.5177181545973115,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.1725302377674367,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.14746269146409863,
+              "jarque_bera_statistic": 3.828360148846468,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.007958975210507499,
+              "ljung_box_statistic": 38.378183901035925,
+              "mean": 0.00015770764969283562,
+              "std": 0.025966847441305476,
+              "white_at_alpha_0_05": false
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.6861722427181243,
+              "jarque_bera_statistic": 0.7532532001855025,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.003078384349422589,
+              "ljung_box_statistic": 41.64196852866343,
+              "mean": 0.00022618083187801193,
+              "std": 0.021578605207730417,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.95,
+          "mean": 1.8512565909687386,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.2646968338329907,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9813664596273292,
+          "mean": 1.4700267171189105,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.0836476828201531,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.23266122511058224,
+              "jarque_bera_statistic": 2.9163437058764794,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.1598379779829806,
+              "ljung_box_statistic": 26.18345749609917,
+              "mean": -0.0012870524906454014,
+              "std": 0.023249607468281263,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.02731206128611455,
+              "jarque_bera_statistic": 7.20085373801258,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.03440959610670322,
+              "ljung_box_statistic": 32.922234700258045,
+              "mean": -0.000830053131009526,
+              "std": 0.017797096730565298,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9503105590062112,
+          "mean": 1.5297068770065112,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.1111610865580277,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "acceleration_deceleration",
+      "trial_id": "g4_acceleration_deceleration_rep02"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.96875,
+          "mean": 1.5911496839901091,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": false,
+          "median": 1.136624343011311,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9503105590062112,
+          "mean": 1.6352281263279032,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.1584846378284248,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.7565048927511336,
+              "jarque_bera_statistic": 0.5580925563182617,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.132065760632872,
+              "ljung_box_statistic": 27.11477140038595,
+              "mean": 0.0008072170821915141,
+              "std": 0.027824626482396173,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.9390039506397284,
+              "jarque_bera_statistic": 0.12587118499733782,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.0025796789621404664,
+              "ljung_box_statistic": 42.23152193478334,
+              "mean": -0.0001568214023977466,
+              "std": 0.021946246693190313,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.95,
+          "mean": 2.0540038963627487,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.3913203677042698,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9565217391304348,
+          "mean": 1.7161781794808386,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.1807383756251313,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.9528445136808384,
+              "jarque_bera_statistic": 0.09660708644746324,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.6830131038579739,
+              "ljung_box_statistic": 16.5336761323661,
+              "mean": -0.0011286010773875008,
+              "std": 0.02556412909625964,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.5296995825340329,
+              "jarque_bera_statistic": 1.2708905170994145,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.11644589003304925,
+              "ljung_box_statistic": 27.70992339179506,
+              "mean": -0.00023302105012664467,
+              "std": 0.01853866412835258,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9565217391304348,
+          "mean": 1.641780915686496,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.167333786380119,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "acceleration_deceleration",
+      "trial_id": "g4_acceleration_deceleration_rep03"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 110,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9454545454545454,
+          "mean": 1.6514343946854424,
+          "mean_bounds_95": {
+            "high": 2.390662574135185,
+            "low": 1.6437567653162857
+          },
+          "mean_inside_95": true,
+          "median": 1.023858672968458,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.6770186335403726,
+          "mean": 1.3181505474340804,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.5750169955394304,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 110,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.6498083603999065,
+              "jarque_bera_statistic": 0.8621555794347973,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.220420894880969,
+              "ljung_box_statistic": 24.519855122413816,
+              "mean": 0.0003323306050380095,
+              "std": 0.026666973876486103,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 110,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.7577208834773497,
+              "jarque_bera_statistic": 0.5548803775092752,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.11289923521658712,
+              "ljung_box_statistic": 27.854064301365252,
+              "mean": 3.4983043010285024e-05,
+              "std": 0.023378907146680162,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 110,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9363636363636364,
+          "mean": 2.0410694963475993,
+          "mean_bounds_95": {
+            "high": 2.390662574135185,
+            "low": 1.6437567653162857
+          },
+          "mean_inside_95": true,
+          "median": 1.3354271992670173,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.7763975155279503,
+          "mean": 1.1181113851289821,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.6736267813594247,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 110,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.4653443383332988,
+              "jarque_bera_statistic": 1.5299552697883718,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.6744203583159152,
+              "ljung_box_statistic": 16.6679099365961,
+              "mean": 0.0002620137072356633,
+              "std": 0.023171629346933665,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 110,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.8888826658400644,
+              "jarque_bera_statistic": 0.2355800732216353,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.4970768320025043,
+              "ljung_box_statistic": 19.382901071158745,
+              "mean": 3.918830946053924e-05,
+              "std": 0.020580042982205053,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.937888198757764,
+          "mean": 1.477869894917217,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.7796292768912914,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "complete_occlusion",
+      "trial_id": "g4_complete_occlusion_rep01"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 110,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9545454545454546,
+          "mean": 1.9123504817711197,
+          "mean_bounds_95": {
+            "high": 2.390662574135185,
+            "low": 1.6437567653162857
+          },
+          "mean_inside_95": true,
+          "median": 1.2965030785116893,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.8633540372670807,
+          "mean": 1.3023090247669573,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.5640090040851014,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 110,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 7.697384846649747e-111,
+              "jarque_bera_statistic": 507.0921293629442,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.48431494948985376,
+              "ljung_box_statistic": 19.58231915080615,
+              "mean": -0.0012091808840230453,
+              "std": 0.03635074635451951,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 110,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 5.484639354772103e-05,
+              "jarque_bera_statistic": 19.621948249171517,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.37255890113449025,
+              "ljung_box_statistic": 21.424105994643867,
+              "mean": 0.000585845510365689,
+              "std": 0.027012395903397074,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 110,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9363636363636364,
+          "mean": 2.2773162782874365,
+          "mean_bounds_95": {
+            "high": 2.390662574135185,
+            "low": 1.6437567653162857
+          },
+          "mean_inside_95": true,
+          "median": 1.7494884260552799,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.84472049689441,
+          "mean": 1.1339714643732832,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.5567685048822858,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 110,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.1404651647623912,
+              "jarque_bera_statistic": 3.925591517168359,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.38366825273064276,
+              "ljung_box_statistic": 21.23068409371592,
+              "mean": -0.00012822282576914403,
+              "std": 0.02692630733651425,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 110,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.5163677063802986,
+              "jarque_bera_statistic": 1.3218723160437047,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.45608925889139484,
+              "ljung_box_statistic": 20.0294431474381,
+              "mean": -0.0012943465237206428,
+              "std": 0.02121653555009218,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9440993788819876,
+          "mean": 1.5125123644060872,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.9018977426893922,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "complete_occlusion",
+      "trial_id": "g4_complete_occlusion_rep02"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 110,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9454545454545454,
+          "mean": 1.7110632705977784,
+          "mean_bounds_95": {
+            "high": 2.390662574135185,
+            "low": 1.6437567653162857
+          },
+          "mean_inside_95": true,
+          "median": 1.1529610307635565,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9627329192546584,
+          "mean": 1.3136208077950542,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.6869361870267209,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 110,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 10416.099517463199,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.8120879002021348,
+              "ljung_box_statistic": 14.354290698292706,
+              "mean": -0.0027635363745698092,
+              "std": 0.05299916812508167,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 110,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.8197612605999646,
+              "jarque_bera_statistic": 0.3974842534494977,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.1969758552063915,
+              "ljung_box_statistic": 25.117418075506635,
+              "mean": 0.0001534281159377318,
+              "std": 0.02188370714897045,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 110,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9090909090909091,
+          "mean": 2.039569058767914,
+          "mean_bounds_95": {
+            "high": 2.390662574135185,
+            "low": 1.6437567653162857
+          },
+          "mean_inside_95": true,
+          "median": 1.3564060365011066,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.7391304347826086,
+          "mean": 1.2071704078909111,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.7849230120062612,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 110,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.7238361117864553,
+              "jarque_bera_statistic": 0.6463805543133299,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.11727605285957435,
+              "ljung_box_statistic": 27.67670502556515,
+              "mean": -0.0008036026375441228,
+              "std": 0.026968285140518432,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 110,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.9433692177674947,
+              "jarque_bera_statistic": 0.11659507540050754,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.6057767714048998,
+              "ljung_box_statistic": 17.72107159565302,
+              "mean": 0.000802602405686571,
+              "std": 0.018978940887665944,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9627329192546584,
+          "mean": 1.5583957743251413,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.115156730958535,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "complete_occlusion",
+      "trial_id": "g4_complete_occlusion_rep03"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.98125,
+          "mean": 1.4566666107269066,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": false,
+          "median": 1.2492485051356408,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9565217391304348,
+          "mean": 1.4923005006123364,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.0929275857780907,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.8241568696747869,
+              "jarque_bera_statistic": 0.3867887827458518,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.24243988739122513,
+              "ljung_box_statistic": 23.998907507562258,
+              "mean": 0.0006740510034512523,
+              "std": 0.027253070227447548,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.2176222727388202,
+              "jarque_bera_statistic": 3.049988825803824,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.0009993301698957644,
+              "ljung_box_statistic": 45.316884500271044,
+              "mean": 4.844545356813387e-05,
+              "std": 0.020540523819515724,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.96875,
+          "mean": 1.7395330469980081,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.2473815766389322,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9565217391304348,
+          "mean": 1.1594164982300452,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.8023930751791984,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.7509906773697606,
+              "jarque_bera_statistic": 0.5727240818344166,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.39951565150743273,
+              "ljung_box_statistic": 20.959571266031126,
+              "mean": 0.00025489573112339044,
+              "std": 0.022585002440573907,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.36107567478637304,
+              "jarque_bera_statistic": 2.037335434341167,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.04823461225042273,
+              "ljung_box_statistic": 31.558613579266115,
+              "mean": 6.273691062813921e-05,
+              "std": 0.016720399980691348,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9565217391304348,
+          "mean": 1.5012515251827996,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.1362766012889303,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "constant_velocity",
+      "trial_id": "g4_constant_velocity_rep01"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.925,
+          "mean": 1.6079282024228558,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": false,
+          "median": 0.9523369305068217,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9751552795031055,
+          "mean": 1.964486642085038,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.3991098165820672,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.6506203888812838,
+              "jarque_bera_statistic": 0.8596578537043663,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.03135487956767175,
+              "ljung_box_statistic": 33.289191408502624,
+              "mean": 0.0003042845042213471,
+              "std": 0.02667638479183984,
+              "white_at_alpha_0_05": false
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.00028944723278815466,
+              "jarque_bera_statistic": 16.29507509545253,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.00274930413902304,
+              "ljung_box_statistic": 42.0196696164995,
+              "mean": 0.0004262777152405048,
+              "std": 0.022400496977921045,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.94375,
+          "mean": 2.0076522332035034,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.293947512624345,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9503105590062112,
+          "mean": 1.9869770151661719,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.3061767509338105,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.5152812414118576,
+              "jarque_bera_statistic": 1.3260848550955968,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.28741989845727073,
+              "ljung_box_statistic": 23.028038250633685,
+              "mean": 0.00024077471387171646,
+              "std": 0.023395844278798685,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.00608342209386639,
+              "jarque_bera_statistic": 10.204375793911266,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.043698046201898016,
+              "ljung_box_statistic": 31.96263913472367,
+              "mean": -0.00021870442870793776,
+              "std": 0.018749735835854722,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9751552795031055,
+          "mean": 1.9586625215140927,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.4139221375286115,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "constant_velocity",
+      "trial_id": "g4_constant_velocity_rep02"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.94375,
+          "mean": 1.447569256281239,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": false,
+          "median": 1.0703115372761458,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9440993788819876,
+          "mean": 1.8445760261371633,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.147540711060062,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.21698546772190233,
+              "jarque_bera_statistic": 3.0558497934153883,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.20291114716066194,
+              "ljung_box_statistic": 24.961417874907266,
+              "mean": -9.697107940333447e-05,
+              "std": 0.02845688665166634,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.6181226908924566,
+              "jarque_bera_statistic": 0.9621366245530313,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.03695054957890747,
+              "ljung_box_statistic": 32.63867248100667,
+              "mean": -3.7641817735769007e-06,
+              "std": 0.01847738006398679,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.93125,
+          "mean": 1.7923289266792881,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.3238878122841435,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9565217391304348,
+          "mean": 1.441190031032143,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.8973780862764824,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.2691515089461737,
+              "jarque_bera_statistic": 2.6249616553035358,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.7008569278631025,
+              "ljung_box_statistic": 16.25224960246904,
+              "mean": -6.421182562435443e-05,
+              "std": 0.024295574839344487,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.6376033434324233,
+              "jarque_bera_statistic": 0.9000778154851075,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.23190685883584097,
+              "ljung_box_statistic": 24.24374868958941,
+              "mean": 0.00011348051521313835,
+              "std": 0.015787604862359746,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.937888198757764,
+          "mean": 1.843464280832014,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.1517485042746771,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "constant_velocity",
+      "trial_id": "g4_constant_velocity_rep03"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 140,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.95,
+          "mean": 1.9751469965506658,
+          "mean_bounds_95": {
+            "high": 2.344610847213681,
+            "low": 1.6824367319035756
+          },
+          "mean_inside_95": true,
+          "median": 1.3749135266600159,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9565217391304348,
+          "mean": 1.6593152111935692,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.2301549011138122,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 140,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.05350113445731179,
+              "jarque_bera_statistic": 5.8561048409908585,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.00022035368388517392,
+              "ljung_box_statistic": 50.0154215606477,
+              "mean": -0.001169325572101132,
+              "std": 0.02929134106865228,
+              "white_at_alpha_0_05": false
+            },
+            {
+              "axis": "y",
+              "count": 140,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 1.4104418437617056e-10,
+              "jarque_bera_statistic": 45.36389582053747,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.22249041858317223,
+              "ljung_box_statistic": 24.469361631152434,
+              "mean": -0.0011728818734825374,
+              "std": 0.029260860428197952,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 140,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9357142857142857,
+          "mean": 2.563813133875642,
+          "mean_bounds_95": {
+            "high": 2.344610847213681,
+            "low": 1.6824367319035756
+          },
+          "mean_inside_95": false,
+          "median": 2.23241211044665,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9751552795031055,
+          "mean": 1.872505481885309,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.2682819064083384,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 140,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.7165025631366562,
+              "jarque_bera_statistic": 0.6667469088372512,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.01789002784196609,
+              "ljung_box_statistic": 35.4383710397862,
+              "mean": -0.002267626372805221,
+              "std": 0.025935624261375467,
+              "white_at_alpha_0_05": false
+            },
+            {
+              "axis": "y",
+              "count": 140,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 5.898074240366837e-132,
+              "jarque_bera_statistic": 604.3332127550404,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.161828735259479,
+              "ljung_box_statistic": 26.121739541484892,
+              "mean": -0.004477540134061129,
+              "std": 0.029229606940524698,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.937888198757764,
+          "mean": 1.6665540131049612,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.2221360079802417,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "coordinated_arc",
+      "trial_id": "g4_coordinated_arc_rep01"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 140,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9928571428571429,
+          "mean": 1.6221521553912495,
+          "mean_bounds_95": {
+            "high": 2.344610847213681,
+            "low": 1.6824367319035756
+          },
+          "mean_inside_95": false,
+          "median": 1.0602825247835894,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9316770186335404,
+          "mean": 1.5881281431274523,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.996680649630339,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 140,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.4473929360488186,
+              "jarque_bera_statistic": 1.608636037889533,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.003209989277292931,
+              "ljung_box_statistic": 41.50158451590509,
+              "mean": -0.0011928872882260688,
+              "std": 0.030101288906529668,
+              "white_at_alpha_0_05": false
+            },
+            {
+              "axis": "y",
+              "count": 140,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 1.2058242068673066e-56,
+              "jarque_bera_statistic": 257.51520377087274,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.5153653849573121,
+              "ljung_box_statistic": 19.099526778361476,
+              "mean": -0.0017517092327001063,
+              "std": 0.025031788694935244,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 140,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9571428571428572,
+          "mean": 2.202089922932416,
+          "mean_bounds_95": {
+            "high": 2.344610847213681,
+            "low": 1.6824367319035756
+          },
+          "mean_inside_95": true,
+          "median": 1.310189400548656,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.8695652173913043,
+          "mean": 2.6144038069013757,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.571505097788856,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 140,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.9429930234702358,
+              "jarque_bera_statistic": 0.11739278920970533,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.11992921285249664,
+              "ljung_box_statistic": 27.571813920224972,
+              "mean": -0.004267630041641198,
+              "std": 0.027320274320108237,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 140,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 5692.4866624800425,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.877510888195777,
+              "ljung_box_statistic": 12.997042920835305,
+              "mean": -0.005477185815478296,
+              "std": 0.027101451648235297,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9316770186335404,
+          "mean": 1.6004381886598869,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.0093766357181548,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "coordinated_arc",
+      "trial_id": "g4_coordinated_arc_rep02"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 140,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9285714285714286,
+          "mean": 1.424306643257803,
+          "mean_bounds_95": {
+            "high": 2.344610847213681,
+            "low": 1.6824367319035756
+          },
+          "mean_inside_95": false,
+          "median": 0.8592838679785548,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9503105590062112,
+          "mean": 1.4632029214482754,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.8730801185453009,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 140,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 1.3963139556572242e-10,
+              "jarque_bera_statistic": 45.38403010856626,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.024739051306873875,
+              "ljung_box_statistic": 34.20994971395914,
+              "mean": -0.0009537431052621306,
+              "std": 0.028824375315571683,
+              "white_at_alpha_0_05": false
+            },
+            {
+              "axis": "y",
+              "count": 140,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 3503.3639285882496,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.5919559401417785,
+              "ljung_box_statistic": 17.93096619864458,
+              "mean": -0.0020756786310728134,
+              "std": 0.02764467345575644,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 140,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9357142857142857,
+          "mean": 1.97712794608074,
+          "mean_bounds_95": {
+            "high": 2.344610847213681,
+            "low": 1.6824367319035756
+          },
+          "mean_inside_95": true,
+          "median": 1.3042115924349416,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.906832298136646,
+          "mean": 2.7985458166675183,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 2.3858843434448747,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 140,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 6.936528533689236e-166,
+              "jarque_bera_statistic": 760.5846479978485,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.17335404342122904,
+              "ljung_box_statistic": 25.775531206375277,
+              "mean": -0.0023344225064851707,
+              "std": 0.030153002382549702,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 140,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 17858.590902970245,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.9092377604915254,
+              "ljung_box_statistic": 12.193972457426726,
+              "mean": -0.0050441111347569265,
+              "std": 0.031089410913626218,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.8757763975155279,
+          "mean": 1.4278655232113133,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.8575680922867829,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "coordinated_arc",
+      "trial_id": "g4_coordinated_arc_rep03"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 113,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9292035398230089,
+          "mean": 1.6901034560787325,
+          "mean_bounds_95": {
+            "high": 2.3852230671174404,
+            "low": 1.6482830701097295
+          },
+          "mean_inside_95": true,
+          "median": 1.2577331545686705,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.8012422360248447,
+          "mean": 1.2176827457013568,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.6366888654529766,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 113,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 7.986164655305998e-05,
+              "jarque_bera_statistic": 18.870429677094013,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.008650828014196666,
+              "ljung_box_statistic": 38.08309693618585,
+              "mean": -0.00033126051359280484,
+              "std": 0.029511022033162408,
+              "white_at_alpha_0_05": false
+            },
+            {
+              "axis": "y",
+              "count": 113,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.3585828288405092,
+              "jarque_bera_statistic": 2.0511912056758335,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.0002361863317706,
+              "ljung_box_statistic": 49.8047152643607,
+              "mean": -0.00021657258356314366,
+              "std": 0.02462733901041937,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 113,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9646017699115044,
+          "mean": 2.0397500614872346,
+          "mean_bounds_95": {
+            "high": 2.3852230671174404,
+            "low": 1.6482830701097295
+          },
+          "mean_inside_95": true,
+          "median": 1.3958560130589506,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9503105590062112,
+          "mean": 1.0571754794520476,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.5844671482076785,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 113,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.4871662888335372,
+              "jarque_bera_statistic": 1.4382995173437392,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.14892986732210986,
+              "ljung_box_statistic": 26.532715599710013,
+              "mean": 0.0013022951798371718,
+              "std": 0.023046378292030267,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 113,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.9320836947577715,
+              "jarque_bera_statistic": 0.140665334172384,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.00285044470382548,
+              "ljung_box_statistic": 41.899200107568944,
+              "mean": 0.00023804666723688361,
+              "std": 0.02101200552495984,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9440993788819876,
+          "mean": 1.2532481421968291,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.6373212046946597,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "repeated_reentry",
+      "trial_id": "g4_repeated_reentry_rep01"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 113,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9292035398230089,
+          "mean": 1.334548016942366,
+          "mean_bounds_95": {
+            "high": 2.3852230671174404,
+            "low": 1.6482830701097295
+          },
+          "mean_inside_95": false,
+          "median": 0.7650709271240763,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9503105590062112,
+          "mean": 1.30085537454188,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.822168886214059,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 113,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0,
+              "jarque_bera_statistic": 2551.9376350833245,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.6307905879284829,
+              "ljung_box_statistic": 17.34011999372919,
+              "mean": 0.0023626902191448357,
+              "std": 0.0342879474500793,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 113,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.6843624764985357,
+              "jarque_bera_statistic": 0.7585351306498508,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.000973638979047881,
+              "ljung_box_statistic": 45.39994029074916,
+              "mean": 0.0003802589981107264,
+              "std": 0.021786660666636277,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 113,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9469026548672567,
+          "mean": 1.617273664912863,
+          "mean_bounds_95": {
+            "high": 2.3852230671174404,
+            "low": 1.6482830701097295
+          },
+          "mean_inside_95": false,
+          "median": 1.2588366131566493,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.968944099378882,
+          "mean": 1.3268737690958938,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.9092560056653608,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 113,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 8.432731256335042e-11,
+              "jarque_bera_statistic": 46.39263062189429,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.6615182829641999,
+              "ljung_box_statistic": 16.86814398394073,
+              "mean": 0.0009973220114498393,
+              "std": 0.024062658235750135,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 113,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.9486604137936433,
+              "jarque_bera_statistic": 0.10540876048922669,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.03818476087333568,
+              "ljung_box_statistic": 32.50719531605153,
+              "mean": -0.00020069639888522765,
+              "std": 0.017886979359035767,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9813664596273292,
+          "mean": 1.2983647212697018,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.8156168317985047,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "repeated_reentry",
+      "trial_id": "g4_repeated_reentry_rep02"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 113,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9557522123893806,
+          "mean": 1.363377139472132,
+          "mean_bounds_95": {
+            "high": 2.3852230671174404,
+            "low": 1.6482830701097295
+          },
+          "mean_inside_95": false,
+          "median": 0.8933105237935016,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9006211180124224,
+          "mean": 1.2954595864180256,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.7855320539369992,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 113,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 2.897345825628534e-113,
+              "jarque_bera_statistic": 518.2566408459153,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.37870462766935287,
+              "ljung_box_statistic": 21.316744281386725,
+              "mean": -0.002212476047139422,
+              "std": 0.03139040125391677,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 113,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 7.084353345836393e-217,
+              "jarque_bera_statistic": 995.4061531632154,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 2.5190511749604825e-05,
+              "ljung_box_statistic": 56.41240819095149,
+              "mean": 0.002871457435758833,
+              "std": 0.03267631964441255,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 113,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9823008849557522,
+          "mean": 1.6968587229649237,
+          "mean_bounds_95": {
+            "high": 2.3852230671174404,
+            "low": 1.6482830701097295
+          },
+          "mean_inside_95": true,
+          "median": 1.3486501863142621,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.8695652173913043,
+          "mean": 0.9458607757658474,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.37536685514675905,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 113,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.6368478231402438,
+              "jarque_bera_statistic": 0.9024490962387418,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.64999871110087,
+              "ljung_box_statistic": 17.045784375795716,
+              "mean": 9.115512878388778e-06,
+              "std": 0.022020910783846995,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 113,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.4172049261948487,
+              "jarque_bera_statistic": 1.7483554963430374,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.008015565061367712,
+              "ljung_box_statistic": 38.35316227830045,
+              "mean": 0.0002589533829623768,
+              "std": 0.02020556371848363,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9565217391304348,
+          "mean": 1.3713565455967878,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.9046512521948791,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "repeated_reentry",
+      "trial_id": "g4_repeated_reentry_rep03"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.95,
+          "mean": 1.3690380747639206,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": false,
+          "median": 0.8571631819350594,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9503105590062112,
+          "mean": 1.7962122903467717,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.1694918035244357,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.07772776665763197,
+              "jarque_bera_statistic": 5.109085456408691,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 5.2170739220718915e-06,
+              "ljung_box_statistic": 60.87095855439889,
+              "mean": 0.00031007907855077065,
+              "std": 0.02579334689037561,
+              "white_at_alpha_0_05": false
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.2809526563487505,
+              "jarque_bera_statistic": 2.5391382131757267,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.16599598558602893,
+              "ljung_box_statistic": 25.994427886739597,
+              "mean": -4.985570960094176e-05,
+              "std": 0.02058868842698278,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9125,
+          "mean": 1.7515833964865268,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.1162803060845,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9813664596273292,
+          "mean": 1.5429438826221848,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.1258738473786805,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.826282359337365,
+              "jarque_bera_statistic": 0.381637448966898,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.0017037259884085446,
+              "ljung_box_statistic": 43.59655349865405,
+              "mean": -0.0004412104901797886,
+              "std": 0.022553832810756482,
+              "white_at_alpha_0_05": false
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.39038815745426736,
+              "jarque_bera_statistic": 1.8812275185859615,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.6286847090242121,
+              "ljung_box_statistic": 17.372275554198204,
+              "mean": -1.3642032235087684e-05,
+              "std": 0.017821440369081176,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9440993788819876,
+          "mean": 1.7904916396727002,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.1401512770517104,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "stationary",
+      "trial_id": "g4_stationary_rep01"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.96875,
+          "mean": 1.798209877182926,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.367553002261626,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9627329192546584,
+          "mean": 1.8754785795169195,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.1988779853889004,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.2886500371767002,
+              "jarque_bera_statistic": 2.4850805373602434,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.08699174533729573,
+              "ljung_box_statistic": 29.03912973689536,
+              "mean": 0.000885583686620825,
+              "std": 0.031772855588255745,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.40513609663915784,
+              "jarque_bera_statistic": 1.8070644544808339,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.016774992027261404,
+              "ljung_box_statistic": 35.67837667569634,
+              "mean": 0.0002949569427617998,
+              "std": 0.022709261582907023,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.94375,
+          "mean": 2.177266825474619,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.5343109200496876,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.968944099378882,
+          "mean": 1.6247432154674923,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 1.178625378527196,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.01010467163490403,
+              "jarque_bera_statistic": 9.189514847926782,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.14360948949689548,
+              "ljung_box_statistic": 26.710418712215738,
+              "mean": -3.980784441480894e-05,
+              "std": 0.027071873421353403,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.9705085633661964,
+              "jarque_bera_statistic": 0.05987010549541483,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.11866762747588665,
+              "ljung_box_statistic": 27.621451044047507,
+              "mean": -0.00028339536649074935,
+              "std": 0.019425972166612376,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9627329192546584,
+          "mean": 1.8875213278496314,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.2260192305498014,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "stationary",
+      "trial_id": "g4_stationary_rep02"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.95,
+          "mean": 1.4798262540535618,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": false,
+          "median": 1.1365341126056805,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9440993788819876,
+          "mean": 1.8314578346245776,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.3471601858679647,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.806206553197981,
+              "jarque_bera_statistic": 0.43083059966103754,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.2173541596394962,
+              "ljung_box_statistic": 24.595308679530675,
+              "mean": 0.0004091622268100559,
+              "std": 0.024201732583228122,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.5647224123702994,
+              "jarque_bera_statistic": 1.142841948210202,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.00043299864685658834,
+              "ljung_box_statistic": 47.9451528825008,
+              "mean": -0.0001331910928989456,
+              "std": 0.023182094274161135,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9625,
+          "mean": 1.8806466305964489,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.1346209368426983,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9503105590062112,
+          "mean": 1.3654040096573967,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.9756954067332857,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.7054676108544125,
+              "jarque_bera_statistic": 0.6977888364673955,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.29501543478082004,
+              "ljung_box_statistic": 22.874165979443113,
+              "mean": -0.00032664209513298404,
+              "std": 0.021714692239653912,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.9593092730449502,
+              "jarque_bera_statistic": 0.08308352146932835,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.01301886291990262,
+              "ljung_box_statistic": 36.612293124294524,
+              "mean": 0.0003265328893508958,
+              "std": 0.019346938838962626,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.937888198757764,
+          "mean": 1.8294712749751947,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.3639709606718804,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "stationary",
+      "trial_id": "g4_stationary_rep03"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9625,
+          "mean": 1.444590326571378,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": false,
+          "median": 1.0811824881292402,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.968944099378882,
+          "mean": 1.432486738467216,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.9668330945988349,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.21985779722668222,
+              "jarque_bera_statistic": 3.0295486357266306,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.10369417088639024,
+              "ljung_box_statistic": 28.246378331405417,
+              "mean": 0.00014117484121608064,
+              "std": 0.026830305393604637,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.35391593058816356,
+              "jarque_bera_statistic": 2.077391756532863,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.1799648946211605,
+              "ljung_box_statistic": 25.584847792637852,
+              "mean": 0.0005321077999859921,
+              "std": 0.020899942533266755,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9625,
+          "mean": 1.8531008925301145,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.2634309033780422,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9440993788819876,
+          "mean": 1.4771393125056063,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.8932769435685948,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.6383010151901313,
+              "jarque_bera_statistic": 0.8978905925243057,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.664680931652693,
+              "ljung_box_statistic": 16.819195277147557,
+              "mean": -0.0007715985735420996,
+              "std": 0.024378224059416292,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.05094390632263664,
+              "jarque_bera_statistic": 5.954060255184127,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.4040345354314992,
+              "ljung_box_statistic": 20.883222269620447,
+              "mean": -0.00017623974929939753,
+              "std": 0.018430653586679977,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9627329192546584,
+          "mean": 1.4370908353842335,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.9398824556357117,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "stop_and_go",
+      "trial_id": "g4_stop_and_go_rep01"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.975,
+          "mean": 1.715704775248962,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.219192199763449,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.968944099378882,
+          "mean": 1.7452292297265843,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 0.9206737877856033,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.9615384563568542,
+              "jarque_bera_statistic": 0.07844143708430595,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.10005115310277234,
+              "ljung_box_statistic": 28.40965296489112,
+              "mean": 0.0006400173758421126,
+              "std": 0.030556767898542343,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.7913983222985292,
+              "jarque_bera_statistic": 0.46790773989798984,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.11032774590608631,
+              "ljung_box_statistic": 27.960918391220936,
+              "mean": 0.00022073073646735152,
+              "std": 0.021109797980228266,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.925,
+          "mean": 2.175005468917841,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.3880614651234238,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9254658385093167,
+          "mean": 1.5523754648177588,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.8569566429091937,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.605491769819918,
+              "jarque_bera_statistic": 1.003428616902889,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.3993559935363359,
+              "ljung_box_statistic": 20.962276261829945,
+              "mean": 0.0011424937435105622,
+              "std": 0.02788686336198566,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.5542730829904319,
+              "jarque_bera_statistic": 1.180195568198231,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.4787748193881012,
+              "ljung_box_statistic": 19.66938118850166,
+              "mean": -0.0003966490306622127,
+              "std": 0.01874682421065446,
+              "white_at_alpha_0_05": true
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9627329192546584,
+          "mean": 1.742953440556116,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 0.9387441068284016,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "stop_and_go",
+      "trial_id": "g4_stop_and_go_rep02"
+    },
+    {
+      "cv": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9375,
+          "mean": 1.7112049535999918,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 0.9709503816603403,
+          "name": "NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9565217391304348,
+          "mean": 1.82018581275393,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.3355568323756457,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.0008050250945859653,
+              "jarque_bera_statistic": 14.249274215265752,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.12356852947497225,
+              "ljung_box_statistic": 27.4309707721725,
+              "mean": 0.0005043410192117944,
+              "std": 0.029409004944162712,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.7266613762852299,
+              "jarque_bera_statistic": 0.6385893844700815,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.0007777311638986623,
+              "ljung_box_statistic": 46.11300184813068,
+              "mean": 0.00028567605543501835,
+              "std": 0.021939825143773295,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "formal_imm": {
+        "nis": {
+          "count": 160,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9375,
+          "mean": 2.1395812499395257,
+          "mean_bounds_95": {
+            "high": 2.321561874275643,
+            "low": 1.7021062848336992
+          },
+          "mean_inside_95": true,
+          "median": 1.3856033041959561,
+          "name": "MOMENT_MATCHED_NIS"
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9130434782608695,
+          "mean": 1.6221186443114826,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": false,
+          "median": 0.8331391670367627,
+          "name": "POSITION_NEES"
+        },
+        "residual_diagnostics": {
+          "dimensions": [
+            {
+              "axis": "x",
+              "count": 160,
+              "gaussian_at_alpha_0_05": false,
+              "jarque_bera_p_value": 0.04995940642790855,
+              "jarque_bera_statistic": 5.993088949483851,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.8318058196935061,
+              "ljung_box_statistic": 13.97411731937416,
+              "mean": 0.00043041279876110394,
+              "std": 0.02699212232141458,
+              "white_at_alpha_0_05": true
+            },
+            {
+              "axis": "y",
+              "count": 160,
+              "gaussian_at_alpha_0_05": true,
+              "jarque_bera_p_value": 0.6709971415097944,
+              "jarque_bera_statistic": 0.7979808041290899,
+              "ljung_box_lags": 20,
+              "ljung_box_p_value": 0.0044460115131263415,
+              "ljung_box_statistic": 40.39900045275368,
+              "mean": -7.806357052026836e-05,
+              "std": 0.018866817050194162,
+              "white_at_alpha_0_05": false
+            }
+          ],
+          "valid": true
+        }
+      },
+      "ghost_mh": {
+        "nis": {
+          "reason": "MULTIMODAL_NON_GAUSSIAN_BELIEF_NO_SINGLE_FORMAL_NIS",
+          "valid": false
+        },
+        "position_nees": {
+          "count": 161,
+          "dof": 2,
+          "individual_bounds_95": {
+            "high": 7.377758908227871,
+            "low": 0.05063561596857975
+          },
+          "individual_inside_fraction": 0.9565217391304348,
+          "mean": 1.823648152502767,
+          "mean_bounds_95": {
+            "high": 2.3205260674059263,
+            "low": 1.7029951504774306
+          },
+          "mean_inside_95": true,
+          "median": 1.313354408140322,
+          "name": "MOMENT_MATCHED_POSITION_NEES"
+        }
+      },
+      "scenario_family": "stop_and_go",
+      "trial_id": "g4_stop_and_go_rep03"
+    }
+  ],
+  "truth_validity": "DETERMINISTIC_ANALYTIC_SOFTWARE_TRUTH_WITH_DECLARED_NEGLIGIBLE_NUMERICAL_COVARIANCE"
+}
