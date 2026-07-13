@@ -1,0 +1,217 @@
+schema_version: 1
+project: GHOST-X
+review_state: G1_INTERNAL_SRR_BASELINE
+units_policy: SI
+requirements:
+  - id: SYS-001
+    title: Identical estimator inputs
+    text: All compared estimators shall consume the same accepted measurement sequence, timestamps, calibration identifier, and truth record for each paired trial.
+    verification: inspection_and_replay
+    tests: [T-PAIR-001]
+    phase: G4
+  - id: SYS-002
+    title: Required execution modes
+    text: The platform shall support live camera, ROS bag replay, deterministic simulation, fault-injection replay, batch Monte Carlo, and Raspberry Pi real-time execution.
+    verification: demonstration
+    tests: [T-MODE-001]
+    phase: G10
+  - id: SYS-003
+    title: Required outputs
+    text: Every estimator execution shall expose state, covariance, validity, measurement age, latency, status, future predictions, and machine-readable trial metrics.
+    verification: schema_test
+    tests: [T-SCHEMA-001]
+    phase: G2
+  - id: SYS-004
+    title: No-purchase completion path
+    text: Mandatory completion shall not require purchasing an IMU, lidar, rail, motion-capture system, or metrology equipment.
+    verification: inspection
+    tests: [T-PLAN-001]
+    phase: G12
+
+  - id: EST-001
+    title: Formal IMM estimator
+    text: The platform shall include a mathematically documented interacting multiple-model estimator with explicit mixing, prediction, update, likelihood, and combination steps.
+    verification: unit_test_and_review
+    tests: [T-IMM-001]
+    phase: G5
+  - id: EST-002
+    title: GHOST multi-hypothesis estimator
+    text: The platform shall include a persistent multi-hypothesis tracker with explicit model labels, relative weights, pruning behavior, and future trajectories.
+    verification: unit_test_and_review
+    tests: [T-MH-001]
+    phase: G5
+  - id: EST-003
+    title: Independent baseline estimator
+    text: Every formal comparison shall include a constant-velocity Kalman or equivalent declared baseline using identical measurements.
+    verification: replay_comparison
+    tests: [T-BASE-001]
+    phase: G4
+  - id: EST-004
+    title: Deterministic configuration
+    text: Estimator outputs shall be deterministic for identical input records, seeds, software commit, and configuration.
+    verification: repeated_replay
+    tests: [T-DET-001]
+    phase: G10
+  - id: EST-005
+    title: Covariance mathematical integrity
+    text: Produced covariance matrices shall remain finite, symmetric within 1e-10, and positive semidefinite within a minimum eigenvalue tolerance of -1e-10.
+    verification: property_test
+    tests: [T-COV-001]
+    phase: G5
+  - id: EST-006
+    title: C++ and Python equivalence
+    text: C++ and Python reference implementations shall agree on frozen vectors within 1e-8 for state, 1e-7 for covariance, and 1e-8 for normalized probabilities.
+    verification: equivalence_test
+    tests: [T-EQUIV-001]
+    phase: G5
+
+  - id: DAT-001
+    title: Frame and unit contract
+    text: Every state, measurement, truth, and prediction shall identify frame, units, handedness, axis meaning, and transform provenance.
+    verification: schema_and_document_review
+    tests: [T-FRAME-001]
+    phase: G2
+  - id: DAT-002
+    title: Timestamp contract
+    text: Source time, receipt time, processing start, processing end, and publication time shall be defined and recorded where available.
+    verification: schema_and_timing_test
+    tests: [T-TIME-001]
+    phase: G2
+  - id: DAT-003
+    title: Calibration provenance
+    text: Every formal bag and trial manifest shall contain the calibration artifact SHA-256 identifier and active estimator configuration identifier.
+    verification: manifest_test
+    tests: [T-CALID-001]
+    phase: G2
+  - id: DAT-004
+    title: Stale and invalid data behavior
+    text: Stale, nonfinite, out-of-order, duplicate, and invalid measurements shall be detected, counted, and reflected in estimator validity/status without silent acceptance.
+    verification: fault_test
+    tests: [T-DATAFAULT-001]
+    phase: G8
+
+  - id: VNV-001
+    title: Controlled truth uncertainty
+    text: Every controlled-truth trajectory shall define the truth-generation method and a defensible uncertainty bound before formal collection.
+    verification: protocol_review
+    tests: [T-TRUTH-001]
+    phase: G4
+  - id: VNV-002
+    title: Paired physical campaign
+    text: The formal campaign shall contain at least 20 accepted paired trials spanning the predeclared trajectory catalog, while retaining invalid and failed trials with reasons.
+    verification: campaign_audit
+    tests: [T-CAMPAIGN-001]
+    phase: G4
+  - id: VNV-003
+    title: Position accuracy
+    text: In room-scale controlled truth, accepted nominal visible segments shall achieve position RMSE no greater than 0.10 m; prediction segments up to 2.0 s shall achieve endpoint RMSE no greater than 0.30 m.
+    verification: paired_statistics
+    tests: [T-ACCURACY-001]
+    phase: G4
+  - id: VNV-004
+    title: Velocity accuracy
+    text: Where truth velocity is defensible, accepted nominal visible segments shall achieve velocity RMSE no greater than 0.20 m/s and prediction segments up to 2.0 s no greater than 0.50 m/s.
+    verification: paired_statistics
+    tests: [T-VELOCITY-001]
+    phase: G4
+  - id: VNV-005
+    title: Reacquisition performance
+    text: Median reacquisition time from the first valid post-occlusion measurement shall be no greater than 0.40 s and the 95th percentile no greater than 0.75 s.
+    verification: paired_statistics
+    tests: [T-REACQ-001]
+    phase: G4
+  - id: VNV-006
+    title: False-track control
+    text: Under nominal and declared false-measurement scenarios, persistent false-track time shall not exceed 1 percent of evaluated time and no single false lock shall persist longer than 0.50 s without degraded or invalid status.
+    verification: campaign_and_fault_statistics
+    tests: [T-FALSE-001]
+    phase: G8
+  - id: VNV-007
+    title: Dropout uncertainty growth
+    text: During prediction-only operation covariance shall remain finite and shall not become more confident without a measurement beyond numerical tolerance; two-second position covariance trace growth shall be reported for every estimator.
+    verification: replay_analysis
+    tests: [T-DROPOUT-001]
+    phase: G6
+
+  - id: CON-001
+    title: Innovation and NIS analysis
+    text: Innovations and NIS shall be reported with confidence bounds only when residual assumptions and measurement covariance provenance are stated; invalid conditions shall be labeled rather than passed.
+    verification: consistency_report
+    tests: [T-NIS-001]
+    phase: G6
+  - id: CON-002
+    title: Conditional NEES analysis
+    text: NEES shall be computed only for trials with defensible state truth and truth uncertainty; otherwise the report shall explicitly mark NEES invalid.
+    verification: consistency_report
+    tests: [T-NEES-001]
+    phase: G6
+
+  - id: FDIR-001
+    title: Fault coverage
+    text: At least 10 distinct injected faults shall be reproducible with detection, isolation/status, recovery behavior, evidence, and discrepancy disposition.
+    verification: fault_campaign
+    tests: [T-FAULT-001]
+    phase: G8
+  - id: FDIR-002
+    title: Fault annunciation time
+    text: Detectable sensor or data-path faults shall produce a degraded or invalid status within 0.50 s; recoverable faults shall return to valid tracking within 2.0 s after valid measurements resume.
+    verification: fault_timing
+    tests: [T-FAULTTIME-001]
+    phase: G8
+
+  - id: RT-001
+    title: End-to-end latency
+    text: Under nominal Raspberry Pi load, source-to-publication latency shall have a 95th percentile no greater than 150 ms and a 99th percentile no greater than 250 ms.
+    verification: timing_campaign
+    tests: [T-LATENCY-001]
+    phase: G9
+  - id: RT-002
+    title: Publication deadline and jitter
+    text: At a declared 30 Hz estimator target rate, nominal deadline misses shall not exceed 1 percent; interval distribution, p95, p99, and maximum shall be reported.
+    verification: timing_campaign
+    tests: [T-JITTER-001]
+    phase: G9
+  - id: RT-003
+    title: Resource and thermal evidence
+    text: Raspberry Pi trials shall report CPU, RSS memory, temperature, throttling flags, and worst-case execution time; no accepted nominal trial may contain OOM termination or thermal throttling.
+    verification: resource_campaign
+    tests: [T-RESOURCE-001]
+    phase: G9
+
+  - id: REP-001
+    title: Canonical deterministic replay
+    text: Canonical hardware bags and synthetic scenarios shall replay from one command with pinned seed, configuration, commit, and acceptance bands.
+    verification: ci_replay
+    tests: [T-REPLAY-001]
+    phase: G10
+  - id: REP-002
+    title: Regression rejection
+    text: CI shall fail when canonical scenario metrics exceed stored acceptance bands or schemas become incompatible.
+    verification: negative_ci_test
+    tests: [T-CI-001]
+    phase: G10
+
+  - id: SW-001
+    title: Modern C++ estimator library
+    text: Production estimator mathematics shall be implemented as a ROS-independent C++ library using Eigen with explicit ownership and deterministic configuration loading.
+    verification: build_test_and_review
+    tests: [T-CPP-001]
+    phase: G5
+  - id: SW-002
+    title: Software assurance
+    text: Mathematical components shall have unit and property tests, and the C++ implementation shall pass configured sanitizers and static analysis.
+    verification: ci_assurance
+    tests: [T-ASSURE-001]
+    phase: G5
+  - id: CLM-001
+    title: Claim traceability
+    text: Every approved public claim shall map to one or more requirements, tests, and immutable evidence artifacts.
+    verification: traceability_audit
+    tests: [T-CLAIM-001]
+    phase: G12
+  - id: CLM-002
+    title: Public failure gallery
+    text: The final release shall include representative failures, rejected trials, limitations, and recovery behavior rather than success-only evidence.
+    verification: release_review
+    tests: [T-FAILGALLERY-001]
+    phase: G12

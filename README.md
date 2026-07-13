@@ -18,6 +18,18 @@ A separate deterministic software-in-the-loop harness connects the same formal I
 
 > **Evidence boundary:** the preserved hardware run validates the USB-camera-to-ROS-to-tracker pipeline, real-time publication, dropout-state telemetry and replay. The closed-loop GNC results are deterministic software-in-the-loop evidence using synthetic truth and candidate noise parameters. Controlled measurement covariance, physical ground-truth accuracy, paired hardware superiority, vehicle control and flight readiness are not yet validated.
 
+## GHOST-X research upgrade
+
+Active development continues on the `ghost-x` branch under a requirements-driven research plan covering controlled truth, C++/Python estimator equivalence, consistency analysis, fault injection, Raspberry Pi real-time characterization, deterministic replay, and claim traceability.
+
+- [GHOST-X master plan](ghost_sim_ros2/docs/GHOST_X_MASTER_PLAN.md)
+- [G0 immutable baseline](ghost_sim_ros2/docs/GHOST_X_G0_BASELINE.md)
+- [G1 requirements and V&V architecture](ghost_sim_ros2/docs/GHOST_X_G1_REQUIREMENTS_AND_VNV.md)
+- [Requirements-to-test traceability](ghost_sim_ros2/docs/GHOST_X_TRACEABILITY.csv)
+- [Current claim boundaries](ghost_sim_ros2/docs/GHOST_X_CLAIM_BOUNDARIES.md)
+
+Current phase status: **G0 complete, G1 complete, G2 next**.
+
 ## Complete drone/robot mission demo
 
 GHOST now includes the full intended software mission: a mobile drone/robot-style observer tracks a moving target in a local GPS-denied map, loses camera line of sight behind buildings, continues formal IMM and GHOST-MH prediction, navigates to a collision-free obstacle-corner vantage point, and reacquires the target.

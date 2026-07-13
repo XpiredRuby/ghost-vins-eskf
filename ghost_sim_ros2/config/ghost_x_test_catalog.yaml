@@ -1,0 +1,221 @@
+schema_version: 1
+project: GHOST-X
+tests:
+  - id: T-PAIR-001
+    title: Paired-input identity audit
+    phase: G4
+    method: Compare hashes, timestamps, accepted measurement rows, truth rows, and calibration/config identifiers for all estimators in each trial.
+    evidence: campaign/paired_input_audit.json
+  - id: T-MODE-001
+    title: Execution-mode demonstration
+    phase: G10
+    method: Demonstrate live, bag replay, simulation, fault replay, Monte Carlo, and Pi real-time modes from documented commands.
+    evidence: release/execution_mode_report.json
+  - id: T-SCHEMA-001
+    title: Output schema validation
+    phase: G2
+    method: Validate estimator state, covariance, status, timing, future, resource, and trial metric payloads against versioned schemas.
+    evidence: schemas/schema_validation_report.json
+  - id: T-PLAN-001
+    title: No-purchase plan audit
+    phase: G12
+    method: Audit mandatory completion dependencies and confirm no required purchased sensor or metrology item.
+    evidence: release/no_purchase_audit.md
+  - id: T-IMM-001
+    title: Formal IMM mathematics verification
+    phase: G5
+    method: Unit-test mixing, model prediction, update, likelihood, probability normalization, and combined covariance against frozen vectors.
+    evidence: cpp/test_results/imm_math.xml
+  - id: T-MH-001
+    title: GHOST-MH mathematics verification
+    phase: G5
+    method: Unit-test branch creation, propagation, pruning, normalization, model persistence, and projected futures.
+    evidence: cpp/test_results/mh_math.xml
+  - id: T-BASE-001
+    title: Baseline inclusion audit
+    phase: G4
+    method: Verify constant-velocity baseline output exists for every accepted paired trial.
+    evidence: campaign/baseline_coverage.json
+  - id: T-DET-001
+    title: Deterministic repeat replay
+    phase: G10
+    method: Replay each canonical scenario at least three times and compare output hashes and floating metrics within declared tolerances.
+    evidence: replay/determinism_report.json
+  - id: T-COV-001
+    title: Covariance property test
+    phase: G5
+    method: Property-test finiteness, symmetry, positive semidefiniteness, and stable normalization over randomized valid inputs.
+    evidence: cpp/test_results/covariance_properties.xml
+  - id: T-EQUIV-001
+    title: C++ versus Python reference equivalence
+    phase: G5
+    method: Compare state, covariance, probabilities, validity, and futures on frozen nominal and dropout vectors.
+    evidence: equivalence/cpp_python_equivalence.json
+  - id: T-FRAME-001
+    title: Frame and unit contract audit
+    phase: G2
+    method: Validate frame identifiers, axes, handedness, SI units, and transform provenance in schemas and manifests.
+    evidence: contracts/frame_contract_audit.json
+  - id: T-TIME-001
+    title: Timestamp contract audit
+    phase: G2
+    method: Validate source, receipt, processing, and publication timestamps and reject impossible ordering.
+    evidence: contracts/time_contract_audit.json
+  - id: T-CALID-001
+    title: Calibration identifier audit
+    phase: G2
+    method: Verify every formal bag and trial includes calibration and configuration SHA-256 identifiers.
+    evidence: contracts/calibration_id_audit.json
+  - id: T-DATAFAULT-001
+    title: Invalid data handling
+    phase: G8
+    method: Inject stale, nonfinite, duplicate, out-of-order, and invalid-range measurements and verify counters/status.
+    evidence: faults/data_fault_report.json
+  - id: T-TRUTH-001
+    title: Ground-truth protocol review
+    phase: G4
+    method: Review truth method, uncertainty, operator instructions, geometry, and acceptance before formal collection.
+    evidence: campaign/truth_protocol_review.md
+  - id: T-CAMPAIGN-001
+    title: Paired campaign completeness audit
+    phase: G4
+    method: Audit at least 20 accepted paired trials and retained rejected/invalid trials across the predeclared scenario set.
+    evidence: campaign/campaign_audit.json
+  - id: T-ACCURACY-001
+    title: Position accuracy statistics
+    phase: G4
+    method: Compute paired visible RMSE and up-to-two-second occlusion endpoint RMSE with uncertainty intervals.
+    evidence: campaign/position_accuracy.json
+  - id: T-VELOCITY-001
+    title: Velocity accuracy statistics
+    phase: G4
+    method: Compute paired visible and prediction velocity RMSE only where truth velocity is defensible.
+    evidence: campaign/velocity_accuracy.json
+  - id: T-REACQ-001
+    title: Reacquisition timing statistics
+    phase: G4
+    method: Compute median, p95, maximum, and confidence intervals from first valid post-loss measurement to accepted tracking.
+    evidence: campaign/reacquisition_statistics.json
+  - id: T-FALSE-001
+    title: False-track statistics
+    phase: G8
+    method: Measure false-track duration fraction and longest persistent false lock in nominal and false-measurement scenarios.
+    evidence: faults/false_track_statistics.json
+  - id: T-DROPOUT-001
+    title: Prediction uncertainty growth
+    phase: G6
+    method: Measure covariance trace and empirical error versus dropout duration; flag confidence decreases without measurements.
+    evidence: consistency/dropout_growth.json
+  - id: T-NIS-001
+    title: Innovation and NIS analysis
+    phase: G6
+    method: Compute innovation sequences, NIS, bounds, coverage, autocorrelation, and assumption-validity labels.
+    evidence: consistency/nis_report.json
+  - id: T-NEES-001
+    title: Conditional NEES analysis
+    phase: G6
+    method: Compute NEES and bounds only for trials with accepted state truth and uncertainty; otherwise emit INVALID_WITH_REASON.
+    evidence: consistency/nees_report.json
+  - id: T-FAULT-001
+    title: Reproducible fault campaign
+    phase: G8
+    method: Execute at least 10 predeclared fault types and record detection, isolation/status, recovery, evidence, and discrepancy.
+    evidence: faults/fault_campaign_summary.json
+  - id: T-FAULTTIME-001
+    title: Fault detection and recovery timing
+    phase: G8
+    method: Measure fault onset to degraded/invalid status and valid-measurement return to tracking recovery.
+    evidence: faults/fault_timing.json
+  - id: T-LATENCY-001
+    title: End-to-end latency campaign
+    phase: G9
+    method: Measure source-to-publication latency distribution under nominal and stressed Pi load.
+    evidence: realtime/latency_report.json
+  - id: T-JITTER-001
+    title: Publication deadline and jitter campaign
+    phase: G9
+    method: Measure interval distribution, missed deadlines, p95, p99, and maximum for estimator outputs.
+    evidence: realtime/jitter_report.json
+  - id: T-RESOURCE-001
+    title: Pi resource and thermal campaign
+    phase: G9
+    method: Record CPU, RSS, execution time, temperature, and throttling under nominal and background-load conditions.
+    evidence: realtime/resource_thermal_report.json
+  - id: T-REPLAY-001
+    title: Canonical one-command replay
+    phase: G10
+    method: Replay pinned hardware and synthetic scenarios from one command and regenerate metrics/tables.
+    evidence: replay/canonical_replay_report.json
+  - id: T-CI-001
+    title: Regression rejection test
+    phase: G10
+    method: Deliberately perturb a canonical parameter and verify CI rejects the resulting out-of-band metrics.
+    evidence: ci/negative_regression_test.json
+  - id: T-CPP-001
+    title: C++ library build and API review
+    phase: G5
+    method: Build ROS-independent Eigen estimator library with deterministic configuration and documented API boundaries.
+    evidence: cpp/build_and_api_review.md
+  - id: T-ASSURE-001
+    title: Sanitizer and static-analysis assurance
+    phase: G5
+    method: Run unit/property tests with configured sanitizers and static analysis; disposition all findings.
+    evidence: cpp/software_assurance_report.json
+  - id: T-CLAIM-001
+    title: Public claim traceability audit
+    phase: G12
+    method: Validate every approved claim maps to requirements, tests, immutable evidence, and stated limitations.
+    evidence: release/claim_traceability.json
+  - id: T-FAILGALLERY-001
+    title: Failure gallery release review
+    phase: G12
+    method: Verify the public package includes representative failures, rejected trials, limitations, and recovery examples.
+    evidence: release/failure_gallery_review.md
+
+nominal_scenarios:
+  - id: N-STAT
+    name: Stationary
+  - id: N-CV
+    name: Constant velocity
+  - id: N-ACCEL
+    name: Acceleration and deceleration
+  - id: N-TURN
+    name: Coordinated turn or arc
+  - id: N-STOPGO
+    name: Stop and go
+  - id: N-ABRUPT
+    name: Abrupt maneuver
+  - id: N-PARTIAL-OCC
+    name: Partial occlusion
+  - id: N-FULL-OCC
+    name: Complete occlusion
+  - id: N-REENTRY
+    name: Repeated re-entry
+  - id: N-DRONE-CORNER
+    name: Autonomous observer corner navigation
+
+fault_scenarios:
+  - id: F-CAMERA-DISCONNECT
+    name: Camera disconnect
+  - id: F-FROZEN-MEASUREMENT
+    name: Frozen measurement
+  - id: F-DUPLICATE
+    name: Duplicate measurement
+  - id: F-FALSE-DETECTION
+    name: False detection
+  - id: F-COVARIANCE
+    name: Covariance corruption
+  - id: F-LATENCY
+    name: Added latency
+  - id: F-OUT-OF-SEQUENCE
+    name: Out-of-sequence data
+  - id: F-NODE-RESTART
+    name: Node restart
+  - id: F-CPU-SATURATION
+    name: CPU saturation
+  - id: F-NETWORK
+    name: Network degradation
+  - id: F-PARAMETER
+    name: Parameter mismatch
+  - id: F-LIGHTING
+    name: Lighting degradation

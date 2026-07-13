@@ -1,5 +1,17 @@
 # GHOST ROS 2 Package
 
+## GHOST-X research upgrade
+
+Active development continues on the `ghost-x` branch under a requirements-driven research plan covering controlled truth, C++/Python estimator equivalence, consistency analysis, fault injection, Raspberry Pi real-time characterization, deterministic replay, and claim traceability.
+
+- [GHOST-X master plan](docs/GHOST_X_MASTER_PLAN.md)
+- [G0 immutable baseline](docs/GHOST_X_G0_BASELINE.md)
+- [G1 requirements and V&V architecture](docs/GHOST_X_G1_REQUIREMENTS_AND_VNV.md)
+- [Requirements-to-test traceability](docs/GHOST_X_TRACEABILITY.csv)
+- [Current claim boundaries](docs/GHOST_X_CLAIM_BOUNDARIES.md)
+
+Current phase status: **G0 complete, G1 complete, G2 next**.
+
 ## Complete GPS-denied drone/robot mission
 
 The recommended software demo is now the complete intended GHOST mission—not the legacy oval/dropout generator:
