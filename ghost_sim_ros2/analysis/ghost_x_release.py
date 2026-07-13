@@ -272,36 +272,48 @@ def approved_claims(repo_root: Path) -> dict[str, Any]:
             {
                 "id": "CLM-SW-001",
                 "text": "Built a ROS 2 Raspberry Pi tracking and autonomy platform with formal IMM, multi-hypothesis tracking, deterministic replay, and machine-readable evidence contracts.",
+                "requirements": ["EST-001", "EST-002", "SYS-003", "DAT-001", "DAT-002"],
+                "tests": ["T-IMM-001", "T-MH-001", "T-SCHEMA-001", "T-FRAME-001", "T-TIME-001"],
                 "evidence": ["GHOST_X_G2_VALIDATION.json", "GHOST_X_G10_CI_REPORT.json"],
                 "qualification": "Platform claim; not a flight-qualified system.",
             },
             {
                 "id": "CLM-SW-002",
                 "text": f"Implemented an Eigen-based C++ estimator library and matched C++ and Python outputs across {g5.get('canonical_trials', 0)} frozen synthetic trials within declared numerical tolerances.",
+                "requirements": ["EST-004", "EST-005", "EST-006", "SW-001", "SW-002"],
+                "tests": ["T-DET-001", "T-COV-001", "T-EQUIV-001", "T-CPP-001", "T-ASSURE-001"],
                 "evidence": ["GHOST_X_G5_VALIDATION.json", "GHOST_X_G5_EQUIVALENCE.json"],
                 "qualification": "Numerical equivalence on pinned vectors, not independent physical accuracy.",
             },
             {
                 "id": "CLM-SW-003",
                 "text": f"Executed a {g4.get('planned_trials', 24)}-trial deterministic controlled-truth software campaign across eight motion and visibility-loss families using identical estimator inputs.",
+                "requirements": ["SYS-001", "EST-003", "VNV-001"],
+                "tests": ["T-PAIR-001", "T-BASE-001", "T-TRUTH-001"],
                 "evidence": ["GHOST_X_G4_VALIDATION.json", "GHOST_X_G10_CI_REPORT.json"],
                 "qualification": "Synthetic analytic truth; controlled physical truth remains pending.",
             },
             {
                 "id": "CLM-SW-004",
                 "text": f"Implemented and verified detection, isolation, status, recovery, and retained evidence for {g8.get('fault_count', 0)} reproducible software-injected faults.",
+                "requirements": ["DAT-004", "VNV-006", "FDIR-001", "FDIR-002"],
+                "tests": ["T-DATAFAULT-001", "T-FALSE-001", "T-FAULT-001", "T-FAULTTIME-001"],
                 "evidence": ["GHOST_X_G8_FAULT_REPORT.json"],
                 "qualification": "Deterministic software injection; selected faults still require direct hardware/runtime reproduction.",
             },
             {
                 "id": "CLM-SW-005",
                 "text": f"Benchmarked ROS 2 QoS behavior, estimator execution, CPU, memory, temperature, and throttling on a Raspberry Pi using {len(g9.get('qos_scenarios', []))} declared runtime scenarios.",
+                "requirements": ["RT-001", "RT-002", "RT-003"],
+                "tests": ["T-LATENCY-001", "T-JITTER-001", "T-RESOURCE-001"],
                 "evidence": ["GHOST_X_G9_RUNTIME_REPORT.json"],
                 "qualification": str(g9.get("real_time_claim_status", "HARD_REAL_TIME_NOT_CLAIMED")),
             },
             {
                 "id": "CLM-SW-006",
                 "text": f"Added one-command deterministic regression gates with {g10.get('summary', {}).get('check_count', 0)} requirements and evidence checks plus CI artifact export.",
+                "requirements": ["REP-001", "REP-002", "CLM-001"],
+                "tests": ["T-REPLAY-001", "T-CI-001", "T-CLAIM-001"],
                 "evidence": ["GHOST_X_G10_CI_REPORT.json", ".github/workflows/ghost-x-regression.yml"],
                 "qualification": "Synthetic and stored-evidence regression protection; physical campaign data will be added after collection.",
             },
@@ -310,26 +322,33 @@ def approved_claims(repo_root: Path) -> dict[str, Any]:
             {
                 "id": "CLM-PENDING-001",
                 "text": "Hardware-validated room-scale position or velocity accuracy across the formal campaign.",
+                "requirements": ["VNV-002", "VNV-003", "VNV-004", "VNV-005"],
+                "tests": ["T-CAMPAIGN-001", "T-ACCURACY-001", "T-VELOCITY-001", "T-REACQ-001"],
                 "reason": "G3 measurement collection and at least 20 paired controlled physical trials are not complete.",
             },
             {
                 "id": "CLM-PENDING-002",
                 "text": "GHOST-MH statistically outperforms formal IMM.",
+                "requirements": ["SYS-001", "VNV-002", "VNV-003", "VNV-004"],
+                "tests": ["T-PAIR-001", "T-CAMPAIGN-001", "T-ACCURACY-001", "T-VELOCITY-001"],
                 "reason": "No physical paired statistics support this claim, and frozen synthetic results do not justify a universal superiority statement.",
             },
             {
                 "id": "CLM-PENDING-003",
                 "text": "Hard-real-time, flight-qualified, or safety-certified operation.",
-                "reason": "Bench timing and resource evidence does not establish operating-system hard-real-time bounds or certification.",
+                "requirements": ["RT-001", "RT-002", "RT-003"],
+                "tests": ["T-LATENCY-001", "T-JITTER-001", "T-RESOURCE-001"],
+                "reason": "Bench timing and resource evidence does not establish operating-system hard-real-time bounds or certification; RT-001 and RT-002 did not meet their predeclared bench limits in the final run.",
             },
             {
                 "id": "CLM-PENDING-004",
                 "text": "Autonomous flight with VIO, SLAM, PX4, or independent observer-pose estimation.",
+                "requirements": ["SYS-002", "DAT-001"],
+                "tests": ["T-MODE-001", "T-FRAME-001"],
                 "reason": "The mission simulation assumes a known local observer pose and map.",
             },
         ],
     }
-
 
 def failure_gallery(repo_root: Path) -> list[dict[str, Any]]:
     g6 = load_json(repo_root / "ghost_sim_ros2/docs/GHOST_X_G6_CONSISTENCY.json")

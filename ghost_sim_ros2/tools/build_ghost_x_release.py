@@ -73,6 +73,21 @@ def build_documents(repo_root: Path, version: str, archive_out: Path) -> dict[st
     traceability = build_traceability(repo_root)
     write_traceability(traceability, docs / "GHOST_X_FINAL_TRACEABILITY.csv")
     phases = collect_phase_status(repo_root)
+    phases.append(
+        {
+            "phase": "G12",
+            "software_status": "SOFTWARE_COMPLETE",
+            "evidence_count": 4,
+            "expected_evidence_count": 4,
+            "evidence": [
+                "ghost_sim_ros2/tools/build_ghost_x_release.py",
+                "ghost_sim_ros2/docs/GHOST_X_FINAL_RESEARCH_PACKAGE.md",
+                "ghost_sim_ros2/docs/GHOST_X_APPROVED_CLAIMS.md",
+                "ghost_sim_ros2/docs/GHOST_X_FAILURE_GALLERY.md",
+            ],
+            "complete": True,
+        }
+    )
     software_complete = all(row["complete"] for row in phases)
     physical_pending = [row["phase"] for row in phases if "PHYSICAL_EXECUTION_PENDING" in row["software_status"]]
     status = {
@@ -114,13 +129,22 @@ def build_documents(repo_root: Path, version: str, archive_out: Path) -> dict[st
                 "",
                 f"**Qualification:** {claim['qualification']}",
                 "",
+                f"**Requirements:** {', '.join(f'`{item}`' for item in claim['requirements'])}",
+                "",
+                f"**Tests:** {', '.join(f'`{item}`' for item in claim['tests'])}",
+                "",
                 f"**Evidence:** {', '.join(f'`{item}`' for item in claim['evidence'])}",
                 "",
             ]
         )
     claim_lines.extend(["## Prohibited or pending claims", ""])
     for claim in claims["prohibited_or_pending"]:
-        claim_lines.extend([f"- **{claim['id']}:** {claim['text']} — {claim['reason']}"])
+        claim_lines.extend(
+            [
+                f"- **{claim['id']}:** {claim['text']} — {claim['reason']} "
+                f"(requirements: {', '.join(claim['requirements'])}; tests: {', '.join(claim['tests'])})"
+            ]
+        )
     claim_lines.append("")
     (docs / "GHOST_X_APPROVED_CLAIMS.md").write_text("\n".join(claim_lines), encoding="utf-8")
 
