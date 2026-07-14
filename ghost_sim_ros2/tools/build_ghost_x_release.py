@@ -363,7 +363,7 @@ State that G3/G4 physical collection is pending; room geometry is not certified 
         capture_output=True,
         text=True,
     ).stdout.splitlines()
-    included = [name for name in tracked if not name.startswith(".pytest_cache/")]
+    included = [name for name in tracked if not name.startswith(".pytest_cache/") and name != "ghost_sim_ros2/docs/GHOST_X_RELEASE_ARCHIVE.json"]
     included.extend(GENERATED_DOCS)
     archive = create_reproducible_tar(repo_root, archive_out, included)
     receipt = {

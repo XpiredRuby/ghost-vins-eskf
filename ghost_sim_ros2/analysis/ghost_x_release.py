@@ -176,7 +176,7 @@ def build_traceability(repo_root: Path) -> list[dict[str, Any]]:
 def write_traceability(rows: list[dict[str, Any]], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as stream:
-        writer = csv.writer(stream)
+        writer = csv.writer(stream, lineterminator="\n")
         writer.writerow(
             [
                 "requirement_id",
