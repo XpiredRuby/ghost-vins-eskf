@@ -1,0 +1,141 @@
+{
+  "entries": [
+    {
+      "category": "covariance_consistency",
+      "disposition": "Reported as model mismatch/qualification rather than tuning the result away; physical NEES remains invalid until defensible truth exists.",
+      "evidence": "GHOST_X_G6_CONSISTENCY.json",
+      "id": "FAIL-CONSISTENCY-001",
+      "observation": "The CV and estimator position NEES means are outside the pooled textbook mean interval on the frozen campaign.",
+      "values": {
+        "cv_position_nees_mean": 1.602772318237833,
+        "imm_position_nees_mean": 1.621895402504537,
+        "mh_position_nees_mean": 1.6407891193280713
+      }
+    },
+    {
+      "category": "invalid_statistic",
+      "disposition": "The report emits INVALID_WITH_REASON and uses only qualified moment-matched diagnostics.",
+      "evidence": "GHOST_X_G6_CONSISTENCY.json",
+      "id": "FAIL-MULTIMODAL-NIS-001",
+      "observation": "A single formal NIS is not valid for the non-Gaussian GHOST-MH mixture during multimodal intervals."
+    },
+    {
+      "category": "incomplete_evidence",
+      "disposition": "Software is frozen and ready; public physical-accuracy claims remain prohibited until operator-assisted collection is complete.",
+      "evidence": "GHOST_X_G3_READINESS.json",
+      "id": "FAIL-PHYSICAL-CAMPAIGN-001",
+      "observation": "The formal measurement-characterization and controlled physical truth campaigns are not yet collected."
+    },
+    {
+      "category": "fault_injection",
+      "disposition": "Detection, isolation, recovery, and raw evidence retained; hardware reproduction remains qualified where applicable.",
+      "evidence": "g8_fault_evidence/camera_disconnect.jsonl",
+      "id": "FAULT-CAMERA-DISCONNECT",
+      "observation": "Injected camera_disconnect produced FAULT_CAMERA_DISCONNECTED.",
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "category": "fault_injection",
+      "disposition": "Detection, isolation, recovery, and raw evidence retained; hardware reproduction remains qualified where applicable.",
+      "evidence": "g8_fault_evidence/frozen_measurement.jsonl",
+      "id": "FAULT-FROZEN-MEASUREMENT",
+      "observation": "Injected frozen_measurement produced FAULT_FROZEN_MEASUREMENT.",
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "category": "fault_injection",
+      "disposition": "Detection, isolation, recovery, and raw evidence retained; hardware reproduction remains qualified where applicable.",
+      "evidence": "g8_fault_evidence/duplicate_measurement.jsonl",
+      "id": "FAULT-DUPLICATE-MEASUREMENT",
+      "observation": "Injected duplicate_measurement produced FAULT_DUPLICATE_MEASUREMENT.",
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "category": "fault_injection",
+      "disposition": "Detection, isolation, recovery, and raw evidence retained; hardware reproduction remains qualified where applicable.",
+      "evidence": "g8_fault_evidence/false_detection.jsonl",
+      "id": "FAULT-FALSE-DETECTION",
+      "observation": "Injected false_detection produced FAULT_FALSE_DETECTION_REJECTED.",
+      "recovery_time_s": 1.1999999999999993
+    },
+    {
+      "category": "fault_injection",
+      "disposition": "Detection, isolation, recovery, and raw evidence retained; hardware reproduction remains qualified where applicable.",
+      "evidence": "g8_fault_evidence/covariance_corruption.jsonl",
+      "id": "FAULT-COVARIANCE-CORRUPTION",
+      "observation": "Injected covariance_corruption produced FAULT_COVARIANCE_INVALID_FALLBACK.",
+      "recovery_time_s": 1.1999999999999993
+    },
+    {
+      "category": "fault_injection",
+      "disposition": "Detection, isolation, recovery, and raw evidence retained; hardware reproduction remains qualified where applicable.",
+      "evidence": "g8_fault_evidence/latency.jsonl",
+      "id": "FAULT-LATENCY",
+      "observation": "Injected latency produced FAULT_STALE_MEASUREMENT_REJECTED.",
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "category": "fault_injection",
+      "disposition": "Detection, isolation, recovery, and raw evidence retained; hardware reproduction remains qualified where applicable.",
+      "evidence": "g8_fault_evidence/out_of_sequence_data.jsonl",
+      "id": "FAULT-OUT-OF-SEQUENCE-DATA",
+      "observation": "Injected out_of_sequence_data produced FAULT_OUT_OF_SEQUENCE_REJECTED.",
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "category": "fault_injection",
+      "disposition": "Detection, isolation, recovery, and raw evidence retained; hardware reproduction remains qualified where applicable.",
+      "evidence": "g8_fault_evidence/node_restart.jsonl",
+      "id": "FAULT-NODE-RESTART",
+      "observation": "Injected node_restart produced FAULT_NODE_RESTART.",
+      "recovery_time_s": 1.1999999999999993
+    },
+    {
+      "category": "fault_injection",
+      "disposition": "Detection, isolation, recovery, and raw evidence retained; hardware reproduction remains qualified where applicable.",
+      "evidence": "g8_fault_evidence/cpu_saturation.jsonl",
+      "id": "FAULT-CPU-SATURATION",
+      "observation": "Injected cpu_saturation produced FAULT_DEADLINE_MISS.",
+      "recovery_time_s": 1.1999999999999993
+    },
+    {
+      "category": "fault_injection",
+      "disposition": "Detection, isolation, recovery, and raw evidence retained; hardware reproduction remains qualified where applicable.",
+      "evidence": "g8_fault_evidence/network_degradation.jsonl",
+      "id": "FAULT-NETWORK-DEGRADATION",
+      "observation": "Injected network_degradation produced FAULT_NETWORK_DEGRADED.",
+      "recovery_time_s": 1.1999999999999993
+    },
+    {
+      "category": "fault_injection",
+      "disposition": "Detection, isolation, recovery, and raw evidence retained; hardware reproduction remains qualified where applicable.",
+      "evidence": "g8_fault_evidence/parameter_mismatch.jsonl",
+      "id": "FAULT-PARAMETER-MISMATCH",
+      "observation": "Injected parameter_mismatch produced FAULT_CONFIGURATION_MISMATCH.",
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "category": "fault_injection",
+      "disposition": "Detection, isolation, recovery, and raw evidence retained; hardware reproduction remains qualified where applicable.",
+      "evidence": "g8_fault_evidence/lighting_degradation.jsonl",
+      "id": "FAULT-LIGHTING-DEGRADATION",
+      "observation": "Injected lighting_degradation produced FAULT_LOW_VISUAL_QUALITY.",
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "category": "runtime_requirement",
+      "disposition": "Hard-real-time/performance wording is withheld; raw worst-case evidence remains public.",
+      "evidence": "GHOST_X_G9_RUNTIME_REPORT.json",
+      "id": "FAIL-RT-001",
+      "observation": "Nominal source-to-receipt latency did not meet the predeclared bounds."
+    },
+    {
+      "category": "runtime_requirement",
+      "disposition": "Hard-real-time/performance wording is withheld; raw worst-case evidence remains public.",
+      "evidence": "GHOST_X_G9_RUNTIME_REPORT.json",
+      "id": "FAIL-RT-002",
+      "observation": "The 30 Hz publication/deadline requirement was not met on this bench run."
+    }
+  ],
+  "schema_version": 1
+}

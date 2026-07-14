@@ -1,0 +1,384 @@
+{
+  "claim_boundary": "SOFTWARE_RELEASE_PHYSICAL_CAMPAIGN_PENDING",
+  "evidence": {
+    "combined_sha256": "sha256:6f3f409ee1eda033293c469191dea08354c4ad81f26542d70e974031a8cbb828",
+    "file_count": 38,
+    "files": [
+      {
+        "path": ".github/workflows/ghost-x-regression.yml",
+        "sha256": "sha256:fca14254f7646960719f3f6e8273fdea454d3cd90c9218d733d2113fdae9605b",
+        "size_bytes": 1651
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_90_SECOND_DEMO.md",
+        "sha256": "sha256:2fa08fe89a5a521b2e5a59926f6d2fc5a3976a82bd369c320723eb77563082ce",
+        "size_bytes": 1427
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_APPROVED_CLAIMS.json",
+        "sha256": "sha256:3d9bd36a5a7322d00c96cb04fc79eb8bd4c0bd818fe62a2b4aa2634c549be208",
+        "size_bytes": 5606
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_APPROVED_CLAIMS.md",
+        "sha256": "sha256:9f9246b2182f8d09bcf0a39751e6dec9876a2948fcf545bfec44607834ce51b7",
+        "size_bytes": 4102
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_BASELINE_MANIFEST.json",
+        "sha256": "sha256:044ac1d99ed1c3d728817cfc915cc64240d2e7b71eb2e3538691cc9ecac07ce9",
+        "size_bytes": 12152
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_FAILURE_GALLERY.json",
+        "sha256": "sha256:d1dc054669301f90967f1a50e25c7cd395b132e171d317693b28ef38f1a701f6",
+        "size_bytes": 7239
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_FAILURE_GALLERY.md",
+        "sha256": "sha256:54798a89897e1d42728230063ec561e1530d778b16177f02c527b6178ed1bb1b",
+        "size_bytes": 5716
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_FINAL_RESEARCH_PACKAGE.md",
+        "sha256": "sha256:893f8ae6592501283ff994574c21144281857e640d569d01d27264a871c65fee",
+        "size_bytes": 3519
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_FINAL_TRACEABILITY.csv",
+        "sha256": "sha256:0cfbd254e7c5fb28d669272863abac90ec972cdb8fffbae5c0790143b5b2aa36",
+        "size_bytes": 10350
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G0_BASELINE.md",
+        "sha256": "sha256:7c84e8046a1fb0e076f73752f2bd0ea4a2f8c923101142798280fa8393be3878",
+        "size_bytes": 3925
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G10_CI_REPORT.json",
+        "sha256": "sha256:85f2e0c8cda9909b508b1cc080477d57c2c0cc89a83545203b87df0cc68f7bcc",
+        "size_bytes": 50843
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G10_CI_REPORT.md",
+        "sha256": "sha256:da2117d9ff62e3ded517af598fb8ba88b61b71acf8c1502f60bb9d28fd496118",
+        "size_bytes": 4092
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G11_FIXED_LAG.json",
+        "sha256": "sha256:f7bbeb947d0c3eda031120eef7ed297f5ccfed31304c7ce5922bb60343f1865b",
+        "size_bytes": 19714
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G11_FIXED_LAG.md",
+        "sha256": "sha256:d0edb0f03c1de1ce19f9ef250b97dd86239c6ee76d8d6f6292b3850c7871c3d9",
+        "size_bytes": 567
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G1_REQUIREMENTS_AND_VNV.md",
+        "sha256": "sha256:411787994bfbd224bc4d73d4d31e50a3130e27f97a84a811ea43e7e0df4fe0e5",
+        "size_bytes": 6107
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G1_VALIDATION.json",
+        "sha256": "sha256:4b63adf1b1408a05442336053d1f222e66ea035692d88b62102f7c224fde8c90",
+        "size_bytes": 728
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G2_DATA_CONTRACTS.md",
+        "sha256": "sha256:161f925fdf75f0affc8126474976f0c15bdb4b0d65d30f5f8ea4797cf9d7321a",
+        "size_bytes": 6520
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G2_RUNTIME_VALIDATION.json",
+        "sha256": "sha256:2c14b638fa1d913bbecfda52b480a980ba646b9fc0163462d50029239cdbc168",
+        "size_bytes": 4940
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G2_VALIDATION.json",
+        "sha256": "sha256:04dceeeb85f8e4b683092b2ed6141bbe42763f6c87e56def32c240d0155a5895",
+        "size_bytes": 2225
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G3_MEASUREMENT_PROTOCOL.md",
+        "sha256": "sha256:a491c7200607a9a7b69ee4c396b68cc988fbde59f7df70cabda8bd0562b46927",
+        "size_bytes": 7322
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G3_READINESS.json",
+        "sha256": "sha256:a29ecc858ba85140bedc7b70bc50403fc75be4dc96f9ef486cc4123bea95970d",
+        "size_bytes": 2268
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G4_CONTROLLED_TRUTH.md",
+        "sha256": "sha256:00356d7ec471162e350bee6ae897bf08624363a427f76951b0cfc6048675d0e1",
+        "size_bytes": 2147
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G4_VALIDATION.json",
+        "sha256": "sha256:c010ce65c04443aa494aaab1713c101a2efefbdf4e112ef97e0dd2bef0e19f88",
+        "size_bytes": 577
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G5_CPP_LIBRARY.md",
+        "sha256": "sha256:32f6e38295339e77746e42dada8aa430dfc4179af2965dd2ea3de3f4fa335b0e",
+        "size_bytes": 2466
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G5_EQUIVALENCE.json",
+        "sha256": "sha256:6cbde2e52c87bf71b980b0d3abab77622f808fccf5601ae46d17305ca2da8c9a",
+        "size_bytes": 44011
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G5_VALIDATION.json",
+        "sha256": "sha256:316a096dd5aabed51e893f311cde73d12ca528fcb47510a7468afff2df9ab338",
+        "size_bytes": 1086
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G6_CONSISTENCY.json",
+        "sha256": "sha256:f4ec43e6b73e773c1ebcabaa93fb0526d5083988bfac7e6e47c6d6a27fc4612d",
+        "size_bytes": 133500
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G6_CONSISTENCY.md",
+        "sha256": "sha256:d49b8ad48c3a95f9588ec282d2e9589c3ac0f6496b85f58b3d7902521684b340",
+        "size_bytes": 868
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G7_TRADE_STUDY.json",
+        "sha256": "sha256:9cf63ba2193b9059e529fbada42471f3f9d5fbdc0c31cfefe0116b7bea207bd8",
+        "size_bytes": 100131
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G7_TRADE_STUDY.md",
+        "sha256": "sha256:2715a9ce06399258c23c7bddf58f141938596fb51e64cf87a7ecf56bd59ab0ad",
+        "size_bytes": 952
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G8_FAULT_REPORT.json",
+        "sha256": "sha256:cb5366b35d2d2d1036e946cf65797fe13fc89c016a0b4ccdeb3621585c226273",
+        "size_bytes": 52591
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G8_FAULT_REPORT.md",
+        "sha256": "sha256:0fd9bd00a7b0d66781d2f5bfcf8a658fc58b532479dd9ef9e68e569a3ca1a056",
+        "size_bytes": 1057
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G9_RUNTIME_REPORT.json",
+        "sha256": "sha256:d8fefc2d14f5146dea346ac3a9d7ddcb451ce082ae3ece7c7d11eb116a56da31",
+        "size_bytes": 51757
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_G9_RUNTIME_REPORT.md",
+        "sha256": "sha256:1a38ba1097ac68375d38e265f5327b707317152191f8d23cc92fcd68230ed885",
+        "size_bytes": 1704
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_NO_PURCHASE_AUDIT.md",
+        "sha256": "sha256:bed4814a251b25a93446648478e1dbf4b0701eabf6d7485644744f0efaad1856",
+        "size_bytes": 943
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_SOFTWARE_STATUS.json",
+        "sha256": "sha256:cbee4c4032a4eae80de7af6ad80b6b5f78d1ea79b93291a534a00464907d9b6e",
+        "size_bytes": 5122
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_SOFTWARE_VERIFICATION_REPORT.md",
+        "sha256": "sha256:1c5a9c07e75b9123f9fe53c224eba67e6db26116110ff03700ed7f282809080f",
+        "size_bytes": 2358
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_X_TECHNICAL_DEFENSE.md",
+        "sha256": "sha256:9a5803b0c93151b743b9086fc10a3b2d12a6f8fb1b5925cda7e6df5784be0200",
+        "size_bytes": 2789
+      }
+    ],
+    "missing": []
+  },
+  "g10_tree_sha256": "sha256:f8a928a3afec99f690bb434413adf9fd46bdc24b2e974c2db80df5b5e49ae82e",
+  "generated_at_utc": "2026-07-14T04:30:53.214907Z",
+  "release_version": "ghost-x-software-v1",
+  "schema_version": 1,
+  "software_status": {
+    "claim_boundary": "SOFTWARE_COMPLETE_DOES_NOT_MEAN_PHYSICAL_CAMPAIGN_OR_FLIGHT_QUALIFICATION_COMPLETE",
+    "full_project_complete": false,
+    "generated_at_utc": "2026-07-14T04:30:50.475719Z",
+    "next_physical_gate": "G3 measurement characterization trial 1, followed by controlled physical truth collection.",
+    "phase_status": [
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/docs/GHOST_X_G0_BASELINE.md",
+          "ghost_sim_ros2/docs/GHOST_X_BASELINE_MANIFEST.json"
+        ],
+        "evidence_count": 2,
+        "expected_evidence_count": 2,
+        "phase": "G0",
+        "software_status": "SOFTWARE_COMPLETE"
+      },
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/docs/GHOST_X_G1_REQUIREMENTS_AND_VNV.md",
+          "ghost_sim_ros2/docs/GHOST_X_G1_VALIDATION.json"
+        ],
+        "evidence_count": 2,
+        "expected_evidence_count": 2,
+        "phase": "G1",
+        "software_status": "SOFTWARE_COMPLETE"
+      },
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/docs/GHOST_X_G2_DATA_CONTRACTS.md",
+          "ghost_sim_ros2/docs/GHOST_X_G2_VALIDATION.json",
+          "ghost_sim_ros2/docs/GHOST_X_G2_RUNTIME_VALIDATION.json"
+        ],
+        "evidence_count": 3,
+        "expected_evidence_count": 3,
+        "phase": "G2",
+        "software_status": "SOFTWARE_COMPLETE"
+      },
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/docs/GHOST_X_G3_MEASUREMENT_PROTOCOL.md",
+          "ghost_sim_ros2/docs/GHOST_X_G3_READINESS.json"
+        ],
+        "evidence_count": 2,
+        "expected_evidence_count": 2,
+        "phase": "G3",
+        "software_status": "SOFTWARE_COMPLETE_PHYSICAL_EXECUTION_PENDING"
+      },
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/docs/GHOST_X_G4_CONTROLLED_TRUTH.md",
+          "ghost_sim_ros2/docs/GHOST_X_G4_VALIDATION.json"
+        ],
+        "evidence_count": 2,
+        "expected_evidence_count": 2,
+        "phase": "G4",
+        "software_status": "SOFTWARE_COMPLETE_PHYSICAL_EXECUTION_PENDING"
+      },
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/docs/GHOST_X_G5_CPP_LIBRARY.md",
+          "ghost_sim_ros2/docs/GHOST_X_G5_EQUIVALENCE.json",
+          "ghost_sim_ros2/docs/GHOST_X_G5_VALIDATION.json"
+        ],
+        "evidence_count": 3,
+        "expected_evidence_count": 3,
+        "phase": "G5",
+        "software_status": "SOFTWARE_COMPLETE"
+      },
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/docs/GHOST_X_G6_CONSISTENCY.md",
+          "ghost_sim_ros2/docs/GHOST_X_G6_CONSISTENCY.json"
+        ],
+        "evidence_count": 2,
+        "expected_evidence_count": 2,
+        "phase": "G6",
+        "software_status": "SOFTWARE_COMPLETE"
+      },
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/docs/GHOST_X_G7_TRADE_STUDY.md",
+          "ghost_sim_ros2/docs/GHOST_X_G7_TRADE_STUDY.json"
+        ],
+        "evidence_count": 2,
+        "expected_evidence_count": 2,
+        "phase": "G7",
+        "software_status": "SOFTWARE_COMPLETE"
+      },
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/docs/GHOST_X_G8_FAULT_REPORT.md",
+          "ghost_sim_ros2/docs/GHOST_X_G8_FAULT_REPORT.json"
+        ],
+        "evidence_count": 2,
+        "expected_evidence_count": 2,
+        "phase": "G8",
+        "software_status": "SOFTWARE_COMPLETE"
+      },
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/docs/GHOST_X_G9_RUNTIME_REPORT.md",
+          "ghost_sim_ros2/docs/GHOST_X_G9_RUNTIME_REPORT.json"
+        ],
+        "evidence_count": 2,
+        "expected_evidence_count": 2,
+        "phase": "G9",
+        "software_status": "SOFTWARE_COMPLETE"
+      },
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/docs/GHOST_X_G10_CI_REPORT.md",
+          "ghost_sim_ros2/docs/GHOST_X_G10_CI_REPORT.json",
+          ".github/workflows/ghost-x-regression.yml"
+        ],
+        "evidence_count": 3,
+        "expected_evidence_count": 3,
+        "phase": "G10",
+        "software_status": "SOFTWARE_COMPLETE"
+      },
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/docs/GHOST_X_G11_FIXED_LAG.md",
+          "ghost_sim_ros2/docs/GHOST_X_G11_FIXED_LAG.json"
+        ],
+        "evidence_count": 2,
+        "expected_evidence_count": 2,
+        "phase": "G11",
+        "software_status": "SOFTWARE_COMPLETE"
+      },
+      {
+        "complete": true,
+        "evidence": [
+          "ghost_sim_ros2/tools/build_ghost_x_release.py",
+          "ghost_sim_ros2/docs/GHOST_X_FINAL_RESEARCH_PACKAGE.md",
+          "ghost_sim_ros2/docs/GHOST_X_APPROVED_CLAIMS.md",
+          "ghost_sim_ros2/docs/GHOST_X_FAILURE_GALLERY.md"
+        ],
+        "evidence_count": 4,
+        "expected_evidence_count": 4,
+        "phase": "G12",
+        "software_status": "SOFTWARE_COMPLETE"
+      }
+    ],
+    "physical_human_interaction_required": true,
+    "physical_pending_phases": [
+      "G3",
+      "G4"
+    ],
+    "release_version": "ghost-x-software-v1",
+    "requirements": {
+      "physical_pending": 5,
+      "qualified": 6,
+      "software_verified": 23,
+      "total": 34,
+      "traceable": 34
+    },
+    "schema_version": 1,
+    "software_complete": true,
+    "software_completion_percent": 100
+  },
+  "source_branch": "ghost-x",
+  "source_commit_before_release_docs": "27d1c3286e8da265539a4702030c00513841af29",
+  "traceability_summary": {
+    "physical_pending": 5,
+    "requirements": 34,
+    "traceable": 34
+  },
+  "working_tree_clean_before_release_docs": false
+}
