@@ -1,0 +1,48 @@
+schema_version: 1
+project: GHOST-X
+phase: POST_SOFTWARE_HARDWARE_CALIBRATION
+software_baseline:
+  tag: ghost-x-software-v1
+  commit: 4dbf5a86bcb5f8d84890173bfab76705b84ad128
+  immutable: true
+working_branch: ghost-x-hardware-calibration
+policy:
+  no_parameter_changes_during_collection: true
+  preserve_all_failed_and_invalid_trials: true
+  calibration_and_validation_sets_are_disjoint: true
+  validation_set_is_frozen_before_collection: true
+  public_claims_require_frozen_validation_evidence: true
+  software_release_tag_must_not_move: true
+g3_measurement_characterization:
+  campaign_id: ghost_x_g3_measurement_v1
+  planned_trials: 18
+  conditions: 9
+  calibration_repeats: [1]
+  frozen_validation_repeats: [2]
+  purpose:
+    calibration: estimate bias, covariance, range/yaw dependence, and candidate measurement models
+    frozen_validation: evaluate the selected measurement model without retuning
+g4_physical_controlled_truth:
+  campaign_id: ghost_x_g4_physical_truth_v1
+  scenario_families:
+    - stationary
+    - constant_velocity
+    - acceleration_deceleration
+    - coordinated_arc
+    - stop_and_go
+    - abrupt_maneuver
+    - complete_occlusion
+    - repeated_reentry
+  repeats_per_family: 3
+  calibration_repeats: [1, 2]
+  frozen_validation_repeats: [3]
+  planned_trials: 24
+  minimum_accepted_trials: 20
+  purpose:
+    calibration: tune hardware-informed covariance, process noise, gates, priors, and timing assumptions
+    frozen_validation: measure generalization and approve or reject physical-performance claims
+release_sequence:
+  prehardware: ghost-x-software-v1
+  hardware_calibrated_candidate: ghost-x-hardware-calibrated-v1-rc1
+  final_validated: ghost-x-validated-v1
+claim_boundary: HARDWARE_CALIBRATION_WORKFLOW_ONLY_NO_PHYSICAL_PERFORMANCE_CLAIM
