@@ -94,11 +94,12 @@ def draw_axis(frame, rvec, tvec):
         dtype=np.float64,
     )
     projected, _ = cv2.projectPoints(axis_points, rvec, tvec, CAMERA_MATRIX, DIST_COEFFS)
-    projected = projected.reshape(-1, 2).astype(int)
-    origin = tuple(projected[0])
-    cv2.line(frame, origin, tuple(projected[1]), (0, 0, 255), 2)
-    cv2.line(frame, origin, tuple(projected[2]), (0, 255, 0), 2)
-    cv2.line(frame, origin, tuple(projected[3]), (255, 0, 0), 2)
+    projected = projected.reshape(-1, 2)
+    points = [tuple(int(value) for value in point) for point in projected]
+    origin = points[0]
+    cv2.line(frame, origin, points[1], (0, 0, 255), 2)
+    cv2.line(frame, origin, points[2], (0, 255, 0), 2)
+    cv2.line(frame, origin, points[3], (255, 0, 0), 2)
 
 
 def camera_loop():
