@@ -1,0 +1,2094 @@
+{
+  "downloads": [
+    {
+      "label": "Engineering results report",
+      "path": "GHOST_PUBLIC_RESULTS_REPORT.md"
+    },
+    {
+      "label": "Guided hardware validation JSON",
+      "path": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json"
+    },
+    {
+      "label": "Controlled-truth validation JSON",
+      "path": "GHOST_X_G4_VALIDATION.json"
+    },
+    {
+      "label": "Estimator trade-study JSON",
+      "path": "GHOST_X_G7_TRADE_STUDY.json"
+    },
+    {
+      "label": "Estimator trade-study CSV",
+      "path": "GHOST_X_G7_TRADE_STUDY.csv"
+    },
+    {
+      "label": "Fault report JSON",
+      "path": "GHOST_X_G8_FAULT_REPORT.json"
+    },
+    {
+      "label": "Fault report CSV",
+      "path": "GHOST_X_G8_FAULT_REPORT.csv"
+    },
+    {
+      "label": "Runtime report JSON",
+      "path": "GHOST_X_G9_RUNTIME_REPORT.json"
+    },
+    {
+      "label": "Runtime report CSV",
+      "path": "GHOST_X_G9_RUNTIME_REPORT.csv"
+    },
+    {
+      "label": "Regression report JSON",
+      "path": "GHOST_X_G10_CI_REPORT.json"
+    },
+    {
+      "label": "Requirements traceability CSV",
+      "path": "GHOST_X_FINAL_TRACEABILITY.csv"
+    },
+    {
+      "label": "Release manifest",
+      "path": "GHOST_X_RELEASE_MANIFEST.json"
+    },
+    {
+      "label": "Interactive evidence checklist",
+      "path": "GHOST_INTERACTIVE_EVIDENCE_CHECKLIST.md"
+    },
+    {
+      "label": "Interactive page data",
+      "path": "data/GHOST_INTERACTIVE_SHOWCASE_DATA.json"
+    },
+    {
+      "label": "Compact hardware replay data",
+      "path": "data/GHOST_HARDWARE_REPLAY_20260716.json"
+    }
+  ],
+  "estimator_comparison": {
+    "badge": "SYNTHETIC_SOFTWARE",
+    "estimators": [
+      {
+        "hidden_rmse_m": 0.18211336358696475,
+        "id": "cv_kalman",
+        "max_runtime_ms": 0.845263,
+        "name": "CV Kalman",
+        "observation": "Under the 24-trial deterministic software campaign, CV had higher overall and hidden-period RMSE than formal IMM but lower RMSE than GHOST-MH, while recording the lowest Python-reference runtime in the matched no-stress rows.",
+        "overall_rmse_m": 0.05010579701434604,
+        "p99_runtime_ms": 0.65228025,
+        "reacquisition_time_s": null,
+        "reacquisition_time_unavailable_reason": "No symmetric retained reacquisition-time metric exists for all three estimators on the same campaign.",
+        "reset_count": null,
+        "reset_count_unavailable_reason": "No symmetric retained reset-count metric exists for all three estimators on the same final comparison campaign."
+      },
+      {
+        "hidden_rmse_m": 0.13049749093036478,
+        "id": "formal_imm",
+        "max_runtime_ms": 11.256582,
+        "name": "Formal IMM",
+        "observation": "Under the same 24-trial deterministic software campaign, formal IMM had the lowest overall and hidden-period RMSE, with the highest Python-reference runtime cost of the three matched rows.",
+        "overall_rmse_m": 0.03442351202869739,
+        "p99_runtime_ms": 6.813437550000001,
+        "reacquisition_time_s": null,
+        "reacquisition_time_unavailable_reason": "No symmetric retained reacquisition-time metric exists for all three estimators on the same campaign.",
+        "reset_count": null,
+        "reset_count_unavailable_reason": "No symmetric retained reset-count metric exists for all three estimators on the same final comparison campaign."
+      },
+      {
+        "hidden_rmse_m": 0.4666416857961139,
+        "id": "ghost_mh",
+        "max_runtime_ms": 4.746566,
+        "name": "GHOST-MH",
+        "observation": "Under the 24-trial deterministic software campaign, GHOST-MH had the highest overall and hidden-period RMSE. In the one measured stationary short-dropout proxy it beat constant velocity but not the last-seen hold.",
+        "overall_rmse_m": 0.12414750666117878,
+        "p99_runtime_ms": 3.7876160000000008,
+        "reacquisition_time_s": null,
+        "reacquisition_time_unavailable_reason": "No symmetric retained reacquisition-time metric exists for all three estimators on the same campaign.",
+        "reset_count": null,
+        "reset_count_unavailable_reason": "No symmetric retained reset-count metric exists for all three estimators on the same final comparison campaign."
+      }
+    ],
+    "input_fairness": "All three estimators received identical input streams in all 24 trials.",
+    "runtime_basis": {
+      "implementation": "python_reference",
+      "platform": "Raspberry Pi 4 Model B Rev 1.5",
+      "stress_workers": 0
+    },
+    "selected_trade_study_status": "SYNTHETIC_CANDIDATE_CONFIGURATION_PENDING_PHYSICAL_CONFIRMATION",
+    "trial_basis": "N=24 deterministic analytic-truth trials across 8 scenario families",
+    "unavailable_symmetric_metrics": [
+      "Reacquisition time for CV, formal IMM, and GHOST-MH on one common retained campaign",
+      "Reset count for CV, formal IMM, and GHOST-MH on one common retained final campaign"
+    ]
+  },
+  "evidence_map": {
+    "architecture.hardware_identity": [
+      "GHOST_X_BASELINE_MANIFEST.json"
+    ],
+    "claim_boundaries": [
+      "GHOST_X_CLAIM_BOUNDARIES.md",
+      "GHOST_X_APPROVED_CLAIMS.json",
+      "GHOST_X_FAILURE_GALLERY.json"
+    ],
+    "estimators.symmetric_rmse": [
+      "GHOST_X_G10_CI_REPORT.json"
+    ],
+    "estimators.symmetric_runtime": [
+      "GHOST_X_G9_RUNTIME_REPORT.json"
+    ],
+    "faults": [
+      "GHOST_X_G8_FAULT_REPORT.json",
+      "GHOST_X_G8_FAULT_REPORT.csv"
+    ],
+    "hero.controlled_trials": [
+      "GHOST_X_G4_VALIDATION.json"
+    ],
+    "hero.fault_cases": [
+      "GHOST_X_G8_FAULT_REPORT.json"
+    ],
+    "hero.hardware_dropout": [
+      "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json"
+    ],
+    "hero.rt002_failure": [
+      "GHOST_X_G9_RUNTIME_REPORT.json"
+    ],
+    "mission.drone_follow_simulation": [
+      "GHOST_DRONE_MISSION_VALIDATION.json"
+    ],
+    "occlusion.hardware": [
+      "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json"
+    ],
+    "occlusion.synthetic_long_hide": [
+      "GHOST_DRONE_MISSION_VALIDATION.json"
+    ],
+    "replay.measurements_and_events": [
+      "data/GHOST_HARDWARE_REPLAY_20260716.json",
+      "guided_hardware_evidence/20260716_guided_sequence_summary.json"
+    ],
+    "runtime": [
+      "GHOST_X_G9_RUNTIME_REPORT.json",
+      "GHOST_X_G9_RUNTIME_REPORT.csv"
+    ],
+    "traceability": [
+      "GHOST_X_FINAL_TRACEABILITY.csv"
+    ]
+  },
+  "fault_testing": {
+    "badge": "SYNTHETIC_SOFTWARE",
+    "claim_boundary": "DETERMINISTIC_SOFTWARE_FAULT_INJECTION_ACTUAL_HARDWARE_AND_DDS_FAULT_EVIDENCE_PENDING",
+    "failed_faults": 0,
+    "fault_count": 12,
+    "faults": [
+      {
+        "detected": true,
+        "detected_at_s": 5.0,
+        "expected_status": "FAULT_CAMERA_DISCONNECTED",
+        "fault": "camera_disconnect",
+        "isolated": true,
+        "passed": true,
+        "position_error_rmse_m": {
+          "cv_kalman": 0.13118667352827276,
+          "formal_imm": 0.041537461838539506,
+          "ghost_mh": 0.667294212920655
+        },
+        "recovery_ok": true,
+        "recovery_time_s": 1.4000000000000004
+      },
+      {
+        "detected": true,
+        "detected_at_s": 5.2,
+        "expected_status": "FAULT_FROZEN_MEASUREMENT",
+        "fault": "frozen_measurement",
+        "isolated": true,
+        "passed": true,
+        "position_error_rmse_m": {
+          "cv_kalman": 0.45090939440856276,
+          "formal_imm": 0.48108154152725774,
+          "ghost_mh": 0.58037734703256
+        },
+        "recovery_ok": true,
+        "recovery_time_s": 1.4000000000000004
+      },
+      {
+        "detected": true,
+        "detected_at_s": 5.0,
+        "expected_status": "FAULT_DUPLICATE_MEASUREMENT",
+        "fault": "duplicate_measurement",
+        "isolated": true,
+        "passed": true,
+        "position_error_rmse_m": {
+          "cv_kalman": 0.13118667352827276,
+          "formal_imm": 0.041537461838539506,
+          "ghost_mh": 0.667294212920655
+        },
+        "recovery_ok": true,
+        "recovery_time_s": 1.4000000000000004
+      },
+      {
+        "detected": true,
+        "detected_at_s": 5.0,
+        "expected_status": "FAULT_FALSE_DETECTION_REJECTED",
+        "fault": "false_detection",
+        "isolated": true,
+        "passed": true,
+        "position_error_rmse_m": {
+          "cv_kalman": 0.03139329356774393,
+          "formal_imm": 0.01784351252542667,
+          "ghost_mh": 0.08363725483074735
+        },
+        "recovery_ok": true,
+        "recovery_time_s": 1.1999999999999993
+      },
+      {
+        "detected": true,
+        "detected_at_s": 5.0,
+        "expected_status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+        "fault": "covariance_corruption",
+        "isolated": true,
+        "passed": true,
+        "position_error_rmse_m": {
+          "cv_kalman": 0.029078210381168017,
+          "formal_imm": 0.01631785576533458,
+          "ghost_mh": 0.04755774548975078
+        },
+        "recovery_ok": true,
+        "recovery_time_s": 1.1999999999999993
+      },
+      {
+        "detected": true,
+        "detected_at_s": 5.0,
+        "expected_status": "FAULT_STALE_MEASUREMENT_REJECTED",
+        "fault": "latency",
+        "isolated": true,
+        "passed": true,
+        "position_error_rmse_m": {
+          "cv_kalman": 0.13118667352827276,
+          "formal_imm": 0.041537461838539506,
+          "ghost_mh": 0.667294212920655
+        },
+        "recovery_ok": true,
+        "recovery_time_s": 1.4000000000000004
+      },
+      {
+        "detected": true,
+        "detected_at_s": 5.0,
+        "expected_status": "FAULT_OUT_OF_SEQUENCE_REJECTED",
+        "fault": "out_of_sequence_data",
+        "isolated": true,
+        "passed": true,
+        "position_error_rmse_m": {
+          "cv_kalman": 0.13118667352827276,
+          "formal_imm": 0.041537461838539506,
+          "ghost_mh": 0.667294212920655
+        },
+        "recovery_ok": true,
+        "recovery_time_s": 1.4000000000000004
+      },
+      {
+        "detected": true,
+        "detected_at_s": 5.0,
+        "expected_status": "FAULT_NODE_RESTART",
+        "fault": "node_restart",
+        "isolated": true,
+        "passed": true,
+        "position_error_rmse_m": {
+          "cv_kalman": 0.029092016611554857,
+          "formal_imm": 0.01740560791292069,
+          "ghost_mh": 0.047557593402331975
+        },
+        "recovery_ok": true,
+        "recovery_time_s": 1.1999999999999993
+      },
+      {
+        "detected": true,
+        "detected_at_s": 5.0,
+        "expected_status": "FAULT_DEADLINE_MISS",
+        "fault": "cpu_saturation",
+        "isolated": true,
+        "passed": true,
+        "position_error_rmse_m": {
+          "cv_kalman": 0.029078210381168017,
+          "formal_imm": 0.01631785576533458,
+          "ghost_mh": 0.04755774548975078
+        },
+        "recovery_ok": true,
+        "recovery_time_s": 1.1999999999999993
+      },
+      {
+        "detected": true,
+        "detected_at_s": 5.0,
+        "expected_status": "FAULT_NETWORK_DEGRADED",
+        "fault": "network_degradation",
+        "isolated": true,
+        "passed": true,
+        "position_error_rmse_m": {
+          "cv_kalman": 0.03214377299411351,
+          "formal_imm": 0.016869323823009052,
+          "ghost_mh": 0.050878838189256904
+        },
+        "recovery_ok": true,
+        "recovery_time_s": 1.1999999999999993
+      },
+      {
+        "detected": true,
+        "detected_at_s": 5.0,
+        "expected_status": "FAULT_CONFIGURATION_MISMATCH",
+        "fault": "parameter_mismatch",
+        "isolated": true,
+        "passed": true,
+        "position_error_rmse_m": {
+          "cv_kalman": 0.13118667352827276,
+          "formal_imm": 0.041537461838539506,
+          "ghost_mh": 0.667294212920655
+        },
+        "recovery_ok": true,
+        "recovery_time_s": 1.4000000000000004
+      },
+      {
+        "detected": true,
+        "detected_at_s": 5.0,
+        "expected_status": "FAULT_LOW_VISUAL_QUALITY",
+        "fault": "lighting_degradation",
+        "isolated": true,
+        "passed": true,
+        "position_error_rmse_m": {
+          "cv_kalman": 0.13118667352827276,
+          "formal_imm": 0.041537461838539506,
+          "ghost_mh": 0.667294212920655
+        },
+        "recovery_ok": true,
+        "recovery_time_s": 1.4000000000000004
+      }
+    ],
+    "passed_faults": 12,
+    "source": "GHOST_X_G8_FAULT_REPORT.json"
+  },
+  "framing": {
+    "headline": "Autonomous Object Tracking for Follower-Drone Applications",
+    "scope_statement": "Hardware validation covers the Raspberry Pi vision/tracking backbone under guided tabletop conditions. Drone following was evaluated only in deterministic local-frame software simulation; no physical drone was flown.",
+    "subheadline": "An AprilTag-based perception and estimation backbone that detects a tagged target, estimates camera-frame pose, maintains tracker state through visibility loss, and exposes state suitable for downstream follow behavior."
+  },
+  "hardware": {
+    "approved_photos_available": false,
+    "badge": "MEASURED_HARDWARE",
+    "calibration_rms_reprojection_error_px": 0.6484223428868449,
+    "camera": "HD Webcam eMeet C960: HD Webcam",
+    "camera_interface": "USB UVC / V4L2",
+    "camera_pose_hz": 13.57,
+    "compute": "Raspberry Pi 4 Model B Rev 1.5",
+    "imm_output_hz": 30.01,
+    "kernel": "6.8.0-1060-raspi",
+    "machine": "aarch64",
+    "max_process_rss_mb": 69.8203125,
+    "max_temperature_c": 47.225,
+    "mh_output_hz": 29.99,
+    "os": "Ubuntu 24.04.4 LTS",
+    "photo_note": "No privacy-reviewed setup photographs were retained in the repository.",
+    "raspberry_pi_model": "Raspberry Pi 4 Model B Rev 1.5",
+    "ros_distro": "jazzy",
+    "tag_family": "tag36h11",
+    "tag_id": 0,
+    "tag_size_m": 0.1,
+    "throttled_status_final": "throttled=0x0"
+  },
+  "hero_metrics": [
+    {
+      "badge": "MEASURED_HARDWARE",
+      "display": "2.45097017288208 s",
+      "id": "hardware_dropout",
+      "label": "Measured tag occlusion; reacquired without reset",
+      "sample_basis": "N=1 intended hardware dropout",
+      "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
+      "status": "PASS_UNDER_TESTED_CONDITIONS",
+      "value": 2.45097017288208
+    },
+    {
+      "badge": "SYNTHETIC_SOFTWARE",
+      "display": "24 / 24",
+      "id": "controlled_trials",
+      "label": "Accepted deterministic controlled-truth trials",
+      "sample_basis": "N=24 trials across 8 scenario families",
+      "source": "GHOST_X_G4_VALIDATION.json",
+      "status": "PASS",
+      "value": 24
+    },
+    {
+      "badge": "SYNTHETIC_SOFTWARE",
+      "display": "12 / 12",
+      "id": "fault_cases",
+      "label": "Software-injected fault cases passed",
+      "sample_basis": "N=12 distinct fault cases",
+      "source": "GHOST_X_G8_FAULT_REPORT.json",
+      "status": "PASS",
+      "value": 12
+    },
+    {
+      "badge": "MEASURED_HARDWARE",
+      "display": "3.4433068896378227 Hz",
+      "id": "rt002",
+      "label": "Observed publication rate vs 29.7 Hz minimum",
+      "sample_basis": "N=18 interarrival intervals",
+      "source": "GHOST_X_G9_RUNTIME_REPORT.json",
+      "status": "NOT_MET",
+      "threshold": 29.7,
+      "value": 3.4433068896378227
+    }
+  ],
+  "imu_status": {
+    "implementation_evidence": [
+      "../src/imu_driver/icm42688p.cpp",
+      "../src/imu_driver/icm42688p.hpp",
+      "../src/ros2_nodes/imu_node.cpp"
+    ],
+    "statement": "ICM-42688-P driver/interface implemented; sensor identity, data rate, and measurement validation were not captured in a retained campaign artifact.",
+    "status": "IMPLEMENTED_NOT_PHYSICALLY_EVIDENCED"
+  },
+  "limitations": [
+    "No physical closed-loop drone flight was performed.",
+    "The follower-drone mission result is deterministic local-frame software simulation with a known observer pose and map.",
+    "No independent metrology-grade ground truth was available for the guided hardware movements.",
+    "The original floor-grid capture was rejected because the camera/tag geometry was not moved between nominal grid positions.",
+    "The intended measured hardware dropout result is one event (N=1).",
+    "The lateral and range results are guided sequences with correlated video samples, not large sets of independent trials.",
+    "No universal CV, formal IMM, or GHOST-MH superiority claim is supported.",
+    "RT-001 latency and RT-002 publication-rate requirements were not met.",
+    "A C++ CV maximum execution-time row exceeded the declared 33.333 ms deadline.",
+    "Hard-real-time certification, production readiness, flight worthiness, and autonomous-flight qualification are not claimed.",
+    "No retained outdoor or adversarial visual-target hardware campaign was found.",
+    "The lighting-degradation fault case was software-injected, not a physical outdoor lighting trial.",
+    "No approved camera video or image frames were retained for the interactive replay.",
+    "ICM-42688-P driver/interface code is implemented, but sensor identity, rate, and data validation were not captured in a retained campaign artifact."
+  ],
+  "mission": {
+    "badge": "SYNTHETIC_SOFTWARE",
+    "claim_boundary": "Deterministic local-frame software simulation with camera LOS gating. It demonstrates tracking, prediction, navigation, and reacquisition logic; it does not claim GPS-denied self-localization or real autonomous flight.",
+    "collision_count": 0,
+    "elapsed_s": 32.094144105911255,
+    "final_target_observer_separation_m": 2.1816106537648716,
+    "imm_rms_all_m": 0.5919507096633713,
+    "imm_rms_hidden_m": 1.4938990550040254,
+    "measurement_count": 2561,
+    "mh_rms_all_m": 0.6172677018238238,
+    "mh_rms_hidden_m": 1.5374320629834288,
+    "mission_completed": true,
+    "observer_distance_traveled_m": 12.898967896528557,
+    "obstacle_occlusion_count": 2,
+    "occlusion_durations_s": [
+      10.06984806060791,
+      5.8019843101501465
+    ],
+    "out_of_bounds_count": 0,
+    "passed": true,
+    "reacquisition_count": 2,
+    "source": "GHOST_DRONE_MISSION_VALIDATION.json"
+  },
+  "occlusion_scenarios": {
+    "lateral_motion": {
+      "badge": "MEASURED_HARDWARE",
+      "conclusion": "Measured left and right holds moved in opposite camera-frame directions. The result supports directional relative response only.",
+      "metrics": {
+        "baseline_y_m": 0.026524043222367573,
+        "first_frame_errors_m": null,
+        "hidden_drift_m": null,
+        "left_hold_y_m": 0.4022069641056925,
+        "occlusion_duration_s": null,
+        "reacquisition_time_s": null,
+        "right_hold_y_m": -0.4125736240958222
+      },
+      "sample_basis": "One guided browser sequence; correlated video samples",
+      "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
+      "title": "Guided lateral response"
+    },
+    "long_hide": {
+      "badge": "SYNTHETIC_SOFTWARE",
+      "conclusion": "The deterministic local-frame software mission reacquired after two obstacle occlusions. It does not represent physical flight or GPS-denied self-localization.",
+      "metrics": {
+        "first_frame_errors_m": null,
+        "first_frame_errors_unavailable_reason": "First-frame post-reacquisition errors were not retained in the mission summary.",
+        "hidden_drift_m": null,
+        "hidden_drift_unavailable_reason": "A common hidden-period drift metric was not retained in the mission summary.",
+        "occlusion_durations_s": [
+          10.06984806060791,
+          5.8019843101501465
+        ],
+        "reacquisition_count": 2
+      },
+      "sample_basis": "N=2 simulated obstacle occlusions in one mission execution",
+      "source": "GHOST_DRONE_MISSION_VALIDATION.json",
+      "title": "Obstacle occlusions in drone-follow simulation"
+    },
+    "range_change": {
+      "badge": "MEASURED_HARDWARE",
+      "conclusion": "The focused retests produced the expected camera-frame range direction. These are guided relative-response results, not independent absolute-accuracy trials.",
+      "metrics": {
+        "closer_delta_x_m": -0.34398661641281436,
+        "closer_reset_count": 0,
+        "closer_valid_samples": 32,
+        "farther_delta_x_m": 0.24879806969111495,
+        "farther_valid_samples": 89,
+        "occlusion_duration_s": null,
+        "reacquisition_time_s": null
+      },
+      "sample_basis": "One focused closer retest with 32 correlated pose samples and one focused farther run with 89 correlated pose samples",
+      "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
+      "title": "Guided closer and farther response"
+    },
+    "short_hide": {
+      "badge": "MEASURED_HARDWARE",
+      "conclusion": "GHOST-MH beat constant velocity in this stationary-target proxy but did not beat the last-seen hold. This single event does not establish universal superiority.",
+      "metrics": {
+        "first_frame_errors_m": {
+          "constant_velocity": 0.04840823234348344,
+          "ghost_mh_top1": 0.002616434607344502,
+          "last_seen_hold": 0.0006566815761033871
+        },
+        "hidden_drift_m": null,
+        "hidden_drift_unavailable_reason": "A reviewed hidden-period drift metric was not retained for this event.",
+        "occlusion_duration_s": 2.45097017288208,
+        "reacquisition_time_s": 2.45097017288208,
+        "reset_during_occlusion": false
+      },
+      "sample_basis": "N=1 intended hardware dropout",
+      "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
+      "title": "Short tag hide"
+    },
+    "stationary_target": {
+      "badge": "MEASURED_HARDWARE",
+      "conclusion": "The stationary last-seen hold had the lowest proxy error in this event. GHOST-MH improved on constant velocity, not on every baseline.",
+      "metrics": {
+        "constant_velocity_error_m": 0.04840823234348344,
+        "ghost_mh_top1_error_m": 0.002616434607344502,
+        "hidden_drift_m": null,
+        "last_seen_hold_error_m": 0.0006566815761033871,
+        "occlusion_duration_s": 2.45097017288208
+      },
+      "sample_basis": "N=1 intended hardware dropout",
+      "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
+      "title": "Stationary-target short dropout"
+    }
+  },
+  "page_title": "GHOST-X — Autonomous Object Tracking for Follower-Drone Applications",
+  "replay": {
+    "badge": "MEASURED_HARDWARE",
+    "data_path": "data/GHOST_HARDWARE_REPLAY_20260716.json",
+    "scope": "BROWSER_CUE_WINDOW_ONLY",
+    "video_available": false
+  },
+  "runtime": {
+    "badge": "MEASURED_HARDWARE",
+    "environment": {
+      "cpu_count": 4,
+      "machine": "aarch64",
+      "max_process_rss_mb": 69.8203125,
+      "platform": "Linux-6.8.0-1060-raspi-aarch64-with-glibc2.39",
+      "python": "3.12.3",
+      "rmw_implementation": "rmw_fastrtps_cpp",
+      "ros_distro": "jazzy",
+      "throttled_status_final": "throttled=0x0"
+    },
+    "estimator_deadline": {
+      "all_max_below_deadline": false,
+      "deadline_ms": 33.333,
+      "rows": [
+        {
+          "deadline_us": 33333.0,
+          "estimator": "cv_kalman",
+          "implementation": "python_reference",
+          "max_below_deadline": true,
+          "max_execution_us": 845.263,
+          "p99_execution_us": 652.28025,
+          "stress_workers": 0
+        },
+        {
+          "deadline_us": 33333.0,
+          "estimator": "formal_imm",
+          "implementation": "python_reference",
+          "max_below_deadline": true,
+          "max_execution_us": 11256.582,
+          "p99_execution_us": 6813.437550000001,
+          "stress_workers": 0
+        },
+        {
+          "deadline_us": 33333.0,
+          "estimator": "ghost_mh",
+          "implementation": "python_reference",
+          "max_below_deadline": true,
+          "max_execution_us": 4746.566,
+          "p99_execution_us": 3787.616000000001,
+          "stress_workers": 0
+        },
+        {
+          "deadline_us": 33333.0,
+          "estimator": "cv_kalman",
+          "implementation": "python_reference",
+          "max_below_deadline": true,
+          "max_execution_us": 665.767,
+          "p99_execution_us": 577.2598300000005,
+          "stress_workers": 2
+        },
+        {
+          "deadline_us": 33333.0,
+          "estimator": "formal_imm",
+          "implementation": "python_reference",
+          "max_below_deadline": true,
+          "max_execution_us": 16681.211,
+          "p99_execution_us": 8441.604410000007,
+          "stress_workers": 2
+        },
+        {
+          "deadline_us": 33333.0,
+          "estimator": "ghost_mh",
+          "implementation": "python_reference",
+          "max_below_deadline": true,
+          "max_execution_us": 4962.488,
+          "p99_execution_us": 3757.7509900000005,
+          "stress_workers": 2
+        },
+        {
+          "deadline_us": 33333.0,
+          "estimator": "cv",
+          "implementation": "cpp_production",
+          "max_below_deadline": false,
+          "max_execution_us": 78038.23826708074,
+          "p99_execution_us": 70678.39724534165,
+          "stress_workers": 0
+        },
+        {
+          "deadline_us": 33333.0,
+          "estimator": "imm",
+          "implementation": "cpp_production",
+          "max_below_deadline": true,
+          "max_execution_us": 13243.005006211179,
+          "p99_execution_us": 12596.553475279505,
+          "stress_workers": 0
+        },
+        {
+          "deadline_us": 33333.0,
+          "estimator": "mh",
+          "implementation": "cpp_production",
+          "max_below_deadline": true,
+          "max_execution_us": 6325.883279503106,
+          "p99_execution_us": 6024.562057267082,
+          "stress_workers": 0
+        },
+        {
+          "deadline_us": 33333.0,
+          "estimator": "cv",
+          "implementation": "cpp_production",
+          "max_below_deadline": true,
+          "max_execution_us": 3586.5089130434785,
+          "p99_execution_us": 3402.613875652173,
+          "stress_workers": 2
+        },
+        {
+          "deadline_us": 33333.0,
+          "estimator": "imm",
+          "implementation": "cpp_production",
+          "max_below_deadline": true,
+          "max_execution_us": 1800.1532919254657,
+          "p99_execution_us": 1795.7735854037267,
+          "stress_workers": 2
+        },
+        {
+          "deadline_us": 33333.0,
+          "estimator": "mh",
+          "implementation": "cpp_production",
+          "max_below_deadline": true,
+          "max_execution_us": 3508.3039130434786,
+          "p99_execution_us": 3397.033900869565,
+          "stress_workers": 2
+        }
+      ],
+      "rule": "MAX_EXECUTION_TIME_BELOW_DEADLINE"
+    },
+    "qos_passed_count": 8,
+    "qos_scenarios": [
+      {
+        "application_deadline_miss_count": 36,
+        "application_deadline_miss_fraction": 0.16744186046511628,
+        "application_liveliness_gap_count": 0,
+        "bad_payloads": 0,
+        "compatibility_ok": true,
+        "configuration": {
+          "cpu_stress_workers": 0,
+          "depth": 1,
+          "history": "keep_last",
+          "id": "best_effort_depth_1",
+          "publisher_reliability": "best_effort",
+          "rate_hz": 100.0,
+          "subscriber_delay_ms": 0.0,
+          "subscriber_reliability": "best_effort"
+        },
+        "deadline_detection_ok": true,
+        "event_counts": {
+          "deadline": 0,
+          "incompatible_qos": 0,
+          "liveliness": 0,
+          "matched": 0,
+          "message_lost": 0
+        },
+        "expected_compatible": true,
+        "id": "best_effort_depth_1",
+        "incompatible_detection_basis": null,
+        "interarrival_ms": {
+          "count": 215,
+          "max": 1288.966872,
+          "mean": 25.59702357209303,
+          "min": 2.687861,
+          "p50": 10.001716,
+          "p90": 28.572082799999997,
+          "p95": 66.33147649999975,
+          "p99": 354.22782305999925,
+          "std": 97.53647157972058
+        },
+        "latency_ms": {
+          "count": 216,
+          "max": 1288.766357,
+          "mean": 21.107841611111112,
+          "min": 1.848413,
+          "p50": 4.2426205,
+          "p90": 27.665595,
+          "p95": 64.35037575,
+          "p99": 347.9046843999997,
+          "std": 97.80024976988602
+        },
+        "liveliness_detection_ok": true,
+        "passed": true,
+        "process_cpu_fraction_of_one_core": 0.9858015852616481,
+        "process_cpu_s": 5.4373946790000005,
+        "publication_rate_hz": 39.16087666744045,
+        "published": 216,
+        "publisher_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": []
+        },
+        "publisher_matches_after_warmup": 1,
+        "receive_fraction": 1.0,
+        "receive_rate_hz": 39.16087666744045,
+        "received": 216,
+        "resource_summary": {
+          "cpu_frequency_mhz": {
+            "count": 20,
+            "max": 1800.0,
+            "mean": 1760.0,
+            "min": 1500.0,
+            "p50": 1800.0,
+            "p90": 1800.0,
+            "p95": 1800.0,
+            "p99": 1800.0,
+            "std": 82.07826816681232
+          },
+          "load_1m": {
+            "count": 20,
+            "max": 3.15869140625,
+            "mean": 3.15869140625,
+            "min": 3.15869140625,
+            "p50": 3.15869140625,
+            "p90": 3.15869140625,
+            "p95": 3.15869140625,
+            "p99": 3.15869140625,
+            "std": 0.0
+          },
+          "memory_available_mb": {
+            "count": 20,
+            "max": 3220.61328125,
+            "mean": 3192.78359375,
+            "min": 3173.453125,
+            "p50": 3191.5859375,
+            "p90": 3216.503515625,
+            "p95": 3217.340234375,
+            "p99": 3219.958671875,
+            "std": 15.956424925469305
+          },
+          "process_rss_mb": {
+            "count": 20,
+            "max": 67.953125,
+            "mean": 67.891796875,
+            "min": 67.78515625,
+            "p50": 67.9296875,
+            "p90": 67.953125,
+            "p95": 67.953125,
+            "p99": 67.953125,
+            "std": 0.06462391397145588
+          },
+          "sample_count": 20,
+          "temperature_c": {
+            "count": 20,
+            "max": 41.381,
+            "mean": 40.626149999999996,
+            "min": 39.92,
+            "p50": 40.407,
+            "p90": 40.9427,
+            "p95": 41.381,
+            "p99": 41.381,
+            "std": 0.36970831674941357
+          }
+        },
+        "sequence_gap_count": 0,
+        "subscriber_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": [],
+          "message_lost": []
+        },
+        "subscriber_matches_after_warmup": 1,
+        "throttled_after": "throttled=0x0",
+        "throttled_before": "throttled=0x0",
+        "wall_s": 5.515709003000666
+      },
+      {
+        "application_deadline_miss_count": 120,
+        "application_deadline_miss_fraction": 0.502092050209205,
+        "application_liveliness_gap_count": 0,
+        "bad_payloads": 0,
+        "compatibility_ok": true,
+        "configuration": {
+          "allow_receive_fraction_below_min": true,
+          "cpu_stress_workers": 0,
+          "depth": 10,
+          "history": "keep_last",
+          "id": "best_effort_depth_10_overload",
+          "publisher_reliability": "best_effort",
+          "rate_hz": 250.0,
+          "subscriber_delay_ms": 8.0,
+          "subscriber_reliability": "best_effort"
+        },
+        "deadline_detection_ok": true,
+        "event_counts": {
+          "deadline": 0,
+          "incompatible_qos": 0,
+          "liveliness": 0,
+          "matched": 0,
+          "message_lost": 0
+        },
+        "expected_compatible": true,
+        "id": "best_effort_depth_10_overload",
+        "incompatible_detection_basis": null,
+        "interarrival_ms": {
+          "count": 239,
+          "max": 469.296127,
+          "mean": 22.9270569707113,
+          "min": 1.918133,
+          "p50": 6.007859,
+          "p90": 57.783431600000014,
+          "p95": 118.5959963,
+          "p99": 310.7028902200001,
+          "std": 54.42353092504489
+        },
+        "latency_ms": {
+          "count": 240,
+          "max": 463.101345,
+          "mean": 21.437108954166668,
+          "min": 2.082205,
+          "p50": 4.4030165,
+          "p90": 55.496713699999994,
+          "p95": 117.37387209999999,
+          "p99": 310.3018654899997,
+          "std": 54.0262823092194
+        },
+        "liveliness_detection_ok": true,
+        "passed": true,
+        "process_cpu_fraction_of_one_core": 1.012292398256933,
+        "process_cpu_s": 5.580706262000001,
+        "publication_rate_hz": 43.53394788683896,
+        "published": 240,
+        "publisher_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": []
+        },
+        "publisher_matches_after_warmup": 1,
+        "receive_fraction": 1.0,
+        "receive_rate_hz": 43.53394788683896,
+        "received": 240,
+        "resource_summary": {
+          "cpu_frequency_mhz": {
+            "count": 26,
+            "max": 1800.0,
+            "mean": 1757.6923076923076,
+            "min": 1500.0,
+            "p50": 1800.0,
+            "p90": 1800.0,
+            "p95": 1800.0,
+            "p99": 1800.0,
+            "std": 98.6836437230686
+          },
+          "load_1m": {
+            "count": 26,
+            "max": 3.46728515625,
+            "mean": 3.2633901742788463,
+            "min": 2.9853515625,
+            "p50": 3.46728515625,
+            "p90": 3.46728515625,
+            "p95": 3.46728515625,
+            "p99": 3.46728515625,
+            "std": 0.242813312743288
+          },
+          "memory_available_mb": {
+            "count": 26,
+            "max": 3174.390625,
+            "mean": 3167.093299278846,
+            "min": 3160.0,
+            "p50": 3164.3828125,
+            "p90": 3174.388671875,
+            "p95": 3174.390625,
+            "p99": 3174.390625,
+            "std": 5.779485829532202
+          },
+          "process_rss_mb": {
+            "count": 26,
+            "max": 68.6875,
+            "mean": 68.67578125,
+            "min": 68.5625,
+            "p50": 68.6875,
+            "p90": 68.6875,
+            "p95": 68.6875,
+            "p99": 68.6875,
+            "std": 0.02991279643605726
+          },
+          "sample_count": 26,
+          "temperature_c": {
+            "count": 26,
+            "max": 41.381,
+            "mean": 40.762884615384614,
+            "min": 39.433,
+            "p50": 40.894,
+            "p90": 41.381,
+            "p95": 41.381,
+            "p99": 41.381,
+            "std": 0.6395508628356672
+          }
+        },
+        "sequence_gap_count": 0,
+        "subscriber_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": [],
+          "message_lost": []
+        },
+        "subscriber_matches_after_warmup": 1,
+        "throttled_after": "throttled=0x0",
+        "throttled_before": "throttled=0x0",
+        "wall_s": 5.512939019999976
+      },
+      {
+        "application_deadline_miss_count": 37,
+        "application_deadline_miss_fraction": 0.27007299270072993,
+        "application_liveliness_gap_count": 0,
+        "bad_payloads": 0,
+        "compatibility_ok": true,
+        "configuration": {
+          "cpu_stress_workers": 0,
+          "depth": 10,
+          "history": "keep_last",
+          "id": "reliable_depth_10",
+          "publisher_reliability": "reliable",
+          "rate_hz": 100.0,
+          "subscriber_delay_ms": 0.0,
+          "subscriber_reliability": "reliable"
+        },
+        "deadline_detection_ok": true,
+        "event_counts": {
+          "deadline": 0,
+          "incompatible_qos": 0,
+          "liveliness": 0,
+          "matched": 0,
+          "message_lost": 0
+        },
+        "expected_compatible": true,
+        "id": "reliable_depth_10",
+        "incompatible_detection_basis": null,
+        "interarrival_ms": {
+          "count": 137,
+          "max": 1026.519706,
+          "mean": 39.90933994160584,
+          "min": 2.516863,
+          "p50": 10.408005,
+          "p90": 69.39804500000001,
+          "p95": 234.30727539999978,
+          "p99": 366.30392243999967,
+          "std": 108.60740275705547
+        },
+        "latency_ms": {
+          "count": 138,
+          "max": 1026.332487,
+          "mean": 35.9966815942029,
+          "min": 2.030928,
+          "p50": 4.503356999999999,
+          "p90": 69.1398347,
+          "p95": 233.1105807500001,
+          "p99": 365.87323451999987,
+          "std": 109.09125781079659
+        },
+        "liveliness_detection_ok": true,
+        "passed": true,
+        "process_cpu_fraction_of_one_core": 1.0133110060105823,
+        "process_cpu_s": 5.583971062999998,
+        "publication_rate_hz": 25.04255793086663,
+        "published": 138,
+        "publisher_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": []
+        },
+        "publisher_matches_after_warmup": 1,
+        "receive_fraction": 1.0,
+        "receive_rate_hz": 25.04255793086663,
+        "received": 138,
+        "resource_summary": {
+          "cpu_frequency_mhz": {
+            "count": 14,
+            "max": 1800.0,
+            "mean": 1778.5714285714287,
+            "min": 1600.0,
+            "p50": 1800.0,
+            "p90": 1800.0,
+            "p95": 1800.0,
+            "p99": 1800.0,
+            "std": 57.893422352183954
+          },
+          "load_1m": {
+            "count": 14,
+            "max": 3.91064453125,
+            "mean": 3.815638950892857,
+            "min": 3.46728515625,
+            "p50": 3.91064453125,
+            "p90": 3.91064453125,
+            "p95": 3.91064453125,
+            "p99": 3.91064453125,
+            "std": 0.18878921131479423
+          },
+          "memory_available_mb": {
+            "count": 14,
+            "max": 3171.51953125,
+            "mean": 3158.613839285714,
+            "min": 3153.07421875,
+            "p50": 3158.16796875,
+            "p90": 3168.16484375,
+            "p95": 3171.1716796875,
+            "p99": 3171.4499609375,
+            "std": 6.2832052232545
+          },
+          "process_rss_mb": {
+            "count": 14,
+            "max": 68.88671875,
+            "mean": 68.78878348214286,
+            "min": 68.71875,
+            "p50": 68.71875,
+            "p90": 68.885546875,
+            "p95": 68.88671875,
+            "p99": 68.88671875,
+            "std": 0.08395417175084184
+          },
+          "sample_count": 14,
+          "temperature_c": {
+            "count": 14,
+            "max": 42.842,
+            "mean": 41.137499999999996,
+            "min": 39.433,
+            "p50": 40.894,
+            "p90": 42.355,
+            "p95": 42.52545,
+            "p99": 42.77869,
+            "std": 1.0592411470917786
+          }
+        },
+        "sequence_gap_count": 0,
+        "subscriber_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": [],
+          "message_lost": []
+        },
+        "subscriber_matches_after_warmup": 1,
+        "throttled_after": "throttled=0x0",
+        "throttled_before": "throttled=0x0",
+        "wall_s": 5.510619177999615
+      },
+      {
+        "application_deadline_miss_count": 16,
+        "application_deadline_miss_fraction": 0.8888888888888888,
+        "application_liveliness_gap_count": 0,
+        "bad_payloads": 0,
+        "compatibility_ok": true,
+        "configuration": {
+          "allow_receive_fraction_below_min": true,
+          "cpu_stress_workers": 0,
+          "depth": 100,
+          "history": "keep_last",
+          "id": "reliable_depth_100_overload",
+          "publisher_reliability": "reliable",
+          "rate_hz": 250.0,
+          "subscriber_delay_ms": 8.0,
+          "subscriber_reliability": "reliable"
+        },
+        "deadline_detection_ok": true,
+        "event_counts": {
+          "deadline": 0,
+          "incompatible_qos": 0,
+          "liveliness": 0,
+          "matched": 0,
+          "message_lost": 0
+        },
+        "expected_compatible": true,
+        "id": "reliable_depth_100_overload",
+        "incompatible_detection_basis": null,
+        "interarrival_ms": {
+          "count": 18,
+          "max": 924.637948,
+          "mean": 265.0356551666667,
+          "min": 4.591773,
+          "p50": 234.732763,
+          "p90": 599.0493747,
+          "p95": 707.3396257499996,
+          "p99": 881.1782835499996,
+          "std": 282.2825525478992
+        },
+        "latency_ms": {
+          "count": 19,
+          "max": 924.362767,
+          "mean": 289.2214856315789,
+          "min": 2.827618,
+          "p50": 236.295088,
+          "p90": 683.4465825999999,
+          "p95": 760.2042483999996,
+          "p99": 891.53106328,
+          "std": 295.5727991848938
+        },
+        "liveliness_detection_ok": true,
+        "passed": true,
+        "process_cpu_fraction_of_one_core": 1.0493031314444727,
+        "process_cpu_s": 5.790484285000002,
+        "publication_rate_hz": 3.443021087042805,
+        "published": 19,
+        "publisher_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": []
+        },
+        "publisher_matches_after_warmup": 1,
+        "receive_fraction": 1.0,
+        "receive_rate_hz": 3.443021087042805,
+        "received": 19,
+        "resource_summary": {
+          "cpu_frequency_mhz": {
+            "count": 4,
+            "max": 1800.0,
+            "mean": 1775.0,
+            "min": 1700.0,
+            "p50": 1800.0,
+            "p90": 1800.0,
+            "p95": 1800.0,
+            "p99": 1800.0,
+            "std": 50.0
+          },
+          "load_1m": {
+            "count": 4,
+            "max": 4.61962890625,
+            "mean": 4.3336181640625,
+            "min": 4.23828125,
+            "p50": 4.23828125,
+            "p90": 4.505224609375,
+            "p95": 4.5624267578125,
+            "p99": 4.6081884765625,
+            "std": 0.190673828125
+          },
+          "memory_available_mb": {
+            "count": 4,
+            "max": 3160.8515625,
+            "mean": 3159.513671875,
+            "min": 3158.17578125,
+            "p50": 3159.513671875,
+            "p90": 3160.8515625,
+            "p95": 3160.8515625,
+            "p99": 3160.8515625,
+            "std": 1.5448630249800535
+          },
+          "process_rss_mb": {
+            "count": 4,
+            "max": 68.8984375,
+            "mean": 68.8984375,
+            "min": 68.8984375,
+            "p50": 68.8984375,
+            "p90": 68.8984375,
+            "p95": 68.8984375,
+            "p99": 68.8984375,
+            "std": 0.0
+          },
+          "sample_count": 4,
+          "temperature_c": {
+            "count": 4,
+            "max": 41.381,
+            "mean": 41.01575,
+            "min": 39.92,
+            "p50": 41.381,
+            "p90": 41.381,
+            "p95": 41.381,
+            "p99": 41.381,
+            "std": 0.7304999999999993
+          }
+        },
+        "sequence_gap_count": 0,
+        "subscriber_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": [],
+          "message_lost": []
+        },
+        "subscriber_matches_after_warmup": 1,
+        "throttled_after": "throttled=0x0",
+        "throttled_before": "throttled=0x0",
+        "wall_s": 5.518409420001262
+      },
+      {
+        "application_deadline_miss_count": 9,
+        "application_deadline_miss_fraction": 0.5,
+        "application_liveliness_gap_count": 0,
+        "bad_payloads": 0,
+        "compatibility_ok": true,
+        "configuration": {
+          "cpu_stress_workers": 0,
+          "depth": 10,
+          "history": "keep_last",
+          "id": "reliable_estimator_30hz",
+          "publisher_reliability": "reliable",
+          "rate_hz": 30.0,
+          "subscriber_delay_ms": 0.0,
+          "subscriber_reliability": "reliable"
+        },
+        "deadline_detection_ok": true,
+        "event_counts": {
+          "deadline": 0,
+          "incompatible_qos": 0,
+          "liveliness": 0,
+          "matched": 0,
+          "message_lost": 0
+        },
+        "expected_compatible": true,
+        "id": "reliable_estimator_30hz",
+        "incompatible_detection_basis": null,
+        "interarrival_ms": {
+          "count": 18,
+          "max": 1544.676094,
+          "mean": 304.4672763888888,
+          "min": 3.449755,
+          "p50": 65.48179,
+          "p90": 1095.4335808,
+          "p95": 1191.9177937499994,
+          "p99": 1474.1244339499992,
+          "std": 487.5924722452495
+        },
+        "latency_ms": {
+          "count": 19,
+          "max": 1544.515931,
+          "mean": 286.10674589473683,
+          "min": 3.25074,
+          "p50": 43.810555,
+          "p90": 1084.4327012,
+          "p95": 1144.2761560999988,
+          "p99": 1464.4679760200002,
+          "std": 475.55631753892334
+        },
+        "liveliness_detection_ok": true,
+        "passed": true,
+        "process_cpu_fraction_of_one_core": 1.0395290815408909,
+        "process_cpu_s": 5.736070929,
+        "publication_rate_hz": 3.4433068896378227,
+        "published": 19,
+        "publisher_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": []
+        },
+        "publisher_matches_after_warmup": 1,
+        "receive_fraction": 1.0,
+        "receive_rate_hz": 3.4433068896378227,
+        "received": 19,
+        "resource_summary": {
+          "cpu_frequency_mhz": {
+            "count": 5,
+            "max": 1800.0,
+            "mean": 1720.0,
+            "min": 1700.0,
+            "p50": 1700.0,
+            "p90": 1760.0,
+            "p95": 1780.0,
+            "p99": 1796.0,
+            "std": 44.721359549995796
+          },
+          "load_1m": {
+            "count": 5,
+            "max": 4.970703125,
+            "mean": 4.8302734375,
+            "min": 4.61962890625,
+            "p50": 4.970703125,
+            "p90": 4.970703125,
+            "p95": 4.970703125,
+            "p99": 4.970703125,
+            "std": 0.19229126896787815
+          },
+          "memory_available_mb": {
+            "count": 5,
+            "max": 3160.8515625,
+            "mean": 3160.8515625,
+            "min": 3160.8515625,
+            "p50": 3160.8515625,
+            "p90": 3160.8515625,
+            "p95": 3160.8515625,
+            "p99": 3160.8515625,
+            "std": 0.0
+          },
+          "process_rss_mb": {
+            "count": 5,
+            "max": 69.0703125,
+            "mean": 69.0375,
+            "min": 68.90625,
+            "p50": 69.0703125,
+            "p90": 69.0703125,
+            "p95": 69.0703125,
+            "p99": 69.0703125,
+            "std": 0.07337098051171186
+          },
+          "sample_count": 5,
+          "temperature_c": {
+            "count": 5,
+            "max": 41.868,
+            "mean": 41.2836,
+            "min": 40.894,
+            "p50": 41.381,
+            "p90": 41.6732,
+            "p95": 41.7706,
+            "p99": 41.84852,
+            "std": 0.40745343292209635
+          }
+        },
+        "sequence_gap_count": 0,
+        "subscriber_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": [],
+          "message_lost": []
+        },
+        "subscriber_matches_after_warmup": 1,
+        "throttled_after": "throttled=0x0",
+        "throttled_before": "throttled=0x0",
+        "wall_s": 5.517951379000806
+      },
+      {
+        "application_deadline_miss_count": 5,
+        "application_deadline_miss_fraction": 1.0,
+        "application_liveliness_gap_count": 5,
+        "bad_payloads": 0,
+        "compatibility_ok": true,
+        "configuration": {
+          "cpu_stress_workers": 0,
+          "deadline_ms": 50.0,
+          "depth": 10,
+          "history": "keep_last",
+          "id": "reliable_deadline_liveliness_pause",
+          "liveliness": "manual_by_topic",
+          "liveliness_lease_ms": 150.0,
+          "pause_duration_s": 0.4,
+          "pause_start_s": 2.0,
+          "publisher_reliability": "reliable",
+          "rate_hz": 50.0,
+          "subscriber_delay_ms": 0.0,
+          "subscriber_reliability": "reliable"
+        },
+        "deadline_detection_ok": true,
+        "event_counts": {
+          "deadline": 8,
+          "incompatible_qos": 0,
+          "liveliness": 9,
+          "matched": 0,
+          "message_lost": 0
+        },
+        "expected_compatible": true,
+        "id": "reliable_deadline_liveliness_pause",
+        "incompatible_detection_basis": null,
+        "interarrival_ms": {
+          "count": 5,
+          "max": 2081.79832,
+          "mean": 1100.9305494,
+          "min": 418.992027,
+          "p50": 997.820725,
+          "p90": 1783.4774384,
+          "p95": 1932.6378791999998,
+          "p99": 2051.9662318399996,
+          "std": 647.8215539744906
+        },
+        "latency_ms": {
+          "count": 6,
+          "max": 2081.627897,
+          "mean": 914.7462701666667,
+          "min": 2.561475,
+          "p50": 824.826615,
+          "p90": 1708.7263874999999,
+          "p95": 1895.1771422499999,
+          "p99": 2044.33774605,
+          "std": 732.2770450125263
+        },
+        "liveliness_detection_ok": true,
+        "passed": true,
+        "process_cpu_fraction_of_one_core": 1.0532886143709097,
+        "process_cpu_s": 5.8127592849999985,
+        "publication_rate_hz": 1.087217167676927,
+        "published": 6,
+        "publisher_events": {
+          "deadline": [
+            {
+              "t_s": 1.010723298000812,
+              "total_count": 19,
+              "total_count_change": 19
+            },
+            {
+              "t_s": 1.429649697000059,
+              "total_count": 27,
+              "total_count_change": 8
+            },
+            {
+              "t_s": 2.7656604980002157,
+              "total_count": 54,
+              "total_count_change": 27
+            },
+            {
+              "t_s": 3.4356884460012225,
+              "total_count": 67,
+              "total_count_change": 13
+            }
+          ],
+          "incompatible_qos": [],
+          "liveliness": [
+            {
+              "t_s": 1.0110016640010144,
+              "total_count": 1,
+              "total_count_change": 1
+            },
+            {
+              "t_s": 1.4298836560010386,
+              "total_count": 2,
+              "total_count_change": 1
+            },
+            {
+              "t_s": 2.7659072340011335,
+              "total_count": 3,
+              "total_count_change": 1
+            },
+            {
+              "t_s": 3.4359203490002983,
+              "total_count": 4,
+              "total_count_change": 1
+            }
+          ],
+          "matched": []
+        },
+        "publisher_matches_after_warmup": 1,
+        "receive_fraction": 1.0,
+        "receive_rate_hz": 1.087217167676927,
+        "received": 6,
+        "resource_summary": {
+          "cpu_frequency_mhz": {
+            "count": 2,
+            "max": 1800.0,
+            "mean": 1700.0,
+            "min": 1600.0,
+            "p50": 1700.0,
+            "p90": 1780.0,
+            "p95": 1790.0,
+            "p99": 1798.0,
+            "std": 141.4213562373095
+          },
+          "load_1m": {
+            "count": 2,
+            "max": 5.21337890625,
+            "mean": 5.092041015625,
+            "min": 4.970703125,
+            "p50": 5.092041015625,
+            "p90": 5.189111328125,
+            "p95": 5.2012451171875,
+            "p99": 5.2109521484375,
+            "std": 0.17159769055161822
+          },
+          "memory_available_mb": {
+            "count": 2,
+            "max": 3161.09765625,
+            "mean": 3161.09765625,
+            "min": 3161.09765625,
+            "p50": 3161.09765625,
+            "p90": 3161.09765625,
+            "p95": 3161.09765625,
+            "p99": 3161.09765625,
+            "std": 0.0
+          },
+          "process_rss_mb": {
+            "count": 2,
+            "max": 69.0703125,
+            "mean": 69.056640625,
+            "min": 69.04296875,
+            "p50": 69.056640625,
+            "p90": 69.067578125,
+            "p95": 69.0689453125,
+            "p99": 69.0700390625,
+            "std": 0.01933495104806966
+          },
+          "sample_count": 2,
+          "temperature_c": {
+            "count": 2,
+            "max": 41.381,
+            "mean": 41.1375,
+            "min": 40.894,
+            "p50": 41.1375,
+            "p90": 41.332300000000004,
+            "p95": 41.35665,
+            "p99": 41.37613,
+            "std": 0.34436100243784995
+          }
+        },
+        "sequence_gap_count": 0,
+        "subscriber_events": {
+          "deadline": [
+            {
+              "t_s": 1.0108890180017625,
+              "total_count": 19,
+              "total_count_change": 19
+            },
+            {
+              "t_s": 1.4297470650017203,
+              "total_count": 27,
+              "total_count_change": 8
+            },
+            {
+              "t_s": 2.765758107001602,
+              "total_count": 54,
+              "total_count_change": 27
+            },
+            {
+              "t_s": 3.4358198690006247,
+              "total_count": 67,
+              "total_count_change": 13
+            }
+          ],
+          "incompatible_qos": [],
+          "liveliness": [
+            {
+              "alive_count": 1,
+              "alive_count_change": 1,
+              "not_alive_count": 0,
+              "not_alive_count_change": 0,
+              "t_s": 0.011994403001153842
+            },
+            {
+              "alive_count": 1,
+              "alive_count_change": 0,
+              "not_alive_count": 0,
+              "not_alive_count_change": 0,
+              "t_s": 1.0110923840002215
+            },
+            {
+              "alive_count": 1,
+              "alive_count_change": 0,
+              "not_alive_count": 0,
+              "not_alive_count_change": 0,
+              "t_s": 1.4299680430012813
+            },
+            {
+              "alive_count": 1,
+              "alive_count_change": 0,
+              "not_alive_count": 0,
+              "not_alive_count_change": 0,
+              "t_s": 2.7659910660004243
+            },
+            {
+              "alive_count": 1,
+              "alive_count_change": 0,
+              "not_alive_count": 0,
+              "not_alive_count_change": 0,
+              "t_s": 3.4360031810010696
+            }
+          ],
+          "matched": [],
+          "message_lost": []
+        },
+        "subscriber_matches_after_warmup": 1,
+        "throttled_after": "throttled=0x0",
+        "throttled_before": "throttled=0x0",
+        "wall_s": 5.518676653000512
+      },
+      {
+        "application_deadline_miss_count": 24,
+        "application_deadline_miss_fraction": 0.19834710743801653,
+        "application_liveliness_gap_count": 0,
+        "bad_payloads": 0,
+        "compatibility_ok": true,
+        "configuration": {
+          "allow_receive_fraction_below_min": true,
+          "cpu_stress_workers": 2,
+          "depth": 10,
+          "history": "keep_last",
+          "id": "reliable_cpu_stress",
+          "publisher_reliability": "reliable",
+          "rate_hz": 100.0,
+          "subscriber_delay_ms": 0.0,
+          "subscriber_reliability": "reliable"
+        },
+        "deadline_detection_ok": true,
+        "event_counts": {
+          "deadline": 0,
+          "incompatible_qos": 0,
+          "liveliness": 0,
+          "matched": 0,
+          "message_lost": 0
+        },
+        "expected_compatible": true,
+        "id": "reliable_cpu_stress",
+        "incompatible_detection_basis": null,
+        "interarrival_ms": {
+          "count": 121,
+          "max": 1222.290712,
+          "mean": 45.44426221487603,
+          "min": 2.699212,
+          "p50": 10.047066,
+          "p90": 63.006185,
+          "p95": 238.237718,
+          "p99": 521.430387,
+          "std": 139.38616705917323
+        },
+        "latency_ms": {
+          "count": 122,
+          "max": 1213.813655,
+          "mean": 39.206128721311465,
+          "min": 1.490067,
+          "p50": 2.7709985,
+          "p90": 62.03959550000005,
+          "p95": 236.08680779999955,
+          "p99": 520.9378612899998,
+          "std": 139.57604415293815
+        },
+        "liveliness_detection_ok": true,
+        "passed": true,
+        "process_cpu_fraction_of_one_core": 0.9460846798162742,
+        "process_cpu_s": 5.267382026,
+        "publication_rate_hz": 22.09226804568242,
+        "published": 123,
+        "publisher_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": []
+        },
+        "publisher_matches_after_warmup": 1,
+        "receive_fraction": 0.991869918699187,
+        "receive_rate_hz": 21.91265611035167,
+        "received": 122,
+        "resource_summary": {
+          "cpu_frequency_mhz": {
+            "count": 16,
+            "max": 1800.0,
+            "mean": 1781.25,
+            "min": 1500.0,
+            "p50": 1800.0,
+            "p90": 1800.0,
+            "p95": 1800.0,
+            "p99": 1800.0,
+            "std": 75.0
+          },
+          "load_1m": {
+            "count": 16,
+            "max": 5.482421875,
+            "mean": 5.456878662109375,
+            "min": 5.43701171875,
+            "p50": 5.43701171875,
+            "p90": 5.482421875,
+            "p95": 5.482421875,
+            "p99": 5.482421875,
+            "std": 0.023265781768414127
+          },
+          "memory_available_mb": {
+            "count": 16,
+            "max": 3179.1015625,
+            "mean": 3169.27783203125,
+            "min": 3160.359375,
+            "p50": 3166.36328125,
+            "p90": 3179.05078125,
+            "p95": 3179.1015625,
+            "p99": 3179.1015625,
+            "std": 9.290960005045136
+          },
+          "process_rss_mb": {
+            "count": 16,
+            "max": 69.09375,
+            "mean": 69.09228515625,
+            "min": 69.08984375,
+            "p50": 69.09375,
+            "p90": 69.09375,
+            "p95": 69.09375,
+            "p99": 69.09375,
+            "std": 0.001953125
+          },
+          "sample_count": 16,
+          "temperature_c": {
+            "count": 16,
+            "max": 47.225,
+            "mean": 43.9681875,
+            "min": 39.92,
+            "p50": 44.303,
+            "p90": 46.738,
+            "p95": 47.225,
+            "p99": 47.225,
+            "std": 2.403753265728411
+          }
+        },
+        "sequence_gap_count": 0,
+        "subscriber_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": [],
+          "message_lost": []
+        },
+        "subscriber_matches_after_warmup": 1,
+        "throttled_after": "throttled=0x0",
+        "throttled_before": "throttled=0x0",
+        "wall_s": 5.567558738001026
+      },
+      {
+        "application_deadline_miss_count": 0,
+        "application_deadline_miss_fraction": 0.0,
+        "application_liveliness_gap_count": 0,
+        "bad_payloads": 0,
+        "compatibility_ok": true,
+        "configuration": {
+          "cpu_stress_workers": 0,
+          "depth": 10,
+          "expected_compatible": false,
+          "history": "keep_last",
+          "id": "incompatible_best_effort_to_reliable",
+          "publisher_reliability": "best_effort",
+          "rate_hz": 50.0,
+          "subscriber_delay_ms": 0.0,
+          "subscriber_reliability": "reliable"
+        },
+        "deadline_detection_ok": true,
+        "event_counts": {
+          "deadline": 0,
+          "incompatible_qos": 0,
+          "liveliness": 0,
+          "matched": 0,
+          "message_lost": 0
+        },
+        "expected_compatible": false,
+        "id": "incompatible_best_effort_to_reliable",
+        "incompatible_detection_basis": "ROS_GRAPH_ZERO_MATCH_ZERO_DELIVERY",
+        "interarrival_ms": {
+          "count": 0,
+          "max": null,
+          "mean": null,
+          "min": null,
+          "p50": null,
+          "p90": null,
+          "p95": null,
+          "p99": null,
+          "std": null
+        },
+        "latency_ms": {
+          "count": 0,
+          "max": null,
+          "mean": null,
+          "min": null,
+          "p50": null,
+          "p90": null,
+          "p95": null,
+          "p99": null,
+          "std": null
+        },
+        "liveliness_detection_ok": true,
+        "passed": true,
+        "process_cpu_fraction_of_one_core": 0.34147652875140805,
+        "process_cpu_s": 1.8802221580000023,
+        "publication_rate_hz": 49.94412229804021,
+        "published": 275,
+        "publisher_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": []
+        },
+        "publisher_matches_after_warmup": 0,
+        "receive_fraction": 0.0,
+        "receive_rate_hz": 0.0,
+        "received": 0,
+        "resource_summary": {
+          "cpu_frequency_mhz": {
+            "count": 54,
+            "max": 1800.0,
+            "mean": 1181.4814814814815,
+            "min": 700.0,
+            "p50": 1000.0,
+            "p90": 1800.0,
+            "p95": 1800.0,
+            "p99": 1800.0,
+            "std": 375.7126933608722
+          },
+          "load_1m": {
+            "count": 54,
+            "max": 5.482421875,
+            "mean": 5.459997106481482,
+            "min": 5.443359375,
+            "p50": 5.443359375,
+            "p90": 5.482421875,
+            "p95": 5.482421875,
+            "p99": 5.482421875,
+            "std": 0.01949709846137077
+          },
+          "memory_available_mb": {
+            "count": 54,
+            "max": 3182.890625,
+            "mean": 3176.004267939815,
+            "min": 3172.171875,
+            "p50": 3174.55859375,
+            "p90": 3182.890625,
+            "p95": 3182.890625,
+            "p99": 3182.890625,
+            "std": 3.8584614593235567
+          },
+          "process_rss_mb": {
+            "count": 54,
+            "max": 69.19921875,
+            "mean": 69.13831018518519,
+            "min": 69.10546875,
+            "p50": 69.12109375,
+            "p90": 69.19921875,
+            "p95": 69.19921875,
+            "p99": 69.19921875,
+            "std": 0.03623713878662986
+          },
+          "sample_count": 54,
+          "temperature_c": {
+            "count": 54,
+            "max": 43.329,
+            "mean": 41.66057407407406,
+            "min": 40.407,
+            "p50": 41.381,
+            "p90": 42.355,
+            "p95": 42.842,
+            "p99": 43.07089,
+            "std": 0.6318041433399906
+          }
+        },
+        "sequence_gap_count": 0,
+        "subscriber_events": {
+          "deadline": [],
+          "incompatible_qos": [],
+          "liveliness": [],
+          "matched": [],
+          "message_lost": []
+        },
+        "subscriber_matches_after_warmup": 0,
+        "throttled_after": "throttled=0x0",
+        "throttled_before": "throttled=0x0",
+        "wall_s": 5.506153423999422
+      }
+    ],
+    "real_time_claim_status": "HARD_REAL_TIME_NOT_CLAIMED_REQUIREMENTS_NOT_MET",
+    "requirements": {
+      "RT-001": {
+        "limits_ms": {
+          "p95": 150.0,
+          "p99": 250.0
+        },
+        "p95_ms": 233.1105807500001,
+        "p99_ms": 365.87323451999987,
+        "passed": false,
+        "sample_count": 354,
+        "summary": "Nominal source-to-receipt latency did not meet the predeclared bounds."
+      },
+      "RT-002": {
+        "deadline_miss_fraction": 0.5,
+        "interarrival_ms": {
+          "count": 18,
+          "max": 1544.676094,
+          "mean": 304.4672763888888,
+          "min": 3.449755,
+          "p50": 65.48179,
+          "p90": 1095.4335808,
+          "p95": 1191.9177937499994,
+          "p99": 1474.1244339499992,
+          "std": 487.5924722452495
+        },
+        "limits": {
+          "maximum_deadline_miss_fraction": 0.01,
+          "minimum_rate_hz": 29.7
+        },
+        "passed": false,
+        "publication_rate_hz": 3.4433068896378227,
+        "summary": "The 30 Hz publication/deadline requirement was not met on this bench run."
+      },
+      "RT-003": {
+        "passed": true,
+        "summary": "Resource and thermal evidence was collected without a reported throttling flag.",
+        "thermal_sample_count": 141,
+        "throttling_clear": true
+      }
+    },
+    "requirements_all_passed": false,
+    "source": "GHOST_X_G9_RUNTIME_REPORT.json",
+    "what_did_not_pass": [
+      "RT-001 nominal source-to-receipt latency exceeded the predeclared p95 and p99 limits.",
+      "RT-002 publication rate was 3.4433068896378227 Hz versus a 29.7 Hz minimum.",
+      "One C++ CV maximum execution-time row exceeded 33.333 ms.",
+      "The aggregate runtime requirements did not support a hard-real-time claim."
+    ],
+    "what_passed": [
+      "RT-003 resource and thermal evidence collection passed.",
+      "No throttling flag was reported in the retained runtime campaign.",
+      "Eight QoS scenarios met their scenario-specific acceptance logic.",
+      "Most individual estimator timing rows remained below the 33.333 ms deadline."
+    ]
+  },
+  "schema_version": 1,
+  "system_stages": [
+    {
+      "badge": "MEASURED_HARDWARE",
+      "evidence": [
+        "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json"
+      ],
+      "failure_modes": [
+        "Occlusion",
+        "Blur",
+        "Extreme viewing angle",
+        "Print deformation"
+      ],
+      "id": "tag",
+      "inputs": [
+        "Target object motion",
+        "Lighting and line of sight"
+      ],
+      "name": "AprilTag target",
+      "number": "01",
+      "outputs": [
+        "High-contrast fiducial corners",
+        "Known tag family, ID, and nominal size"
+      ],
+      "summary": "Printed tag36h11, ID 0, nominal 0.1 m target geometry."
+    },
+    {
+      "badge": "MEASURED_HARDWARE",
+      "evidence": [
+        "GHOST_X_BASELINE_MANIFEST.json",
+        "GHOST_PROJECT_REPORT.md"
+      ],
+      "failure_modes": [
+        "Frame loss",
+        "Latency",
+        "USB disconnect",
+        "Lighting degradation"
+      ],
+      "id": "camera",
+      "inputs": [
+        "Optical image of tagged target"
+      ],
+      "name": "USB camera",
+      "number": "02",
+      "outputs": [
+        "Timestamped image frames",
+        "Software/arrival timing"
+      ],
+      "summary": "eMeet C960 through Linux V4L2/UVC on Raspberry Pi 4B."
+    },
+    {
+      "badge": "MEASURED_HARDWARE",
+      "evidence": [
+        "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json"
+      ],
+      "failure_modes": [
+        "No detection",
+        "Invalid geometry",
+        "Calibration error",
+        "Outlier pose"
+      ],
+      "id": "pose",
+      "inputs": [
+        "Image frame",
+        "Camera intrinsics",
+        "Nominal tag size"
+      ],
+      "name": "Pose estimation",
+      "number": "03",
+      "outputs": [
+        "Position measurement",
+        "Timestamp",
+        "Covariance metadata"
+      ],
+      "summary": "Calibrated AprilTag detection and solvePnP camera-frame pose."
+    },
+    {
+      "badge": "MIXED_EVIDENCE",
+      "evidence": [
+        "GHOST_X_G4_VALIDATION.json",
+        "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json"
+      ],
+      "failure_modes": [
+        "Long dropout",
+        "Model mismatch",
+        "Stale/out-of-sequence data",
+        "Reset"
+      ],
+      "id": "tracker",
+      "inputs": [
+        "Pose measurements",
+        "Timestamps",
+        "Covariance",
+        "Validity"
+      ],
+      "name": "Tracking layer",
+      "number": "04",
+      "outputs": [
+        "Estimated state",
+        "Prediction-only state",
+        "Status",
+        "Future hypotheses"
+      ],
+      "summary": "CV Kalman, formal IMM, and GHOST-MH consume a common measurement contract."
+    },
+    {
+      "badge": "SYNTHETIC_SOFTWARE",
+      "evidence": [
+        "GHOST_DRONE_MISSION_VALIDATION.json"
+      ],
+      "failure_modes": [
+        "No bounded target estimate",
+        "Unknown vehicle pose",
+        "Unsafe command"
+      ],
+      "id": "follow",
+      "inputs": [
+        "Estimated relative target state",
+        "Visibility/validity",
+        "Prediction status"
+      ],
+      "name": "Drone-follow interface",
+      "number": "05",
+      "outputs": [
+        "Navigation/follow command inputs",
+        "Reposition request in simulation"
+      ],
+      "summary": "Software output suitable for downstream follow/navigation logic."
+    }
+  ],
+  "verification": {
+    "deterministic_files": 123,
+    "g10_checks_passed": 47,
+    "g10_checks_total": 47,
+    "release": "ghost-x-v1.0.0",
+    "requirements_total": 34,
+    "requirements_traceable": 34,
+    "traceability_csv_rows": 34
+  }
+}

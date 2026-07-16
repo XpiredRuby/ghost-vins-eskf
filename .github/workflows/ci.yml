@@ -21,6 +21,9 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install numpy matplotlib pytest
 
+      - name: Validate interactive showcase JavaScript
+        run: node --check ghost_sim_ros2/docs/assets/showcase.js
+
       - name: Run Python unit tests
         run: |
           cd ghost_sim_ros2
@@ -35,17 +38,21 @@ jobs:
             test/test_grid_validation_analysis.py \
             test/test_statistical_comparison.py \
             test/test_export_demo_artifact.py \
-            test/test_public_results_package.py
+            test/test_public_results_package.py \
+            test/test_interactive_showcase.py
 
       - name: Verify public results data are reproducible
         run: |
           python3 ghost_sim_ros2/tools/generate_public_results.py
+          python3 ghost_sim_ros2/tools/generate_interactive_showcase_data.py --skip-replay-if-missing
           # Matplotlib raster/SVG geometry varies by renderer and font version.
-          # The tests above validate every committed plot exists and is nontrivial;
-          # this gate enforces exact reproducibility of the source-backed data.
+          # Tests validate every committed plot structurally; exact gates cover
+          # source-backed JSON, CSV, and the interactive evidence checklist.
           git diff --exit-code -- \
             ghost_sim_ros2/docs/GHOST_PUBLIC_RESULTS_SUMMARY.json \
-            ghost_sim_ros2/docs/GHOST_PUBLIC_RESULTS_TABLE.csv
+            ghost_sim_ros2/docs/GHOST_PUBLIC_RESULTS_TABLE.csv \
+            ghost_sim_ros2/docs/GHOST_INTERACTIVE_EVIDENCE_CHECKLIST.md \
+            ghost_sim_ros2/docs/data/GHOST_INTERACTIVE_SHOWCASE_DATA.json
 
       - name: Build portable C++ core
         run: |

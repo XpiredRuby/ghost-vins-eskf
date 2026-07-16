@@ -3,389 +3,434 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="GHOST-X engineering results: Raspberry Pi AprilTag tracking, formal IMM and multi-hypothesis estimation, guided hardware dropout validation, deterministic software truth, fault injection, runtime evidence, C++ equivalence, and reproducible verification.">
+  <meta name="description" content="GHOST-X: evidence-backed AprilTag target tracking and state estimation for follower-drone applications, evaluated on Raspberry Pi hardware and deterministic software truth.">
   <meta name="theme-color" content="#07111f">
-  <title>GHOST-X — Engineering Results</title>
-  <style>
-    :root {
-      --bg: #07111f;
-      --bg-soft: #0b1829;
-      --panel: #102238;
-      --panel-2: #142a44;
-      --text: #f4f7fb;
-      --muted: #aebdd0;
-      --line: rgba(255,255,255,.12);
-      --blue: #63a2ff;
-      --cyan: #63d2e5;
-      --green: #6dd6a7;
-      --orange: #ffbd70;
-      --red: #ff8585;
-      --purple: #c0a5ff;
-      --white-card: #ffffff;
-      --shadow: 0 24px 70px rgba(0,0,0,.28);
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 8% -5%, rgba(99,162,255,.16), transparent 34rem),
-        radial-gradient(circle at 94% 4%, rgba(99,210,229,.11), transparent 28rem),
-        linear-gradient(180deg, var(--bg), #030914 88%);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.58;
-    }
-    a { color: inherit; }
-    img { max-width: 100%; }
-    .shell { width: min(1220px, calc(100% - 34px)); margin: 0 auto; }
-    .status-strip {
-      border-bottom: 1px solid rgba(109,214,167,.28);
-      background: rgba(7,25,27,.95);
-      color: #c9ffe8;
-      padding: 9px 16px;
-      text-align: center;
-      font-size: 13px;
-      letter-spacing: .01em;
-    }
-    nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 24px;
-      padding: 20px 0;
-    }
-    .brand { font-weight: 950; letter-spacing: .18em; }
-    .nav-links { display: flex; flex-wrap: wrap; gap: 16px; justify-content: flex-end; color: var(--muted); font-size: 14px; }
-    .nav-links a { text-decoration: none; }
-    .nav-links a:hover { color: var(--text); }
-    .hero {
-      display: grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 34px;
-      align-items: center;
-      padding: 62px 0 50px;
-    }
-    .eyebrow {
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      padding: 7px 11px;
-      border: 1px solid rgba(99,210,229,.34);
-      border-radius: 999px;
-      background: rgba(99,210,229,.08);
-      color: #c8f7ff;
-      font-size: 12px;
-      letter-spacing: .09em;
-      text-transform: uppercase;
-    }
-    h1 {
-      margin: 17px 0 18px;
-      font-size: clamp(46px, 7.8vw, 86px);
-      line-height: .94;
-      letter-spacing: -.055em;
-    }
-    h1 span {
-      display: block;
-      margin-top: 15px;
-      max-width: 850px;
-      color: var(--muted);
-      font-size: clamp(22px, 3vw, 34px);
-      line-height: 1.08;
-      letter-spacing: -.03em;
-      font-weight: 650;
-    }
-    .lede { max-width: 820px; margin: 0; color: var(--muted); font-size: clamp(17px, 2vw, 20px); }
-    .cta-row { display: flex; flex-wrap: wrap; gap: 11px; margin-top: 27px; }
-    .button {
-      display: inline-flex;
-      min-height: 46px;
-      padding: 0 18px;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgba(255,255,255,.055);
-      text-decoration: none;
-      font-weight: 850;
-      transition: transform .14s ease, border-color .14s ease;
-    }
-    .button.primary { background: linear-gradient(135deg, #235fb8, #1c8197); border-color: rgba(99,210,229,.48); }
-    .button:hover { transform: translateY(-1px); border-color: rgba(99,210,229,.56); }
-    .hero-card {
-      padding: 22px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: linear-gradient(150deg, rgba(20,42,68,.98), rgba(8,19,34,.94));
-      box-shadow: var(--shadow);
-    }
-    .hero-card h2 { margin: 0 0 15px; font-size: 19px; letter-spacing: -.02em; }
-    .hero-result { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
-    .hero-result div { padding: 15px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.035); }
-    .hero-result strong { display: block; font-size: 25px; line-height: 1.05; letter-spacing: -.035em; }
-    .hero-result span { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
-    .hero-boundary { margin-top: 14px; padding: 13px; border-left: 3px solid var(--orange); background: rgba(255,189,112,.08); color: #ffe2bc; border-radius: 8px; font-size: 13px; }
-    section { padding: 46px 0; }
-    .section-heading { margin-bottom: 22px; }
-    .section-heading .kicker { color: var(--cyan); font-weight: 850; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
-    .section-heading h2 { margin: 6px 0 8px; font-size: clamp(30px, 4.3vw, 48px); line-height: 1.04; letter-spacing: -.042em; }
-    .section-heading p { margin: 0; color: var(--muted); max-width: 900px; }
-    .metrics { display: grid; grid-template-columns: repeat(6,1fr); gap: 11px; }
-    .metric { min-height: 128px; padding: 17px; border: 1px solid var(--line); border-radius: 15px; background: var(--panel); box-shadow: 0 12px 34px rgba(0,0,0,.18); }
-    .metric strong { display: block; font-size: 25px; letter-spacing: -.035em; }
-    .metric span { display: block; margin-top: 7px; color: var(--muted); font-size: 13px; }
-    .architecture {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(150px,1fr));
-      gap: 12px;
-      align-items: stretch;
-    }
-    .arch-node { position: relative; min-height: 165px; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
-    .arch-node:not(:last-child)::after { content: "→"; position: absolute; right: -21px; top: 50%; transform: translateY(-50%); color: var(--cyan); font-size: 22px; z-index: 2; }
-    .arch-node small { color: var(--cyan); font-weight: 900; letter-spacing: .08em; }
-    .arch-node h3 { margin: 11px 0 7px; font-size: 18px; }
-    .arch-node p { margin: 0; color: var(--muted); font-size: 14px; }
-    .plot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-    .plot-grid.three { grid-template-columns: repeat(3,1fr); }
-    figure { margin: 0; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--panel); box-shadow: var(--shadow); }
-    figure img { display: block; width: 100%; background: var(--white-card); }
-    figcaption { padding: 17px 18px 19px; }
-    figcaption strong { display: block; margin-bottom: 5px; font-size: 17px; }
-    figcaption span { color: var(--muted); font-size: 14px; }
-    .result-copy { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; margin-top: 18px; }
-    .card { padding: 19px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
-    .card h3 { margin: 0 0 8px; font-size: 18px; }
-    .card p { margin: 0; color: var(--muted); }
-    .finding-list { display: grid; gap: 10px; }
-    .finding { padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.035); }
-    .finding strong { display: block; }
-    .finding span { color: var(--muted); font-size: 14px; }
-    .scope-note { margin-top: 15px; padding: 15px; border-left: 4px solid var(--orange); border-radius: 10px; background: rgba(255,189,112,.08); color: #ffe1b7; }
-    .verification-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
-    .verification-card { padding: 18px; border: 1px solid var(--line); border-radius: 15px; background: var(--panel); }
-    .verification-card strong { display: block; font-size: 28px; letter-spacing: -.04em; }
-    .verification-card span { color: var(--muted); font-size: 13px; }
-    .failure-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 13px; }
-    .failure-card { padding: 18px; border: 1px solid rgba(255,133,133,.22); border-radius: 15px; background: rgba(98,25,32,.18); }
-    .failure-card .label { color: #ffb3b3; font-size: 11px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
-    .failure-card h3 { margin: 8px 0 6px; }
-    .failure-card p { margin: 0; color: #dcbfc3; }
-    .evidence-table { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
-    table { width: 100%; min-width: 850px; border-collapse: collapse; }
-    th, td { padding: 13px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
-    th { background: rgba(255,255,255,.045); font-size: 13px; }
-    td { color: var(--muted); font-size: 14px; }
-    tr:last-child td { border-bottom: 0; }
-    td a { color: #cce7ff; }
-    .release-card { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; padding: 24px; border: 1px solid rgba(109,214,167,.26); border-radius: 18px; background: rgba(18,64,52,.28); }
-    .release-card h3 { margin: 0 0 7px; font-size: 24px; }
-    .release-card p { margin: 0; color: #c4ded5; }
-    .release-links { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
-    footer { margin-top: 38px; padding: 34px 0 48px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
-    @media(max-width:1080px){.metrics{grid-template-columns:repeat(3,1fr)}.architecture{grid-template-columns:1fr 1fr}.arch-node:not(:last-child)::after{display:none}.plot-grid.three{grid-template-columns:1fr 1fr}.verification-grid{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:880px){.hero,.result-copy{grid-template-columns:1fr}.plot-grid,.plot-grid.three{grid-template-columns:1fr}.failure-grid{grid-template-columns:1fr}.release-card{grid-template-columns:1fr}.release-links{justify-content:flex-start}}
-    @media(max-width:580px){.shell{width:min(100% - 22px,1220px)}nav{align-items:flex-start}.nav-links{gap:10px}.metrics,.architecture,.verification-grid{grid-template-columns:1fr}.hero-result{grid-template-columns:1fr 1fr}}
-  </style>
+  <title>GHOST-X — Autonomous Object Tracking for Follower-Drone Applications</title>
+  <link rel="stylesheet" href="assets/showcase.css">
+  <script defer src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script defer src="assets/showcase.js"></script>
 </head>
 <body>
-  <div class="status-strip">GHOST-X v1.0.0 · software and guided hardware validation complete for the declared scope · release evidence is checksum-published</div>
-  <div class="shell">
-    <nav>
-      <div class="brand">GHOST-X</div>
-      <div class="nav-links">
-        <a href="#results">Results</a>
+  <a class="skip-link" href="#main-content">Skip to results</a>
+  <div class="topline">
+    <span>GHOST-X v1.0.0</span>
+    <span class="topline-divider" aria-hidden="true"></span>
+    <span>Hardware tracking backbone + deterministic drone-follow simulation</span>
+    <span class="topline-divider" aria-hidden="true"></span>
+    <span>No physical drone flight claimed</span>
+  </div>
+
+  <header class="site-header">
+    <div class="shell nav-shell">
+      <a class="brand" href="#top" aria-label="GHOST-X home">
+        <span class="brand-mark" aria-hidden="true">GX</span>
+        <span><strong>GHOST-X</strong><small>Target estimation laboratory</small></span>
+      </a>
+      <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu</button>
+      <nav id="primary-nav" class="primary-nav" aria-label="Primary navigation">
+        <a href="#mission">Mission</a>
         <a href="#architecture">Architecture</a>
-        <a href="#verification">Verification</a>
+        <a href="#replay">Replay</a>
+        <a href="#comparison">Estimators</a>
+        <a href="#runtime">Runtime</a>
         <a href="#limitations">Limitations</a>
-        <a href="demo.html">Hardware replay</a>
-        <a href="hardware.html">Hardware</a>
-        <a href="https://github.com/XpiredRuby/ghost-vins-eskf">GitHub</a>
+        <a class="nav-evidence" href="#evidence">Evidence</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero shell" id="top" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="signal-dot"></span> AprilTag · Raspberry Pi 4B · ROS 2 Jazzy · CV / IMM / GHOST-MH</div>
+        <h1 id="hero-title">Autonomous Object Tracking for Follower-Drone Applications</h1>
+        <p class="hero-lede">GHOST-X detects an AprilTag-marked object, estimates its camera-frame pose, maintains target state through temporary visibility loss, and exposes a state interface suitable for downstream follow behavior.</p>
+        <p class="hero-boundary"><strong>Actual scope:</strong> the vision and tracking backbone was exercised on Raspberry Pi hardware under guided tabletop conditions. Follower-drone navigation was evaluated in deterministic local-frame software simulation. No physical drone was flown. No physical closed-loop drone flight was performed.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#replay">Watch data replay</a>
+          <a class="button" href="#comparison">Explore results</a>
+          <a class="button" href="#architecture">View architecture</a>
+          <a class="button" href="#evidence">Open evidence package</a>
+        </div>
+        <div class="badge-key" aria-label="Evidence classification key">
+          <span class="evidence-badge measured">Measured hardware</span>
+          <span class="evidence-badge synthetic">Synthetic software</span>
+          <span class="evidence-badge verification">Verification</span>
+          <span class="evidence-badge failure">Requirement not met</span>
+        </div>
       </div>
-    </nav>
 
-    <main>
-      <section class="hero">
-        <div>
-          <div class="eyebrow">Raspberry Pi · ROS 2 Jazzy · AprilTag · Formal IMM · C++ / Python</div>
-          <h1>GHOST-X<span>Occlusion-resilient target estimation with evidence that can be audited</span></h1>
-          <p class="lede">A Raspberry Pi tracking and estimation project that compares a constant-velocity Kalman filter, a formal interacting multiple-model estimator, and a persistent multi-hypothesis tracker. The work includes guided hardware trials, deterministic analytic-truth campaigns, fault injection, runtime measurements, numerical equivalence, and release-level traceability.</p>
-          <div class="cta-row">
-            <a class="button primary" href="#results">Review measured results</a>
-            <a class="button" href="demo.html">Open hardware replay</a>
-            <a class="button" href="https://github.com/XpiredRuby/ghost-vins-eskf/releases/tag/ghost-x-v1.0.0">Download v1.0.0</a>
-          </div>
+      <div class="hero-visual" aria-label="Conceptual GHOST-X follower-drone data flow">
+        <div class="visual-grid" aria-hidden="true"></div>
+        <div class="drone-glyph" aria-hidden="true">
+          <span class="drone-arm arm-a"></span><span class="drone-arm arm-b"></span>
+          <span class="rotor r1"></span><span class="rotor r2"></span><span class="rotor r3"></span><span class="rotor r4"></span>
+          <span class="drone-body"></span><span class="camera-eye"></span>
         </div>
-        <aside class="hero-card">
-          <h2>Validated release summary</h2>
-          <div class="hero-result">
-            <div><strong>2.451 s</strong><span>measured hardware vision loss; reacquired without reset</span></div>
-            <div><strong>94.6%</strong><span>lower first-reacquisition proxy error than constant velocity</span></div>
-            <div><strong>12 / 12</strong><span>deterministic software fault cases passed</span></div>
-            <div><strong>34 / 34</strong><span>release requirements traceable to evidence</span></div>
+        <div class="target-glyph" aria-hidden="true"><span></span></div>
+        <div class="tracking-line line-one" aria-hidden="true"></div>
+        <div class="tracking-line line-two" aria-hidden="true"></div>
+        <div class="visual-label drone-label">Follower interface<br><small>software output</small></div>
+        <div class="visual-label target-label">AprilTag target<br><small>tag36h11 · ID 0</small></div>
+        <div class="visual-status">
+          <span>VISION</span><strong>measurement → estimate → state</strong>
+        </div>
+      </div>
+
+      <div class="hero-metrics" id="hero-metrics" aria-live="polite">
+        <article class="metric-card skeleton-card"><span>Loading evidence…</span></article>
+        <article class="metric-card skeleton-card"><span>Loading evidence…</span></article>
+        <article class="metric-card skeleton-card"><span>Loading evidence…</span></article>
+        <article class="metric-card skeleton-card"><span>Loading evidence…</span></article>
+      </div>
+    </section>
+
+    <section class="section mission-section" id="mission" aria-labelledby="mission-title">
+      <div class="shell">
+        <div class="section-heading split-heading">
+          <div>
+            <p class="section-kicker">01 · Mission definition</p>
+            <h2 id="mission-title">Follow behavior begins with a trustworthy relative target state</h2>
           </div>
-          <div class="hero-boundary">The hardware trials establish directional relative response and bounded short-dropout reacquisition. They do not establish metrology-grade absolute accuracy or universal estimator superiority.</div>
+          <p>A follower vehicle cannot react sensibly to an object it cannot localize. GHOST-X focuses on the sensing and estimation layers that sit before flight control: target identification, camera-frame pose, visibility handling, motion estimation, and explicit validity/status output.</p>
+        </div>
+
+        <div class="mission-grid">
+          <article class="mission-card measured-panel">
+            <div class="card-topline"><span class="evidence-badge measured">Measured hardware</span><span>Guided tabletop campaign</span></div>
+            <h3>Hardware tracking backbone</h3>
+            <p>A Raspberry Pi 4B and USB webcam observed a printed AprilTag. The pipeline produced pose measurements and simultaneous tracker outputs, including prediction-only and degraded states during target loss.</p>
+            <ul class="fact-list">
+              <li><span>Target</span><strong>AprilTag tag36h11, ID 0</strong></li>
+              <li><span>Compute</span><strong>Raspberry Pi 4 Model B Rev 1.5</strong></li>
+              <li><span>Validation</span><strong>Relative response and short-dropout reacquisition</strong></li>
+            </ul>
+          </article>
+
+          <article class="mission-card synthetic-panel">
+            <div class="card-topline"><span class="evidence-badge synthetic">Synthetic software</span><span>Deterministic local frame</span></div>
+            <h3>Follower-drone mission logic</h3>
+            <p>The software mission evaluator used camera line-of-sight gating, tracker prediction, obstacle-aware reposition commands, and reacquisition logic. The observer pose and map were known by the simulation.</p>
+            <div class="mission-stats" id="mission-stats"><span>Loading mission evidence…</span></div>
+          </article>
+        </div>
+
+        <aside class="truth-strip" role="note">
+          <strong>What “following” means here:</strong> a perception/estimation and command-interface backbone for follow behavior—not physical closed-loop flight, vehicle control validation, GPS-denied self-localization, or flight-worthiness.
         </aside>
-      </section>
+      </div>
+    </section>
 
-      <section id="results">
+    <section class="section architecture-section" id="architecture" aria-labelledby="architecture-title">
+      <div class="shell">
         <div class="section-heading">
-          <div class="kicker">Result overview</div>
-          <h2>What was measured</h2>
-          <p>The numbers below are generated from version-controlled JSON evidence. Hardware results and synthetic analytic-truth results are deliberately kept separate.</p>
+          <p class="section-kicker">02 · Interactive architecture</p>
+          <h2 id="architecture-title">Trace the target state from printed tag to follow interface</h2>
+          <p>Select any stage to inspect its retained inputs, outputs, failure modes, and evidence.</p>
         </div>
-        <div class="metrics">
-          <div class="metric"><strong>5 directions</strong><span>left, right, closer, farther, and return-to-center passed guided hardware response checks</span></div>
-          <div class="metric"><strong>24 / 24</strong><span>deterministic controlled-truth trials accepted across eight scenario families</span></div>
-          <div class="metric"><strong>0.034 m</strong><span>formal IMM overall position RMSE on the frozen software-truth campaign</span></div>
-          <div class="metric"><strong>47 / 47</strong><span>deterministic regression and evidence checks passed</span></div>
-          <div class="metric"><strong>123 files</strong><span>replayed twice with identical deterministic tree hashes</span></div>
-          <div class="metric"><strong>47.2 °C</strong><span>maximum recorded Pi temperature; no throttling flag reported</span></div>
-        </div>
-      </section>
 
-      <section id="architecture">
-        <div class="section-heading">
-          <div class="kicker">System architecture</div>
-          <h2>From image measurement to retained evidence</h2>
-          <p>The hardware and software path is explicit. Each stage exposes timestamps, validity, covariance, status, and output artifacts rather than hiding the estimator behind a demonstration-only interface.</p>
+        <div class="architecture-layout">
+          <div class="stage-rail" id="stage-rail" role="tablist" aria-label="GHOST-X system stages"></div>
+          <article class="stage-detail" id="stage-detail" role="tabpanel" tabindex="0" aria-live="polite">
+            <p>Loading architecture evidence…</p>
+          </article>
         </div>
-        <div class="architecture">
-          <article class="arch-node"><small>01 · SENSOR</small><h3>USB UVC camera</h3><p>Calibrated eMeet C960 observes a 100 mm tag36h11 AprilTag through Linux V4L2.</p></article>
-          <article class="arch-node"><small>02 · MEASUREMENT</small><h3>Pose publisher</h3><p>OpenCV solvePnP produces camera-frame pose, covariance metadata, preview, and ROS 2 measurements.</p></article>
-          <article class="arch-node"><small>03 · ESTIMATION</small><h3>Three estimator paths</h3><p>CV Kalman, formal IMM, and GHOST-MH consume the same time-aligned input contracts.</p></article>
-          <article class="arch-node"><small>04 · SUPERVISION</small><h3>Validity and dropout state</h3><p>Measurement age, tracking, prediction-only, degraded dropout, reset, and reacquisition remain visible.</p></article>
-          <article class="arch-node"><small>05 · EVIDENCE</small><h3>Recorder and CI</h3><p>JSONL logs, plots, reports, hashes, test gates, and a reproducible release preserve both passes and failures.</p></article>
-        </div>
-      </section>
 
-      <section id="hardware-results">
-        <div class="section-heading">
-          <div class="kicker">Guided hardware validation</div>
-          <h2>Relative motion and short-dropout recovery</h2>
-          <p>The camera/tag motions were operator-guided, so the valid claim is directional relative response. The dropout result uses measured recorder timestamps rather than the browser cue duration alone.</p>
+        <aside class="imu-note">
+          <div class="imu-icon" aria-hidden="true">IMU</div>
+          <div>
+            <strong>ICM-42688-P status: implemented, not physically evidenced</strong>
+            <p id="imu-status">The driver and ROS interface exist, but sensor identity, data rate, and measurement validation were not captured in a retained artifact for this campaign.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section replay-section" id="replay" aria-labelledby="replay-title">
+      <div class="shell">
+        <div class="section-heading split-heading">
+          <div>
+            <p class="section-kicker">03 · Recorded hardware replay</p>
+            <h2 id="replay-title">Scrub through the guided trial exactly as recorded</h2>
+          </div>
+          <p>This is a data replay, not reconstructed camera footage. Every measurement point, event, and selected tracker point comes from retained JSONL records. No smoothing, interpolation, or synthetic filler is presented as captured data.</p>
         </div>
-        <div class="plot-grid three">
-          <figure><img src="assets/results/hardware_range_response.svg" alt="Guided closer and farther range response relative to center"><figcaption><strong>Range response</strong><span>Closer moved −0.344 m from its run baseline with 32 valid samples; farther moved +0.249 m with 89 valid samples.</span></figcaption></figure>
-          <figure><img src="assets/results/hardware_lateral_response.svg" alt="Guided left and right lateral response relative to center"><figcaption><strong>Lateral response</strong><span>Left and right holds moved in opposite measured directions and returned to a stable center condition.</span></figcaption></figure>
-          <figure><img src="assets/results/hardware_dropout_error.svg" alt="First reacquisition error comparison after a short hardware dropout"><figcaption><strong>Dropout recovery</strong><span>Measured vision loss was 2.451 s. GHOST-MH beat constant velocity, but the stationary last-seen hold remained the strongest baseline.</span></figcaption></figure>
+
+        <div class="replay-notice">
+          <span class="evidence-badge measured">Measured hardware</span>
+          <strong>Browser cue window with reviewed ±1.0 s analyzer padding</strong>
+          <span id="replay-provenance-summary">Loading hashes and sample counts…</span>
         </div>
-        <div class="result-copy">
-          <article class="card"><h3>Accepted hardware statement</h3><p>The calibrated Raspberry Pi pipeline demonstrated directional left/right/closer/farther response, return-to-center behavior, and reacquisition after a measured short tag occlusion without crossing the configured reset limit.</p></article>
-          <div class="finding-list">
-            <div class="finding"><strong>No reset during intended dropout</strong><span>The 2.451 s measurement gap remained inside the configured 3.0 s occlusion envelope.</span></div>
-            <div class="finding"><strong>Evidence corrected for idle time</strong><span>Analysis isolates the browser cue window rather than using the contaminated full supervisor runtime.</span></div>
+
+        <div class="replay-controls" aria-label="Replay controls">
+          <button class="button button-primary control-button" id="replay-play" type="button" aria-label="Play recorded data replay">Play</button>
+          <label class="scrubber-label" for="replay-scrubber"><span>Timeline</span><output id="replay-time">0.000 s</output></label>
+          <input id="replay-scrubber" class="scrubber" type="range" min="0" max="100" step="0.01" value="0" aria-label="Replay time">
+          <label class="speed-control" for="replay-speed">Speed
+            <select id="replay-speed">
+              <option value="0.25">0.25×</option>
+              <option value="0.5">0.5×</option>
+              <option value="1" selected>1×</option>
+              <option value="2">2×</option>
+              <option value="4">4×</option>
+            </select>
+          </label>
+          <button class="button control-button" id="replay-reset" type="button">Reset</button>
+        </div>
+
+        <div class="replay-dashboard">
+          <div class="replay-chart-card plot-card">
+            <div class="plot-heading"><div><span>XY state</span><strong>Recorded measurement and estimator tracks</strong></div><small>Lines connect recorded points for readability; cursor values use the latest actual sample at or before the selected time.</small></div>
+            <div id="replay-xy-chart" class="plot replay-plot" role="img" aria-label="XY replay of measurements, formal IMM estimates, and GHOST-MH estimates"></div>
+          </div>
+
+          <aside class="replay-readout">
+            <div class="readout-header"><span>Current recorded state</span><strong id="replay-state">Loading</strong></div>
+            <dl class="readout-grid">
+              <div><dt>Measurement</dt><dd id="replay-measurement">Not available</dd></div>
+              <div><dt>Formal IMM</dt><dd id="replay-imm">Not available</dd></div>
+              <div><dt>GHOST-MH</dt><dd id="replay-mh">Not available</dd></div>
+              <div><dt>Visibility</dt><dd id="replay-visibility">Unknown</dd></div>
+              <div><dt>Event</dt><dd id="replay-event">None</dd></div>
+              <div><dt>Source class</dt><dd><span class="evidence-badge measured">Measured hardware</span></dd></div>
+            </dl>
+            <div class="no-video-card"><strong>No retained camera footage</strong><p>The replay intentionally uses recorded state and event data only. No generated image is presented as a camera frame.</p></div>
+          </aside>
+
+          <div class="replay-chart-card plot-card full-span">
+            <div class="plot-heading"><div><span>Time history</span><strong>Camera-frame X position and event markers</strong></div><small>Missing measurements remain gaps; they are not filled.</small></div>
+            <div id="replay-time-chart" class="plot replay-time-plot" role="img" aria-label="Time history of recorded measurement and tracker X positions"></div>
           </div>
         </div>
-        <div class="scope-note"><strong>Hardware boundary:</strong> no independent metrology-grade ground truth was available for the guided motions, so absolute position accuracy, physical NEES, and universal tracker superiority are not claimed.</div>
-      </section>
 
-      <section id="estimator-results">
-        <div class="section-heading">
-          <div class="kicker">Estimator evaluation</div>
-          <h2>Performance and configuration trade space</h2>
-          <p>The controlled-truth campaign used 24 frozen analytic-truth trials across eight motion and visibility families. All three estimators received identical input streams.</p>
-        </div>
-        <div class="plot-grid">
-          <figure><img src="assets/results/synthetic_estimator_rmse.svg" alt="Overall and hidden position RMSE for CV Kalman, formal IMM, and GHOST-MH"><figcaption><strong>Controlled-truth error</strong><span>Formal IMM produced the lowest overall and hidden-step RMSE in the frozen synthetic campaign. GHOST-MH was retained as a distinct hypothesis-management architecture, not declared the universal winner.</span></figcaption></figure>
-          <figure><img src="assets/results/estimator_trade_space.svg" alt="Estimator candidate computation time versus hidden position RMSE"><figcaption><strong>Predeclared trade space</strong><span>Thirty-six IMM and twenty-seven GHOST-MH candidates were ranked using a frozen score that included error, future prediction, confidence, compute time, and resets.</span></figcaption></figure>
-        </div>
-      </section>
+        <details class="provenance-details">
+          <summary>View replay data provenance and source hashes</summary>
+          <div id="replay-provenance" class="hash-list"></div>
+        </details>
+      </div>
+    </section>
 
-      <section id="smoothing-results">
+    <section class="section comparison-section" id="comparison" aria-labelledby="comparison-title">
+      <div class="shell">
         <div class="section-heading">
-          <div class="kicker">Offline estimation extension</div>
-          <h2>Accuracy improvement with an explicit latency cost</h2>
-          <p>A fixed-lag Rauch–Tung–Striebel smoother was tested as an offline extension. The causal baseline remained the live estimator.</p>
+          <p class="section-kicker">04 · Fair estimator comparison</p>
+          <h2 id="comparison-title">Same inputs, same scenarios, same chart scales</h2>
+          <p>Overall and hidden-period errors come from 24 deterministic analytic-truth trials across eight scenario families. Runtime values use matched Raspberry Pi Python-reference rows with zero stress workers.</p>
         </div>
-        <div class="plot-grid">
-          <figure><img src="assets/results/fixed_lag_tradeoff.svg" alt="Baseline and fixed-lag smoother RMSE on frozen and out-of-distribution trials"><figcaption><strong>Fixed-lag tradeoff</strong><span>The 20-step smoother reduced overall and hidden RMSE on frozen and out-of-distribution trials, while adding 2.0 s of latency.</span></figcaption></figure>
-          <article class="card"><h3>Engineering decision</h3><p>The smoother is useful for post-processing, replay, and retrospective state reconstruction. It is not presented as a causal zero-latency replacement for the live tracker. The release retains both the causal baseline and the higher-accuracy delayed result.</p></article>
-        </div>
-      </section>
 
-      <section id="robustness-results">
-        <div class="section-heading">
-          <div class="kicker">Robustness and runtime</div>
-          <h2>Fault handling passed; hard-real-time wording did not</h2>
-          <p>The project records both outcomes. All twelve deterministic software-injected faults passed detection/isolation/recovery checks, while one maximum execution-time row exceeded the declared 33.333 ms deadline.</p>
+        <div class="comparison-basis">
+          <span class="evidence-badge synthetic">Synthetic software · N=24</span>
+          <span class="evidence-badge measured">Measured Pi runtime · Python reference · no stress</span>
+          <span>Symmetric reacquisition time and reset count were not retained; the page shows them as unavailable rather than zero.</span>
         </div>
-        <div class="plot-grid">
-          <figure><img src="assets/results/fault_recovery_times.svg" alt="Recovery times for twelve deterministic software fault cases"><figcaption><strong>Fault recovery</strong><span>Camera loss, stale data, out-of-sequence data, invalid covariance, restart, CPU saturation, network degradation, configuration mismatch, and lighting degradation were retained as auditable fault cases.</span></figcaption></figure>
-          <figure><img src="assets/results/runtime_deadline_evidence.svg" alt="Raspberry Pi estimator p99 and maximum execution times against a 33.333 millisecond deadline"><figcaption><strong>Pi execution-time evidence</strong><span>Most rows remained below the declared deadline, but one C++ CV maximum exceeded it. The release therefore withholds hard-real-time claims.</span></figcaption></figure>
-        </div>
-      </section>
 
-      <section id="verification">
-        <div class="section-heading">
-          <div class="kicker">Verification and reproducibility</div>
-          <h2>Implementation agreement and release gates</h2>
-          <p>The C++ estimator library was checked against the Python reference on frozen streams, then incorporated into deterministic replay and release-level traceability.</p>
+        <div class="estimator-cards" id="estimator-cards" aria-live="polite"></div>
+
+        <div class="plot-grid two-up">
+          <article class="plot-card">
+            <div class="plot-heading"><div><span>Position error</span><strong>Overall and hidden-period RMSE</strong></div><small>Zero-based shared scale</small></div>
+            <div id="estimator-rmse-chart" class="plot" role="img" aria-label="Equal-scale estimator RMSE comparison"></div>
+          </article>
+          <article class="plot-card">
+            <div class="plot-heading"><div><span>Execution cost</span><strong>p99 and maximum runtime</strong></div><small>Matched Pi Python-reference rows</small></div>
+            <div id="estimator-runtime-chart" class="plot" role="img" aria-label="Equal-scale estimator runtime comparison"></div>
+          </article>
         </div>
-        <div class="plot-grid">
-          <figure><img src="assets/results/cpp_python_equivalence.svg" alt="Maximum absolute difference between C++ and Python estimator states and covariances"><figcaption><strong>C++ / Python numerical equivalence</strong><span>Maximum state and covariance differences were near floating-point roundoff and remained far below the declared 1e−10 tolerance.</span></figcaption></figure>
-          <div class="verification-grid">
-            <div class="verification-card"><strong>10 / 10</strong><span>C++ mathematical and property tests passed</span></div>
-            <div class="verification-card"><strong>38 / 38</strong><span>GHOST-X Python regression tests passed in CI</span></div>
-            <div class="verification-card"><strong>47 / 47</strong><span>deterministic replay and evidence checks passed</span></div>
-            <div class="verification-card"><strong>34 / 34</strong><span>requirements mapped to tests and retained evidence</span></div>
-            <div class="verification-card"><strong>24</strong><span>canonical trials used for C++ / Python equivalence</span></div>
-            <div class="verification-card"><strong>123</strong><span>files hashed identically across two deterministic replays</span></div>
-            <div class="verification-card"><strong>15</strong><span>fixed-lag ablation configurations evaluated</span></div>
-            <div class="verification-card"><strong>0</strong><span>non-finite outputs across the 12 fault cases</span></div>
+
+        <aside class="comparison-caution">
+          <strong>No universal winner is claimed.</strong>
+          <p>Formal IMM had the lowest RMSE on this frozen synthetic campaign. GHOST-MH had a lower first-reacquisition proxy error than constant velocity in one measured stationary dropout, but the last-seen hold was better in that same event.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section occlusion-section" id="occlusion" aria-labelledby="occlusion-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="section-kicker">05 · Occlusion and motion scenarios</p>
+          <h2 id="occlusion-title">Change the scenario without mixing evidence classes</h2>
+          <p>Measured hardware scenarios and synthetic software scenarios remain visibly separated. Metrics that were not retained appear as “Not retained,” never as inferred values.</p>
+        </div>
+
+        <div class="scenario-selector" id="scenario-selector" role="tablist" aria-label="Occlusion and motion scenarios"></div>
+        <article class="scenario-panel" id="scenario-panel" role="tabpanel" tabindex="0">
+          <div class="scenario-copy">
+            <div class="scenario-title-row"><div><span id="scenario-badge"></span><h3 id="scenario-title">Loading scenario…</h3></div><small id="scenario-basis"></small></div>
+            <p id="scenario-conclusion"></p>
+            <div class="scenario-metrics" id="scenario-metrics"></div>
           </div>
-        </div>
-      </section>
+          <div class="plot-card scenario-plot-card">
+            <div id="scenario-chart" class="plot" role="img" aria-label="Selected scenario result chart"></div>
+          </div>
+        </article>
+      </div>
+    </section>
 
-      <section id="limitations">
+    <section class="section hardware-section" id="hardware" aria-labelledby="hardware-title">
+      <div class="shell">
         <div class="section-heading">
-          <div class="kicker">Failures retained</div>
-          <h2>What did not pass, and how it changed the claims</h2>
-          <p>These are part of the project evidence. They are not removed from the public story.</p>
+          <p class="section-kicker">06 · Hardware validation</p>
+          <h2 id="hardware-title">What the Raspberry Pi campaign actually recorded</h2>
+          <p>Component identity, calibration, rate, memory, temperature, and throttling fields below are populated only when a retained source exists.</p>
         </div>
-        <div class="failure-grid">
-          <article class="failure-card"><div class="label">Rejected evidence</div><h3>Original floor-grid capture</h3><p>The camera/tag geometry was not moved between nominal grid positions. The calculated grid RMSE was rejected and is not used as physical accuracy evidence.</p></article>
-          <article class="failure-card"><div class="label">Retest required</div><h3>First closer-distance attempt</h3><p>The closer hold had only two stable samples and one reset. The farther result was retained; a smaller closer-only retest later passed with 32 valid samples and no reset.</p></article>
-          <article class="failure-card"><div class="label">Baseline result</div><h3>Last-seen hold beat GHOST-MH</h3><p>During the stationary short-dropout case, GHOST-MH beat constant velocity but did not beat the last-seen stationary hold. Universal superiority is therefore unsupported.</p></article>
-          <article class="failure-card"><div class="label">Requirement not met</div><h3>Hard-real-time deadline</h3><p>A C++ CV maximum execution-time result exceeded 33.333 ms, and the broader latency/publication requirements also missed their predeclared bounds. Hard-real-time certification is not claimed.</p></article>
-        </div>
-      </section>
 
-      <section id="evidence">
-        <div class="section-heading">
-          <div class="kicker">Evidence map</div>
-          <h2>Trace each result to its source</h2>
-          <p>The page is a summary. The underlying reports remain available in machine-readable and human-readable forms.</p>
+        <div class="hardware-layout">
+          <div class="hardware-spec-grid" id="hardware-spec-grid"></div>
+          <aside class="hardware-media-placeholder">
+            <div class="placeholder-frame" aria-hidden="true"><span class="placeholder-camera"></span><span class="placeholder-tag"></span></div>
+            <strong>No approved setup photos retained</strong>
+            <p>No privacy-reviewed hardware photograph or camera frame is currently part of the repository evidence package.</p>
+          </aside>
         </div>
-        <div class="evidence-table">
-          <table>
-            <thead><tr><th>Result area</th><th>Primary evidence</th><th>What it supports</th><th>Boundary</th></tr></thead>
-            <tbody>
-              <tr><td>Guided hardware response</td><td><a href="GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md">Report</a> · <a href="GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json">JSON</a></td><td>Directional motion response and bounded short-dropout reacquisition</td><td>No absolute ground-truth accuracy</td></tr>
-              <tr><td>Controlled software truth</td><td><a href="GHOST_X_G4_VALIDATION.json">G4 validation</a> · <a href="GHOST_X_G10_CI_REPORT.md">G10 report</a></td><td>24 accepted trials, identical streams, estimator RMSE</td><td>Synthetic analytic truth</td></tr>
-              <tr><td>Estimator trade study</td><td><a href="GHOST_X_G7_TRADE_STUDY.md">Report</a> · <a href="GHOST_X_G7_TRADE_STUDY.json">JSON</a></td><td>Predeclared ranking across 63 core candidates</td><td>Physical confirmation not implied</td></tr>
-              <tr><td>Fault injection</td><td><a href="GHOST_X_G8_FAULT_REPORT.md">Report</a> · <a href="GHOST_X_G8_FAULT_REPORT.json">JSON</a></td><td>Detection, isolation, recovery, status, and raw retained evidence</td><td>Software injection, not every direct hardware fault</td></tr>
-              <tr><td>Pi runtime</td><td><a href="GHOST_X_G9_RUNTIME_REPORT.md">Report</a> · <a href="GHOST_X_G9_RUNTIME_REPORT.json">JSON</a></td><td>Execution time, QoS, CPU, memory, temperature, throttling</td><td>Bench evidence; hard real time not claimed</td></tr>
-              <tr><td>C++ equivalence</td><td><a href="GHOST_X_G5_CPP_LIBRARY.md">Library report</a> · <a href="GHOST_X_G5_EQUIVALENCE.json">Equivalence JSON</a></td><td>Implementation agreement on frozen vectors and configuration</td><td>Agreement does not prove model truth</td></tr>
-              <tr><td>Release traceability</td><td><a href="GHOST_X_FINAL_TRACEABILITY.csv">34-row traceability CSV</a> · <a href="GHOST_X_RELEASE_MANIFEST.json">Release manifest</a></td><td>Requirement/test/evidence mapping and release checksums</td><td>Scope-limited release claims</td></tr>
-              <tr><td>Public plot data</td><td><a href="GHOST_PUBLIC_RESULTS_SUMMARY.json">Summary JSON</a> · <a href="GHOST_PUBLIC_RESULTS_TABLE.csv">Summary CSV</a></td><td>Exact values used by this page and generated graphics</td><td>Regenerated from repository evidence</td></tr>
-            </tbody>
+
+        <div class="hardware-caveats">
+          <article><span class="status-icon caution">!</span><div><strong>Camera calibration is not absolute system calibration</strong><p>The retained reprojection RMS supports the camera model used for pose estimation. It does not validate metrology-grade target position accuracy.</p></div></article>
+          <article><span class="status-icon caution">!</span><div><strong>ICM-42688-P implementation status</strong><p>Driver/interface code exists. Physical sensor identity, WHO_AM_I, data rate, and campaign data validation were not retained.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section fault-section" id="faults" aria-labelledby="faults-title">
+      <div class="shell">
+        <div class="section-heading split-heading">
+          <div>
+            <p class="section-kicker">07 · Fault and robustness testing</p>
+            <h2 id="faults-title">Twelve software-injected cases, retained individually</h2>
+          </div>
+          <p>These are deterministic software injections—not claims that every corresponding physical hardware fault was reproduced. Detection, isolation, recovery, and per-tracker error remain visible for every case.</p>
+        </div>
+
+        <div class="fault-toolbar">
+          <label for="fault-filter">Filter faults
+            <input id="fault-filter" type="search" placeholder="camera, latency, network…">
+          </label>
+          <label for="fault-sort">Sort by
+            <select id="fault-sort">
+              <option value="fault">Fault name</option>
+              <option value="recovery-asc">Recovery time, low to high</option>
+              <option value="recovery-desc">Recovery time, high to low</option>
+            </select>
+          </label>
+          <span class="evidence-badge synthetic">Synthetic software injection · N=12</span>
+        </div>
+
+        <div class="plot-card fault-chart-card">
+          <div class="plot-heading"><div><span>Recovery</span><strong>Recovery time for every retained fault case</strong></div><small>Same axis for all cases</small></div>
+          <div id="fault-recovery-chart" class="plot" role="img" aria-label="Recovery times for twelve software-injected fault cases"></div>
+        </div>
+
+        <div class="table-wrap" tabindex="0" aria-label="Scrollable fault evidence table">
+          <table class="data-table">
+            <thead><tr><th>Fault</th><th>Detected</th><th>Isolated</th><th>Recovered</th><th>Recovery time</th><th>CV RMSE</th><th>IMM RMSE</th><th>GHOST-MH RMSE</th></tr></thead>
+            <tbody id="fault-table-body"></tbody>
           </table>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section id="release">
-        <div class="release-card">
-          <div><h3>Reproducible release: ghost-x-v1.0.0</h3><p>The release includes the source archive, evidence manifest, checksum receipt, and guided hardware validation JSON. The published archive SHA-256 is <code>e919b04e1fb2b9f696b09a580a49171e71e7e3ac06006af09db08361f2eb63e6</code>.</p></div>
-          <div class="release-links">
-            <a class="button primary" href="https://github.com/XpiredRuby/ghost-vins-eskf/releases/tag/ghost-x-v1.0.0">Open release</a>
-            <a class="button" href="GHOST_X_FINAL_RESEARCH_PACKAGE.md">Research package</a>
-            <a class="button" href="GHOST_X_APPROVED_CLAIMS.md">Claim matrix</a>
+    <section class="section runtime-section" id="runtime" aria-labelledby="runtime-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="section-kicker">08 · Runtime and deployment readiness</p>
+          <h2 id="runtime-title">The timing requirements did not all pass</h2>
+          <p>RT-001 and RT-002 failures are retained prominently. This campaign does not support hard-real-time, production-readiness, or flight-worthiness wording.</p>
+        </div>
+
+        <div class="requirement-grid" id="runtime-requirements"></div>
+
+        <div class="plot-card runtime-chart-card">
+          <div class="plot-heading"><div><span>Estimator deadline</span><strong>p99 and maximum execution time vs 33.333 ms</strong></div><small>Python reference and C++ production rows are labeled separately</small></div>
+          <div id="runtime-deadline-chart" class="plot" role="img" aria-label="Estimator timing rows against the 33.333 millisecond deadline"></div>
+        </div>
+
+        <div class="pass-fail-grid">
+          <article class="pass-list"><h3>What passed</h3><ul id="runtime-passed"></ul></article>
+          <article class="fail-list"><h3>What did not pass</h3><ul id="runtime-failed"></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section limitations-section" id="limitations" aria-labelledby="limitations-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="section-kicker">09 · Limitations &amp; Claim Boundaries</p>
+          <h2 id="limitations-title">What this project does not establish</h2>
+          <p>This section is intentionally permanent and visible. No independent metrology-grade ground truth was available, and a reviewer should not need to infer where the evidence stops.</p>
+        </div>
+        <div class="limitations-grid" id="limitations-grid"></div>
+
+        <div class="failure-callouts">
+          <article><span>Rejected evidence</span><h3>Original floor-grid capture</h3><p>The camera/tag geometry was not moved between nominal grid positions. The resulting calculation is excluded from absolute position accuracy claims.</p></article>
+          <article><span>Mixed result</span><h3>Last-seen hold beat GHOST-MH</h3><p>In the single stationary short-dropout proxy, GHOST-MH beat constant velocity but not the stationary last-seen hold.</p></article>
+          <article><span>Requirement failure</span><h3>Hard-real-time wording withheld</h3><p>RT-001 and RT-002 failed, and one C++ CV maximum exceeded the predeclared deadline.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section evidence-section" id="evidence" aria-labelledby="evidence-title">
+      <div class="shell">
+        <div class="section-heading split-heading">
+          <div>
+            <p class="section-kicker">10 · Downloadable evidence</p>
+            <h2 id="evidence-title">Move from each headline to its source file</h2>
+          </div>
+          <p>The interactive page is a navigation layer over retained JSON, CSV, reports, raw-source hashes, tests, and a checksum-published release.</p>
+        </div>
+
+        <div class="evidence-actions">
+          <a class="button button-primary" href="GHOST_INTERACTIVE_EVIDENCE_CHECKLIST.md">Open evidence checklist</a>
+          <a class="button" href="data/GHOST_INTERACTIVE_SHOWCASE_DATA.json">Download page data</a>
+          <a class="button" href="data/GHOST_HARDWARE_REPLAY_20260716.json">Download replay data</a>
+          <a class="button" href="https://github.com/XpiredRuby/ghost-vins-eskf/releases/tag/ghost-x-v1.0.0">Open v1.0.0 release</a>
+          <a class="button" href="https://github.com/XpiredRuby/ghost-vins-eskf">View repository</a>
+        </div>
+
+        <div class="download-grid" id="download-grid"></div>
+
+        <details class="evidence-map-details">
+          <summary>Show claim-to-source evidence map</summary>
+          <div class="table-wrap" tabindex="0">
+            <table class="data-table"><thead><tr><th>Claim key</th><th>Supporting files</th></tr></thead><tbody id="evidence-map-body"></tbody></table>
+          </div>
+        </details>
+
+        <div class="verification-strip">
+          <div><strong>34 / 34</strong><span>requirements traceable</span></div>
+          <div><strong>47 / 47</strong><span>deterministic evidence checks passed</span></div>
+          <div><strong>123</strong><span>files reproduced with identical tree hashes</span></div>
+          <div><strong>ghost-x-v1.0.0</strong><span>checksum-published release</span></div>
+        </div>
+
+        <div class="legacy-plot-gallery" aria-labelledby="legacy-plot-title">
+          <div class="section-heading compact-heading"><p class="section-kicker">Static review copies</p><h3 id="legacy-plot-title">Generated result graphics retained for reports and offline review</h3></div>
+          <div class="legacy-grid">
+            <a href="assets/results/hardware_range_response.svg"><img src="assets/results/hardware_range_response.svg" alt="Measured hardware range response"><span>Range response</span></a>
+            <a href="assets/results/hardware_lateral_response.svg"><img src="assets/results/hardware_lateral_response.svg" alt="Measured hardware lateral response"><span>Lateral response</span></a>
+            <a href="assets/results/hardware_dropout_error.svg"><img src="assets/results/hardware_dropout_error.svg" alt="Measured hardware dropout proxy errors"><span>Dropout errors</span></a>
+            <a href="assets/results/synthetic_estimator_rmse.svg"><img src="assets/results/synthetic_estimator_rmse.svg" alt="Synthetic estimator RMSE"><span>Estimator RMSE</span></a>
+            <a href="assets/results/estimator_trade_space.svg"><img src="assets/results/estimator_trade_space.svg" alt="Synthetic estimator trade space"><span>Trade space</span></a>
+            <a href="assets/results/fault_recovery_times.svg"><img src="assets/results/fault_recovery_times.svg" alt="Software-injected fault recovery times"><span>Fault recovery</span></a>
+            <a href="assets/results/runtime_deadline_evidence.svg"><img src="assets/results/runtime_deadline_evidence.svg" alt="Measured Raspberry Pi runtime deadline evidence"><span>Runtime evidence</span></a>
+            <a href="assets/results/fixed_lag_tradeoff.svg"><img src="assets/results/fixed_lag_tradeoff.svg" alt="Fixed-lag smoother accuracy and latency tradeoff"><span>Fixed-lag tradeoff</span></a>
+            <a href="assets/results/cpp_python_equivalence.svg"><img src="assets/results/cpp_python_equivalence.svg" alt="C++ and Python numerical equivalence"><span>Numerical equivalence</span></a>
           </div>
         </div>
-      </section>
-    </main>
+      </div>
+    </section>
+  </main>
 
-    <footer><strong>Vinayak Manoj Nair</strong> · Texas A&amp;M University · Aerospace Engineering · GHOST-X is a student engineering project with explicit evidence and claim boundaries.</footer>
+  <footer class="site-footer">
+    <div class="shell footer-layout">
+      <div><strong>GHOST-X</strong><p>Student engineering project by Vinayak Manoj Nair · Texas A&amp;M University · Aerospace Engineering</p></div>
+      <p>Evidence classes, null results, failed requirements, and claim boundaries are shown deliberately. No physical autonomous-flight claim is made.</p>
+    </div>
+  </footer>
+
+  <div id="load-error" class="load-error" role="alert" hidden>
+    <strong>Interactive evidence could not be loaded.</strong>
+    <p>The static evidence links and generated SVG plots remain available below. The site does not replace missing data with placeholder results.</p>
   </div>
+
+  <noscript><div class="noscript-note">JavaScript is required for the interactive replay and charts. Static evidence snapshot: 2.451 s rounded hardware dropout; 12 / 12 software-injected fault cases; 34 / 34 requirements traceable; 47 / 47 deterministic checks. All source reports, JSON, CSV, and static plots remain linked in the evidence section.</div></noscript>
 </body>
 </html>
