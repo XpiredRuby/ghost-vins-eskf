@@ -37,13 +37,15 @@ jobs:
             test/test_export_demo_artifact.py \
             test/test_public_results_package.py
 
-      - name: Verify public results are reproducible
+      - name: Verify public results data are reproducible
         run: |
           python3 ghost_sim_ros2/tools/generate_public_results.py
+          # Matplotlib raster/SVG geometry varies by renderer and font version.
+          # The tests above validate every committed plot exists and is nontrivial;
+          # this gate enforces exact reproducibility of the source-backed data.
           git diff --exit-code -- \
             ghost_sim_ros2/docs/GHOST_PUBLIC_RESULTS_SUMMARY.json \
-            ghost_sim_ros2/docs/GHOST_PUBLIC_RESULTS_TABLE.csv \
-            ghost_sim_ros2/docs/assets/results
+            ghost_sim_ros2/docs/GHOST_PUBLIC_RESULTS_TABLE.csv
 
       - name: Build portable C++ core
         run: |
