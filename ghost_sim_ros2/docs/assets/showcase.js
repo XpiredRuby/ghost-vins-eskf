@@ -735,6 +735,7 @@
     console.error(error);
     const panel = $("#load-error");
     panel.hidden = false;
+    document.documentElement.dataset.showcaseError = error instanceof Error ? error.message : String(error);
     const detail = document.createElement("code");
     detail.textContent = error instanceof Error ? error.message : String(error);
     panel.appendChild(detail);
@@ -755,6 +756,11 @@
       renderRuntime();
       renderLimitations();
       renderEvidence();
+      document.documentElement.dataset.showcaseReady = "true";
+      document.documentElement.dataset.heroMetrics = String(document.querySelectorAll("#hero-metrics .metric-card").length);
+      document.documentElement.dataset.stageButtons = String(document.querySelectorAll(".stage-button").length);
+      document.documentElement.dataset.estimatorCards = String(document.querySelectorAll(".estimator-card").length);
+      document.documentElement.dataset.faultRows = String(document.querySelectorAll("#fault-table-body tr").length);
     } catch (error) {
       showLoadError(error);
     }

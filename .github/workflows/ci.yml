@@ -54,6 +54,9 @@ jobs:
             ghost_sim_ros2/docs/GHOST_INTERACTIVE_EVIDENCE_CHECKLIST.md \
             ghost_sim_ros2/docs/data/GHOST_INTERACTIVE_SHOWCASE_DATA.json
 
+      - name: Run interactive showcase browser smoke
+        run: python3 ghost_sim_ros2/test/showcase_browser_smoke.py
+
       - name: Build portable C++ core
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release -DGHOST_BUILD_ROS2_NODES=OFF
