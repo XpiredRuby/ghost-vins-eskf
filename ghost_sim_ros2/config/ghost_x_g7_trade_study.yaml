@@ -1,0 +1,24 @@
+schema_version: 1
+phase: G7_MULTI_MODEL_AND_HYPOTHESIS_TRADE_STUDY
+frozen_campaign: /home/xpired/ghost_trials/ghost_x_g4_controlled_truth_v1
+selection:
+  score_formula: rmse_all_m + 1.5*rmse_hidden_m + 0.5*future_rmse_per_second + 0.10*overconfidence_fraction + 0.10*brier_score + 0.00002*compute_us_per_step + 5.0*reset_rate
+  simpler_model_tie_fraction: 0.02
+  invalid_if_nonfinite: true
+  invalid_if_reset_rate_above: 0.0
+  future_horizon_selection: largest_horizon_with_future_rmse_below_threshold
+  future_rmse_threshold_m: 0.50
+imm:
+  transition_stay_probability: [0.90, 0.95, 0.97, 0.99]
+  smooth_acceleration_std_mps2: [0.01, 0.015, 0.03]
+  maneuver_acceleration_std_mps2: [0.50, 0.75, 1.00]
+  future_horizon_s: [0.50, 1.00, 1.50]
+  fixed_initial_mode_probabilities: [0.80, 0.20]
+mh:
+  design: BALANCED_L27_REDUCED_FACTORIAL
+  model_count: [3, 5, 8]
+  gate_chi2: [9.21, 16.0, 25.0]
+  max_occlusion_s: [2.0, 5.0, 20.0]
+  stationary_prior_scale: [0.50, 1.00, 2.00]
+  future_horizon_s: [0.50, 1.00, 1.50]
+claim_boundary: SYNTHETIC_TRADE_STUDY_ONLY_PHYSICAL_PARAMETER_SELECTION_REMAINS_PENDING

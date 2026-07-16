@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "campaign_date_utc": "2026-07-16",
+  "camera": {
+    "device": "/dev/video0",
+    "model": "eMeet C960",
+    "calibration_file": "/home/xpired/ghost_camera_calibration.json",
+    "calibration_rms_reprojection_error_px": 0.6484223428868449,
+    "tag_family": "tag36h11",
+    "tag_id": 0,
+    "tag_size_m": 0.1
+  },
+  "estimator_configuration": {
+    "measurement_covariance_source": "CONTROLLED_R_CANDIDATE_STABLE_60S_PENDING_ENGINEER_REVIEW",
+    "measurement_covariance_xy_m2": [
+      [1.1285530537472441e-06, 9.517042606937477e-08],
+      [9.517042606937477e-08, 1.396619108865118e-08]
+    ],
+    "measurement_timeout_s": 0.3,
+    "max_occlusion_s": 3.0,
+    "calibration_claim": "CAMERA_CALIBRATED_ESTIMATOR_NOT_HARDWARE_ACCURACY_CALIBRATED"
+  },
+  "accepted_results": {
+    "lateral_relative_response": {
+      "pass": true,
+      "baseline_y_m": 0.026524043222367573,
+      "left_hold_y_m": 0.4022069641056925,
+      "right_hold_y_m": -0.4125736240958222,
+      "claim_scope": "directional relative response only"
+    },
+    "short_dropout_reacquisition": {
+      "pass": true,
+      "browser_cue_duration_s": 1.9964690208435059,
+      "measured_occlusion_duration_s": 2.45097017288208,
+      "reacquired": true,
+      "reset_during_occlusion": false,
+      "ghost_top1_error_m": 0.002616434607344502,
+      "constant_velocity_error_m": 0.04840823234348344,
+      "ghost_top1_improvement_vs_constant_velocity_percent": 94.59506269764317,
+      "last_seen_hold_error_m": 0.0006566815761033871,
+      "claim_scope": "stationary-target short-dropout proxy metric; GHOST-MH beat constant velocity but not last-seen hold"
+    },
+    "farther_relative_response": {
+      "pass": true,
+      "baseline_x_m": 1.0363799968637557,
+      "farther_x_m": 1.2851780665548707,
+      "delta_x_m": 0.24879806969111495,
+      "valid_samples": 89,
+      "std_x_m": 0.0016859266823546547,
+      "max_internal_gap_s": 0.07552456855773926,
+      "final_center_delta_x_m": 0.002864624861093512,
+      "claim_scope": "directional relative range response only"
+    },
+    "closer_relative_response": {
+      "pass": true,
+      "baseline_x_m": 1.037406518457763,
+      "closer_x_m": 0.6934199020449486,
+      "delta_x_m": -0.34398661641281436,
+      "valid_samples": 32,
+      "std_x_m": 0.01581666408677013,
+      "max_internal_gap_s": 0.31725192070007324,
+      "reset_count": 0,
+      "final_center_delta_x_m": 0.012170712842945353,
+      "claim_scope": "directional relative range response only"
+    }
+  },
+  "rejected_or_limited_results": {
+    "original_floor_grid": {
+      "status": "REJECTED",
+      "reason": "camera/tag geometry was not moved between nominal grid captures",
+      "unsafe_claim": "absolute floor-grid accuracy"
+    },
+    "first_distance_attempt": {
+      "status": "PARTIAL",
+      "reason": "closer hold lacked stable samples and one reset occurred",
+      "retained_result": "farther response passed"
+    },
+    "absolute_accuracy": {
+      "status": "NOT_VALIDATED",
+      "reason": "no independent metrology-grade ground truth for guided motions"
+    },
+    "universal_tracker_superiority": {
+      "status": "NOT_SUPPORTED",
+      "reason": "last-seen hold outperformed GHOST-MH for the stationary short-dropout case"
+    }
+  },
+  "source_summaries": [
+    {
+      "path": "guided_hardware_evidence/20260716_guided_sequence_summary.json",
+      "sha256": "e9605cf26768139bab48388a5a31362db615f9e3f44b41cd5c83a4b98abf9af8"
+    },
+    {
+      "path": "guided_hardware_evidence/20260716_distance_only_summary.json",
+      "sha256": "df3e93bcd481cfce68fc3c2f38ab72f4b65ad3377a2d17c62178bb9dc0b730a9"
+    },
+    {
+      "path": "guided_hardware_evidence/20260716_closer_only_summary.json",
+      "sha256": "c09beae7cb68c9f0e350fdbe97896c8d984d78717bb34b91689625810aa18f1e"
+    }
+  ],
+  "overall_verdict": "PASS_FOR_GUIDED_RELATIVE_RESPONSE_AND_SHORT_DROPOUT_REACQUISITION",
+  "claim_limit": "The campaign validates camera-calibrated relative response and bounded short-dropout reacquisition under guided tabletop conditions. It does not validate absolute position accuracy, flight performance, SLAM/VIO, or universal estimator superiority."
+}

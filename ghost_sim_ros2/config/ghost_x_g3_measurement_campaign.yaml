@@ -1,0 +1,95 @@
+schema_version: 1
+project: GHOST-X
+phase: G3_MEASUREMENT_CHARACTERIZATION
+protocol_version: ghost-x-g3-v1
+randomization_seed: 20260713
+
+hardware:
+  camera_device: /dev/video0
+  camera_interface: USB UVC / V4L2
+  image_width_px: 640
+  image_height_px: 480
+  requested_fps: 30
+  tag_family: tag36h11
+  tag_size_m: 0.10
+  calibration_artifact_env: GHOST_CALIBRATION_ARTIFACT
+  fixed_camera_controls_script: ghost_sim_ros2/tools/lock_uvc_camera_controls.sh
+
+collection:
+  requested_valid_pose_duration_s: 90.0
+  hard_timeout_margin_s: 30.0
+  analysis_window_s: [15.0, 75.0]
+  minimum_analysis_samples: 600
+  minimum_analysis_rate_hz: 10.0
+  maximum_analysis_gap_s: 0.25
+  repeats_per_condition: 2
+  stabilization_before_capture_s: 15.0
+  operator_rules:
+    - Camera, mount, focus, resolution, exposure, gain, white balance, tag print, and calibration remain unchanged.
+    - Target center is placed at the measured range and lateral-zero mark before each capture.
+    - Target yaw is measured relative to front-facing zero; pitch and roll remain nominally zero.
+    - No post-hoc window selection is permitted.
+    - Failed and invalid attempts are retained with reason codes.
+
+truth:
+  frame_id: camera
+  expected_lateral_m: 0.0
+  camera_range_reference: vertical plane tangent to the front camera housing at the lens centerline; this is a repeatable fixture reference, not a claim of exact optical-center location
+  camera_reference_offset_uncertainty_m: 0.01
+  range_uncertainty_m: 0.02
+  lateral_uncertainty_m: 0.005
+  yaw_uncertainty_deg: 2.0
+  yaw_axis: vertical through the AprilTag center
+  yaw_sign_convention:
+    zero_deg: tag plane front-facing and parallel to the camera-front reference plane
+    positive_deg: as viewed by the camera, the tag right edge is farther from the camera than the left edge
+    negative_deg: as viewed by the camera, the tag right edge is closer to the camera than the left edge
+  measurement_method: borrowed tape or measured floor marks; no purchase required
+  warning: These stationary fixture values characterize measurement bias/noise and do not validate dynamic tracker accuracy.
+
+factors:
+  range_m: [0.70, 1.05, 1.40]
+  yaw_deg: [-20.0, 0.0, 20.0]
+
+residual_diagnostics:
+  detrending: linear
+  gaussianity_test: jarque_bera
+  gaussianity_alpha: 0.05
+  whiteness_test: ljung_box
+  whiteness_lags: [5, 10, 20]
+  whiteness_alpha: 0.05
+  report_raw_and_detrended: true
+  interpretation: Tests are diagnostics; rejection of white/Gaussian assumptions must be reported and may invalidate simple covariance-consistency claims.
+
+candidate_covariance_models:
+  - id: constant_full
+    parameters: 3
+    description: One pooled symmetric 2x2 covariance for all ranges and yaws.
+  - id: range_logdiag_fixed_corr
+    parameters: 5
+    description: Log variance is linear in range for x and y; one pooled correlation coefficient.
+  - id: range_yaw_logdiag_fixed_corr
+    parameters: 7
+    description: Log variance is linear in range and absolute yaw for x and y; one pooled correlation coefficient.
+  - id: condition_shrinkage
+    parameters_rule: 3_per_observed_condition
+    description: Per range/yaw covariance shrunk 25 percent toward the pooled covariance.
+
+model_selection:
+  method: leave_one_trial_out_gaussian_negative_log_likelihood_with_bic_penalty
+  score: 2_times_held_out_nll_plus_k_log_total_validation_samples
+  minimum_complete_trials: 6
+  minimum_distinct_ranges: 2
+  tie_rule: If penalized scores differ by less than 2 percent, select the lower-parameter model.
+  selection_freeze: Model definitions and tie rule are frozen before formal G3 collection.
+
+exit_criteria:
+  minimum_complete_conditions: 9
+  minimum_complete_trials: 18
+  required_outputs:
+    - per-trial bias, variance, covariance, correlation, drift, continuity, brightness, and decision margin
+    - raw and detrended Gaussianity and whiteness diagnostics
+    - covariance versus range and yaw
+    - candidate-model held-out scores
+    - selected covariance model and limitations
+    - explicit separation of measurement noise, fixture uncertainty, and calibration uncertainty

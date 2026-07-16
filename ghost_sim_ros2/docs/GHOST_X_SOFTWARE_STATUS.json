@@ -1,0 +1,172 @@
+{
+  "claim_boundary": "SOFTWARE_COMPLETE_DOES_NOT_MEAN_PHYSICAL_CAMPAIGN_OR_FLIGHT_QUALIFICATION_COMPLETE",
+  "full_project_complete": false,
+  "generated_at_utc": "2026-07-14T04:30:50.475719Z",
+  "next_physical_gate": "G3 measurement characterization trial 1, followed by controlled physical truth collection.",
+  "phase_status": [
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/docs/GHOST_X_G0_BASELINE.md",
+        "ghost_sim_ros2/docs/GHOST_X_BASELINE_MANIFEST.json"
+      ],
+      "evidence_count": 2,
+      "expected_evidence_count": 2,
+      "phase": "G0",
+      "software_status": "SOFTWARE_COMPLETE"
+    },
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/docs/GHOST_X_G1_REQUIREMENTS_AND_VNV.md",
+        "ghost_sim_ros2/docs/GHOST_X_G1_VALIDATION.json"
+      ],
+      "evidence_count": 2,
+      "expected_evidence_count": 2,
+      "phase": "G1",
+      "software_status": "SOFTWARE_COMPLETE"
+    },
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/docs/GHOST_X_G2_DATA_CONTRACTS.md",
+        "ghost_sim_ros2/docs/GHOST_X_G2_VALIDATION.json",
+        "ghost_sim_ros2/docs/GHOST_X_G2_RUNTIME_VALIDATION.json"
+      ],
+      "evidence_count": 3,
+      "expected_evidence_count": 3,
+      "phase": "G2",
+      "software_status": "SOFTWARE_COMPLETE"
+    },
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/docs/GHOST_X_G3_MEASUREMENT_PROTOCOL.md",
+        "ghost_sim_ros2/docs/GHOST_X_G3_READINESS.json"
+      ],
+      "evidence_count": 2,
+      "expected_evidence_count": 2,
+      "phase": "G3",
+      "software_status": "SOFTWARE_COMPLETE_PHYSICAL_EXECUTION_PENDING"
+    },
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/docs/GHOST_X_G4_CONTROLLED_TRUTH.md",
+        "ghost_sim_ros2/docs/GHOST_X_G4_VALIDATION.json"
+      ],
+      "evidence_count": 2,
+      "expected_evidence_count": 2,
+      "phase": "G4",
+      "software_status": "SOFTWARE_COMPLETE_PHYSICAL_EXECUTION_PENDING"
+    },
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/docs/GHOST_X_G5_CPP_LIBRARY.md",
+        "ghost_sim_ros2/docs/GHOST_X_G5_EQUIVALENCE.json",
+        "ghost_sim_ros2/docs/GHOST_X_G5_VALIDATION.json"
+      ],
+      "evidence_count": 3,
+      "expected_evidence_count": 3,
+      "phase": "G5",
+      "software_status": "SOFTWARE_COMPLETE"
+    },
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/docs/GHOST_X_G6_CONSISTENCY.md",
+        "ghost_sim_ros2/docs/GHOST_X_G6_CONSISTENCY.json"
+      ],
+      "evidence_count": 2,
+      "expected_evidence_count": 2,
+      "phase": "G6",
+      "software_status": "SOFTWARE_COMPLETE"
+    },
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/docs/GHOST_X_G7_TRADE_STUDY.md",
+        "ghost_sim_ros2/docs/GHOST_X_G7_TRADE_STUDY.json"
+      ],
+      "evidence_count": 2,
+      "expected_evidence_count": 2,
+      "phase": "G7",
+      "software_status": "SOFTWARE_COMPLETE"
+    },
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/docs/GHOST_X_G8_FAULT_REPORT.md",
+        "ghost_sim_ros2/docs/GHOST_X_G8_FAULT_REPORT.json"
+      ],
+      "evidence_count": 2,
+      "expected_evidence_count": 2,
+      "phase": "G8",
+      "software_status": "SOFTWARE_COMPLETE"
+    },
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/docs/GHOST_X_G9_RUNTIME_REPORT.md",
+        "ghost_sim_ros2/docs/GHOST_X_G9_RUNTIME_REPORT.json"
+      ],
+      "evidence_count": 2,
+      "expected_evidence_count": 2,
+      "phase": "G9",
+      "software_status": "SOFTWARE_COMPLETE"
+    },
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/docs/GHOST_X_G10_CI_REPORT.md",
+        "ghost_sim_ros2/docs/GHOST_X_G10_CI_REPORT.json",
+        ".github/workflows/ghost-x-regression.yml"
+      ],
+      "evidence_count": 3,
+      "expected_evidence_count": 3,
+      "phase": "G10",
+      "software_status": "SOFTWARE_COMPLETE"
+    },
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/docs/GHOST_X_G11_FIXED_LAG.md",
+        "ghost_sim_ros2/docs/GHOST_X_G11_FIXED_LAG.json"
+      ],
+      "evidence_count": 2,
+      "expected_evidence_count": 2,
+      "phase": "G11",
+      "software_status": "SOFTWARE_COMPLETE"
+    },
+    {
+      "complete": true,
+      "evidence": [
+        "ghost_sim_ros2/tools/build_ghost_x_release.py",
+        "ghost_sim_ros2/docs/GHOST_X_FINAL_RESEARCH_PACKAGE.md",
+        "ghost_sim_ros2/docs/GHOST_X_APPROVED_CLAIMS.md",
+        "ghost_sim_ros2/docs/GHOST_X_FAILURE_GALLERY.md"
+      ],
+      "evidence_count": 4,
+      "expected_evidence_count": 4,
+      "phase": "G12",
+      "software_status": "SOFTWARE_COMPLETE"
+    }
+  ],
+  "physical_human_interaction_required": true,
+  "physical_pending_phases": [
+    "G3",
+    "G4"
+  ],
+  "release_version": "ghost-x-software-v1",
+  "requirements": {
+    "physical_pending": 5,
+    "qualified": 6,
+    "software_verified": 23,
+    "total": 34,
+    "traceable": 34
+  },
+  "schema_version": 1,
+  "software_complete": true,
+  "software_completion_percent": 100
+}

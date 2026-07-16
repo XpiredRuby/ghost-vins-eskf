@@ -18,6 +18,20 @@ A separate deterministic software-in-the-loop harness connects the same formal I
 
 > **Evidence boundary:** the preserved hardware run validates the USB-camera-to-ROS-to-tracker pipeline, real-time publication, dropout-state telemetry and replay. The closed-loop GNC results are deterministic software-in-the-loop evidence using synthetic truth and candidate noise parameters. Controlled measurement covariance, physical ground-truth accuracy, paired hardware superiority, vehicle control and flight readiness are not yet validated.
 
+## GHOST-X research upgrade
+
+Active development continues on the `ghost-x` branch under a requirements-driven research plan covering controlled truth, C++/Python estimator equivalence, consistency analysis, fault injection, Raspberry Pi real-time characterization, deterministic replay, and claim traceability.
+
+- [GHOST-X master plan](ghost_sim_ros2/docs/GHOST_X_MASTER_PLAN.md)
+- [G0 immutable baseline](ghost_sim_ros2/docs/GHOST_X_G0_BASELINE.md)
+- [G1 requirements and V&V architecture](ghost_sim_ros2/docs/GHOST_X_G1_REQUIREMENTS_AND_VNV.md)
+- [G2 frames, timing, and data contracts](ghost_sim_ros2/docs/GHOST_X_G2_DATA_CONTRACTS.md)
+- [G3 measurement characterization protocol](ghost_sim_ros2/docs/GHOST_X_G3_MEASUREMENT_PROTOCOL.md)
+- [Requirements-to-test traceability](ghost_sim_ros2/docs/GHOST_X_TRACEABILITY.csv)
+- [Current claim boundaries](ghost_sim_ros2/docs/GHOST_X_CLAIM_BOUNDARIES.md)
+
+Current phase status: **G0–G2 complete; G3 software ready, physical collection pending**.
+
 ## Complete drone/robot mission demo
 
 GHOST now includes the full intended software mission: a mobile drone/robot-style observer tracks a moving target in a local GPS-denied map, loses camera line of sight behind buildings, continues formal IMM and GHOST-MH prediction, navigates to a collision-free obstacle-corner vantage point, and reacquires the target.
@@ -47,6 +61,7 @@ This demonstrates local-frame target estimation, prediction, guidance, and reacq
 4. Review the [portfolio packet](ghost_sim_ros2/docs/GHOST_PORTFOLIO_PACKET.md) and [full project report](ghost_sim_ros2/docs/GHOST_PROJECT_REPORT.md).
 5. Inspect the [closed-loop GNC SIL](ghost_sim_ros2/docs/GHOST_CLOSED_LOOP_GNC_SIL.md).
 6. Audit the [master physical-validation runbook](ghost_sim_ros2/docs/GHOST_PHYSICAL_VALIDATION_MASTER_RUNBOOK.md).
+7. Review the [guided hardware validation report](ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md).
 
 | Preserved hardware XY replay | Dropout-state timeline |
 |---|---|
@@ -67,6 +82,8 @@ The preserved run `live_camera_calibrated_R_01` contains real USB-webcam AprilTa
 | Maximum IMM measurement age | `2.849 s` |
 
 The run demonstrates visible tracking, temporary measurement loss, prediction-only propagation, degraded-dropout labeling and reacquisition. These are pipeline and behavior results—not physical accuracy results.
+
+A later browser-guided campaign also verified directional left/right and closer/farther relative response plus successful reacquisition after a measured `2.451 s` dropout. See the [2026-07-16 guided hardware validation report](ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md) and its [machine-readable verdict](ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json). The campaign does not claim absolute positioning accuracy or universal tracker superiority.
 
 ## Implemented architecture
 

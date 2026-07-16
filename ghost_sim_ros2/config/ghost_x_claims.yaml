@@ -1,0 +1,50 @@
+schema_version: 1
+project: GHOST-X
+claims:
+  - id: CLM-NOW-001
+    status: approved
+    text: Built a Raspberry Pi and ROS 2 camera-to-estimator pipeline with formal IMM and GHOST multi-hypothesis tracking.
+    requirements: [EST-001, EST-002, SYS-003]
+    tests: [T-IMM-001, T-MH-001, T-SCHEMA-001]
+    evidence:
+      - ghost_sim_ros2/docs/GHOST_X_BASELINE_MANIFEST.json
+      - ghost_sim_ros2/docs/GHOST_DRONE_MISSION_IMPLEMENTATION_REPORT.md
+  - id: CLM-NOW-002
+    status: approved
+    text: Demonstrated continued estimator publication and target reacquisition through representative camera visibility losses.
+    requirements: [VNV-005, VNV-007]
+    tests: [T-REACQ-001, T-DROPOUT-001]
+    evidence:
+      - /home/xpired/ghost_trials/physical_validation_20260711T183400Z/PHASE2_ACCELERATED_COMPLETION_REPORT.md
+      - ghost_sim_ros2/docs/GHOST_DRONE_MISSION_VALIDATION.json
+    limitation: Current hardware evidence is guided camera-space behavior evidence, not independent trajectory accuracy.
+  - id: CLM-NOW-003
+    status: qualified
+    text: Implemented GPS-denied target tracking and autonomous observer navigation.
+    requirements: [SYS-002, DAT-001]
+    tests: [T-MODE-001, T-FRAME-001]
+    evidence:
+      - ghost_sim_ros2/docs/GHOST_DRONE_MISSION_VALIDATION.json
+    limitation: Target measurements contain no GPS, but the software mission assumes a known local observer pose and map; no VIO or SLAM claim is allowed.
+  - id: CLM-NOW-004
+    status: approved
+    text: Collected an accepted stationary empirical measurement covariance artifact under a locked camera and target setup.
+    requirements: [DAT-003, CON-001]
+    tests: [T-CALID-001, T-NIS-001]
+    evidence:
+      - /home/xpired/ghost_trials/physical_validation_20260711T183400Z/controlled_R_direct_01/noise_summary.json
+    limitation: Does not validate tracker accuracy, state-dependent covariance, Gaussianity, or whiteness.
+  - id: CLM-FINAL-001
+    status: future_gate
+    text: Hardware-validated autonomous tracking platform with quantified accuracy, consistency, fault tolerance, and real-time performance.
+    requirements: [VNV-002, VNV-003, VNV-004, CON-001, CON-002, FDIR-001, RT-001, RT-002, RT-003]
+    tests: [T-CAMPAIGN-001, T-ACCURACY-001, T-VELOCITY-001, T-NIS-001, T-NEES-001, T-FAULT-001, T-LATENCY-001, T-JITTER-001, T-RESOURCE-001]
+    evidence: []
+    limitation: Prohibited until all mapped tests pass and physical autonomous observer navigation is demonstrated or the wording is narrowed.
+  - id: CLM-FINAL-002
+    status: future_gate
+    text: GHOST-MH statistically outperforms the formal IMM across the declared campaign.
+    requirements: [SYS-001, VNV-002, VNV-003, VNV-004]
+    tests: [T-PAIR-001, T-CAMPAIGN-001, T-ACCURACY-001, T-VELOCITY-001]
+    evidence: []
+    limitation: Prohibited until paired uncertainty-aware statistics support the claim; null or mixed results must be reported.

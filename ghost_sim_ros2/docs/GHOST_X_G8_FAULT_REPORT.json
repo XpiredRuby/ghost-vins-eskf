@@ -1,0 +1,1883 @@
+{
+  "claim_boundary": "DETERMINISTIC_SOFTWARE_FAULT_INJECTION_ACTUAL_HARDWARE_AND_DDS_FAULT_EVIDENCE_PENDING",
+  "failed_faults": 0,
+  "fault_count": 12,
+  "passed": true,
+  "passed_faults": 12,
+  "phase": "G8_FAULT_INJECTION",
+  "schema_version": 1,
+  "source_stream": "/home/xpired/ghost_trials/ghost_x_g4_controlled_truth_v1/canonical_streams/g4_repeated_reentry_rep01.jsonl",
+  "trials": [
+    {
+      "all_estimators_initialized": true,
+      "detected": true,
+      "detected_at_s": 5.0,
+      "discrepancy": null,
+      "expected_status": "FAULT_CAMERA_DISCONNECTED",
+      "fault": "camera_disconnect",
+      "isolated": true,
+      "monitor_events": [
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 5.0
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 5.1
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 5.2
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 5.3
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 5.4
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 5.5
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 5.6
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 5.7
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 5.8
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 5.9
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 6.0
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 6.1
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 6.2
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 6.3
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 6.4
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 6.5
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 6.6
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 6.7
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 6.8
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 6.9
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 7.0
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 7.1
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 7.2
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 7.3
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 7.4
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 7.5
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 7.6
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 7.7
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 7.8
+        },
+        {
+          "isolation": "CAMERA_LINK",
+          "status": "FAULT_CAMERA_DISCONNECTED",
+          "t_s": 7.9
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.2
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.3
+        },
+        {
+          "isolation": "CONSISTENT_CLUSTER_REACQUISITION",
+          "status": "RECOVERY_REACQUISITION_ACCEPTED",
+          "t_s": 9.4
+        }
+      ],
+      "nonfinite_count": 0,
+      "observed_statuses": [
+        "FAULT_CAMERA_DISCONNECTED",
+        "FAULT_FALSE_DETECTION_REJECTED",
+        "NOMINAL",
+        "RECOVERY_REACQUISITION_ACCEPTED"
+      ],
+      "passed": true,
+      "position_error_rmse_m": {
+        "cv_kalman": 0.13118667352827276,
+        "formal_imm": 0.041537461838539506,
+        "ghost_mh": 0.667294212920655
+      },
+      "recovery_ok": true,
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "all_estimators_initialized": true,
+      "detected": true,
+      "detected_at_s": 5.2,
+      "discrepancy": null,
+      "expected_status": "FAULT_FROZEN_MEASUREMENT",
+      "fault": "frozen_measurement",
+      "isolated": true,
+      "monitor_events": [
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 5.2
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 5.3
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 5.4
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 5.5
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 5.6
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 5.7
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 5.8
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 5.9
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 6.0
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 6.1
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 6.2
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 6.3
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 6.4
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 6.5
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 6.6
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 6.7
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 6.8
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 6.9
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 7.0
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 7.1
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 7.2
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 7.3
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 7.4
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 7.5
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 7.6
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 7.7
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 7.8
+        },
+        {
+          "isolation": "FROZEN_SAMPLE_MONITOR",
+          "status": "FAULT_FROZEN_MEASUREMENT",
+          "t_s": 7.9
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.2
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.3
+        },
+        {
+          "isolation": "CONSISTENT_CLUSTER_REACQUISITION",
+          "status": "RECOVERY_REACQUISITION_ACCEPTED",
+          "t_s": 9.4
+        }
+      ],
+      "nonfinite_count": 0,
+      "observed_statuses": [
+        "FAULT_FALSE_DETECTION_REJECTED",
+        "FAULT_FROZEN_MEASUREMENT",
+        "NOMINAL",
+        "RECOVERY_REACQUISITION_ACCEPTED"
+      ],
+      "passed": true,
+      "position_error_rmse_m": {
+        "cv_kalman": 0.45090939440856276,
+        "formal_imm": 0.48108154152725774,
+        "ghost_mh": 0.58037734703256
+      },
+      "recovery_ok": true,
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "all_estimators_initialized": true,
+      "detected": true,
+      "detected_at_s": 5.0,
+      "discrepancy": null,
+      "expected_status": "FAULT_DUPLICATE_MEASUREMENT",
+      "fault": "duplicate_measurement",
+      "isolated": true,
+      "monitor_events": [
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 5.0
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 5.1
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 5.2
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 5.3
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 5.4
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 5.5
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 5.6
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 5.7
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 5.8
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 5.9
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 6.0
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 6.1
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 6.2
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 6.3
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 6.4
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 6.5
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 6.6
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 6.7
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 6.8
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 6.9
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 7.0
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 7.1
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 7.2
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 7.3
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 7.4
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 7.5
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 7.6
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 7.7
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 7.8
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 7.9
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.2
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.3
+        },
+        {
+          "isolation": "CONSISTENT_CLUSTER_REACQUISITION",
+          "status": "RECOVERY_REACQUISITION_ACCEPTED",
+          "t_s": 9.4
+        }
+      ],
+      "nonfinite_count": 0,
+      "observed_statuses": [
+        "FAULT_DUPLICATE_MEASUREMENT",
+        "FAULT_FALSE_DETECTION_REJECTED",
+        "NOMINAL",
+        "RECOVERY_REACQUISITION_ACCEPTED"
+      ],
+      "passed": true,
+      "position_error_rmse_m": {
+        "cv_kalman": 0.13118667352827276,
+        "formal_imm": 0.041537461838539506,
+        "ghost_mh": 0.667294212920655
+      },
+      "recovery_ok": true,
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "all_estimators_initialized": true,
+      "detected": true,
+      "detected_at_s": 5.0,
+      "discrepancy": null,
+      "expected_status": "FAULT_FALSE_DETECTION_REJECTED",
+      "fault": "false_detection",
+      "isolated": true,
+      "monitor_events": [
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 5.0
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 5.1
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 6.8
+        }
+      ],
+      "nonfinite_count": 0,
+      "observed_statuses": [
+        "FAULT_FALSE_DETECTION_REJECTED",
+        "NOMINAL"
+      ],
+      "passed": true,
+      "position_error_rmse_m": {
+        "cv_kalman": 0.03139329356774393,
+        "formal_imm": 0.01784351252542667,
+        "ghost_mh": 0.08363725483074735
+      },
+      "recovery_ok": true,
+      "recovery_time_s": 1.1999999999999993
+    },
+    {
+      "all_estimators_initialized": true,
+      "detected": true,
+      "detected_at_s": 5.0,
+      "discrepancy": null,
+      "expected_status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+      "fault": "covariance_corruption",
+      "isolated": true,
+      "monitor_events": [
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 5.0
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 5.1
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 5.2
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 5.3
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 5.4
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 5.5
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 5.6
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 5.7
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 5.8
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 5.9
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 6.0
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 6.1
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 6.2
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 6.3
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 6.4
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 6.5
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 6.6
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 6.7
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 6.8
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 6.9
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 7.0
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 7.1
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 7.2
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 7.3
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 7.4
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 7.5
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 7.6
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 7.7
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 7.8
+        },
+        {
+          "isolation": "COVARIANCE_VALIDATOR",
+          "status": "FAULT_COVARIANCE_INVALID_FALLBACK",
+          "t_s": 7.9
+        }
+      ],
+      "nonfinite_count": 0,
+      "observed_statuses": [
+        "FAULT_COVARIANCE_INVALID_FALLBACK",
+        "NOMINAL"
+      ],
+      "passed": true,
+      "position_error_rmse_m": {
+        "cv_kalman": 0.029078210381168017,
+        "formal_imm": 0.01631785576533458,
+        "ghost_mh": 0.04755774548975078
+      },
+      "recovery_ok": true,
+      "recovery_time_s": 1.1999999999999993
+    },
+    {
+      "all_estimators_initialized": true,
+      "detected": true,
+      "detected_at_s": 5.0,
+      "discrepancy": null,
+      "expected_status": "FAULT_STALE_MEASUREMENT_REJECTED",
+      "fault": "latency",
+      "isolated": true,
+      "monitor_events": [
+        {
+          "isolation": "MONOTONIC_TIMESTAMP_GATE",
+          "status": "FAULT_OUT_OF_SEQUENCE_REJECTED",
+          "t_s": 5.0
+        },
+        {
+          "isolation": "MONOTONIC_TIMESTAMP_GATE",
+          "status": "FAULT_OUT_OF_SEQUENCE_REJECTED",
+          "t_s": 5.1
+        },
+        {
+          "isolation": "MONOTONIC_TIMESTAMP_GATE",
+          "status": "FAULT_OUT_OF_SEQUENCE_REJECTED",
+          "t_s": 5.2
+        },
+        {
+          "isolation": "MONOTONIC_TIMESTAMP_GATE",
+          "status": "FAULT_OUT_OF_SEQUENCE_REJECTED",
+          "t_s": 5.3
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 5.4
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 5.5
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 5.6
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 5.7
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 5.8
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 5.9
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.0
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.1
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.2
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.3
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.4
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.5
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.6
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.7
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.8
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.9
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.0
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.1
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.2
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.3
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.4
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.5
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.6
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.7
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.8
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.9
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.2
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.3
+        },
+        {
+          "isolation": "CONSISTENT_CLUSTER_REACQUISITION",
+          "status": "RECOVERY_REACQUISITION_ACCEPTED",
+          "t_s": 9.4
+        }
+      ],
+      "nonfinite_count": 0,
+      "observed_statuses": [
+        "FAULT_DUPLICATE_MEASUREMENT",
+        "FAULT_FALSE_DETECTION_REJECTED",
+        "FAULT_OUT_OF_SEQUENCE_REJECTED",
+        "FAULT_STALE_MEASUREMENT_REJECTED",
+        "NOMINAL",
+        "RECOVERY_REACQUISITION_ACCEPTED"
+      ],
+      "passed": true,
+      "position_error_rmse_m": {
+        "cv_kalman": 0.13118667352827276,
+        "formal_imm": 0.041537461838539506,
+        "ghost_mh": 0.667294212920655
+      },
+      "recovery_ok": true,
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "all_estimators_initialized": true,
+      "detected": true,
+      "detected_at_s": 5.0,
+      "discrepancy": null,
+      "expected_status": "FAULT_OUT_OF_SEQUENCE_REJECTED",
+      "fault": "out_of_sequence_data",
+      "isolated": true,
+      "monitor_events": [
+        {
+          "isolation": "MONOTONIC_TIMESTAMP_GATE",
+          "status": "FAULT_OUT_OF_SEQUENCE_REJECTED",
+          "t_s": 5.0
+        },
+        {
+          "isolation": "MONOTONIC_TIMESTAMP_GATE",
+          "status": "FAULT_OUT_OF_SEQUENCE_REJECTED",
+          "t_s": 5.1
+        },
+        {
+          "isolation": "MONOTONIC_TIMESTAMP_GATE",
+          "status": "FAULT_OUT_OF_SEQUENCE_REJECTED",
+          "t_s": 5.2
+        },
+        {
+          "isolation": "MONOTONIC_TIMESTAMP_GATE",
+          "status": "FAULT_OUT_OF_SEQUENCE_REJECTED",
+          "t_s": 5.3
+        },
+        {
+          "isolation": "MONOTONIC_TIMESTAMP_GATE",
+          "status": "FAULT_OUT_OF_SEQUENCE_REJECTED",
+          "t_s": 5.4
+        },
+        {
+          "isolation": "DUPLICATE_TIMESTAMP_GATE",
+          "status": "FAULT_DUPLICATE_MEASUREMENT",
+          "t_s": 5.5
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 5.6
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 5.7
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 5.8
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 5.9
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.0
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.1
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.2
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.3
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.4
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.5
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.6
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.7
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.8
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 6.9
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.0
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.1
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.2
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.3
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.4
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.5
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.6
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.7
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.8
+        },
+        {
+          "isolation": "TIMESTAMP_AGE_GATE",
+          "status": "FAULT_STALE_MEASUREMENT_REJECTED",
+          "t_s": 7.9
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.2
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.3
+        },
+        {
+          "isolation": "CONSISTENT_CLUSTER_REACQUISITION",
+          "status": "RECOVERY_REACQUISITION_ACCEPTED",
+          "t_s": 9.4
+        }
+      ],
+      "nonfinite_count": 0,
+      "observed_statuses": [
+        "FAULT_DUPLICATE_MEASUREMENT",
+        "FAULT_FALSE_DETECTION_REJECTED",
+        "FAULT_OUT_OF_SEQUENCE_REJECTED",
+        "FAULT_STALE_MEASUREMENT_REJECTED",
+        "NOMINAL",
+        "RECOVERY_REACQUISITION_ACCEPTED"
+      ],
+      "passed": true,
+      "position_error_rmse_m": {
+        "cv_kalman": 0.13118667352827276,
+        "formal_imm": 0.041537461838539506,
+        "ghost_mh": 0.667294212920655
+      },
+      "recovery_ok": true,
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "all_estimators_initialized": true,
+      "detected": true,
+      "detected_at_s": 5.0,
+      "discrepancy": null,
+      "expected_status": "FAULT_NODE_RESTART",
+      "fault": "node_restart",
+      "isolated": true,
+      "monitor_events": [
+        {
+          "isolation": "PROCESS_LIFECYCLE",
+          "status": "FAULT_NODE_RESTART",
+          "t_s": 5.0
+        }
+      ],
+      "nonfinite_count": 0,
+      "observed_statuses": [
+        "FAULT_NODE_RESTART",
+        "NOMINAL"
+      ],
+      "passed": true,
+      "position_error_rmse_m": {
+        "cv_kalman": 0.029092016611554857,
+        "formal_imm": 0.01740560791292069,
+        "ghost_mh": 0.047557593402331975
+      },
+      "recovery_ok": true,
+      "recovery_time_s": 1.1999999999999993
+    },
+    {
+      "all_estimators_initialized": true,
+      "detected": true,
+      "detected_at_s": 5.0,
+      "discrepancy": null,
+      "expected_status": "FAULT_DEADLINE_MISS",
+      "fault": "cpu_saturation",
+      "isolated": true,
+      "monitor_events": [
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 5.0
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 5.1
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 5.2
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 5.3
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 5.4
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 5.5
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 5.6
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 5.7
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 5.8
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 5.9
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 6.0
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 6.1
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 6.2
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 6.3
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 6.4
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 6.5
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 6.6
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 6.7
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 6.8
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 6.9
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 7.0
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 7.1
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 7.2
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 7.3
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 7.4
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 7.5
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 7.6
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 7.7
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 7.8
+        },
+        {
+          "isolation": "EXECUTION_TIMING",
+          "status": "FAULT_DEADLINE_MISS",
+          "t_s": 7.9
+        }
+      ],
+      "nonfinite_count": 0,
+      "observed_statuses": [
+        "FAULT_DEADLINE_MISS",
+        "NOMINAL"
+      ],
+      "passed": true,
+      "position_error_rmse_m": {
+        "cv_kalman": 0.029078210381168017,
+        "formal_imm": 0.01631785576533458,
+        "ghost_mh": 0.04755774548975078
+      },
+      "recovery_ok": true,
+      "recovery_time_s": 1.1999999999999993
+    },
+    {
+      "all_estimators_initialized": true,
+      "detected": true,
+      "detected_at_s": 5.0,
+      "discrepancy": null,
+      "expected_status": "FAULT_NETWORK_DEGRADED",
+      "fault": "network_degradation",
+      "isolated": true,
+      "monitor_events": [
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 5.0
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 5.2
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 5.3
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 5.5
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 5.6
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 5.8
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 5.9
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 6.1
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 6.2
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 6.4
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 6.5
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 6.7
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 6.8
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 7.0
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 7.1
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 7.3
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 7.4
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 7.6
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 7.7
+        },
+        {
+          "isolation": "TRANSPORT_LOSS",
+          "status": "FAULT_NETWORK_DEGRADED",
+          "t_s": 7.9
+        }
+      ],
+      "nonfinite_count": 0,
+      "observed_statuses": [
+        "FAULT_NETWORK_DEGRADED",
+        "NOMINAL"
+      ],
+      "passed": true,
+      "position_error_rmse_m": {
+        "cv_kalman": 0.03214377299411351,
+        "formal_imm": 0.016869323823009052,
+        "ghost_mh": 0.050878838189256904
+      },
+      "recovery_ok": true,
+      "recovery_time_s": 1.1999999999999993
+    },
+    {
+      "all_estimators_initialized": true,
+      "detected": true,
+      "detected_at_s": 5.0,
+      "discrepancy": null,
+      "expected_status": "FAULT_CONFIGURATION_MISMATCH",
+      "fault": "parameter_mismatch",
+      "isolated": true,
+      "monitor_events": [
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 5.0
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 5.1
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 5.2
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 5.3
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 5.4
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 5.5
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 5.6
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 5.7
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 5.8
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 5.9
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 6.0
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 6.1
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 6.2
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 6.3
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 6.4
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 6.5
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 6.6
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 6.7
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 6.8
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 6.9
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 7.0
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 7.1
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 7.2
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 7.3
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 7.4
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 7.5
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 7.6
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 7.7
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 7.8
+        },
+        {
+          "isolation": "CONFIGURATION_GATE",
+          "status": "FAULT_CONFIGURATION_MISMATCH",
+          "t_s": 7.9
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.2
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.3
+        },
+        {
+          "isolation": "CONSISTENT_CLUSTER_REACQUISITION",
+          "status": "RECOVERY_REACQUISITION_ACCEPTED",
+          "t_s": 9.4
+        }
+      ],
+      "nonfinite_count": 0,
+      "observed_statuses": [
+        "FAULT_CONFIGURATION_MISMATCH",
+        "FAULT_FALSE_DETECTION_REJECTED",
+        "NOMINAL",
+        "RECOVERY_REACQUISITION_ACCEPTED"
+      ],
+      "passed": true,
+      "position_error_rmse_m": {
+        "cv_kalman": 0.13118667352827276,
+        "formal_imm": 0.041537461838539506,
+        "ghost_mh": 0.667294212920655
+      },
+      "recovery_ok": true,
+      "recovery_time_s": 1.4000000000000004
+    },
+    {
+      "all_estimators_initialized": true,
+      "detected": true,
+      "detected_at_s": 5.0,
+      "discrepancy": null,
+      "expected_status": "FAULT_LOW_VISUAL_QUALITY",
+      "fault": "lighting_degradation",
+      "isolated": true,
+      "monitor_events": [
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 5.0
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 5.1
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 5.2
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 5.3
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 5.4
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 5.5
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 5.6
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 5.7
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 5.8
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 5.9
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 6.0
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 6.1
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 6.2
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 6.3
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 6.4
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 6.5
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 6.6
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 6.7
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 6.8
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 6.9
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 7.0
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 7.1
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 7.2
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 7.3
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 7.4
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 7.5
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 7.6
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 7.7
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 7.8
+        },
+        {
+          "isolation": "VISION_QUALITY_GATE",
+          "status": "FAULT_LOW_VISUAL_QUALITY",
+          "t_s": 7.9
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.2
+        },
+        {
+          "isolation": "INNOVATION_MAGNITUDE_GATE",
+          "status": "FAULT_FALSE_DETECTION_REJECTED",
+          "t_s": 9.3
+        },
+        {
+          "isolation": "CONSISTENT_CLUSTER_REACQUISITION",
+          "status": "RECOVERY_REACQUISITION_ACCEPTED",
+          "t_s": 9.4
+        }
+      ],
+      "nonfinite_count": 0,
+      "observed_statuses": [
+        "FAULT_FALSE_DETECTION_REJECTED",
+        "FAULT_LOW_VISUAL_QUALITY",
+        "NOMINAL",
+        "RECOVERY_REACQUISITION_ACCEPTED"
+      ],
+      "passed": true,
+      "position_error_rmse_m": {
+        "cv_kalman": 0.13118667352827276,
+        "formal_imm": 0.041537461838539506,
+        "ghost_mh": 0.667294212920655
+      },
+      "recovery_ok": true,
+      "recovery_time_s": 1.4000000000000004
+    }
+  ]
+}

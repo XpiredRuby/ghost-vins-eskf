@@ -1,0 +1,14 @@
+schema_version: 1
+status: SYNTHETIC_SELECTED_PENDING_PHYSICAL_CONFIRMATION
+formal_imm:
+  transition_stay_probability: 0.99
+  smooth_acceleration_std_mps2: 0.015
+  maneuver_acceleration_std_mps2: 0.75
+  future_horizon_s: 1.5
+ghost_mh:
+  model_count: 3
+  gate_chi2: 9.21
+  max_occlusion_s: 20.0
+  stationary_prior_scale: 2.0
+  future_horizon_s: 1.0
+source_report: docs/GHOST_X_G7_TRADE_STUDY.json

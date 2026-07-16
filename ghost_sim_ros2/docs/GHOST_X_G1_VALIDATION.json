@@ -1,0 +1,40 @@
+{
+  "claim_status_counts": {
+    "approved": 3,
+    "future_gate": 2,
+    "qualified": 1
+  },
+  "counts": {
+    "claims": 6,
+    "fault_scenarios": 12,
+    "nominal_scenarios": 10,
+    "requirements": 34,
+    "tests": 34,
+    "traceability_rows": 34
+  },
+  "errors": [],
+  "generated_at_utc": "2026-07-13T03:05:12.899844Z",
+  "passed": true,
+  "phase": "G1_REQUIREMENTS_AND_VNV",
+  "project": "GHOST-X",
+  "schema_version": 1,
+  "unmapped_requirements_to_claims": [
+    "CLM-001",
+    "CLM-002",
+    "DAT-002",
+    "DAT-004",
+    "EST-003",
+    "EST-004",
+    "EST-005",
+    "EST-006",
+    "FDIR-002",
+    "REP-001",
+    "REP-002",
+    "SW-001",
+    "SW-002",
+    "SYS-004",
+    "VNV-001",
+    "VNV-006"
+  ],
+  "warnings": []
+}

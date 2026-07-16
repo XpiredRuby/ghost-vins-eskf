@@ -1,0 +1,35 @@
+schema_version: 1
+phase: G8_FAULT_INJECTION
+seed: 26071308
+source_campaign: /home/xpired/ghost_trials/ghost_x_g4_controlled_truth_v1
+representative_trial: g4_repeated_reentry_rep01
+fault_window_s: [5.0, 8.0]
+acceptance:
+  minimum_faults: 10
+  require_detection: true
+  require_isolation: true
+  require_explicit_status: true
+  require_raw_evidence: true
+  maximum_recovery_s: 2.0
+  allow_no_recovery: [parameter_mismatch]
+monitors:
+  frozen_repeat_threshold: 4
+  innovation_gate_m: 0.75
+  maximum_latency_s: 0.30
+  deadline_s: 0.10
+  maximum_loss_fraction: 0.25
+  minimum_quality: 0.35
+faults:
+  - camera_disconnect
+  - frozen_measurement
+  - duplicate_measurement
+  - false_detection
+  - covariance_corruption
+  - latency
+  - out_of_sequence_data
+  - node_restart
+  - cpu_saturation
+  - network_degradation
+  - parameter_mismatch
+  - lighting_degradation
+claim_boundary: DETERMINISTIC_SOFTWARE_FAULT_INJECTION_ACTUAL_HARDWARE_AND_DDS_FAULT_EVIDENCE_PENDING

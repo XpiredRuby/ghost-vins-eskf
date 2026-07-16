@@ -1,0 +1,5 @@
+schema_version: 1
+status: FROZEN_SYNTHETIC_SELECTION
+lag_steps: 20
+acceleration_std_mps2: 0.3
+source_report: docs/GHOST_X_G11_FIXED_LAG.json

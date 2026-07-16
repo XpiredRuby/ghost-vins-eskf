@@ -1,0 +1,13 @@
+fault,expected_status,detected,isolated,recovery_time_s,recovery_ok,passed,discrepancy
+camera_disconnect,FAULT_CAMERA_DISCONNECTED,True,True,1.4000000000000004,True,True,
+frozen_measurement,FAULT_FROZEN_MEASUREMENT,True,True,1.4000000000000004,True,True,
+duplicate_measurement,FAULT_DUPLICATE_MEASUREMENT,True,True,1.4000000000000004,True,True,
+false_detection,FAULT_FALSE_DETECTION_REJECTED,True,True,1.1999999999999993,True,True,
+covariance_corruption,FAULT_COVARIANCE_INVALID_FALLBACK,True,True,1.1999999999999993,True,True,
+latency,FAULT_STALE_MEASUREMENT_REJECTED,True,True,1.4000000000000004,True,True,
+out_of_sequence_data,FAULT_OUT_OF_SEQUENCE_REJECTED,True,True,1.4000000000000004,True,True,
+node_restart,FAULT_NODE_RESTART,True,True,1.1999999999999993,True,True,
+cpu_saturation,FAULT_DEADLINE_MISS,True,True,1.1999999999999993,True,True,
+network_degradation,FAULT_NETWORK_DEGRADED,True,True,1.1999999999999993,True,True,
+parameter_mismatch,FAULT_CONFIGURATION_MISMATCH,True,True,1.4000000000000004,True,True,
+lighting_degradation,FAULT_LOW_VISUAL_QUALITY,True,True,1.4000000000000004,True,True,

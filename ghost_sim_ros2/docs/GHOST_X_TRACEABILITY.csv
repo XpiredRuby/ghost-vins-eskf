@@ -1,0 +1,35 @@
+requirement_id,requirement_title,phase,verification_method,test_id,test_title,planned_evidence,mapped_claims,status
+CLM-001,Claim traceability,G12,traceability_audit,T-CLAIM-001,Public claim traceability audit,release/claim_traceability.json,,PLANNED
+CLM-002,Public failure gallery,G12,release_review,T-FAILGALLERY-001,Failure gallery release review,release/failure_gallery_review.md,,PLANNED
+CON-001,Innovation and NIS analysis,G6,consistency_report,T-NIS-001,Innovation and NIS analysis,consistency/nis_report.json,CLM-FINAL-001;CLM-NOW-004,PLANNED
+CON-002,Conditional NEES analysis,G6,consistency_report,T-NEES-001,Conditional NEES analysis,consistency/nees_report.json,CLM-FINAL-001,PLANNED
+DAT-001,Frame and unit contract,G2,schema_and_document_review,T-FRAME-001,Frame and unit contract audit,contracts/frame_contract_audit.json,CLM-NOW-003,PLANNED
+DAT-002,Timestamp contract,G2,schema_and_timing_test,T-TIME-001,Timestamp contract audit,contracts/time_contract_audit.json,,PLANNED
+DAT-003,Calibration provenance,G2,manifest_test,T-CALID-001,Calibration identifier audit,contracts/calibration_id_audit.json,CLM-NOW-004,PLANNED
+DAT-004,Stale and invalid data behavior,G8,fault_test,T-DATAFAULT-001,Invalid data handling,faults/data_fault_report.json,,PLANNED
+EST-001,Formal IMM estimator,G5,unit_test_and_review,T-IMM-001,Formal IMM mathematics verification,cpp/test_results/imm_math.xml,CLM-NOW-001,PLANNED
+EST-002,GHOST multi-hypothesis estimator,G5,unit_test_and_review,T-MH-001,GHOST-MH mathematics verification,cpp/test_results/mh_math.xml,CLM-NOW-001,PLANNED
+EST-003,Independent baseline estimator,G4,replay_comparison,T-BASE-001,Baseline inclusion audit,campaign/baseline_coverage.json,,PLANNED
+EST-004,Deterministic configuration,G10,repeated_replay,T-DET-001,Deterministic repeat replay,replay/determinism_report.json,,PLANNED
+EST-005,Covariance mathematical integrity,G5,property_test,T-COV-001,Covariance property test,cpp/test_results/covariance_properties.xml,,PLANNED
+EST-006,C++ and Python equivalence,G5,equivalence_test,T-EQUIV-001,C++ versus Python reference equivalence,equivalence/cpp_python_equivalence.json,,PLANNED
+FDIR-001,Fault coverage,G8,fault_campaign,T-FAULT-001,Reproducible fault campaign,faults/fault_campaign_summary.json,CLM-FINAL-001,PLANNED
+FDIR-002,Fault annunciation time,G8,fault_timing,T-FAULTTIME-001,Fault detection and recovery timing,faults/fault_timing.json,,PLANNED
+REP-001,Canonical deterministic replay,G10,ci_replay,T-REPLAY-001,Canonical one-command replay,replay/canonical_replay_report.json,,PLANNED
+REP-002,Regression rejection,G10,negative_ci_test,T-CI-001,Regression rejection test,ci/negative_regression_test.json,,PLANNED
+RT-001,End-to-end latency,G9,timing_campaign,T-LATENCY-001,End-to-end latency campaign,realtime/latency_report.json,CLM-FINAL-001,PLANNED
+RT-002,Publication deadline and jitter,G9,timing_campaign,T-JITTER-001,Publication deadline and jitter campaign,realtime/jitter_report.json,CLM-FINAL-001,PLANNED
+RT-003,Resource and thermal evidence,G9,resource_campaign,T-RESOURCE-001,Pi resource and thermal campaign,realtime/resource_thermal_report.json,CLM-FINAL-001,PLANNED
+SW-001,Modern C++ estimator library,G5,build_test_and_review,T-CPP-001,C++ library build and API review,cpp/build_and_api_review.md,,PLANNED
+SW-002,Software assurance,G5,ci_assurance,T-ASSURE-001,Sanitizer and static-analysis assurance,cpp/software_assurance_report.json,,PLANNED
+SYS-001,Identical estimator inputs,G4,inspection_and_replay,T-PAIR-001,Paired-input identity audit,campaign/paired_input_audit.json,CLM-FINAL-002,PLANNED
+SYS-002,Required execution modes,G10,demonstration,T-MODE-001,Execution-mode demonstration,release/execution_mode_report.json,CLM-NOW-003,PLANNED
+SYS-003,Required outputs,G2,schema_test,T-SCHEMA-001,Output schema validation,schemas/schema_validation_report.json,CLM-NOW-001,PLANNED
+SYS-004,No-purchase completion path,G12,inspection,T-PLAN-001,No-purchase plan audit,release/no_purchase_audit.md,,PLANNED
+VNV-001,Controlled truth uncertainty,G4,protocol_review,T-TRUTH-001,Ground-truth protocol review,campaign/truth_protocol_review.md,,PLANNED
+VNV-002,Paired physical campaign,G4,campaign_audit,T-CAMPAIGN-001,Paired campaign completeness audit,campaign/campaign_audit.json,CLM-FINAL-001;CLM-FINAL-002,PLANNED
+VNV-003,Position accuracy,G4,paired_statistics,T-ACCURACY-001,Position accuracy statistics,campaign/position_accuracy.json,CLM-FINAL-001;CLM-FINAL-002,PLANNED
+VNV-004,Velocity accuracy,G4,paired_statistics,T-VELOCITY-001,Velocity accuracy statistics,campaign/velocity_accuracy.json,CLM-FINAL-001;CLM-FINAL-002,PLANNED
+VNV-005,Reacquisition performance,G4,paired_statistics,T-REACQ-001,Reacquisition timing statistics,campaign/reacquisition_statistics.json,CLM-NOW-002,PLANNED
+VNV-006,False-track control,G8,campaign_and_fault_statistics,T-FALSE-001,False-track statistics,faults/false_track_statistics.json,,PLANNED
+VNV-007,Dropout uncertainty growth,G6,replay_analysis,T-DROPOUT-001,Prediction uncertainty growth,consistency/dropout_growth.json,CLM-NOW-002,PLANNED

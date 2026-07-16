@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +14,13 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from std_msgs.msg import String
 
+from ghost_sim_ros2.data_contract import (
+    build_run_identity,
+    build_timestamps,
+    build_validity,
+    contract_envelope,
+)
+
 
 class GhostMissionEvaluator(Node):
     def __init__(self) -> None:
@@ -20,8 +28,27 @@ class GhostMissionEvaluator(Node):
         self.declare_parameter("metrics_path", "")
         self.declare_parameter("publish_rate_hz", 4.0)
         self.declare_parameter("minimum_occlusion_s", 0.25)
+        self.declare_parameter("frame_id", "ghost_local")
+        self.declare_parameter(
+            "calibration_artifact_path", os.environ.get("GHOST_CALIBRATION_ARTIFACT", "")
+        )
+        self.declare_parameter("configuration_label", "ghost-drone-mission-evaluator-v1")
         self.metrics_path = str(self.get_parameter("metrics_path").value).strip()
+        self.publish_rate_hz = float(self.get_parameter("publish_rate_hz").value)
         self.minimum_occlusion_s = float(self.get_parameter("minimum_occlusion_s").value)
+        self.frame_id = str(self.get_parameter("frame_id").value)
+        self.calibration_artifact_path = str(self.get_parameter("calibration_artifact_path").value)
+        self.configuration_label = str(self.get_parameter("configuration_label").value)
+        self.provenance = build_run_identity(
+            node_name="ghost_mission_evaluator",
+            frame_id=self.frame_id,
+            configuration_label=self.configuration_label,
+            configuration={
+                "publish_rate_hz": self.publish_rate_hz,
+                "minimum_occlusion_s": self.minimum_occlusion_s,
+            },
+            calibration_artifact_path=self.calibration_artifact_path,
+        )
 
         self.start_s: float | None = None
         self.elapsed_s = 0.0
@@ -70,7 +97,7 @@ class GhostMissionEvaluator(Node):
         self.create_subscription(Odometry, "/ghost/tracker_mh/target_odom", self.on_mh, qos)
         self.status_pub = self.create_publisher(String, "/ghost/evaluation/status_json", qos)
         self.timer = self.create_timer(
-            1.0 / max(float(self.get_parameter("publish_rate_hz").value), 1.0), self.tick
+            1.0 / max(self.publish_rate_hz, 1.0), self.tick
         )
         self.get_logger().info(
             f"GHOST mission evaluator active; metrics_path={self.metrics_path or 'disabled'}"
@@ -214,8 +241,34 @@ class GhostMissionEvaluator(Node):
 
     def result(self) -> dict[str, object]:
         acceptance = self.acceptance()
+        passed = all(acceptance.values())
+        now = self.now_s()
+        if self.mission_complete:
+            validity = build_validity(
+                is_valid=passed,
+                state="MISSION_COMPLETE" if passed else "DEGRADED",
+                reason=None if passed else "One or more mission acceptance criteria failed.",
+            )
+        elif self.measurement_count > 0:
+            validity = build_validity(is_valid=True, state="VALID_TRACKING")
+        else:
+            validity = build_validity(
+                is_valid=False,
+                state="WAITING_FOR_TARGET",
+                reason="Mission evaluator has not observed target measurements.",
+            )
         return {
-            "schema_version": 1,
+            **contract_envelope(
+                frame_id=self.frame_id,
+                provenance=self.provenance,
+                timestamps=build_timestamps(
+                    source_time_s=self.start_s,
+                    receipt_time_s=now,
+                    processing_time_s=now,
+                    publication_time_s=now,
+                ),
+                validity=validity,
+            ),
             "system": "GHOST GPS-denied occlusion-aware target tracking and prediction software demo",
             "elapsed_s": self.elapsed_s,
             "visible": self.visible,
@@ -255,7 +308,7 @@ class GhostMissionEvaluator(Node):
                 "mh_max_hidden": self.max_errors["mh_hidden"],
             },
             "acceptance": acceptance,
-            "passed": all(acceptance.values()),
+            "passed": passed,
             "claim_boundary": (
                 "Deterministic local-frame software simulation with camera LOS gating. "
                 "It demonstrates tracking, prediction, navigation, and reacquisition logic; "

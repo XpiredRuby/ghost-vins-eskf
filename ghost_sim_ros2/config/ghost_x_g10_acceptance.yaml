@@ -1,0 +1,49 @@
+schema_version: 1
+phase: G10_DETERMINISTIC_REPLAY_AND_CI
+canonical:
+  planned_trials: 24
+  accepted_trials: 24
+  invalid_trials: 0
+  scenario_families: 8
+  estimators: 3
+  deterministic_subtrees:
+    - canonical_streams
+    - estimator_outputs
+    - trial_metrics
+  deterministic_root_files:
+    - trial_metrics.csv
+    - public_blinded_summary.json
+    - blind_key.private.json
+acceptance_bands:
+  overall_position_rmse_m_max:
+    cv_kalman: 0.30
+    formal_imm: 0.15
+    ghost_mh: 0.40
+  overall_hidden_position_rmse_m_max:
+    cv_kalman: 1.00
+    formal_imm: 0.40
+    ghost_mh: 0.90
+  g5_max_state_absolute_difference: 1.0e-10
+  g5_max_covariance_absolute_difference: 1.0e-10
+  g6_canonical_trials: 24
+  g7_imm_candidates: 36
+  g7_mh_candidates: 27
+  g8_faults: 12
+  g8_passed_faults: 12
+  g9_qos_scenarios: 8
+  g9_qos_passed: 8
+  g9_estimator_deadline_ms: 33.333
+  g11_ablation_candidates: 15
+replay:
+  repeated_runs: 2
+  fail_on_hash_mismatch: true
+  fail_on_metric_regression: true
+ci:
+  run_cpp_tests: true
+  run_python_ghost_x_tests: true
+  rerun_g4: true
+  rerun_g5_equivalence: true
+  rerun_g6_consistency: true
+  rerun_g8_faults: true
+  verify_pinned_g7_g9_g11: true
+claim_boundary: SOFTWARE_REGRESSION_GATES_DO_NOT_REPLACE_PHYSICAL_VALIDATION

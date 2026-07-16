@@ -1,0 +1,145 @@
+{
+  "browser_sequence_completed": true,
+  "claim_limit": "This report isolates the browser cue window. Hand-guided positions support relative response only, not absolute ground-truth accuracy. The intended dropout is assessed from recorder timestamps.",
+  "intended_dropout": {
+    "browser_cue_duration_s": 1.9964690208435059,
+    "measured_occlusion_duration_s": 2.45097017288208,
+    "measurement_loss_detected": true,
+    "metrics": {
+      "constant_velocity_error_m": 0.04840823234348344,
+      "ghost_top1_beats_constant_velocity": true,
+      "ghost_top1_error_m": 0.002616434607344502,
+      "ghost_top1_improvement_vs_constant_velocity_percent": 94.59506269764317,
+      "ghost_top3_best_error_m": 0.002616434607344502,
+      "last_seen_hold_error_m": 0.0006566815761033871
+    },
+    "pass": true,
+    "reacquired": true,
+    "reset_during_occlusion": false
+  },
+  "max_vision_gap_s": 6.847489833831787,
+  "movement_response": {
+    "closer_response_pass": false,
+    "farther_response_pass": false,
+    "left_response_pass": true,
+    "right_response_pass": true
+  },
+  "overall_verdict": "PASS_DROPOUT_AND_LATERAL_PARTIAL_DISTANCE",
+  "recorder_trial_dir": "/home/xpired/ghost_trials/physical_validation_20260711T183400Z/browser_guided_runs/20260716T014453Z/recorder_trials/20260715_194502",
+  "run_dir": "/home/xpired/ghost_trials/physical_validation_20260711T183400Z/browser_guided_runs/20260716T014453Z",
+  "schema_version": 1,
+  "scope": "BROWSER_CUE_WINDOW_ONLY",
+  "sequence_duration_s": 99.95432209968567,
+  "sequence_end_wall_time_s": 1784171647.996217,
+  "sequence_event_counts": {
+    "occlusions": 4,
+    "reacquisitions": 4,
+    "resets": 2
+  },
+  "sequence_start_wall_time_s": 1784171548.041895,
+  "stable_hold_measurements": [
+    {
+      "cue": "CENTER BASELINE",
+      "mean_x_m": 1.0757006959212316,
+      "mean_y_m": 0.026524043222367573,
+      "phase_index": 1,
+      "sample_count": 20,
+      "stable": true,
+      "std_x_m": 0.0009115112846665727,
+      "std_y_m": 7.897031278462657e-05
+    },
+    {
+      "cue": "HOLD LEFT",
+      "mean_x_m": 0.9902856071562307,
+      "mean_y_m": 0.4022069641056925,
+      "phase_index": 3,
+      "sample_count": 17,
+      "stable": true,
+      "std_x_m": 0.005502151130242434,
+      "std_y_m": 0.006448358530666338
+    },
+    {
+      "cue": "HOLD CENTER",
+      "mean_x_m": 1.081606611782128,
+      "mean_y_m": -0.016792142208756706,
+      "phase_index": 5,
+      "sample_count": 29,
+      "stable": true,
+      "std_x_m": 0.000875032096689358,
+      "std_y_m": 8.01214732320836e-05
+    },
+    {
+      "cue": "HOLD RIGHT",
+      "mean_x_m": 0.9834719355148884,
+      "mean_y_m": -0.4125736240958222,
+      "phase_index": 7,
+      "sample_count": 29,
+      "stable": true,
+      "std_x_m": 0.0005624489767708886,
+      "std_y_m": 0.0003061070191201189
+    },
+    {
+      "cue": "HOLD CENTER",
+      "mean_x_m": 1.102858977147036,
+      "mean_y_m": -0.038520527346843546,
+      "phase_index": 9,
+      "sample_count": 15,
+      "stable": true,
+      "std_x_m": 0.0012386897483669709,
+      "std_y_m": 9.142459101412173e-05
+    },
+    {
+      "cue": "HOLD CLOSER",
+      "mean_x_m": 0.8297580050244266,
+      "mean_y_m": 0.07817142530556172,
+      "phase_index": 11,
+      "sample_count": 2,
+      "stable": false,
+      "std_x_m": 0.006049332253004985,
+      "std_y_m": 0.0020365680805386633
+    },
+    {
+      "cue": "HOLD CENTER",
+      "mean_x_m": 0.9990652095813047,
+      "mean_y_m": -0.014660310495096609,
+      "phase_index": 13,
+      "sample_count": 17,
+      "stable": true,
+      "std_x_m": 0.1307253392443806,
+      "std_y_m": 0.070287003108772
+    },
+    {
+      "cue": "HOLD FARTHER",
+      "mean_x_m": null,
+      "mean_y_m": null,
+      "phase_index": 15,
+      "sample_count": 0,
+      "stable": false,
+      "std_x_m": null,
+      "std_y_m": null
+    },
+    {
+      "cue": "HOLD CENTER",
+      "mean_x_m": 1.082250332809123,
+      "mean_y_m": -0.04074386309914243,
+      "phase_index": 17,
+      "sample_count": 30,
+      "stable": true,
+      "std_x_m": 0.0012982964989358976,
+      "std_y_m": 0.00022375480297214616
+    },
+    {
+      "cue": "RECOVERY HOLD",
+      "mean_x_m": null,
+      "mean_y_m": null,
+      "phase_index": 21,
+      "sample_count": 0,
+      "stable": false,
+      "std_x_m": null,
+      "std_y_m": null
+    }
+  ],
+  "vision_gap_count_over_0_2_s": 33,
+  "vision_rate_over_sequence_hz": 7.67350509600837,
+  "vision_sample_count": 767
+}

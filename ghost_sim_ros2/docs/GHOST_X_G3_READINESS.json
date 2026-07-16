@@ -1,0 +1,79 @@
+{
+  "checks": {
+    "design": {
+      "analysis_window_s": [
+        15.0,
+        75.0
+      ],
+      "candidate_models": [
+        "constant_full",
+        "range_logdiag_fixed_corr",
+        "range_yaw_logdiag_fixed_corr",
+        "condition_shrinkage"
+      ],
+      "planned_conditions": 9,
+      "planned_trials": 18,
+      "protocol_version": "ghost-x-g3-v1",
+      "ranges": [
+        0.7,
+        1.05,
+        1.4
+      ],
+      "repeats": 2,
+      "yaws": [
+        -20.0,
+        0.0,
+        20.0
+      ]
+    },
+    "legacy_single_condition_baseline": {
+      "acceptable": true,
+      "analysis_rate_hz": 14.748901472617462,
+      "analysis_samples": 885,
+      "available": true,
+      "status": "ACCEPTABLE_FOR_FIXED_WINDOW_ANALYSIS"
+    },
+    "required_files": {
+      "analysis/measurement_characterization.py": true,
+      "docs/GHOST_X_G3_MEASUREMENT_PROTOCOL.md": true,
+      "test/test_ghost_x_g3.py": true,
+      "tools/collect_ghost_x_g3_trial.py": true,
+      "tools/init_ghost_x_g3_campaign.py": true
+    },
+    "source_integration": {
+      "analysis/measurement_characterization.py": {
+        "condition_shrinkage": true,
+        "fixture_referenced_bias_m": true,
+        "jarque_bera": true,
+        "ljung_box": true
+      },
+      "tools/collect_ghost_x_g3_trial.py": {
+        "accepted_attempt": true,
+        "collection_quality.json": true,
+        "lock_uvc_camera_controls.sh": true
+      },
+      "tools/init_ghost_x_g3_campaign.py": {
+        "calibration_sha256": true,
+        "randomization_seed": true,
+        "trial_order.csv": true
+      }
+    }
+  },
+  "claim_boundary": "Readiness validation does not complete G3. Physical multi-condition capture and analysis remain required.",
+  "errors": [],
+  "generated_at_utc": "2026-07-13T04:26:10.208274Z",
+  "passed": true,
+  "phase": "G3_MEASUREMENT_CHARACTERIZATION",
+  "physical_exit_pending": {
+    "accepted_trials": 18,
+    "aggregate_analysis": "measurement_characterization.json",
+    "conditions": 9,
+    "covariance_model_selection": "required"
+  },
+  "project": "GHOST-X",
+  "schema_version": 1,
+  "status": "READY_FOR_PHYSICAL_COLLECTION",
+  "warnings": [
+    "Legacy controlled_R_direct_01 is one-condition baseline evidence only and does not complete G3."
+  ]
+}
