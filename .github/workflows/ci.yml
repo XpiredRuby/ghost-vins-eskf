@@ -21,6 +21,9 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install numpy matplotlib pytest
 
+      - name: Validate interactive showcase JavaScript
+        run: node --check ghost_sim_ros2/docs/assets/showcase.js
+
       - name: Run Python unit tests
         run: |
           cd ghost_sim_ros2
