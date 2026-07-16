@@ -78,10 +78,10 @@
       </div>
 
       <div class="hero-metrics" id="hero-metrics" aria-live="polite">
-        <article class="metric-card skeleton-card"><span>Loading evidence…</span></article>
-        <article class="metric-card skeleton-card"><span>Loading evidence…</span></article>
-        <article class="metric-card skeleton-card"><span>Loading evidence…</span></article>
-        <article class="metric-card skeleton-card"><span>Loading evidence…</span></article>
+        <article class="metric-card skeleton-card"><span>Loading verified metrics from published JSON…</span></article>
+        <article class="metric-card skeleton-card"><span>Loading verified metrics from published JSON…</span></article>
+        <article class="metric-card skeleton-card"><span>Loading verified metrics from published JSON…</span></article>
+        <article class="metric-card skeleton-card"><span>Loading verified metrics from published JSON…</span></article>
       </div>
     </section>
 
@@ -111,7 +111,7 @@
             <div class="card-topline"><span class="evidence-badge synthetic">Synthetic software</span><span>Deterministic local frame</span></div>
             <h3>Follower-drone mission logic</h3>
             <p>The software mission evaluator used camera line-of-sight gating, tracker prediction, obstacle-aware reposition commands, and reacquisition logic. The observer pose and map were known by the simulation.</p>
-            <div class="mission-stats" id="mission-stats"><span>Loading mission evidence…</span></div>
+            <div class="mission-stats" id="mission-stats"><span>Loading measured and synthetic mission evidence…</span></div>
           </article>
         </div>
 
@@ -132,7 +132,7 @@
         <div class="architecture-layout">
           <div class="stage-rail" id="stage-rail" role="tablist" aria-label="GHOST-X system stages"></div>
           <article class="stage-detail" id="stage-detail" role="tabpanel" tabindex="0" aria-live="polite">
-            <p>Loading architecture evidence…</p>
+            <p>Loading evidence-backed stage details…</p>
           </article>
         </div>
 
@@ -187,11 +187,11 @@
           <aside class="replay-readout">
             <div class="readout-header"><span>Current recorded state</span><strong id="replay-state">Loading</strong></div>
             <dl class="readout-grid">
-              <div><dt>Measurement</dt><dd id="replay-measurement">Not available</dd></div>
-              <div><dt>Formal IMM</dt><dd id="replay-imm">Not available</dd></div>
-              <div><dt>GHOST-MH</dt><dd id="replay-mh">Not available</dd></div>
-              <div><dt>Visibility</dt><dd id="replay-visibility">Unknown</dd></div>
-              <div><dt>Event</dt><dd id="replay-event">None</dd></div>
+              <div><dt>Measurement</dt><dd id="replay-measurement">Awaiting recorded replay data</dd></div>
+              <div><dt>Formal IMM</dt><dd id="replay-imm">Awaiting recorded replay data</dd></div>
+              <div><dt>GHOST-MH</dt><dd id="replay-mh">Awaiting recorded replay data</dd></div>
+              <div><dt>Visibility</dt><dd id="replay-visibility">Awaiting recorded replay data</dd></div>
+              <div><dt>Event</dt><dd id="replay-event">Awaiting timeline events</dd></div>
               <div><dt>Source class</dt><dd><span class="evidence-badge measured">Measured hardware</span></dd></div>
             </dl>
             <div class="no-video-card"><strong>No retained camera footage</strong><p>The replay intentionally uses recorded state and event data only. No generated image is presented as a camera frame.</p></div>

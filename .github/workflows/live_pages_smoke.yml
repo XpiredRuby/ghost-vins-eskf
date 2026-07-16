@@ -1,0 +1,38 @@
+name: Validate deployed GHOST showcase
+
+on:
+  workflow_run:
+    workflows: ["Deploy GHOST engineering results to Pages"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-browser-smoke:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout deployed main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Validate live files and rendered interactions
+        run: |
+          python3 ghost_sim_ros2/test/showcase_browser_smoke.py \
+            --base-url https://xpiredruby.github.io/ghost-vins-eskf/ \
+            --output-dir live-smoke-artifacts
+
+      - name: Upload live desktop/mobile review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ghost-showcase-live-browser-${{ github.run_id }}
+          path: live-smoke-artifacts
+          if-no-files-found: warn
+          retention-days: 30
