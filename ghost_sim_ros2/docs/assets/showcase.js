@@ -718,6 +718,28 @@
       <tr><td><code>${escapeHtml(claim)}</code></td><td>${files.map((file) => `<a href="${escapeHtml(file)}">${escapeHtml(file)}</a>`).join(" · ")}</td></tr>`).join("");
   }
 
+  function runBrowserSmokeInteractions() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("smoke") !== "1") return;
+
+    const scrubber = $("#replay-scrubber");
+    scrubber.value = String(Number(scrubber.max) * 0.5);
+    scrubber.dispatchEvent(new Event("input", { bubbles: true }));
+
+    const rangeButton = $$('.scenario-button').find((button) => button.dataset.scenario === "range_change");
+    if (rangeButton) rangeButton.click();
+
+    const sort = $("#fault-sort");
+    sort.value = "recovery-desc";
+    sort.dispatchEvent(new Event("change", { bubbles: true }));
+
+    document.documentElement.dataset.smokeReplayMeasurement = $("#replay-measurement").textContent;
+    document.documentElement.dataset.smokeReplayTime = String(state.replayTime);
+    document.documentElement.dataset.smokeScenario = state.activeScenario;
+    document.documentElement.dataset.smokeFaultFirst = $("#fault-table-body tr strong")?.textContent || "";
+    document.documentElement.dataset.smokeComplete = "true";
+  }
+
   function setupNavigation() {
     const toggle = $("#nav-toggle");
     const nav = $("#primary-nav");
@@ -761,6 +783,7 @@
       document.documentElement.dataset.stageButtons = String(document.querySelectorAll(".stage-button").length);
       document.documentElement.dataset.estimatorCards = String(document.querySelectorAll(".estimator-card").length);
       document.documentElement.dataset.faultRows = String(document.querySelectorAll("#fault-table-body tr").length);
+      runBrowserSmokeInteractions();
     } catch (error) {
       showLoadError(error);
     }
