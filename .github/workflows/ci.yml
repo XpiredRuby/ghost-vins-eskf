@@ -19,7 +19,7 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y cmake libeigen3-dev libgtest-dev python3 python3-pip
           python3 -m pip install --upgrade pip
-          python3 -m pip install numpy pytest
+          python3 -m pip install numpy matplotlib pytest
 
       - name: Run Python unit tests
         run: |
@@ -34,7 +34,16 @@ jobs:
             test/test_tracker_comparison.py \
             test/test_grid_validation_analysis.py \
             test/test_statistical_comparison.py \
-            test/test_export_demo_artifact.py
+            test/test_export_demo_artifact.py \
+            test/test_public_results_package.py
+
+      - name: Verify public results are reproducible
+        run: |
+          python3 ghost_sim_ros2/tools/generate_public_results.py
+          git diff --exit-code -- \
+            ghost_sim_ros2/docs/GHOST_PUBLIC_RESULTS_SUMMARY.json \
+            ghost_sim_ros2/docs/GHOST_PUBLIC_RESULTS_TABLE.csv \
+            ghost_sim_ros2/docs/assets/results
 
       - name: Build portable C++ core
         run: |
