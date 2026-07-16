@@ -185,7 +185,9 @@ def draw_axis(frame, rvec, tvec):
     if not np.isfinite(projected).all():
         return
 
-    points = [(int(round(x)), int(round(y))) for x, y in projected]
+    coordinate_bound = max(1, 4 * max(frame.shape[:2]))
+    projected = np.clip(np.rint(projected), -coordinate_bound, coordinate_bound)
+    points = [(int(x), int(y)) for x, y in projected]
     origin = points[0]
     cv2.line(frame, origin, points[1], (0, 0, 255), 2)
     cv2.line(frame, origin, points[2], (0, 255, 0), 2)

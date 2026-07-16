@@ -1,0 +1,34 @@
+{
+  "baseline": {
+    "max_internal_gap_s": 2.1555190086364746,
+    "mean_x_m": 1.037406518457763,
+    "mean_y_m": -0.08211238805888163,
+    "sample_count": 47,
+    "std_x_m": 0.0014903385756489863,
+    "std_y_m": 0.00044587504703444864
+  },
+  "claim_limit": "Relative closer-response coverage only; no absolute ground-truth accuracy claim.",
+  "closer": {
+    "max_internal_gap_s": 0.31725192070007324,
+    "mean_x_m": 0.6934199020449486,
+    "mean_y_m": -0.010427657160439523,
+    "sample_count": 32,
+    "std_x_m": 0.01581666408677013,
+    "std_y_m": 0.011268633357161117
+  },
+  "closer_delta_x_m": -0.34398661641281436,
+  "final_center": {
+    "max_internal_gap_s": 1.7789709568023682,
+    "mean_x_m": 1.0495772313007083,
+    "mean_y_m": -0.04382148156742591,
+    "sample_count": 54,
+    "std_x_m": 0.006722628948494173,
+    "std_y_m": 0.007829892814331912
+  },
+  "final_center_delta_x_m": 0.012170712842945353,
+  "occlusion_count_during_sequence": 1,
+  "pass": true,
+  "reacquire_count_during_sequence": 1,
+  "reset_count_during_sequence": 0,
+  "run_dir": "/home/xpired/ghost_trials/physical_validation_20260711T183400Z/browser_guided_runs/20260716T032941Z"
+}

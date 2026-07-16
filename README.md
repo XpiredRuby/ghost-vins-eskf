@@ -61,6 +61,7 @@ This demonstrates local-frame target estimation, prediction, guidance, and reacq
 4. Review the [portfolio packet](ghost_sim_ros2/docs/GHOST_PORTFOLIO_PACKET.md) and [full project report](ghost_sim_ros2/docs/GHOST_PROJECT_REPORT.md).
 5. Inspect the [closed-loop GNC SIL](ghost_sim_ros2/docs/GHOST_CLOSED_LOOP_GNC_SIL.md).
 6. Audit the [master physical-validation runbook](ghost_sim_ros2/docs/GHOST_PHYSICAL_VALIDATION_MASTER_RUNBOOK.md).
+7. Review the [guided hardware validation report](ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md).
 
 | Preserved hardware XY replay | Dropout-state timeline |
 |---|---|
@@ -81,6 +82,8 @@ The preserved run `live_camera_calibrated_R_01` contains real USB-webcam AprilTa
 | Maximum IMM measurement age | `2.849 s` |
 
 The run demonstrates visible tracking, temporary measurement loss, prediction-only propagation, degraded-dropout labeling and reacquisition. These are pipeline and behavior results—not physical accuracy results.
+
+A later browser-guided campaign also verified directional left/right and closer/farther relative response plus successful reacquisition after a measured `2.451 s` dropout. See the [2026-07-16 guided hardware validation report](ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md) and its [machine-readable verdict](ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json). The campaign does not claim absolute positioning accuracy or universal tracker superiority.
 
 ## Implemented architecture
 
