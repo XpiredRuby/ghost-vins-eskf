@@ -30,7 +30,7 @@ Implemented an Eigen-based C++ estimator library and matched C++ and Python outp
 
 Executed a 24-trial deterministic controlled-truth software campaign across eight motion and visibility-loss families using identical estimator inputs.
 
-**Qualification:** Synthetic analytic truth; controlled physical truth remains pending.
+**Qualification:** Synthetic analytic truth; guided hardware relative-response evidence exists, but formal controlled physical truth remains pending.
 
 **Requirements:** `SYS-001`, `EST-003`, `VNV-001`
 
@@ -66,7 +66,7 @@ Benchmarked ROS 2 QoS behavior, estimator execution, CPU, memory, temperature, a
 
 Added one-command deterministic regression gates with 47 requirements and evidence checks plus CI artifact export.
 
-**Qualification:** Synthetic and stored-evidence regression protection; physical campaign data will be added after collection.
+**Qualification:** Synthetic, stored-evidence, and guided-hardware report regression protection; formal controlled-truth campaign data remains an expansion gate.
 
 **Requirements:** `REP-001`, `REP-002`, `CLM-001`
 
@@ -74,9 +74,21 @@ Added one-command deterministic regression gates with 47 requirements and eviden
 
 **Evidence:** `GHOST_X_G10_CI_REPORT.json`, `.github/workflows/ghost-x-regression.yml`
 
+### CLM-HW-001
+
+Executed browser-guided Raspberry Pi AprilTag hardware validation demonstrating directional left/right/closer/farther response and bounded reacquisition after a measured 2.451 s tag occlusion without reset.
+
+**Qualification:** Guided tabletop relative-response and short-dropout evidence only; not absolute accuracy, metrology-grade truth, universal estimator superiority, or flight qualification.
+
+**Requirements:** `SYS-003`, `VNV-001`, `VNV-007`
+
+**Tests:** `T-MODE-001`, `T-REACQ-001`, `T-RESOURCE-001`
+
+**Evidence:** `GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md`, `GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json`
+
 ## Prohibited or pending claims
 
-- **CLM-PENDING-001:** Hardware-validated room-scale position or velocity accuracy across the formal campaign. — G3 measurement collection and at least 20 paired controlled physical trials are not complete. (requirements: VNV-002, VNV-003, VNV-004, VNV-005; tests: T-CAMPAIGN-001, T-ACCURACY-001, T-VELOCITY-001, T-REACQ-001)
-- **CLM-PENDING-002:** GHOST-MH statistically outperforms formal IMM. — No physical paired statistics support this claim, and frozen synthetic results do not justify a universal superiority statement. (requirements: SYS-001, VNV-002, VNV-003, VNV-004; tests: T-PAIR-001, T-CAMPAIGN-001, T-ACCURACY-001, T-VELOCITY-001)
+- **CLM-PENDING-001:** Hardware-validated room-scale position or velocity accuracy across the formal campaign. — Guided relative-response and short-dropout hardware validation is complete, but formal metrology-backed G3 characterization and at least 20 paired controlled physical trials are not complete. (requirements: VNV-002, VNV-003, VNV-004, VNV-005; tests: T-CAMPAIGN-001, T-ACCURACY-001, T-VELOCITY-001, T-REACQ-001)
+- **CLM-PENDING-002:** GHOST-MH statistically outperforms formal IMM. — No formal physical paired statistics support this claim; the guided dropout case beat constant velocity but not the last-seen stationary-hold baseline, so universal superiority remains unsupported. (requirements: SYS-001, VNV-002, VNV-003, VNV-004; tests: T-PAIR-001, T-CAMPAIGN-001, T-ACCURACY-001, T-VELOCITY-001)
 - **CLM-PENDING-003:** Hard-real-time, flight-qualified, or safety-certified operation. — Bench timing and resource evidence does not establish operating-system hard-real-time bounds or certification; RT-001 and RT-002 did not meet their predeclared bench limits in the final run. (requirements: RT-001, RT-002, RT-003; tests: T-LATENCY-001, T-JITTER-001, T-RESOURCE-001)
 - **CLM-PENDING-004:** Autonomous flight with VIO, SLAM, PX4, or independent observer-pose estimation. — The mission simulation assumes a known local observer pose and map. (requirements: SYS-002, DAT-001; tests: T-MODE-001, T-FRAME-001)

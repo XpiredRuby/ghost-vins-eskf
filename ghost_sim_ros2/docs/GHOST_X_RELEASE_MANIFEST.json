@@ -1,28 +1,38 @@
 {
-  "claim_boundary": "SOFTWARE_RELEASE_PHYSICAL_CAMPAIGN_PENDING",
+  "claim_boundary": "SOFTWARE_AND_GUIDED_HARDWARE_RELEASE_COMPLETE_FORMAL_METROLOGY_AND_FLIGHT_QUALIFICATION_PENDING",
   "evidence": {
-    "combined_sha256": "sha256:6f3f409ee1eda033293c469191dea08354c4ad81f26542d70e974031a8cbb828",
-    "file_count": 38,
+    "combined_sha256": "sha256:54d49db543498ee058b9e30e159e60b7a9268044ac755117cfd9b9edf76559f9",
+    "file_count": 40,
     "files": [
       {
         "path": ".github/workflows/ghost-x-regression.yml",
-        "sha256": "sha256:fca14254f7646960719f3f6e8273fdea454d3cd90c9218d733d2113fdae9605b",
-        "size_bytes": 1651
+        "sha256": "sha256:1bab914af2d810e5f9dc002ae627588866d40a7ad4e181f090b3e87d58d5af73",
+        "size_bytes": 1630
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
+        "sha256": "sha256:77d9f25a0d79992e3d444d8a12350441b7455aabe24954226315a7f7826bbf79",
+        "size_bytes": 4180
+      },
+      {
+        "path": "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md",
+        "sha256": "sha256:f4a36778bd146e8e5ab41794d9c6c06b49381ab775c437f297ba0f6726184269",
+        "size_bytes": 4601
       },
       {
         "path": "ghost_sim_ros2/docs/GHOST_X_90_SECOND_DEMO.md",
-        "sha256": "sha256:2fa08fe89a5a521b2e5a59926f6d2fc5a3976a82bd369c320723eb77563082ce",
-        "size_bytes": 1427
+        "sha256": "sha256:70bf3b7360b37193a441e1f4edb9f8c244b9fd8b30424221521fed42e04caac1",
+        "size_bytes": 1458
       },
       {
         "path": "ghost_sim_ros2/docs/GHOST_X_APPROVED_CLAIMS.json",
-        "sha256": "sha256:3d9bd36a5a7322d00c96cb04fc79eb8bd4c0bd818fe62a2b4aa2634c549be208",
-        "size_bytes": 5606
+        "sha256": "sha256:2d39473c7b697a87b636c210de9d93326ded88380ec9405072165260a59af95d",
+        "size_bytes": 6656
       },
       {
         "path": "ghost_sim_ros2/docs/GHOST_X_APPROVED_CLAIMS.md",
-        "sha256": "sha256:9f9246b2182f8d09bcf0a39751e6dec9876a2948fcf545bfec44607834ce51b7",
-        "size_bytes": 4102
+        "sha256": "sha256:c279c0eff7e80aeee442ebf3481d1c3d387973d910533c042db4a773667d81d3",
+        "size_bytes": 5002
       },
       {
         "path": "ghost_sim_ros2/docs/GHOST_X_BASELINE_MANIFEST.json",
@@ -41,13 +51,13 @@
       },
       {
         "path": "ghost_sim_ros2/docs/GHOST_X_FINAL_RESEARCH_PACKAGE.md",
-        "sha256": "sha256:893f8ae6592501283ff994574c21144281857e640d569d01d27264a871c65fee",
-        "size_bytes": 3519
+        "sha256": "sha256:0f1450e5a6020984988e0a6bd126ef687caa6245a9ad99a5c12cc0781e461b18",
+        "size_bytes": 4054
       },
       {
         "path": "ghost_sim_ros2/docs/GHOST_X_FINAL_TRACEABILITY.csv",
-        "sha256": "sha256:0cfbd254e7c5fb28d669272863abac90ec972cdb8fffbae5c0790143b5b2aa36",
-        "size_bytes": 10350
+        "sha256": "sha256:ec2a8ee4d836525231abc72426e4cbe7543119524b23fcaa2948f2538c522ab2",
+        "size_bytes": 11274
       },
       {
         "path": "ghost_sim_ros2/docs/GHOST_X_G0_BASELINE.md",
@@ -176,36 +186,37 @@
       },
       {
         "path": "ghost_sim_ros2/docs/GHOST_X_NO_PURCHASE_AUDIT.md",
-        "sha256": "sha256:bed4814a251b25a93446648478e1dbf4b0701eabf6d7485644744f0efaad1856",
-        "size_bytes": 943
+        "sha256": "sha256:ac41c367bd0eb421947b176e1171afafe87be30b05c485f22c05f02b252cb49c",
+        "size_bytes": 1053
       },
       {
         "path": "ghost_sim_ros2/docs/GHOST_X_SOFTWARE_STATUS.json",
-        "sha256": "sha256:cbee4c4032a4eae80de7af6ad80b6b5f78d1ea79b93291a534a00464907d9b6e",
-        "size_bytes": 5122
+        "sha256": "sha256:e7be2cfebabe72ee806b9f80ce3bf0406029b47e2ba232d67286537572d7e4e5",
+        "size_bytes": 5578
       },
       {
         "path": "ghost_sim_ros2/docs/GHOST_X_SOFTWARE_VERIFICATION_REPORT.md",
-        "sha256": "sha256:1c5a9c07e75b9123f9fe53c224eba67e6db26116110ff03700ed7f282809080f",
-        "size_bytes": 2358
+        "sha256": "sha256:a779b2304058217df0a23c74cfca9ca3c590f84ac1eb452b3030c1a18e97c747",
+        "size_bytes": 2653
       },
       {
         "path": "ghost_sim_ros2/docs/GHOST_X_TECHNICAL_DEFENSE.md",
-        "sha256": "sha256:9a5803b0c93151b743b9086fc10a3b2d12a6f8fb1b5925cda7e6df5784be0200",
-        "size_bytes": 2789
+        "sha256": "sha256:fde9841a432f1dde767279f28624bca8e985eec3f01e300980ca819d6bcd7f84",
+        "size_bytes": 2875
       }
     ],
     "missing": []
   },
   "g10_tree_sha256": "sha256:f8a928a3afec99f690bb434413adf9fd46bdc24b2e974c2db80df5b5e49ae82e",
-  "generated_at_utc": "2026-07-14T04:30:53.214907Z",
-  "release_version": "ghost-x-software-v1",
+  "generated_at_utc": "2026-07-16T04:18:54.949589Z",
+  "release_version": "ghost-x-v1.0.0",
   "schema_version": 1,
   "software_status": {
-    "claim_boundary": "SOFTWARE_COMPLETE_DOES_NOT_MEAN_PHYSICAL_CAMPAIGN_OR_FLIGHT_QUALIFICATION_COMPLETE",
+    "claim_boundary": "SOFTWARE_AND_GUIDED_HARDWARE_RELEASE_COMPLETE_FORMAL_METROLOGY_AND_FLIGHT_QUALIFICATION_NOT_COMPLETE",
     "full_project_complete": false,
-    "generated_at_utc": "2026-07-14T04:30:50.475719Z",
-    "next_physical_gate": "G3 measurement characterization trial 1, followed by controlled physical truth collection.",
+    "generated_at_utc": "2026-07-16T04:18:54.892522Z",
+    "guided_hardware_validation_complete": true,
+    "next_physical_gate": "Optional formal metrology-backed G3/G4 campaign for absolute accuracy and paired statistical claims.",
     "phase_status": [
       {
         "complete": true,
@@ -245,23 +256,27 @@
         "complete": true,
         "evidence": [
           "ghost_sim_ros2/docs/GHOST_X_G3_MEASUREMENT_PROTOCOL.md",
-          "ghost_sim_ros2/docs/GHOST_X_G3_READINESS.json"
+          "ghost_sim_ros2/docs/GHOST_X_G3_READINESS.json",
+          "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md",
+          "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json"
         ],
-        "evidence_count": 2,
-        "expected_evidence_count": 2,
+        "evidence_count": 4,
+        "expected_evidence_count": 4,
         "phase": "G3",
-        "software_status": "SOFTWARE_COMPLETE_PHYSICAL_EXECUTION_PENDING"
+        "software_status": "SOFTWARE_COMPLETE_GUIDED_HARDWARE_EVIDENCE_FORMAL_CAMPAIGN_PENDING"
       },
       {
         "complete": true,
         "evidence": [
           "ghost_sim_ros2/docs/GHOST_X_G4_CONTROLLED_TRUTH.md",
-          "ghost_sim_ros2/docs/GHOST_X_G4_VALIDATION.json"
+          "ghost_sim_ros2/docs/GHOST_X_G4_VALIDATION.json",
+          "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md",
+          "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json"
         ],
-        "evidence_count": 2,
-        "expected_evidence_count": 2,
+        "evidence_count": 4,
+        "expected_evidence_count": 4,
         "phase": "G4",
-        "software_status": "SOFTWARE_COMPLETE_PHYSICAL_EXECUTION_PENDING"
+        "software_status": "SOFTWARE_COMPLETE_GUIDED_HARDWARE_EVIDENCE_FORMAL_CAMPAIGN_PENDING"
       },
       {
         "complete": true,
@@ -361,7 +376,8 @@
       "G3",
       "G4"
     ],
-    "release_version": "ghost-x-software-v1",
+    "release_scope_complete": true,
+    "release_version": "ghost-x-v1.0.0",
     "requirements": {
       "physical_pending": 5,
       "qualified": 6,
@@ -373,8 +389,8 @@
     "software_complete": true,
     "software_completion_percent": 100
   },
-  "source_branch": "ghost-x",
-  "source_commit_before_release_docs": "27d1c3286e8da265539a4702030c00513841af29",
+  "source_branch": "main",
+  "source_commit_before_release_docs": "9569765bf7c3d5213ca79f57fb0810896cd848fe",
   "traceability_summary": {
     "physical_pending": 5,
     "requirements": 34,

@@ -43,10 +43,14 @@ PHASE_EVIDENCE = {
     "G3": [
         "ghost_sim_ros2/docs/GHOST_X_G3_MEASUREMENT_PROTOCOL.md",
         "ghost_sim_ros2/docs/GHOST_X_G3_READINESS.json",
+        "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md",
+        "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
     ],
     "G4": [
         "ghost_sim_ros2/docs/GHOST_X_G4_CONTROLLED_TRUTH.md",
         "ghost_sim_ros2/docs/GHOST_X_G4_VALIDATION.json",
+        "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md",
+        "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
     ],
     "G5": [
         "ghost_sim_ros2/docs/GHOST_X_G5_CPP_LIBRARY.md",
@@ -208,13 +212,18 @@ def write_traceability(rows: list[dict[str, Any]], path: Path) -> None:
 
 def collect_phase_status(repo_root: Path) -> list[dict[str, Any]]:
     rows = []
+    guided_hardware_complete = (
+        repo_root / "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json"
+    ).is_file()
     for number in range(0, 12):
         phase = f"G{number}"
         evidence = PHASE_EVIDENCE.get(phase, [])
         present = [item for item in evidence if (repo_root / item).is_file()]
         physical_pending = phase in {"G3", "G4"}
         status = "SOFTWARE_COMPLETE"
-        if physical_pending:
+        if physical_pending and guided_hardware_complete:
+            status = "SOFTWARE_COMPLETE_GUIDED_HARDWARE_EVIDENCE_FORMAL_CAMPAIGN_PENDING"
+        elif physical_pending:
             status = "SOFTWARE_COMPLETE_PHYSICAL_EXECUTION_PENDING"
         rows.append(
             {
@@ -267,6 +276,7 @@ def approved_claims(repo_root: Path) -> dict[str, Any]:
     g8 = load_json(repo_root / "ghost_sim_ros2/docs/GHOST_X_G8_FAULT_REPORT.json")
     g9 = load_json(repo_root / "ghost_sim_ros2/docs/GHOST_X_G9_RUNTIME_REPORT.json")
     g10 = load_json(repo_root / "ghost_sim_ros2/docs/GHOST_X_G10_CI_REPORT.json")
+    hardware = load_json(repo_root / "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json")
     return {
         "approved": [
             {
@@ -291,7 +301,7 @@ def approved_claims(repo_root: Path) -> dict[str, Any]:
                 "requirements": ["SYS-001", "EST-003", "VNV-001"],
                 "tests": ["T-PAIR-001", "T-BASE-001", "T-TRUTH-001"],
                 "evidence": ["GHOST_X_G4_VALIDATION.json", "GHOST_X_G10_CI_REPORT.json"],
-                "qualification": "Synthetic analytic truth; controlled physical truth remains pending.",
+                "qualification": "Synthetic analytic truth; guided hardware relative-response evidence exists, but formal controlled physical truth remains pending.",
             },
             {
                 "id": "CLM-SW-004",
@@ -315,7 +325,25 @@ def approved_claims(repo_root: Path) -> dict[str, Any]:
                 "requirements": ["REP-001", "REP-002", "CLM-001"],
                 "tests": ["T-REPLAY-001", "T-CI-001", "T-CLAIM-001"],
                 "evidence": ["GHOST_X_G10_CI_REPORT.json", ".github/workflows/ghost-x-regression.yml"],
-                "qualification": "Synthetic and stored-evidence regression protection; physical campaign data will be added after collection.",
+                "qualification": "Synthetic, stored-evidence, and guided-hardware report regression protection; formal controlled-truth campaign data remains an expansion gate.",
+            },
+            {
+                "id": "CLM-HW-001",
+                "text": (
+                    "Executed browser-guided Raspberry Pi AprilTag hardware validation demonstrating "
+                    "directional left/right/closer/farther response and bounded reacquisition after a "
+                    f"measured {hardware['accepted_results']['short_dropout_reacquisition']['measured_occlusion_duration_s']:.3f} s tag occlusion without reset."
+                ),
+                "requirements": ["SYS-003", "VNV-001", "VNV-007"],
+                "tests": ["T-MODE-001", "T-REACQ-001", "T-RESOURCE-001"],
+                "evidence": [
+                    "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md",
+                    "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
+                ],
+                "qualification": (
+                    "Guided tabletop relative-response and short-dropout evidence only; not absolute accuracy, "
+                    "metrology-grade truth, universal estimator superiority, or flight qualification."
+                ),
             },
         ],
         "prohibited_or_pending": [
@@ -324,14 +352,14 @@ def approved_claims(repo_root: Path) -> dict[str, Any]:
                 "text": "Hardware-validated room-scale position or velocity accuracy across the formal campaign.",
                 "requirements": ["VNV-002", "VNV-003", "VNV-004", "VNV-005"],
                 "tests": ["T-CAMPAIGN-001", "T-ACCURACY-001", "T-VELOCITY-001", "T-REACQ-001"],
-                "reason": "G3 measurement collection and at least 20 paired controlled physical trials are not complete.",
+                "reason": "Guided relative-response and short-dropout hardware validation is complete, but formal metrology-backed G3 characterization and at least 20 paired controlled physical trials are not complete.",
             },
             {
                 "id": "CLM-PENDING-002",
                 "text": "GHOST-MH statistically outperforms formal IMM.",
                 "requirements": ["SYS-001", "VNV-002", "VNV-003", "VNV-004"],
                 "tests": ["T-PAIR-001", "T-CAMPAIGN-001", "T-ACCURACY-001", "T-VELOCITY-001"],
-                "reason": "No physical paired statistics support this claim, and frozen synthetic results do not justify a universal superiority statement.",
+                "reason": "No formal physical paired statistics support this claim; the guided dropout case beat constant velocity but not the last-seen stationary-hold baseline, so universal superiority remains unsupported.",
             },
             {
                 "id": "CLM-PENDING-003",
@@ -433,7 +461,7 @@ def create_reproducible_tar(repo_root: Path, output_path: Path, include_paths: I
         with gzip.GzipFile(filename="", mode="wb", fileobj=destination, mtime=0) as compressed:
             compressed.write(raw.getvalue())
     return {
-        "path": str(output_path),
+        "path": output_path.name,
         "size_bytes": output_path.stat().st_size,
         "sha256": sha256_file(output_path),
         "included_paths": names,

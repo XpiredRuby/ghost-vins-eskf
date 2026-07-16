@@ -1,14 +1,15 @@
 # GHOST-X Final Research Package
 
-Release: `ghost-x-software-v1`
+Release: `ghost-x-v1.0.0`
 
 ## Read this first
 
-GHOST-X software is complete and reproducible. The formal operator-assisted physical measurement and controlled-truth campaigns remain pending, so physical accuracy and flight-qualification claims are prohibited.
+GHOST-X software and guided Raspberry Pi hardware validation are complete and reproducible for the declared release scope. Formal metrology-backed accuracy, paired-superiority, hard-real-time, and flight-qualification claims remain prohibited.
 
 ## Core reports
 
 - [Software verification](GHOST_X_SOFTWARE_VERIFICATION_REPORT.md)
+- [Guided hardware validation](GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md)
 - [Requirements traceability](GHOST_X_FINAL_TRACEABILITY.csv)
 - [Approved and prohibited claims](GHOST_X_APPROVED_CLAIMS.md)
 - [Failure gallery](GHOST_X_FAILURE_GALLERY.md)
@@ -34,15 +35,19 @@ GHOST-X software is complete and reproducible. The formal operator-assisted phys
 - [GHOST_X_G2_VALIDATION.json](GHOST_X_G2_VALIDATION.json)
 - [GHOST_X_G2_RUNTIME_VALIDATION.json](GHOST_X_G2_RUNTIME_VALIDATION.json)
 
-### G3 — SOFTWARE_COMPLETE_PHYSICAL_EXECUTION_PENDING
+### G3 — SOFTWARE_COMPLETE_GUIDED_HARDWARE_EVIDENCE_FORMAL_CAMPAIGN_PENDING
 
 - [GHOST_X_G3_MEASUREMENT_PROTOCOL.md](GHOST_X_G3_MEASUREMENT_PROTOCOL.md)
 - [GHOST_X_G3_READINESS.json](GHOST_X_G3_READINESS.json)
+- [GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md](GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md)
+- [GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json](GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json)
 
-### G4 — SOFTWARE_COMPLETE_PHYSICAL_EXECUTION_PENDING
+### G4 — SOFTWARE_COMPLETE_GUIDED_HARDWARE_EVIDENCE_FORMAL_CAMPAIGN_PENDING
 
 - [GHOST_X_G4_CONTROLLED_TRUTH.md](GHOST_X_G4_CONTROLLED_TRUTH.md)
 - [GHOST_X_G4_VALIDATION.json](GHOST_X_G4_VALIDATION.json)
+- [GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md](GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md)
+- [GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json](GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json)
 
 ### G5 — SOFTWARE_COMPLETE
 

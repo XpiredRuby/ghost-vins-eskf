@@ -1,8 +1,9 @@
 {
-  "claim_boundary": "SOFTWARE_COMPLETE_DOES_NOT_MEAN_PHYSICAL_CAMPAIGN_OR_FLIGHT_QUALIFICATION_COMPLETE",
+  "claim_boundary": "SOFTWARE_AND_GUIDED_HARDWARE_RELEASE_COMPLETE_FORMAL_METROLOGY_AND_FLIGHT_QUALIFICATION_NOT_COMPLETE",
   "full_project_complete": false,
-  "generated_at_utc": "2026-07-14T04:30:50.475719Z",
-  "next_physical_gate": "G3 measurement characterization trial 1, followed by controlled physical truth collection.",
+  "generated_at_utc": "2026-07-16T04:18:54.892522Z",
+  "guided_hardware_validation_complete": true,
+  "next_physical_gate": "Optional formal metrology-backed G3/G4 campaign for absolute accuracy and paired statistical claims.",
   "phase_status": [
     {
       "complete": true,
@@ -42,23 +43,27 @@
       "complete": true,
       "evidence": [
         "ghost_sim_ros2/docs/GHOST_X_G3_MEASUREMENT_PROTOCOL.md",
-        "ghost_sim_ros2/docs/GHOST_X_G3_READINESS.json"
+        "ghost_sim_ros2/docs/GHOST_X_G3_READINESS.json",
+        "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md",
+        "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json"
       ],
-      "evidence_count": 2,
-      "expected_evidence_count": 2,
+      "evidence_count": 4,
+      "expected_evidence_count": 4,
       "phase": "G3",
-      "software_status": "SOFTWARE_COMPLETE_PHYSICAL_EXECUTION_PENDING"
+      "software_status": "SOFTWARE_COMPLETE_GUIDED_HARDWARE_EVIDENCE_FORMAL_CAMPAIGN_PENDING"
     },
     {
       "complete": true,
       "evidence": [
         "ghost_sim_ros2/docs/GHOST_X_G4_CONTROLLED_TRUTH.md",
-        "ghost_sim_ros2/docs/GHOST_X_G4_VALIDATION.json"
+        "ghost_sim_ros2/docs/GHOST_X_G4_VALIDATION.json",
+        "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md",
+        "ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json"
       ],
-      "evidence_count": 2,
-      "expected_evidence_count": 2,
+      "evidence_count": 4,
+      "expected_evidence_count": 4,
       "phase": "G4",
-      "software_status": "SOFTWARE_COMPLETE_PHYSICAL_EXECUTION_PENDING"
+      "software_status": "SOFTWARE_COMPLETE_GUIDED_HARDWARE_EVIDENCE_FORMAL_CAMPAIGN_PENDING"
     },
     {
       "complete": true,
@@ -158,7 +163,8 @@
     "G3",
     "G4"
   ],
-  "release_version": "ghost-x-software-v1",
+  "release_scope_complete": true,
+  "release_version": "ghost-x-v1.0.0",
   "requirements": {
     "physical_pending": 5,
     "qualified": 6,

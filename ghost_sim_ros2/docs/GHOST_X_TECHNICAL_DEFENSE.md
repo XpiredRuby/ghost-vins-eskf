@@ -34,4 +34,4 @@ Show repeated tree hashes, acceptance bands, deliberate negative hash/metric tes
 
 ## 9:10–10:00 — Limitations and next experiment
 
-State that G3/G4 physical collection is pending; room geometry is not certified metrology; no physical accuracy, VIO/SLAM, PX4, flight qualification, or universal GHOST-MH superiority is claimed. Finish with the exact first G3 setup and how its result will update covariance selection and physical claim gates.
+State that guided G3/G4-adjacent hardware evidence is complete, while formal metrology-backed G3/G4 campaigns remain optional expansion gates. Room geometry is not certified metrology; no absolute physical accuracy, VIO/SLAM, PX4, flight qualification, or universal GHOST-MH superiority is claimed. Finish by showing how the retained evidence and claim boundaries make future expansion auditable.

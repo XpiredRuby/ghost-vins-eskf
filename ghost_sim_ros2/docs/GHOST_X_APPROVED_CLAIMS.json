@@ -52,7 +52,7 @@
         "GHOST_X_G10_CI_REPORT.json"
       ],
       "id": "CLM-SW-003",
-      "qualification": "Synthetic analytic truth; controlled physical truth remains pending.",
+      "qualification": "Synthetic analytic truth; guided hardware relative-response evidence exists, but formal controlled physical truth remains pending.",
       "requirements": [
         "SYS-001",
         "EST-003",
@@ -109,7 +109,7 @@
         ".github/workflows/ghost-x-regression.yml"
       ],
       "id": "CLM-SW-006",
-      "qualification": "Synthetic and stored-evidence regression protection; physical campaign data will be added after collection.",
+      "qualification": "Synthetic, stored-evidence, and guided-hardware report regression protection; formal controlled-truth campaign data remains an expansion gate.",
       "requirements": [
         "REP-001",
         "REP-002",
@@ -121,12 +121,31 @@
         "T-CLAIM-001"
       ],
       "text": "Added one-command deterministic regression gates with 47 requirements and evidence checks plus CI artifact export."
+    },
+    {
+      "evidence": [
+        "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md",
+        "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json"
+      ],
+      "id": "CLM-HW-001",
+      "qualification": "Guided tabletop relative-response and short-dropout evidence only; not absolute accuracy, metrology-grade truth, universal estimator superiority, or flight qualification.",
+      "requirements": [
+        "SYS-003",
+        "VNV-001",
+        "VNV-007"
+      ],
+      "tests": [
+        "T-MODE-001",
+        "T-REACQ-001",
+        "T-RESOURCE-001"
+      ],
+      "text": "Executed browser-guided Raspberry Pi AprilTag hardware validation demonstrating directional left/right/closer/farther response and bounded reacquisition after a measured 2.451 s tag occlusion without reset."
     }
   ],
   "prohibited_or_pending": [
     {
       "id": "CLM-PENDING-001",
-      "reason": "G3 measurement collection and at least 20 paired controlled physical trials are not complete.",
+      "reason": "Guided relative-response and short-dropout hardware validation is complete, but formal metrology-backed G3 characterization and at least 20 paired controlled physical trials are not complete.",
       "requirements": [
         "VNV-002",
         "VNV-003",
@@ -143,7 +162,7 @@
     },
     {
       "id": "CLM-PENDING-002",
-      "reason": "No physical paired statistics support this claim, and frozen synthetic results do not justify a universal superiority statement.",
+      "reason": "No formal physical paired statistics support this claim; the guided dropout case beat constant velocity but not the last-seen stationary-hold baseline, so universal superiority remains unsupported.",
       "requirements": [
         "SYS-001",
         "VNV-002",

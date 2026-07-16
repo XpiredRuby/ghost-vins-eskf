@@ -10,9 +10,9 @@ The mandatory software program was completed without requiring purchase of an IM
 - ROS 2 Jazzy, Python, C++20, Eigen, CMake, GoogleTest, NumPy, SciPy, Matplotlib, and GitHub Actions.
 - Deterministic analytic truth, recorded ROS evidence, and normal printing/room references.
 
-## Remaining physical work
+## Remaining optional expansion work
 
-The next gate requires only operator assistance to place and orient the existing AprilTag for the predeclared G3 measurement campaign and later controlled physical trials. No new hardware purchase is required.
+Guided Raspberry Pi hardware validation is complete using existing equipment. A formal metrology-backed G3/G4 campaign would be required only to add absolute-accuracy, velocity-accuracy, physical-NEES, or paired-superiority claims. No new hardware purchase is required for the current validated release scope.
 
 ## Boundary
 

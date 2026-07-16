@@ -89,17 +89,20 @@ def build_documents(repo_root: Path, version: str, archive_out: Path) -> dict[st
         }
     )
     software_complete = all(row["complete"] for row in phases)
-    physical_pending = [row["phase"] for row in phases if "PHYSICAL_EXECUTION_PENDING" in row["software_status"]]
+    physical_pending = [row["phase"] for row in phases if "PENDING" in row["software_status"]]
+    guided_hardware_complete = (docs / "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json").is_file()
     status = {
         "schema_version": 1,
         "release_version": version,
         "generated_at_utc": utc_now(),
         "software_completion_percent": 100 if software_complete else None,
         "software_complete": software_complete,
+        "release_scope_complete": bool(software_complete and guided_hardware_complete),
+        "guided_hardware_validation_complete": guided_hardware_complete,
         "full_project_complete": False,
-        "physical_human_interaction_required": True,
+        "physical_human_interaction_required": bool(physical_pending),
         "physical_pending_phases": physical_pending,
-        "next_physical_gate": "G3 measurement characterization trial 1, followed by controlled physical truth collection.",
+        "next_physical_gate": "Optional formal metrology-backed G3/G4 campaign for absolute accuracy and paired statistical claims.",
         "phase_status": phases,
         "requirements": {
             "total": len(traceability),
@@ -108,7 +111,7 @@ def build_documents(repo_root: Path, version: str, archive_out: Path) -> dict[st
             "physical_pending": sum("PENDING" in row["status"] for row in traceability),
             "traceable": sum(bool(row["traceable"]) for row in traceability),
         },
-        "claim_boundary": "SOFTWARE_COMPLETE_DOES_NOT_MEAN_PHYSICAL_CAMPAIGN_OR_FLIGHT_QUALIFICATION_COMPLETE",
+        "claim_boundary": "SOFTWARE_AND_GUIDED_HARDWARE_RELEASE_COMPLETE_FORMAL_METROLOGY_AND_FLIGHT_QUALIFICATION_NOT_COMPLETE",
     }
     write_json(docs / "GHOST_X_SOFTWARE_STATUS.json", status)
 
@@ -183,9 +186,9 @@ The mandatory software program was completed without requiring purchase of an IM
 - ROS 2 Jazzy, Python, C++20, Eigen, CMake, GoogleTest, NumPy, SciPy, Matplotlib, and GitHub Actions.
 - Deterministic analytic truth, recorded ROS evidence, and normal printing/room references.
 
-## Remaining physical work
+## Remaining optional expansion work
 
-The next gate requires only operator assistance to place and orient the existing AprilTag for the predeclared G3 measurement campaign and later controlled physical trials. No new hardware purchase is required.
+Guided Raspberry Pi hardware validation is complete using existing equipment. A formal metrology-backed G3/G4 campaign would be required only to add absolute-accuracy, velocity-accuracy, physical-NEES, or paired-superiority claims. No new hardware purchase is required for the current validated release scope.
 
 ## Boundary
 
@@ -215,17 +218,18 @@ No-purchase feasibility does not make room references equivalent to certified me
         "- Raspberry Pi ROS 2 QoS, execution-time, CPU, memory, temperature, throttling, and stress evidence.",
         "- Deterministic replay hashes, stored acceptance bands, deliberate negative-regression self-tests, and GitHub CI workflow.",
         "- Fixed-lag RTS smoothing ablation with frozen evaluation and out-of-distribution testing while retaining the classical causal baseline.",
+        "- Browser-guided Raspberry Pi AprilTag trials validating directional lateral/range response and bounded short-dropout reacquisition with machine-readable evidence and explicit claim limits.",
         "",
-        "## Open physical verification gates",
+        "## Unvalidated expansion gates",
         "",
-        "- G3 range/yaw measurement characterization collection.",
-        "- At least 20 paired controlled physical truth trials.",
-        "- Physical position/velocity accuracy, reacquisition statistics, and defensible physical NEES.",
+        "- Formal metrology-backed G3 range/yaw characterization.",
+        "- At least 20 paired controlled physical-truth trials for statistical comparison.",
+        "- Absolute physical position/velocity accuracy and defensible physical NEES.",
         "- Direct hardware reproduction of selected cable, lighting, network, and CPU faults where practical.",
         "",
         "## Release decision",
         "",
-        "The software baseline is releasable as a research and portfolio platform. Physical-performance wording remains gated and is not approved by this report.",
+        "The software plus guided hardware-validation baseline is releasable as a research and portfolio platform. Absolute-accuracy, universal-superiority, hard-real-time, and flight-qualification wording remains prohibited.",
         "",
     ]
     (docs / "GHOST_X_SOFTWARE_VERIFICATION_REPORT.md").write_text("\n".join(verification_lines), encoding="utf-8")
@@ -244,7 +248,7 @@ No-purchase feasibility does not make room references equivalent to certified me
 
 **70–82 s — Pi evidence:** Show QoS, p99/max execution, temperature, frequency, memory, and throttling. State the exact claim boundary: bench evidence, not hard-real-time certification.
 
-**82–90 s — Close:** “The software research platform is reproducible and CI-gated. The next step is the predeclared operator-assisted physical measurement and truth campaign; no physical accuracy claim is made yet.”
+**82–90 s — Close:** “The platform is reproducible, CI-gated, and validated on guided Raspberry Pi hardware for directional response and a bounded short dropout. Absolute accuracy, universal superiority, and flight qualification are not claimed.”
 """
     (docs / "GHOST_X_90_SECOND_DEMO.md").write_text(demo, encoding="utf-8")
 
@@ -284,7 +288,7 @@ Show repeated tree hashes, acceptance bands, deliberate negative hash/metric tes
 
 ## 9:10–10:00 — Limitations and next experiment
 
-State that G3/G4 physical collection is pending; room geometry is not certified metrology; no physical accuracy, VIO/SLAM, PX4, flight qualification, or universal GHOST-MH superiority is claimed. Finish with the exact first G3 setup and how its result will update covariance selection and physical claim gates.
+State that guided G3/G4-adjacent hardware evidence is complete, while formal metrology-backed G3/G4 campaigns remain optional expansion gates. Room geometry is not certified metrology; no absolute physical accuracy, VIO/SLAM, PX4, flight qualification, or universal GHOST-MH superiority is claimed. Finish by showing how the retained evidence and claim boundaries make future expansion auditable.
 """
     (docs / "GHOST_X_TECHNICAL_DEFENSE.md").write_text(defense, encoding="utf-8")
 
@@ -295,11 +299,12 @@ State that G3/G4 physical collection is pending; room geometry is not certified 
         "",
         "## Read this first",
         "",
-        "GHOST-X software is complete and reproducible. The formal operator-assisted physical measurement and controlled-truth campaigns remain pending, so physical accuracy and flight-qualification claims are prohibited.",
+        "GHOST-X software and guided Raspberry Pi hardware validation are complete and reproducible for the declared release scope. Formal metrology-backed accuracy, paired-superiority, hard-real-time, and flight-qualification claims remain prohibited.",
         "",
         "## Core reports",
         "",
         "- [Software verification](GHOST_X_SOFTWARE_VERIFICATION_REPORT.md)",
+        "- [Guided hardware validation](GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md)",
         "- [Requirements traceability](GHOST_X_FINAL_TRACEABILITY.csv)",
         "- [Approved and prohibited claims](GHOST_X_APPROVED_CLAIMS.md)",
         "- [Failure gallery](GHOST_X_FAILURE_GALLERY.md)",
@@ -353,7 +358,7 @@ State that G3/G4 physical collection is pending; room geometry is not certified 
         },
         "g10_tree_sha256": g10.get("determinism", {}).get("first", {}).get("tree_sha256"),
         "evidence": evidence,
-        "claim_boundary": "SOFTWARE_RELEASE_PHYSICAL_CAMPAIGN_PENDING",
+        "claim_boundary": "SOFTWARE_AND_GUIDED_HARDWARE_RELEASE_COMPLETE_FORMAL_METROLOGY_AND_FLIGHT_QUALIFICATION_PENDING",
     }
     write_json(docs / "GHOST_X_RELEASE_MANIFEST.json", manifest)
 

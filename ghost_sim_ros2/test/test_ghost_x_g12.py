@@ -33,7 +33,9 @@ def test_phase_status_covers_g0_through_g11() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     phases = collect_phase_status(repo_root)
     assert [row["phase"] for row in phases] == [f"G{index}" for index in range(12)]
-    assert any("PHYSICAL_EXECUTION_PENDING" in row["software_status"] for row in phases)
+    pending = [row for row in phases if "PENDING" in row["software_status"]]
+    assert {row["phase"] for row in pending} == {"G3", "G4"}
+    assert all("GUIDED_HARDWARE_EVIDENCE" in row["software_status"] for row in pending)
 
 
 def test_reproducible_archive(tmp_path: Path) -> None:

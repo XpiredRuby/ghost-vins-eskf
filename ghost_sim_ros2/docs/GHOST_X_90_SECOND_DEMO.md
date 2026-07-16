@@ -12,4 +12,4 @@
 
 **70–82 s — Pi evidence:** Show QoS, p99/max execution, temperature, frequency, memory, and throttling. State the exact claim boundary: bench evidence, not hard-real-time certification.
 
-**82–90 s — Close:** “The software research platform is reproducible and CI-gated. The next step is the predeclared operator-assisted physical measurement and truth campaign; no physical accuracy claim is made yet.”
+**82–90 s — Close:** “The platform is reproducible, CI-gated, and validated on guided Raspberry Pi hardware for directional response and a bounded short dropout. Absolute accuracy, universal superiority, and flight qualification are not claimed.”
