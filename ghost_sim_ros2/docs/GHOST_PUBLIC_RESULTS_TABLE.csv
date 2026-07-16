@@ -1,0 +1,9 @@
+section,metric,value,unit,scope
+Hardware,Measured occlusion,2.450970,s,Guided tabletop hardware
+Hardware,GHOST-MH first-reacquisition error,0.002616435,m,Stationary-target proxy
+Hardware,Constant-velocity first-reacquisition error,0.048408232,m,Stationary-target proxy
+Software truth,Formal IMM overall RMSE,0.034423512,m,24 deterministic analytic-truth trials
+Software truth,Formal IMM hidden RMSE,0.130497491,m,24 deterministic analytic-truth trials
+Faults,Fault cases passed,12,of 12,Deterministic software injection
+Verification,Requirements traceable,34,of 34,Release manifest
+Verification,CI checks passed,47,of 47,Deterministic regression

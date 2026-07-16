@@ -3,10 +3,13 @@
 [![GHOST CI](https://github.com/XpiredRuby/ghost-vins-eskf/actions/workflows/ci.yml/badge.svg)](https://github.com/XpiredRuby/ghost-vins-eskf/actions/workflows/ci.yml)
 [![Closed-Loop GNC SIL](https://github.com/XpiredRuby/ghost-vins-eskf/actions/workflows/closed-loop-gnc-sil.yml/badge.svg)](https://github.com/XpiredRuby/ghost-vins-eskf/actions/workflows/closed-loop-gnc-sil.yml)
 [![Campaign Analysis](https://github.com/XpiredRuby/ghost-vins-eskf/actions/workflows/campaign-analysis.yml/badge.svg)](https://github.com/XpiredRuby/ghost-vins-eskf/actions/workflows/campaign-analysis.yml)
+[![GHOST-X Regression](https://github.com/XpiredRuby/ghost-vins-eskf/actions/workflows/ghost-x-regression.yml/badge.svg)](https://github.com/XpiredRuby/ghost-vins-eskf/actions/workflows/ghost-x-regression.yml)
 [![Physical Session Readiness](https://github.com/XpiredRuby/ghost-vins-eskf/actions/workflows/physical-session-readiness.yml/badge.svg)](https://github.com/XpiredRuby/ghost-vins-eskf/actions/workflows/physical-session-readiness.yml)
 ![ROS 2 Jazzy](https://img.shields.io/badge/ROS%202-Jazzy-22314E)
 ![Sensor](https://img.shields.io/badge/sensor-USB%20UVC%20webcam-2ea44f)
-![Validation](https://img.shields.io/badge/physical%20accuracy-pending-f59e0b)
+![Release](https://img.shields.io/badge/GHOST--X-v1.0.0-2ea44f)
+![Hardware](https://img.shields.io/badge/guided%20hardware-validated-2ea44f)
+![Accuracy](https://img.shields.io/badge/absolute%20accuracy-not%20claimed-f59e0b)
 
 **Hardware-integrated ROS 2 target-state estimation for intermittent vision, plus deterministic formal-IMM software-in-the-loop guidance and control.**
 
@@ -16,21 +19,22 @@ A separate deterministic software-in-the-loop harness connects the same formal I
 
 **Author:** Vinayak Manoj Nair — Texas A&M University, B.S. Aerospace Engineering, December 2026
 
-> **Evidence boundary:** the preserved hardware run validates the USB-camera-to-ROS-to-tracker pipeline, real-time publication, dropout-state telemetry and replay. The closed-loop GNC results are deterministic software-in-the-loop evidence using synthetic truth and candidate noise parameters. Controlled measurement covariance, physical ground-truth accuracy, paired hardware superiority, vehicle control and flight readiness are not yet validated.
+> **Evidence boundary:** GHOST-X v1.0.0 includes guided Raspberry Pi hardware evidence for directional left/right/closer/farther response and reacquisition after a measured `2.451 s` AprilTag occlusion. The controlled-truth estimator comparisons use deterministic analytic software truth. Absolute physical accuracy, universal estimator superiority, hard-real-time certification, vehicle control and flight readiness are not claimed.
 
-## GHOST-X research upgrade
+## GHOST-X v1.0.0 results package
 
-Active development continues on the `ghost-x` branch under a requirements-driven research plan covering controlled truth, C++/Python estimator equivalence, consistency analysis, fault injection, Raspberry Pi real-time characterization, deterministic replay, and claim traceability.
+The released GHOST-X program adds deterministic controlled truth, an Eigen-based C++ estimator library, C++/Python numerical equivalence, consistency analysis, a predeclared estimator trade study, 12-fault injection, Raspberry Pi runtime characterization, fixed-lag smoothing, guided hardware validation, deterministic replay and requirement-level traceability.
 
-- [GHOST-X master plan](ghost_sim_ros2/docs/GHOST_X_MASTER_PLAN.md)
-- [G0 immutable baseline](ghost_sim_ros2/docs/GHOST_X_G0_BASELINE.md)
-- [G1 requirements and V&V architecture](ghost_sim_ros2/docs/GHOST_X_G1_REQUIREMENTS_AND_VNV.md)
-- [G2 frames, timing, and data contracts](ghost_sim_ros2/docs/GHOST_X_G2_DATA_CONTRACTS.md)
-- [G3 measurement characterization protocol](ghost_sim_ros2/docs/GHOST_X_G3_MEASUREMENT_PROTOCOL.md)
-- [Requirements-to-test traceability](ghost_sim_ros2/docs/GHOST_X_TRACEABILITY.csv)
-- [Current claim boundaries](ghost_sim_ros2/docs/GHOST_X_CLAIM_BOUNDARIES.md)
+- [Recruiter-facing engineering results](https://xpiredruby.github.io/ghost-vins-eskf/)
+- [GitHub-native engineering results report](ghost_sim_ros2/docs/GHOST_PUBLIC_RESULTS_REPORT.md)
+- [GHOST-X v1.0.0 GitHub release](https://github.com/XpiredRuby/ghost-vins-eskf/releases/tag/ghost-x-v1.0.0)
+- [Guided hardware validation report](ghost_sim_ros2/docs/GHOST_GUIDED_HARDWARE_VALIDATION_20260716.md)
+- [Final research package](ghost_sim_ros2/docs/GHOST_X_FINAL_RESEARCH_PACKAGE.md)
+- [34-row requirements traceability](ghost_sim_ros2/docs/GHOST_X_FINAL_TRACEABILITY.csv)
+- [Approved and prohibited claims](ghost_sim_ros2/docs/GHOST_X_APPROVED_CLAIMS.md)
+- [Public results data](ghost_sim_ros2/docs/GHOST_PUBLIC_RESULTS_SUMMARY.json)
 
-Current phase status: **G0–G2 complete; G3 software ready, physical collection pending**.
+Release status: **software and guided hardware validation complete for the declared scope; formal metrology-grade accuracy and flight qualification remain outside the validated claims**.
 
 ## Complete drone/robot mission demo
 

@@ -1,0 +1,104 @@
+{
+  "assets": {
+    "cpp_python_equivalence": [
+      "assets/results/cpp_python_equivalence.png",
+      "assets/results/cpp_python_equivalence.svg"
+    ],
+    "fault_recovery": [
+      "assets/results/fault_recovery_times.png",
+      "assets/results/fault_recovery_times.svg"
+    ],
+    "fixed_lag": [
+      "assets/results/fixed_lag_tradeoff.png",
+      "assets/results/fixed_lag_tradeoff.svg"
+    ],
+    "hardware_dropout": [
+      "assets/results/hardware_dropout_error.png",
+      "assets/results/hardware_dropout_error.svg"
+    ],
+    "hardware_lateral": [
+      "assets/results/hardware_lateral_response.png",
+      "assets/results/hardware_lateral_response.svg"
+    ],
+    "hardware_range": [
+      "assets/results/hardware_range_response.png",
+      "assets/results/hardware_range_response.svg"
+    ],
+    "runtime_deadline": [
+      "assets/results/runtime_deadline_evidence.png",
+      "assets/results/runtime_deadline_evidence.svg"
+    ],
+    "synthetic_rmse": [
+      "assets/results/synthetic_estimator_rmse.png",
+      "assets/results/synthetic_estimator_rmse.svg"
+    ],
+    "trade_space": [
+      "assets/results/estimator_trade_space.png",
+      "assets/results/estimator_trade_space.svg"
+    ]
+  },
+  "claim_boundary": "SOFTWARE_AND_GUIDED_HARDWARE_RELEASE_COMPLETE_FORMAL_METROLOGY_AND_FLIGHT_QUALIFICATION_NOT_COMPLETE",
+  "controlled_truth": {
+    "accepted_trials": 24,
+    "formal_imm_hidden_rmse_m": 0.13049749093036478,
+    "formal_imm_position_rmse_m": 0.03442351202869739,
+    "invalid_trials": 0,
+    "planned_trials": 24,
+    "scenario_families": 8,
+    "truth_scope": "deterministic analytic software truth"
+  },
+  "evidence": [
+    "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
+    "GHOST_X_G4_VALIDATION.json",
+    "GHOST_X_G5_VALIDATION.json",
+    "GHOST_X_G7_TRADE_STUDY.json",
+    "GHOST_X_G8_FAULT_REPORT.json",
+    "GHOST_X_G9_RUNTIME_REPORT.json",
+    "GHOST_X_G10_CI_REPORT.json",
+    "GHOST_X_G11_FIXED_LAG.json",
+    "GHOST_X_FINAL_TRACEABILITY.csv"
+  ],
+  "faults": {
+    "failed_faults": 0,
+    "fault_count": 12,
+    "nonfinite_outputs": 0,
+    "passed_faults": 12
+  },
+  "hardware": {
+    "absolute_accuracy_validated": false,
+    "constant_velocity_error_m": 0.04840823234348344,
+    "ghost_top1_error_m": 0.002616434607344502,
+    "ghost_vs_cv_improvement_percent": 94.59506269764317,
+    "last_seen_hold_error_m": 0.0006566815761033871,
+    "measured_occlusion_s": 2.45097017288208,
+    "reacquired": true,
+    "relative_motion_passes": [
+      "left",
+      "right",
+      "closer",
+      "farther",
+      "return_to_center"
+    ],
+    "reset_during_occlusion": false
+  },
+  "release": "ghost-x-v1.0.0",
+  "release_scope_complete": true,
+  "runtime": {
+    "all_max_below_deadline": false,
+    "deadline_ms": 33.333,
+    "hard_real_time_claimed": false,
+    "max_temperature_c": 47.225,
+    "throttling_clear": true
+  },
+  "schema_version": 1,
+  "verification": {
+    "ci_checks": 47,
+    "ci_passed": 47,
+    "cpp_tests": 10,
+    "deterministic_files": 123,
+    "fixed_lag_ablation_count": 15,
+    "python_tests": 38,
+    "requirements_total": 34,
+    "requirements_traceable": 34
+  }
+}

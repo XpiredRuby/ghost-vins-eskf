@@ -1,10 +1,11 @@
-name: Deploy GHOST replay to Pages
+name: Deploy GHOST engineering results to Pages
 
 on:
   push:
     branches: [main]
     paths:
       - "ghost_sim_ros2/docs/**"
+      - "ghost_sim_ros2/tools/generate_public_results.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -31,7 +32,7 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload static replay
+      - name: Upload engineering results site
         uses: actions/upload-pages-artifact@v4
         with:
           path: ghost_sim_ros2/docs
