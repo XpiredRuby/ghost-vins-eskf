@@ -395,6 +395,10 @@ def build_showcase() -> dict[str, Any]:
         for scenario in g9["qos_scenarios"]
         if scenario.get("resource_summary", {}).get("temperature_c", {}).get("max") is not None
     )
+    max_estimator_benchmark_rss_mb = max(
+        float(row["resource_summary"]["process_rss_mb"]["max"])
+        for row in g9["estimator_benchmarks"]
+    )
 
     hero = [
         {
@@ -620,6 +624,37 @@ def build_showcase() -> dict[str, Any]:
         for row in g8["trials"]
     ]
 
+    recovery_groups: dict[float, list[str]] = {}
+    rmse_groups: dict[tuple[float, float, float], list[str]] = {}
+    for row in g8["trials"]:
+        recovery_groups.setdefault(float(row["recovery_time_s"]), []).append(row["fault"])
+        rmse = row["position_error_rmse_m"]
+        rmse_key = (float(rmse["cv_kalman"]), float(rmse["formal_imm"]), float(rmse["ghost_mh"]))
+        rmse_groups.setdefault(rmse_key, []).append(row["fault"])
+
+    fault_recovery_groups = [
+        {"recovery_time_s": value, "count": len(faults), "faults": faults}
+        for value, faults in sorted(recovery_groups.items())
+    ]
+    fault_rmse_groups = [
+        {
+            "position_error_rmse_m": {
+                "cv_kalman": values[0],
+                "formal_imm": values[1],
+                "ghost_mh": values[2],
+            },
+            "count": len(faults),
+            "faults": faults,
+        }
+        for values, faults in sorted(rmse_groups.items())
+    ]
+
+    deadline_rows = g9["estimator_deadline"]["rows"]
+    deadline_rows_met = sum(1 for row in deadline_rows if row["max_below_deadline"])
+    deadline_rows_not_met = [row for row in deadline_rows if not row["max_below_deadline"]]
+    if len(deadline_rows_not_met) != 1:
+        raise ValueError(f"Expected one estimator deadline miss, found {len(deadline_rows_not_met)}")
+
     limitations = [
         "No physical closed-loop drone flight was performed.",
         "The follower-drone mission result is deterministic local-frame software simulation with a known observer pose and map.",
@@ -767,6 +802,7 @@ def build_showcase() -> dict[str, Any]:
             "imm_output_hz": rates["imm_output_hz"],
             "mh_output_hz": rates["mh_output_hz"],
             "max_process_rss_mb": g9["environment"]["max_process_rss_mb"],
+            "max_estimator_benchmark_rss_mb": max_estimator_benchmark_rss_mb,
             "max_temperature_c": max_temperature,
             "throttled_status_final": g9["environment"]["throttled_status_final"],
             "approved_photos_available": False,
@@ -775,9 +811,24 @@ def build_showcase() -> dict[str, Any]:
         "fault_testing": {
             "badge": "SYNTHETIC_SOFTWARE",
             "source": "GHOST_X_G8_FAULT_REPORT.json",
+            "source_stream": "/".join(Path(g8["source_stream"]).parts[-2:]),
             "fault_count": g8["fault_count"],
             "passed_faults": g8["passed_faults"],
             "failed_faults": g8["failed_faults"],
+            "pass_definition": (
+                "Each case passed only when the injected fault was detected, isolated to the "
+                "expected subsystem/status path, and returned to nominal or the predeclared "
+                "accepted recovery state."
+            ),
+            "metric_interpretation": (
+                "All twelve injections reuse one shared canonical evaluation stream. The RMSE and "
+                "recovery-time columns are outputs of that shared-stream campaign and should not "
+                "be interpreted as twelve independently measured physical degradation profiles."
+            ),
+            "unique_recovery_time_count": len(fault_recovery_groups),
+            "recovery_time_groups": fault_recovery_groups,
+            "unique_rmse_profile_count": len(fault_rmse_groups),
+            "rmse_profile_groups": fault_rmse_groups,
             "faults": fault_rows,
             "claim_boundary": g8["claim_boundary"],
         },
@@ -786,6 +837,26 @@ def build_showcase() -> dict[str, Any]:
             "source": "GHOST_X_G9_RUNTIME_REPORT.json",
             "requirements": g9["requirements"],
             "estimator_deadline": g9["estimator_deadline"],
+            "deadline_rows_total": len(deadline_rows),
+            "deadline_rows_met": deadline_rows_met,
+            "deadline_rows_not_met": len(deadline_rows_not_met),
+            "deadline_miss_rows": deadline_rows_not_met,
+            "rt002_root_cause_status": "NOT_ESTABLISHED",
+            "rt002_interpretation": (
+                "The retained bench evidence establishes a severe publication-rate shortfall, "
+                "but it does not establish the causal mechanism. No QoS, driver, scheduling, "
+                "or startup explanation is claimed without a dedicated follow-up experiment."
+            ),
+            "deadline_anomaly_interpretation": (
+                "Eleven of twelve measured maximum-execution rows met the 33.333 ms deadline. "
+                "The only miss was C++ CV with zero stress workers; the C++ CV stress=2 row met "
+                "the deadline. This counterintuitive ordering is retained as an unresolved "
+                "benchmark anomaly and does not show that CPU stress improves execution time."
+            ),
+            "reporting_check_interpretation": (
+                "The G10 reporting check passed because the deadline miss was reported and the "
+                "hard-real-time claim was withheld. It does not mean the timing requirement passed."
+            ),
             "environment": g9["environment"],
             "qos_scenarios": g9["qos_scenarios"],
             "qos_passed_count": g9["qos_passed_count"],
@@ -795,12 +866,12 @@ def build_showcase() -> dict[str, Any]:
                 "RT-003 resource and thermal evidence collection passed.",
                 "No throttling flag was reported in the retained runtime campaign.",
                 "Eight QoS scenarios met their scenario-specific acceptance logic.",
-                "Most individual estimator timing rows remained below the 33.333 ms deadline.",
+                "Eleven of twelve measured estimator maximum-execution rows remained below the 33.333 ms deadline.",
             ],
             "what_did_not_pass": [
                 "RT-001 nominal source-to-receipt latency exceeded the predeclared p95 and p99 limits.",
                 "RT-002 publication rate was 3.4433068896378227 Hz versus a 29.7 Hz minimum.",
-                "One C++ CV maximum execution-time row exceeded 33.333 ms.",
+                "One of twelve rows—C++ CV with zero stress workers—exceeded 33.333 ms; its root cause is not established.",
                 "The aggregate runtime requirements did not support a hard-real-time claim.",
             ],
         },
@@ -828,7 +899,7 @@ This checklist maps the interactive page's headline claims to retained evidence.
 |---|---|---|---|
 | 2.45097017288208 s intended hardware occlusion; reacquired without reset | `GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json` | Measured hardware | N=1 intended dropout |
 | 24/24 controlled-truth trials accepted | `GHOST_X_G4_VALIDATION.json`, `GHOST_X_G10_CI_REPORT.json` | Synthetic software | N=24 trials, 8 scenario families |
-| 12/12 software-injected faults passed | `GHOST_X_G8_FAULT_REPORT.json`, `.csv`, `g8_fault_evidence/*.jsonl` | Synthetic software | N=12 distinct fault cases |
+| 12/12 software-injected faults passed | `GHOST_X_G8_FAULT_REPORT.json`, `.csv`, `g8_fault_evidence/*.jsonl` | Synthetic software | N=12 cases; pass means correct detection, isolation, and accepted recovery on one shared canonical stream |
 | RT-002 observed 3.4433068896378227 Hz versus 29.7 Hz minimum | `GHOST_X_G9_RUNTIME_REPORT.json` | Measured hardware runtime | Requirement not met |
 | Follower-drone navigation/reacquisition behavior | `GHOST_DRONE_MISSION_VALIDATION.json` | Synthetic software | One deterministic local-frame mission; no physical flight |
 | Raspberry Pi 4B, eMeet C960, ROS 2 Jazzy, AprilTag identity | `GHOST_X_BASELINE_MANIFEST.json`, `GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json` | Measured hardware | Guided tabletop campaign |
@@ -837,7 +908,7 @@ This checklist maps the interactive page's headline claims to retained evidence.
 | Matched Python-reference runtime rows | `GHOST_X_G9_RUNTIME_REPORT.json` | Measured hardware runtime | Raspberry Pi, no stress workers |
 | Short-hide, lateral, stationary and range results | `GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json`, `guided_hardware_evidence/*.json` | Measured hardware | Guided sequences; correlated samples are not independent trials |
 | Long-hide mission occlusions | `GHOST_DRONE_MISSION_VALIDATION.json` | Synthetic software | N=2 occlusions in one mission |
-| Runtime pass/fail and deadline evidence | `GHOST_X_G9_RUNTIME_REPORT.json`, `.csv` | Measured hardware runtime | RT-001 and RT-002 failed; RT-003 passed |
+| Runtime pass/fail and deadline evidence | `GHOST_X_G9_RUNTIME_REPORT.json`, `.csv` | Measured hardware runtime | RT-001 and RT-002 failed; RT-003 passed; 11/12 estimator max-time rows met the deadline |
 | 34/34 requirement traceability | `GHOST_X_FINAL_TRACEABILITY.csv`, `GHOST_X_SOFTWARE_STATUS.json` | Verification | 34 mapped rows |
 | Limitations and rejected evidence | `GHOST_X_CLAIM_BOUNDARIES.md`, `GHOST_X_APPROVED_CLAIMS.json`, `GHOST_X_FAILURE_GALLERY.json` | Claim governance | Permanent page section |
 

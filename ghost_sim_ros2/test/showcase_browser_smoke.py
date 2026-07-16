@@ -133,6 +133,10 @@ def assert_rendered_dom(dom: str) -> None:
         "3.4433068896378227 Hz",
         "No physical closed-loop drone flight",
         "Not retained symmetrically",
+        "shared canonical evaluation stream",
+        "6 exact RMSE profiles and 2 exact recovery-time values",
+        "Eleven of twelve measured maximum-execution rows",
+        "does not mean the timing requirement passed",
         "RT-001",
         "RT-002",
     ]
