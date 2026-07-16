@@ -314,6 +314,11 @@
           <span class="evidence-badge synthetic">Synthetic software injection · N=12</span>
         </div>
 
+        <div class="hardware-caveats fault-interpretation">
+          <article><span class="status-icon caution">!</span><div><strong>What “12 / 12 passed” means</strong><p id="fault-pass-definition">Loading fault acceptance definition…</p></div></article>
+          <article><span class="status-icon caution">!</span><div><strong>Shared-stream metric boundary</strong><p id="fault-metric-boundary">Loading fault metric interpretation…</p><small id="fault-group-summary"></small></div></article>
+        </div>
+
         <div class="plot-card fault-chart-card">
           <div class="plot-heading"><div><span>Recovery</span><strong>Recovery time for every retained fault case</strong></div><small>Same axis for all cases</small></div>
           <div id="fault-recovery-chart" class="plot" role="img" aria-label="Recovery times for twelve software-injected fault cases"></div>
@@ -337,6 +342,12 @@
         </div>
 
         <div class="requirement-grid" id="runtime-requirements"></div>
+
+        <div class="hardware-caveats runtime-interpretation">
+          <article><span class="status-icon caution">!</span><div><strong>Publication-rate root cause not established</strong><p id="rt002-interpretation">Loading runtime interpretation…</p></div></article>
+          <article><span class="status-icon caution">!</span><div><strong>One unresolved execution-time anomaly</strong><p id="deadline-anomaly-interpretation">Loading deadline-row interpretation…</p><small id="deadline-row-summary"></small></div></article>
+          <article><span class="status-icon caution">!</span><div><strong>Reporting check versus requirement result</strong><p id="reporting-check-interpretation">Loading claim-governance interpretation…</p></div></article>
+        </div>
 
         <div class="plot-card runtime-chart-card">
           <div class="plot-heading"><div><span>Estimator deadline</span><strong>p99 and maximum execution time vs 33.333 ms</strong></div><small>Python reference and C++ production rows are labeled separately</small></div>

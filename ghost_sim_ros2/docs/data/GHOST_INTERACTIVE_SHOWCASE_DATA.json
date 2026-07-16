@@ -356,8 +356,113 @@
         "recovery_time_s": 1.4000000000000004
       }
     ],
+    "metric_interpretation": "All twelve injections reuse one shared canonical evaluation stream. The RMSE and recovery-time columns are outputs of that shared-stream campaign and should not be interpreted as twelve independently measured physical degradation profiles.",
+    "pass_definition": "Each case passed only when the injected fault was detected, isolated to the expected subsystem/status path, and returned to nominal or the predeclared accepted recovery state.",
     "passed_faults": 12,
-    "source": "GHOST_X_G8_FAULT_REPORT.json"
+    "recovery_time_groups": [
+      {
+        "count": 5,
+        "faults": [
+          "false_detection",
+          "covariance_corruption",
+          "node_restart",
+          "cpu_saturation",
+          "network_degradation"
+        ],
+        "recovery_time_s": 1.1999999999999993
+      },
+      {
+        "count": 7,
+        "faults": [
+          "camera_disconnect",
+          "frozen_measurement",
+          "duplicate_measurement",
+          "latency",
+          "out_of_sequence_data",
+          "parameter_mismatch",
+          "lighting_degradation"
+        ],
+        "recovery_time_s": 1.4000000000000004
+      }
+    ],
+    "rmse_profile_groups": [
+      {
+        "count": 2,
+        "faults": [
+          "covariance_corruption",
+          "cpu_saturation"
+        ],
+        "position_error_rmse_m": {
+          "cv_kalman": 0.029078210381168017,
+          "formal_imm": 0.01631785576533458,
+          "ghost_mh": 0.04755774548975078
+        }
+      },
+      {
+        "count": 1,
+        "faults": [
+          "node_restart"
+        ],
+        "position_error_rmse_m": {
+          "cv_kalman": 0.029092016611554857,
+          "formal_imm": 0.01740560791292069,
+          "ghost_mh": 0.047557593402331975
+        }
+      },
+      {
+        "count": 1,
+        "faults": [
+          "false_detection"
+        ],
+        "position_error_rmse_m": {
+          "cv_kalman": 0.03139329356774393,
+          "formal_imm": 0.01784351252542667,
+          "ghost_mh": 0.08363725483074735
+        }
+      },
+      {
+        "count": 1,
+        "faults": [
+          "network_degradation"
+        ],
+        "position_error_rmse_m": {
+          "cv_kalman": 0.03214377299411351,
+          "formal_imm": 0.016869323823009052,
+          "ghost_mh": 0.050878838189256904
+        }
+      },
+      {
+        "count": 6,
+        "faults": [
+          "camera_disconnect",
+          "duplicate_measurement",
+          "latency",
+          "out_of_sequence_data",
+          "parameter_mismatch",
+          "lighting_degradation"
+        ],
+        "position_error_rmse_m": {
+          "cv_kalman": 0.13118667352827276,
+          "formal_imm": 0.041537461838539506,
+          "ghost_mh": 0.667294212920655
+        }
+      },
+      {
+        "count": 1,
+        "faults": [
+          "frozen_measurement"
+        ],
+        "position_error_rmse_m": {
+          "cv_kalman": 0.45090939440856276,
+          "formal_imm": 0.48108154152725774,
+          "ghost_mh": 0.58037734703256
+        }
+      }
+    ],
+    "source": "GHOST_X_G8_FAULT_REPORT.json",
+    "source_stream": "canonical_streams/g4_repeated_reentry_rep01.jsonl",
+    "unique_recovery_time_count": 2,
+    "unique_rmse_profile_count": 6
   },
   "framing": {
     "headline": "Autonomous Object Tracking for Follower-Drone Applications",
@@ -375,6 +480,7 @@
     "imm_output_hz": 30.01,
     "kernel": "6.8.0-1060-raspi",
     "machine": "aarch64",
+    "max_estimator_benchmark_rss_mb": 70.33984375,
     "max_process_rss_mb": 69.8203125,
     "max_temperature_c": 47.225,
     "mh_output_hz": 29.99,
@@ -572,6 +678,21 @@
   },
   "runtime": {
     "badge": "MEASURED_HARDWARE",
+    "deadline_anomaly_interpretation": "Eleven of twelve measured maximum-execution rows met the 33.333 ms deadline. The only miss was C++ CV with zero stress workers; the C++ CV stress=2 row met the deadline. This counterintuitive ordering is retained as an unresolved benchmark anomaly and does not show that CPU stress improves execution time.",
+    "deadline_miss_rows": [
+      {
+        "deadline_us": 33333.0,
+        "estimator": "cv",
+        "implementation": "cpp_production",
+        "max_below_deadline": false,
+        "max_execution_us": 78038.23826708074,
+        "p99_execution_us": 70678.39724534165,
+        "stress_workers": 0
+      }
+    ],
+    "deadline_rows_met": 11,
+    "deadline_rows_not_met": 1,
+    "deadline_rows_total": 12,
     "environment": {
       "cpu_count": 4,
       "machine": "aarch64",
@@ -1897,6 +2018,7 @@
       }
     ],
     "real_time_claim_status": "HARD_REAL_TIME_NOT_CLAIMED_REQUIREMENTS_NOT_MET",
+    "reporting_check_interpretation": "The G10 reporting check passed because the deadline miss was reported and the hard-real-time claim was withheld. It does not mean the timing requirement passed.",
     "requirements": {
       "RT-001": {
         "limits_ms": {
@@ -1938,18 +2060,20 @@
       }
     },
     "requirements_all_passed": false,
+    "rt002_interpretation": "The retained bench evidence establishes a severe publication-rate shortfall, but it does not establish the causal mechanism. No QoS, driver, scheduling, or startup explanation is claimed without a dedicated follow-up experiment.",
+    "rt002_root_cause_status": "NOT_ESTABLISHED",
     "source": "GHOST_X_G9_RUNTIME_REPORT.json",
     "what_did_not_pass": [
       "RT-001 nominal source-to-receipt latency exceeded the predeclared p95 and p99 limits.",
       "RT-002 publication rate was 3.4433068896378227 Hz versus a 29.7 Hz minimum.",
-      "One C++ CV maximum execution-time row exceeded 33.333 ms.",
+      "One of twelve rows—C++ CV with zero stress workers—exceeded 33.333 ms; its root cause is not established.",
       "The aggregate runtime requirements did not support a hard-real-time claim."
     ],
     "what_passed": [
       "RT-003 resource and thermal evidence collection passed.",
       "No throttling flag was reported in the retained runtime campaign.",
       "Eight QoS scenarios met their scenario-specific acceptance logic.",
-      "Most individual estimator timing rows remained below the 33.333 ms deadline."
+      "Eleven of twelve measured estimator maximum-execution rows remained below the 33.333 ms deadline."
     ]
   },
   "schema_version": 1,

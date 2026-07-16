@@ -579,7 +579,8 @@
       ["Camera pose rate", `${formatNumber(hardware.camera_pose_hz, 2)} Hz`, "Preserved live hardware bag"],
       ["IMM output rate", `${formatNumber(hardware.imm_output_hz, 2)} Hz`, "Preserved live hardware bag"],
       ["GHOST-MH output rate", `${formatNumber(hardware.mh_output_hz, 2)} Hz`, "Preserved live hardware bag"],
-      ["Maximum process RSS", `${formatNumber(hardware.max_process_rss_mb, 7)} MB`, "Retained runtime campaign"],
+      ["Environment-level process RSS", `${formatNumber(hardware.max_process_rss_mb, 7)} MB`, "Top-level environment summary"],
+      ["Largest estimator-benchmark RSS", `${formatNumber(hardware.max_estimator_benchmark_rss_mb, 7)} MB`, "Maximum across the four retained estimator benchmark blocks"],
       ["Maximum temperature", `${formatNumber(hardware.max_temperature_c, 3)} °C`, "Retained runtime campaign"],
       ["Throttling status", hardware.throttled_status_final, "No throttling flag reported"],
     ];
@@ -598,6 +599,10 @@
   }
 
   function renderFaults() {
+    const faultTesting = state.data.fault_testing;
+    $("#fault-pass-definition").textContent = faultTesting.pass_definition;
+    $("#fault-metric-boundary").textContent = faultTesting.metric_interpretation;
+    $("#fault-group-summary").textContent = `${faultTesting.unique_rmse_profile_count} exact RMSE profiles and ${faultTesting.unique_recovery_time_count} exact recovery-time values appear across ${faultTesting.fault_count} cases · source stream: ${faultTesting.source_stream}`;
     $("#fault-filter").addEventListener("input", (event) => {
       state.faultFilter = event.target.value;
       updateFaultDisplay();
@@ -641,6 +646,10 @@
   function renderRuntime() {
     const runtime = state.data.runtime;
     const requirements = runtime.requirements;
+    $("#rt002-interpretation").textContent = runtime.rt002_interpretation;
+    $("#deadline-anomaly-interpretation").textContent = runtime.deadline_anomaly_interpretation;
+    $("#reporting-check-interpretation").textContent = runtime.reporting_check_interpretation;
+    $("#deadline-row-summary").textContent = `${runtime.deadline_rows_met} of ${runtime.deadline_rows_total} measured maximum-execution rows met the deadline; ${runtime.deadline_rows_not_met} did not.`;
     const cards = [
       {
         id: "RT-001", title: "Source-to-receipt latency", row: requirements["RT-001"],

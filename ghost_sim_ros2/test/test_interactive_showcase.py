@@ -345,3 +345,50 @@ def test_evidence_checklist_lists_unavailable_evidence() -> None:
     ]
     for phrase in required:
         assert phrase in text
+
+
+def test_fault_metrics_are_labeled_as_shared_stream_outputs() -> None:
+    data = json.loads(SHOWCASE.read_text(encoding="utf-8"))
+    fault = data["fault_testing"]
+    assert fault["fault_count"] == 12
+    assert fault["passed_faults"] == 12
+    assert fault["source_stream"] == "canonical_streams/g4_repeated_reentry_rep01.jsonl"
+    assert fault["unique_recovery_time_count"] == 2
+    assert sorted(group["count"] for group in fault["recovery_time_groups"]) == [5, 7]
+    assert fault["unique_rmse_profile_count"] == 6
+    assert sorted(group["count"] for group in fault["rmse_profile_groups"]) == [1, 1, 1, 1, 2, 6]
+    assert "shared canonical" in fault["metric_interpretation"].lower()
+    assert "detected" in fault["pass_definition"].lower()
+    assert "isolated" in fault["pass_definition"].lower()
+
+
+def test_runtime_interpretation_separates_reporting_from_requirement_pass() -> None:
+    data = json.loads(SHOWCASE.read_text(encoding="utf-8"))
+    runtime = data["runtime"]
+    assert runtime["deadline_rows_total"] == 12
+    assert runtime["deadline_rows_met"] == 11
+    assert runtime["deadline_rows_not_met"] == 1
+    miss = runtime["deadline_miss_rows"][0]
+    assert miss["implementation"] == "cpp_production"
+    assert miss["estimator"] == "cv"
+    assert miss["stress_workers"] == 0
+    assert runtime["rt002_root_cause_status"] == "NOT_ESTABLISHED"
+    assert "does not mean the timing requirement passed" in runtime["reporting_check_interpretation"]
+    assert data["hardware"]["max_process_rss_mb"] == 69.8203125
+    assert data["hardware"]["max_estimator_benchmark_rss_mb"] == 70.33984375
+
+
+def test_interpretation_notes_are_visible_on_page() -> None:
+    html = INDEX.read_text(encoding="utf-8")
+    script = JS.read_text(encoding="utf-8")
+    for element_id in (
+        "fault-pass-definition",
+        "fault-metric-boundary",
+        "fault-group-summary",
+        "rt002-interpretation",
+        "deadline-anomaly-interpretation",
+        "reporting-check-interpretation",
+        "deadline-row-summary",
+    ):
+        assert f'id="{element_id}"' in html
+        assert f'#{element_id}' in script
