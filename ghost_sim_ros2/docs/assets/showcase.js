@@ -734,6 +734,7 @@
     sort.dispatchEvent(new Event("change", { bubbles: true }));
 
     document.documentElement.dataset.smokeReplayMeasurement = $("#replay-measurement").textContent;
+    document.documentElement.dataset.smokeReplayTime = String(state.replayTime);
     document.documentElement.dataset.smokeScenario = state.activeScenario;
     document.documentElement.dataset.smokeFaultFirst = $("#fault-table-body tr strong")?.textContent || "";
     document.documentElement.dataset.smokeComplete = "true";

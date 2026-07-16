@@ -157,11 +157,12 @@ def assert_rendered_dom(dom: str) -> None:
     if plot_count < 7:
         raise AssertionError(f"Expected at least 7 rendered Plotly charts, found {plot_count}")
 
-    scrubber = re.search(r'id="replay-scrubber"[^>]*max="([0-9.]+)"[^>]*value="([0-9.]+)"', dom)
-    if not scrubber:
-        raise AssertionError("Replay scrubber did not receive a rendered max/value")
+    scrubber = re.search(r'id="replay-scrubber"[^>]*max="([0-9.]+)"', dom)
+    replay_time = re.search(r'data-smoke-replay-time="([0-9.]+)"', dom)
+    if not scrubber or not replay_time:
+        raise AssertionError("Replay scrubber did not expose rendered max and exercised time")
     maximum = float(scrubber.group(1))
-    current = float(scrubber.group(2))
+    current = float(replay_time.group(1))
     if maximum < 100 or not (0 < current < maximum):
         raise AssertionError(f"Replay scrubber was not exercised: value={current}, max={maximum}")
 
