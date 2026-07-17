@@ -130,7 +130,7 @@ def assert_rendered_dom(dom: str) -> None:
         'data-fault-rows="12"',
         'data-smoke-complete="true"',
         'data-smoke-scenario="range_change"',
-        "3.4433068896378227 Hz",
+        "3.4433 Hz",
         "No physical closed-loop drone flight",
         "Not retained symmetrically",
         "shared canonical evaluation stream",
@@ -139,10 +139,14 @@ def assert_rendered_dom(dom: str) -> None:
         "does not mean the timing requirement passed",
         "RT-001",
         "RT-002",
+        "Two distinct evidence sets",
+        "Movement-response tests kept separate",
     ]
     for fragment in expected_fragments:
         if fragment not in dom:
             raise AssertionError(f"Rendered DOM missing: {fragment}")
+    if 'data-scenario="stationary_target"' in dom:
+        raise AssertionError("Duplicate stationary-target scenario is still rendered")
     if "data-showcase-error=" in dom:
         raise AssertionError("Interactive page reported a showcase initialization error")
 
@@ -158,8 +162,8 @@ def assert_rendered_dom(dom: str) -> None:
             raise AssertionError(f"Rendered DOM still contains pre-JavaScript placeholder: {placeholder}")
 
     plot_count = dom.count("js-plotly-plot")
-    if plot_count < 7:
-        raise AssertionError(f"Expected at least 7 rendered Plotly charts, found {plot_count}")
+    if plot_count < 8:
+        raise AssertionError(f"Expected at least 8 rendered Plotly charts, found {plot_count}")
 
     scrubber = re.search(r'id="replay-scrubber"[^>]*max="([0-9.]+)"', dom)
     replay_time = re.search(r'data-smoke-replay-time="([0-9.]+)"', dom)

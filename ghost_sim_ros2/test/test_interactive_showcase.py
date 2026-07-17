@@ -220,8 +220,11 @@ def test_page_has_required_interactive_sections_and_controls() -> None:
         "estimator-rmse-chart",
         "estimator-runtime-chart",
         "occlusion",
-        "scenario-selector",
-        "scenario-chart",
+        "occlusion-selector",
+        "occlusion-chart",
+        "response",
+        "response-selector",
+        "response-chart",
         "hardware",
         "faults",
         "fault-filter",
@@ -241,6 +244,7 @@ def test_page_has_required_interactive_sections_and_controls() -> None:
         html.index('id="replay"'),
         html.index('id="comparison"'),
         html.index('id="occlusion"'),
+        html.index('id="response"'),
         html.index('id="hardware"'),
         html.index('id="faults"'),
         html.index('id="runtime"'),
@@ -321,14 +325,31 @@ def test_source_type_badges_and_sample_boundaries_are_explicit() -> None:
         "MEASURED_HARDWARE",
         "SYNTHETIC_SOFTWARE",
     }
-    scenarios = showcase["occlusion_scenarios"]
-    assert scenarios["short_hide"]["sample_basis"] == "N=1 intended hardware dropout"
-    assert "N=2 simulated obstacle occlusions" in scenarios["long_hide"]["sample_basis"]
-    assert "correlated video samples" in scenarios["lateral_motion"]["sample_basis"]
-    assert "32 correlated pose samples" in scenarios["range_change"]["sample_basis"]
-    assert "89 correlated pose samples" in scenarios["range_change"]["sample_basis"]
-    assert scenarios["short_hide"]["metrics"]["hidden_drift_m"] is None
-    assert scenarios["long_hide"]["metrics"]["first_frame_errors_m"] is None
+    occlusion = showcase["occlusion_scenarios"]
+    response = showcase["response_scenarios"]
+    assert set(occlusion) == {"short_hide", "long_hide"}
+    assert "stationary_target" not in occlusion
+    assert set(response) == {"lateral_motion", "range_change"}
+    assert occlusion["short_hide"]["sample_basis"] == "N=1 intended hardware dropout"
+    assert "N=2 simulated obstacle occlusions" in occlusion["long_hide"]["sample_basis"]
+    assert "correlated video samples" in response["lateral_motion"]["sample_basis"]
+    assert "32 correlated pose samples" in response["range_change"]["sample_basis"]
+    assert "89 correlated pose samples" in response["range_change"]["sample_basis"]
+    assert occlusion["short_hide"]["metrics"]["hidden_drift_m"] is None
+    assert occlusion["long_hide"]["metrics"]["first_frame_errors_m"] is None
+    assert "occlusion_duration_s" not in response["range_change"]["metrics"]
+
+
+def test_display_precision_and_scenario_separation() -> None:
+    data = json.loads(SHOWCASE.read_text(encoding="utf-8"))
+    hero = {row["id"]: row for row in data["hero_metrics"]}
+    assert hero["hardware_dropout"]["display"] == "2.4510 s"
+    assert hero["rt002"]["display"] == "3.4433 Hz"
+    script = JS.read_text(encoding="utf-8")
+    assert "stationary_target" not in script
+    assert "response_scenarios" in script
+    assert "%{y:.9f}" not in script
+    assert "%{x:.9f}" not in script
 
 
 def test_evidence_checklist_lists_unavailable_evidence() -> None:

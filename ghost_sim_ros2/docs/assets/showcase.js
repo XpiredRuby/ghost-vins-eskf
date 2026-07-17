@@ -38,7 +38,8 @@
     animationFrame: null,
     previousFrameTime: null,
     activeStage: 0,
-    activeScenario: "short_hide",
+    activeOcclusionScenario: "short_hide",
+    activeResponseScenario: "lateral_motion",
     faultFilter: "",
     faultSort: "fault",
   };
@@ -55,23 +56,25 @@
       .replaceAll("'", "&#039;");
   }
 
-  function formatNumber(value, digits = 3) {
+  function formatNumber(value, digits = 4) {
     if (value === null || value === undefined || Number.isNaN(Number(value))) return "Not retained";
     const number = Number(value);
-    if (Math.abs(number) >= 1000) return number.toLocaleString(undefined, { maximumFractionDigits: digits });
-    if (Math.abs(number) > 0 && Math.abs(number) < 0.001) return number.toExponential(3);
-    return number.toLocaleString(undefined, { maximumFractionDigits: digits });
+    if (Number.isInteger(number)) return number.toLocaleString();
+    return number.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: digits,
+    });
   }
 
   function formatMeters(value, digits = 4) {
     return value === null || value === undefined ? "Not retained" : `${formatNumber(value, digits)} m`;
   }
 
-  function formatMilliseconds(value, digits = 3) {
+  function formatMilliseconds(value, digits = 4) {
     return value === null || value === undefined ? "Not retained" : `${formatNumber(value, digits)} ms`;
   }
 
-  function formatSeconds(value, digits = 6) {
+  function formatSeconds(value, digits = 4) {
     return value === null || value === undefined ? "Not retained" : `${formatNumber(value, digits)} s`;
   }
 
@@ -145,10 +148,10 @@
     $("#mission-stats").innerHTML = [
       [mission.obstacle_occlusion_count, "simulated obstacle occlusions"],
       [mission.reacquisition_count, "simulated reacquisitions"],
-      [`${formatNumber(mission.observer_distance_traveled_m, 3)} m`, "observer distance traveled"],
+      [`${formatNumber(mission.observer_distance_traveled_m, 4)} m`, "observer distance traveled"],
       [mission.collision_count, "reported collisions"],
       [mission.out_of_bounds_count, "out-of-bounds events"],
-      [`${formatNumber(mission.elapsed_s, 3)} s`, "mission elapsed time"],
+      [`${formatNumber(mission.elapsed_s, 4)} s`, "mission elapsed time"],
     ].map(([value, label]) => `<div><strong>${escapeHtml(value)}</strong><span>${escapeHtml(label)}</span></div>`).join("");
   }
 
@@ -408,10 +411,10 @@
         <h3>${escapeHtml(estimator.name)}</h3>
         <p>${escapeHtml(estimator.observation)}</p>
         <div class="estimator-metrics">
-          <div><span>Overall RMSE</span><strong>${formatMeters(estimator.overall_rmse_m, 6)}</strong></div>
-          <div><span>Hidden RMSE</span><strong>${formatMeters(estimator.hidden_rmse_m, 6)}</strong></div>
-          <div><span>p99 runtime</span><strong>${formatMilliseconds(estimator.p99_runtime_ms, 6)}</strong></div>
-          <div><span>Max runtime</span><strong>${formatMilliseconds(estimator.max_runtime_ms, 6)}</strong></div>
+          <div><span>Overall RMSE</span><strong>${formatMeters(estimator.overall_rmse_m, 5)}</strong></div>
+          <div><span>Hidden RMSE</span><strong>${formatMeters(estimator.hidden_rmse_m, 5)}</strong></div>
+          <div><span>p99 runtime</span><strong>${formatMilliseconds(estimator.p99_runtime_ms, 4)}</strong></div>
+          <div><span>Max runtime</span><strong>${formatMilliseconds(estimator.max_runtime_ms, 4)}</strong></div>
           <div><span>Reacquisition time</span><strong class="metric-unavailable">Not retained symmetrically</strong></div>
           <div><span>Reset count</span><strong class="metric-unavailable">Not retained symmetrically</strong></div>
         </div>
@@ -420,8 +423,8 @@
     const Plotly = requirePlotly();
     const names = estimators.map((row) => row.name);
     Plotly.newPlot("estimator-rmse-chart", [
-      { x: names, y: estimators.map((row) => row.overall_rmse_m), name: "Overall RMSE", type: "bar", marker: { color: COLORS.verification }, hovertemplate: "%{x}<br>Overall RMSE=%{y:.9f} m<extra></extra>" },
-      { x: names, y: estimators.map((row) => row.hidden_rmse_m), name: "Hidden-period RMSE", type: "bar", marker: { color: COLORS.failure }, hovertemplate: "%{x}<br>Hidden RMSE=%{y:.9f} m<extra></extra>" },
+      { x: names, y: estimators.map((row) => row.overall_rmse_m), name: "Overall RMSE", type: "bar", marker: { color: COLORS.verification }, hovertemplate: "%{x}<br>Overall RMSE=%{y:.5f} m<extra></extra>" },
+      { x: names, y: estimators.map((row) => row.hidden_rmse_m), name: "Hidden-period RMSE", type: "bar", marker: { color: COLORS.failure }, hovertemplate: "%{x}<br>Hidden RMSE=%{y:.5f} m<extra></extra>" },
     ], plotLayout({
       barmode: "group",
       xaxis: { gridcolor: COLORS.grid, automargin: true },
@@ -429,8 +432,8 @@
     }), PLOT_CONFIG);
 
     Plotly.newPlot("estimator-runtime-chart", [
-      { x: names, y: estimators.map((row) => row.p99_runtime_ms), name: "p99", type: "bar", marker: { color: COLORS.measured }, hovertemplate: "%{x}<br>p99=%{y:.9f} ms<extra></extra>" },
-      { x: names, y: estimators.map((row) => row.max_runtime_ms), name: "Maximum", type: "bar", marker: { color: COLORS.synthetic }, hovertemplate: "%{x}<br>Max=%{y:.9f} ms<extra></extra>" },
+      { x: names, y: estimators.map((row) => row.p99_runtime_ms), name: "p99", type: "bar", marker: { color: COLORS.measured }, hovertemplate: "%{x}<br>p99=%{y:.4f} ms<extra></extra>" },
+      { x: names, y: estimators.map((row) => row.max_runtime_ms), name: "Maximum", type: "bar", marker: { color: COLORS.synthetic }, hovertemplate: "%{x}<br>Max=%{y:.4f} ms<extra></extra>" },
     ], plotLayout({
       barmode: "group",
       xaxis: { gridcolor: COLORS.grid, automargin: true },
@@ -442,32 +445,8 @@
     short_hide: "Short hide",
     long_hide: "Long hide",
     lateral_motion: "Lateral motion",
-    stationary_target: "Stationary target",
     range_change: "Range change",
   };
-
-  function renderScenarioSelector() {
-    const selector = $("#scenario-selector");
-    selector.innerHTML = Object.keys(state.data.occlusion_scenarios).map((key, index) => `
-      <button class="scenario-button" type="button" role="tab" aria-selected="${key === state.activeScenario}"
-        tabindex="${key === state.activeScenario ? 0 : -1}" data-scenario="${escapeHtml(key)}">${escapeHtml(SCENARIO_LABELS[key] || key)}</button>`).join("");
-    $$(".scenario-button", selector).forEach((button) => {
-      button.addEventListener("click", () => selectScenario(button.dataset.scenario));
-      button.addEventListener("keydown", (event) => {
-        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-        event.preventDefault();
-        const keys = Object.keys(state.data.occlusion_scenarios);
-        const current = keys.indexOf(state.activeScenario);
-        let next = current;
-        if (event.key === "ArrowRight") next = (current + 1) % keys.length;
-        if (event.key === "ArrowLeft") next = (current - 1 + keys.length) % keys.length;
-        if (event.key === "Home") next = 0;
-        if (event.key === "End") next = keys.length - 1;
-        selectScenario(keys[next], true);
-      });
-    });
-    selectScenario(state.activeScenario);
-  }
 
   function metricLabel(key) {
     return key.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
@@ -480,7 +459,7 @@
       if (value && typeof value === "object" && !Array.isArray(value)) {
         Object.entries(value).forEach(([subKey, subValue]) => rows.push([`${metricLabel(key)} · ${metricLabel(subKey)}`, subValue]));
       } else if (Array.isArray(value)) {
-        rows.push([metricLabel(key), value.map((item) => formatNumber(item, 6)).join(", ")]);
+        rows.push([metricLabel(key), value.map((item) => formatNumber(item, 4)).join(", ")]);
       } else {
         rows.push([metricLabel(key), value]);
       }
@@ -493,49 +472,70 @@
     if (typeof value === "boolean") return value ? "Yes" : "No";
     if (typeof value === "number") {
       if (/sample|count/i.test(label)) return formatNumber(value, 0);
-      if (/duration|time/i.test(label)) return formatSeconds(value, 6);
-      if (/error|drift|delta|baseline|hold/i.test(label)) return formatMeters(value, 6);
-      return formatNumber(value, 6);
+      if (/duration|time/i.test(label)) return formatSeconds(value, 4);
+      if (/error|drift|delta|baseline|hold/i.test(label)) return formatMeters(value, 5);
+      return formatNumber(value, 4);
     }
     return String(value);
   }
 
-  function selectScenario(key, focus = false) {
-    state.activeScenario = key;
-    $$(".scenario-button").forEach((button) => {
+  function renderScenarioGroup(config) {
+    const scenarios = state.data[config.dataKey];
+    const selector = $(config.selector);
+    const activeKey = state[config.stateKey];
+    selector.innerHTML = Object.keys(scenarios).map((key) => `
+      <button class="scenario-button" type="button" role="tab" aria-selected="${key === activeKey}"
+        tabindex="${key === activeKey ? 0 : -1}" data-scenario="${escapeHtml(key)}" data-group="${escapeHtml(config.group)}">${escapeHtml(SCENARIO_LABELS[key] || key)}</button>`).join("");
+    $$(".scenario-button", selector).forEach((button) => {
+      button.addEventListener("click", () => selectScenarioGroup(config, button.dataset.scenario));
+      button.addEventListener("keydown", (event) => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+        event.preventDefault();
+        const keys = Object.keys(scenarios);
+        const current = keys.indexOf(state[config.stateKey]);
+        let next = current;
+        if (event.key === "ArrowRight") next = (current + 1) % keys.length;
+        if (event.key === "ArrowLeft") next = (current - 1 + keys.length) % keys.length;
+        if (event.key === "Home") next = 0;
+        if (event.key === "End") next = keys.length - 1;
+        selectScenarioGroup(config, keys[next], true);
+      });
+    });
+    selectScenarioGroup(config, activeKey);
+  }
+
+  function selectScenarioGroup(config, key, focus = false) {
+    state[config.stateKey] = key;
+    $$(".scenario-button", $(config.selector)).forEach((button) => {
       const selected = button.dataset.scenario === key;
       button.setAttribute("aria-selected", String(selected));
       button.tabIndex = selected ? 0 : -1;
       if (selected && focus) button.focus();
     });
-    const scenario = state.data.occlusion_scenarios[key];
-    $("#scenario-badge").innerHTML = evidenceBadge(scenario.badge);
-    $("#scenario-title").textContent = scenario.title;
-    $("#scenario-basis").textContent = `${scenario.sample_basis} · ${scenario.source}`;
-    $("#scenario-conclusion").textContent = scenario.conclusion;
-    $("#scenario-metrics").innerHTML = flattenMetrics(scenario.metrics).map(([label, value]) => `
+    const scenario = state.data[config.dataKey][key];
+    $(config.badge).innerHTML = evidenceBadge(scenario.badge);
+    $(config.title).textContent = scenario.title;
+    $(config.basis).textContent = `${scenario.sample_basis} · ${scenario.source}`;
+    $(config.conclusion).textContent = scenario.conclusion;
+    $(config.metrics).innerHTML = flattenMetrics(scenario.metrics).map(([label, value]) => `
       <div class="scenario-metric"><span>${escapeHtml(label)}</span><strong class="${value === null ? "metric-unavailable" : ""}">${escapeHtml(formatScenarioMetric(label, value))}</strong></div>`).join("");
-    renderScenarioChart(key, scenario);
+    renderScenarioChart(config.chart, key, scenario);
   }
 
-  function renderScenarioChart(key, scenario) {
+  function renderScenarioChart(chartId, key, scenario) {
     const Plotly = requirePlotly();
     const metrics = scenario.metrics;
     let traces = [];
     let layout = plotLayout({ yaxis: { rangemode: "tozero", gridcolor: COLORS.grid, zerolinecolor: COLORS.grid } });
 
-    if (key === "short_hide" || key === "stationary_target") {
-      const errors = metrics.first_frame_errors_m || {
-        ghost_mh_top1: metrics.ghost_mh_top1_error_m,
-        constant_velocity: metrics.constant_velocity_error_m,
-        last_seen_hold: metrics.last_seen_hold_error_m,
-      };
+    if (key === "short_hide") {
+      const errors = metrics.first_frame_errors_m;
       traces = [{
         x: ["Constant velocity", "GHOST-MH top 1", "Last-seen hold"],
         y: [errors.constant_velocity, errors.ghost_mh_top1, errors.last_seen_hold],
         type: "bar",
         marker: { color: [COLORS.cv, COLORS.mh, COLORS.green] },
-        hovertemplate: "%{x}<br>Error=%{y:.9f} m<extra></extra>",
+        hovertemplate: "%{x}<br>Error=%{y:.5f} m<extra></extra>",
       }];
       layout.yaxis = { title: "First-reacquisition proxy error (m)", rangemode: "tozero", gridcolor: COLORS.grid, zerolinecolor: COLORS.grid };
     } else if (key === "long_hide") {
@@ -543,7 +543,7 @@
         x: metrics.occlusion_durations_s.map((_, index) => `Simulated occlusion ${index + 1}`),
         y: metrics.occlusion_durations_s,
         type: "bar", marker: { color: COLORS.synthetic },
-        hovertemplate: "%{x}<br>Duration=%{y:.9f} s<extra></extra>",
+        hovertemplate: "%{x}<br>Duration=%{y:.4f} s<extra></extra>",
       }];
       layout.yaxis = { title: "Occlusion duration (s)", rangemode: "tozero", gridcolor: COLORS.grid, zerolinecolor: COLORS.grid };
     } else if (key === "lateral_motion") {
@@ -551,7 +551,7 @@
         x: ["Center baseline", "Hold left", "Hold right"],
         y: [metrics.baseline_y_m, metrics.left_hold_y_m, metrics.right_hold_y_m],
         type: "bar", marker: { color: [COLORS.verification, COLORS.measured, COLORS.failure] },
-        hovertemplate: "%{x}<br>Camera-frame Y=%{y:.9f} m<extra></extra>",
+        hovertemplate: "%{x}<br>Camera-frame Y=%{y:.5f} m<extra></extra>",
       }];
       layout.yaxis = { title: "Camera-frame Y (m)", gridcolor: COLORS.grid, zerolinecolor: COLORS.grid, zerolinewidth: 2 };
     } else if (key === "range_change") {
@@ -560,11 +560,24 @@
         y: [metrics.closer_delta_x_m, metrics.farther_delta_x_m],
         type: "bar", marker: { color: [COLORS.measured, COLORS.verification] },
         customdata: [metrics.closer_valid_samples, metrics.farther_valid_samples],
-        hovertemplate: "%{x}<br>Delta X=%{y:.9f} m<br>Recorded pose samples=%{customdata}<extra></extra>",
+        hovertemplate: "%{x}<br>Delta X=%{y:.5f} m<br>Recorded pose samples=%{customdata}<extra></extra>",
       }];
       layout.yaxis = { title: "Delta camera-frame X (m)", gridcolor: COLORS.grid, zerolinecolor: COLORS.grid, zerolinewidth: 2 };
     }
-    Plotly.react("scenario-chart", traces, layout, PLOT_CONFIG);
+    Plotly.react(chartId, traces, layout, PLOT_CONFIG);
+  }
+
+  function renderScenarioSelectors() {
+    renderScenarioGroup({
+      group: "occlusion", dataKey: "occlusion_scenarios", stateKey: "activeOcclusionScenario",
+      selector: "#occlusion-selector", badge: "#occlusion-badge", title: "#occlusion-scenario-title",
+      basis: "#occlusion-basis", conclusion: "#occlusion-conclusion", metrics: "#occlusion-metrics", chart: "occlusion-chart",
+    });
+    renderScenarioGroup({
+      group: "response", dataKey: "response_scenarios", stateKey: "activeResponseScenario",
+      selector: "#response-selector", badge: "#response-badge", title: "#response-scenario-title",
+      basis: "#response-basis", conclusion: "#response-conclusion", metrics: "#response-metrics", chart: "response-chart",
+    });
   }
 
   function renderHardware() {
@@ -575,13 +588,13 @@
       ["Middleware", `ROS 2 ${hardware.ros_distro}`, "rmw_fastrtps_cpp in runtime campaign"],
       ["Vision sensor", hardware.camera, hardware.camera_interface],
       ["Target", `${hardware.tag_family} · ID ${hardware.tag_id}`, `${hardware.tag_size_m} m nominal size`],
-      ["Camera calibration", `${formatNumber(hardware.calibration_rms_reprojection_error_px, 9)} px RMS`, "Reprojection error; not absolute target accuracy"],
+      ["Camera calibration", `${formatNumber(hardware.calibration_rms_reprojection_error_px, 5)} px RMS`, "Reprojection error; not absolute target accuracy"],
       ["Camera pose rate", `${formatNumber(hardware.camera_pose_hz, 2)} Hz`, "Preserved live hardware bag"],
       ["IMM output rate", `${formatNumber(hardware.imm_output_hz, 2)} Hz`, "Preserved live hardware bag"],
       ["GHOST-MH output rate", `${formatNumber(hardware.mh_output_hz, 2)} Hz`, "Preserved live hardware bag"],
-      ["Environment-level process RSS", `${formatNumber(hardware.max_process_rss_mb, 7)} MB`, "Top-level environment summary"],
-      ["Largest estimator-benchmark RSS", `${formatNumber(hardware.max_estimator_benchmark_rss_mb, 7)} MB`, "Maximum across the four retained estimator benchmark blocks"],
-      ["Maximum temperature", `${formatNumber(hardware.max_temperature_c, 3)} °C`, "Retained runtime campaign"],
+      ["Environment-level process RSS", `${formatNumber(hardware.max_process_rss_mb, 4)} MB`, "Top-level environment summary"],
+      ["Largest estimator-benchmark RSS", `${formatNumber(hardware.max_estimator_benchmark_rss_mb, 4)} MB`, "Maximum across the four retained estimator benchmark blocks"],
+      ["Maximum temperature", `${formatNumber(hardware.max_temperature_c, 4)} °C`, "Retained runtime campaign"],
       ["Throttling status", hardware.throttled_status_final, "No throttling flag reported"],
     ];
     $("#hardware-spec-grid").innerHTML = specs.map(([label, value, note]) => `
@@ -622,10 +635,10 @@
         <td class="${row.detected ? "table-pass" : "table-fail"}">${row.detected ? "Yes" : "No"}</td>
         <td class="${row.isolated ? "table-pass" : "table-fail"}">${row.isolated ? "Yes" : "No"}</td>
         <td class="${row.recovery_ok ? "table-pass" : "table-fail"}">${row.recovery_ok ? "Yes" : "No"}</td>
-        <td>${formatSeconds(row.recovery_time_s, 9)}</td>
-        <td>${formatMeters(row.position_error_rmse_m.cv_kalman, 6)}</td>
-        <td>${formatMeters(row.position_error_rmse_m.formal_imm, 6)}</td>
-        <td>${formatMeters(row.position_error_rmse_m.ghost_mh, 6)}</td>
+        <td>${formatSeconds(row.recovery_time_s, 4)}</td>
+        <td>${formatMeters(row.position_error_rmse_m.cv_kalman, 5)}</td>
+        <td>${formatMeters(row.position_error_rmse_m.formal_imm, 5)}</td>
+        <td>${formatMeters(row.position_error_rmse_m.ghost_mh, 5)}</td>
       </tr>`).join("");
 
     const Plotly = requirePlotly();
@@ -634,7 +647,7 @@
       y: faults.map((row) => row.fault.replaceAll("_", " ")),
       type: "bar", orientation: "h", marker: { color: COLORS.synthetic },
       customdata: faults.map((row) => row.detected_at_s),
-      hovertemplate: "%{y}<br>Recovery=%{x:.9f} s<br>Detected at=%{customdata:.3f} s<extra></extra>",
+      hovertemplate: "%{y}<br>Recovery=%{x:.4f} s<br>Detected at=%{customdata:.3f} s<extra></extra>",
     }], plotLayout({
       margin: { l: 170, r: 25, t: 35, b: 55 },
       xaxis: { title: "Recovery time (s)", rangemode: "tozero", gridcolor: COLORS.grid, zerolinecolor: COLORS.grid },
@@ -654,9 +667,9 @@
       {
         id: "RT-001", title: "Source-to-receipt latency", row: requirements["RT-001"],
         details: [
-          ["Observed p95", `${formatNumber(requirements["RT-001"].p95_ms, 12)} ms`],
+          ["Observed p95", `${formatNumber(requirements["RT-001"].p95_ms, 4)} ms`],
           ["p95 limit", `${formatNumber(requirements["RT-001"].limits_ms.p95, 3)} ms`],
-          ["Observed p99", `${formatNumber(requirements["RT-001"].p99_ms, 12)} ms`],
+          ["Observed p99", `${formatNumber(requirements["RT-001"].p99_ms, 4)} ms`],
           ["p99 limit", `${formatNumber(requirements["RT-001"].limits_ms.p99, 3)} ms`],
           ["Samples", formatNumber(requirements["RT-001"].sample_count, 0)],
         ],
@@ -664,10 +677,10 @@
       {
         id: "RT-002", title: "Publication rate and deadline", row: requirements["RT-002"],
         details: [
-          ["Observed rate", `${formatNumber(requirements["RT-002"].publication_rate_hz, 16)} Hz`],
+          ["Observed rate", `${formatNumber(requirements["RT-002"].publication_rate_hz, 4)} Hz`],
           ["Minimum rate", `${formatNumber(requirements["RT-002"].limits.minimum_rate_hz, 3)} Hz`],
-          ["Deadline miss fraction", formatNumber(requirements["RT-002"].deadline_miss_fraction, 6)],
-          ["Allowed miss fraction", formatNumber(requirements["RT-002"].limits.maximum_deadline_miss_fraction, 6)],
+          ["Deadline miss fraction", formatNumber(requirements["RT-002"].deadline_miss_fraction, 4)],
+          ["Allowed miss fraction", formatNumber(requirements["RT-002"].limits.maximum_deadline_miss_fraction, 4)],
           ["Intervals", formatNumber(requirements["RT-002"].interarrival_ms.count, 0)],
         ],
       },
@@ -676,7 +689,7 @@
         details: [
           ["Thermal samples", formatNumber(requirements["RT-003"].thermal_sample_count, 0)],
           ["Throttling clear", requirements["RT-003"].throttling_clear ? "Yes" : "No"],
-          ["Max temperature", `${formatNumber(state.data.hardware.max_temperature_c, 3)} °C`],
+          ["Max temperature", `${formatNumber(state.data.hardware.max_temperature_c, 4)} °C`],
           ["Final flag", runtime.environment.throttled_status_final],
         ],
       },
@@ -699,12 +712,12 @@
       {
         x: rows.map((row) => Number(row.p99_execution_us) / 1000), y: labels,
         type: "bar", orientation: "h", name: "p99", marker: { color: COLORS.measured },
-        hovertemplate: "%{y}<br>p99=%{x:.9f} ms<extra></extra>",
+        hovertemplate: "%{y}<br>p99=%{x:.4f} ms<extra></extra>",
       },
       {
         x: rows.map((row) => Number(row.max_execution_us) / 1000), y: labels,
         type: "bar", orientation: "h", name: "Maximum", marker: { color: rows.map((row) => row.max_below_deadline ? COLORS.synthetic : COLORS.failure) },
-        hovertemplate: "%{y}<br>Maximum=%{x:.9f} ms<extra></extra>",
+        hovertemplate: "%{y}<br>Maximum=%{x:.4f} ms<extra></extra>",
       },
     ], plotLayout({
       barmode: "group",
@@ -735,7 +748,7 @@
     scrubber.value = String(Number(scrubber.max) * 0.5);
     scrubber.dispatchEvent(new Event("input", { bubbles: true }));
 
-    const rangeButton = $$('.scenario-button').find((button) => button.dataset.scenario === "range_change");
+    const rangeButton = $$('#response-selector .scenario-button').find((button) => button.dataset.scenario === "range_change");
     if (rangeButton) rangeButton.click();
 
     const sort = $("#fault-sort");
@@ -744,7 +757,7 @@
 
     document.documentElement.dataset.smokeReplayMeasurement = $("#replay-measurement").textContent;
     document.documentElement.dataset.smokeReplayTime = String(state.replayTime);
-    document.documentElement.dataset.smokeScenario = state.activeScenario;
+    document.documentElement.dataset.smokeScenario = state.activeResponseScenario;
     document.documentElement.dataset.smokeFaultFirst = $("#fault-table-body tr strong")?.textContent || "";
     document.documentElement.dataset.smokeComplete = "true";
   }
@@ -781,7 +794,7 @@
       renderArchitecture();
       renderReplay();
       renderEstimatorComparison();
-      renderScenarioSelector();
+      renderScenarioSelectors();
       renderHardware();
       renderFaults();
       renderRuntime();

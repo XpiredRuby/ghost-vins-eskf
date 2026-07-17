@@ -496,7 +496,7 @@
   "hero_metrics": [
     {
       "badge": "MEASURED_HARDWARE",
-      "display": "2.45097017288208 s",
+      "display": "2.4510 s",
       "id": "hardware_dropout",
       "label": "Measured tag occlusion; reacquired without reset",
       "sample_basis": "N=1 intended hardware dropout",
@@ -526,7 +526,7 @@
     },
     {
       "badge": "MEASURED_HARDWARE",
-      "display": "3.4433068896378227 Hz",
+      "display": "3.4433 Hz",
       "id": "rt002",
       "label": "Observed publication rate vs 29.7 Hz minimum",
       "sample_basis": "N=18 interarrival intervals",
@@ -585,22 +585,6 @@
     "source": "GHOST_DRONE_MISSION_VALIDATION.json"
   },
   "occlusion_scenarios": {
-    "lateral_motion": {
-      "badge": "MEASURED_HARDWARE",
-      "conclusion": "Measured left and right holds moved in opposite camera-frame directions. The result supports directional relative response only.",
-      "metrics": {
-        "baseline_y_m": 0.026524043222367573,
-        "first_frame_errors_m": null,
-        "hidden_drift_m": null,
-        "left_hold_y_m": 0.4022069641056925,
-        "occlusion_duration_s": null,
-        "reacquisition_time_s": null,
-        "right_hold_y_m": -0.4125736240958222
-      },
-      "sample_basis": "One guided browser sequence; correlated video samples",
-      "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
-      "title": "Guided lateral response"
-    },
     "long_hide": {
       "badge": "SYNTHETIC_SOFTWARE",
       "conclusion": "The deterministic local-frame software mission reacquired after two obstacle occlusions. It does not represent physical flight or GPS-denied self-localization.",
@@ -619,25 +603,9 @@
       "source": "GHOST_DRONE_MISSION_VALIDATION.json",
       "title": "Obstacle occlusions in drone-follow simulation"
     },
-    "range_change": {
-      "badge": "MEASURED_HARDWARE",
-      "conclusion": "The focused retests produced the expected camera-frame range direction. These are guided relative-response results, not independent absolute-accuracy trials.",
-      "metrics": {
-        "closer_delta_x_m": -0.34398661641281436,
-        "closer_reset_count": 0,
-        "closer_valid_samples": 32,
-        "farther_delta_x_m": 0.24879806969111495,
-        "farther_valid_samples": 89,
-        "occlusion_duration_s": null,
-        "reacquisition_time_s": null
-      },
-      "sample_basis": "One focused closer retest with 32 correlated pose samples and one focused farther run with 89 correlated pose samples",
-      "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
-      "title": "Guided closer and farther response"
-    },
     "short_hide": {
       "badge": "MEASURED_HARDWARE",
-      "conclusion": "GHOST-MH beat constant velocity in this stationary-target proxy but did not beat the last-seen hold. This single event does not establish universal superiority.",
+      "conclusion": "This is the single stationary-target hardware dropout event; it is not counted again under a second scenario label. GHOST-MH beat constant velocity in this event but did not beat the last-seen hold.",
       "metrics": {
         "first_frame_errors_m": {
           "constant_velocity": 0.04840823234348344,
@@ -652,21 +620,7 @@
       },
       "sample_basis": "N=1 intended hardware dropout",
       "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
-      "title": "Short tag hide"
-    },
-    "stationary_target": {
-      "badge": "MEASURED_HARDWARE",
-      "conclusion": "The stationary last-seen hold had the lowest proxy error in this event. GHOST-MH improved on constant velocity, not on every baseline.",
-      "metrics": {
-        "constant_velocity_error_m": 0.04840823234348344,
-        "ghost_mh_top1_error_m": 0.002616434607344502,
-        "hidden_drift_m": null,
-        "last_seen_hold_error_m": 0.0006566815761033871,
-        "occlusion_duration_s": 2.45097017288208
-      },
-      "sample_basis": "N=1 intended hardware dropout",
-      "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
-      "title": "Stationary-target short dropout"
+      "title": "Short stationary-target tag hide"
     }
   },
   "page_title": "GHOST-X — Autonomous Object Tracking for Follower-Drone Applications",
@@ -675,6 +629,34 @@
     "data_path": "data/GHOST_HARDWARE_REPLAY_20260716.json",
     "scope": "BROWSER_CUE_WINDOW_ONLY",
     "video_available": false
+  },
+  "response_scenarios": {
+    "lateral_motion": {
+      "badge": "MEASURED_HARDWARE",
+      "conclusion": "Measured left and right holds moved in opposite camera-frame directions. The result supports directional relative response only; it is not an occlusion test.",
+      "metrics": {
+        "baseline_y_m": 0.026524043222367573,
+        "left_hold_y_m": 0.4022069641056925,
+        "right_hold_y_m": -0.4125736240958222
+      },
+      "sample_basis": "One guided browser sequence; correlated video samples",
+      "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
+      "title": "Guided lateral response"
+    },
+    "range_change": {
+      "badge": "MEASURED_HARDWARE",
+      "conclusion": "The focused retests produced the expected camera-frame range direction. These are guided relative-response results, not occlusion or absolute-accuracy trials.",
+      "metrics": {
+        "closer_delta_x_m": -0.34398661641281436,
+        "closer_reset_count": 0,
+        "closer_valid_samples": 32,
+        "farther_delta_x_m": 0.24879806969111495,
+        "farther_valid_samples": 89
+      },
+      "sample_basis": "One focused closer retest with 32 correlated pose samples and one focused farther run with 89 correlated pose samples",
+      "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
+      "title": "Guided closer and farther response"
+    }
   },
   "runtime": {
     "badge": "MEASURED_HARDWARE",
@@ -2065,7 +2047,7 @@
     "source": "GHOST_X_G9_RUNTIME_REPORT.json",
     "what_did_not_pass": [
       "RT-001 nominal source-to-receipt latency exceeded the predeclared p95 and p99 limits.",
-      "RT-002 publication rate was 3.4433068896378227 Hz versus a 29.7 Hz minimum.",
+      "RT-002 publication rate was 3.4433 Hz versus a 29.7 Hz minimum.",
       "One of twelve rows—C++ CV with zero stress workers—exceeded 33.333 ms; its root cause is not established.",
       "The aggregate runtime requirements did not support a hard-real-time claim."
     ],
