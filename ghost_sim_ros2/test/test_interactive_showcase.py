@@ -208,8 +208,12 @@ def test_page_has_required_interactive_sections_and_controls() -> None:
     parser.feed(html)
 
     required_ids = {
-        "mission",
-        "architecture",
+        "overview",
+        "industry-relevance",
+        "components",
+        "how-it-works",
+        "results-summary",
+        "detailed-evidence",
         "stage-rail",
         "replay",
         "replay-play",
@@ -234,14 +238,18 @@ def test_page_has_required_interactive_sections_and_controls() -> None:
         "runtime",
         "runtime-deadline-chart",
         "limitations",
-        "evidence",
+        "downloads",
         "download-grid",
     }
     assert required_ids <= parser.ids
 
     order = [
-        html.index('id="mission"'),
-        html.index('id="architecture"'),
+        html.index('id="overview"'),
+        html.index('id="industry-relevance"'),
+        html.index('id="components"'),
+        html.index('id="how-it-works"'),
+        html.index('id="results-summary"'),
+        html.index('id="detailed-evidence"'),
         html.index('id="replay"'),
         html.index('id="comparison"'),
         html.index('id="occlusion"'),
@@ -250,10 +258,37 @@ def test_page_has_required_interactive_sections_and_controls() -> None:
         html.index('id="faults"'),
         html.index('id="runtime"'),
         html.index('id="limitations"'),
-        html.index('id="evidence"'),
+        html.index('id="downloads"'),
     ]
     assert order == sorted(order)
     assert "Autonomous Object Tracking for Follower-Drone Applications" in html
+    assert "GHOST-X is a target-tracking and state-estimation system" in html
+    assert "Rendezvous and proximity operations" in html
+    assert "UAV following and inspection" in html
+    assert "GHOST-X is not a deployed defense system" in html
+    assert "Relevant role families" in html
+    assert "Under 24 controlled software trials" in html
+    assert "Two real-time requirements—RT-001 and RT-002—were not met" in html
+    assert "What the system is built from" in html
+    assert "From printed tag to downstream follow-state output" in html
+    assert "What was demonstrated—and what was not" in html
+    assert "Detailed evidence" in html
+    for nav_label in (
+        "Overview", "Why It Matters", "Components", "How It Works",
+        "Results Summary", "Detailed Evidence", "Limitations", "Downloads",
+    ):
+        assert nav_label in html
+    for href, label in (
+        ("#overview", "Overview"),
+        ("#industry-relevance", "Why It Matters"),
+        ("#components", "Components"),
+        ("#how-it-works", "How It Works"),
+        ("#results-summary", "Results Summary"),
+        ("#detailed-evidence", "Detailed Evidence"),
+        ("#limitations", "Limitations"),
+        ("#downloads", "Downloads"),
+    ):
+        assert f'href="{href}">{label}</a>' in html
     assert "No physical drone was flown" in html
     assert "implemented, not physically evidenced" in html
     assert "The timing requirements did not all pass" in html

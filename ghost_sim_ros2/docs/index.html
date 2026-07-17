@@ -28,13 +28,14 @@
       </a>
       <button class="nav-toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu</button>
       <nav id="primary-nav" class="primary-nav" aria-label="Primary navigation">
-        <a href="#mission">Mission</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#replay">Replay</a>
-        <a href="#comparison">Estimators</a>
-        <a href="#runtime">Runtime</a>
+        <a href="#overview">Overview</a>
+        <a href="#industry-relevance">Why It Matters</a>
+        <a href="#components">Components</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#results-summary">Results Summary</a>
+        <a href="#detailed-evidence">Detailed Evidence</a>
         <a href="#limitations">Limitations</a>
-        <a class="nav-evidence" href="#evidence">Evidence</a>
+        <a class="nav-evidence" href="#downloads">Downloads</a>
       </nav>
     </div>
   </header>
@@ -47,10 +48,10 @@
         <p class="hero-lede">GHOST-X detects an AprilTag-marked object, estimates its camera-frame pose, maintains target state through temporary visibility loss, and exposes a state interface suitable for downstream follow behavior.</p>
         <p class="hero-boundary"><strong>Actual scope:</strong> the vision and tracking backbone was exercised on Raspberry Pi hardware under guided tabletop conditions. Follower-drone navigation was evaluated in deterministic local-frame software simulation. No physical drone was flown. No physical closed-loop drone flight was performed.</p>
         <div class="hero-actions">
-          <a class="button button-primary" href="#replay">Watch data replay</a>
-          <a class="button" href="#comparison">Explore results</a>
-          <a class="button" href="#architecture">View architecture</a>
-          <a class="button" href="#evidence">Open evidence package</a>
+          <a class="button button-primary" href="#overview">Understand the project</a>
+          <a class="button" href="#results-summary">See the takeaways</a>
+          <a class="button" href="#how-it-works">View the pipeline</a>
+          <a class="button" href="#downloads">Open evidence package</a>
         </div>
         <div class="badge-key" aria-label="Evidence classification key">
           <span class="evidence-badge measured">Measured hardware</span>
@@ -85,14 +86,12 @@
       </div>
     </section>
 
-    <section class="section mission-section" id="mission" aria-labelledby="mission-title">
+    <section class="section overview-section" id="overview" aria-labelledby="overview-title">
       <div class="shell">
-        <div class="section-heading split-heading">
-          <div>
-            <p class="section-kicker">01 · Mission definition</p>
-            <h2 id="mission-title">Follow behavior begins with a trustworthy relative target state</h2>
-          </div>
-          <p>A follower vehicle cannot react sensibly to an object it cannot localize. GHOST-X focuses on the sensing and estimation layers that sit before flight control: target identification, camera-frame pose, visibility handling, motion estimation, and explicit validity/status output.</p>
+        <div class="section-heading overview-heading">
+          <p class="section-kicker">01 · What this project is</p>
+          <h2 id="overview-title">A vision system that keeps track of a marked object</h2>
+          <p class="overview-summary">GHOST-X is a target-tracking and state-estimation system for a vision-guided follower drone. A USB camera detects an AprilTag attached to an object, estimates where that object is relative to the camera, and continues producing target-state estimates during brief visibility loss. This is the perception and estimation backbone that a downstream controller could use for follow behavior. The project did not fly or control a physical drone.</p>
         </div>
 
         <div class="mission-grid">
@@ -116,19 +115,89 @@
         </div>
 
         <aside class="truth-strip" role="note">
-          <strong>What “following” means here:</strong> a perception/estimation and command-interface backbone for follow behavior—not physical closed-loop flight, vehicle control validation, GPS-denied self-localization, or flight-worthiness.
+          <strong>Scope boundary:</strong> “following” means a perception, estimation, and command-interface backbone—not physical closed-loop flight, vehicle-control validation, GPS-denied self-localization, or flight-worthiness.
         </aside>
       </div>
     </section>
 
-    <section class="section architecture-section" id="architecture" aria-labelledby="architecture-title">
+    <section class="section relevance-section" id="industry-relevance" aria-labelledby="industry-title">
       <div class="shell">
-        <div class="section-heading">
-          <p class="section-kicker">02 · Interactive architecture</p>
-          <h2 id="architecture-title">Trace the target state from printed tag to follow interface</h2>
-          <p>Select any stage to inspect its retained inputs, outputs, failure modes, and evidence.</p>
+        <div class="section-heading split-heading">
+          <div>
+            <p class="section-kicker">02 · Why this matters in aerospace and defense</p>
+            <h2 id="industry-title">The same estimation problem appears across autonomous vehicles</h2>
+          </div>
+          <p>GHOST-X is not a deployed defense system and has no affiliation with an operational aerospace program. The relevance is technical: estimating a moving target through uncertainty, visibility loss, and conflicting motion hypotheses is a recurring autonomy and GNC problem.</p>
         </div>
 
+        <div class="industry-grid">
+          <article class="industry-card">
+            <span>Space systems</span>
+            <h3>Rendezvous and proximity operations</h3>
+            <p>Spacecraft docking and inspection require relative-target estimation, uncertainty management, model switching, and safe behavior when measurements are temporarily unavailable.</p>
+          </article>
+          <article class="industry-card">
+            <span>Autonomous aircraft</span>
+            <h3>UAV following and inspection</h3>
+            <p>Follow-me, infrastructure inspection, and search-and-rescue concepts depend on stable target state, explicit visibility status, and controlled reacquisition after occlusion.</p>
+          </article>
+          <article class="industry-card">
+            <span>Robotics and defense technology</span>
+            <h3>Multi-sensor target tracking</h3>
+            <p>Ground vehicles, swarms, and guidance systems use related Kalman-filter, multiple-model, and multi-hypothesis methods to track uncertain motion without pretending one model always wins.</p>
+          </article>
+        </div>
+
+        <aside class="relevance-note">
+          <strong>Relevant role families:</strong> GNC and autonomy engineering, navigation and estimation, robotics perception, embedded robotics, systems verification, and test engineering. The portfolio value is not that one demo worked once; it is that the estimation pipeline was implemented, compared symmetrically, tested under faults and timing constraints, and prevented from overclaiming through retained evidence and CI checks.
+        </aside>
+      </div>
+    </section>
+
+    <section class="section components-section" id="components" aria-labelledby="components-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="section-kicker">03 · System components</p>
+          <h2 id="components-title">What the system is built from</h2>
+          <p>Hardware, software, and estimators are listed together so a reviewer can see the complete stack before opening any chart.</p>
+        </div>
+
+        <div class="table-wrap components-table-wrap" tabindex="0" aria-label="Scrollable GHOST-X system components table">
+          <table class="data-table components-table">
+            <thead><tr><th>Component</th><th>What it is</th><th>Role in the system</th></tr></thead>
+            <tbody>
+              <tr><td><strong>AprilTag fiducial marker</strong></td><td>tag36h11, ID 0, nominal 0.1 m</td><td>Provides a known, detectable target geometry.</td></tr>
+              <tr><td><strong>USB camera</strong></td><td>eMeet C960, UVC/V4L2</td><td>Captures images of the marked target.</td></tr>
+              <tr><td><strong>Raspberry Pi 4B</strong></td><td>Edge compute platform</td><td>Runs the vision, estimation, tracking, logging, and ROS 2 pipeline.</td></tr>
+              <tr><td><strong>Pose estimation</strong></td><td>AprilTag detection + solvePnP</td><td>Converts detected tag corners into a camera-frame 3D position estimate.</td></tr>
+              <tr><td><strong>CV Kalman filter</strong></td><td>Baseline constant-velocity estimator</td><td>Provides a simple, low-cost tracking baseline.</td></tr>
+              <tr><td><strong>Formal IMM</strong></td><td>Interacting Multiple Model estimator</td><td>Combines multiple motion models and adapts their probabilities under the tested conditions.</td></tr>
+              <tr><td><strong>GHOST-MH</strong></td><td>Multi-hypothesis tracker</td><td>Maintains multiple possible target-state futures when motion or visibility is ambiguous.</td></tr>
+              <tr><td><strong>ROS 2 Jazzy</strong></td><td>Robotics middleware</td><td>Moves measurements, estimates, status, and evidence between components.</td></tr>
+              <tr><td><strong>ICM-42688-P IMU</strong></td><td>Inertial-sensor driver implemented; physical campaign evidence not retained</td><td>Intended future sensor-fusion input; not presented as validated hardware in this campaign.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section architecture-section" id="how-it-works" aria-labelledby="architecture-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="section-kicker">04 · How it works</p>
+          <h2 id="architecture-title">From printed tag to downstream follow-state output</h2>
+          <p>The complete flow is visible below without interaction. The expandable stage view then exposes inputs, outputs, failure modes, and supporting evidence.</p>
+        </div>
+
+        <ol class="pipeline-overview" aria-label="Five-stage GHOST-X processing pipeline">
+          <li><span>01</span><div><strong>AprilTag target</strong><p>A printed tag supplies known geometry and a stable visual identity for the object being followed.</p></div></li>
+          <li><span>02</span><div><strong>USB camera</strong><p>The eMeet C960 captures timestamped images of the target through Linux UVC/V4L2.</p></div></li>
+          <li><span>03</span><div><strong>Pose estimation</strong><p>AprilTag corners and camera calibration feed solvePnP to produce a camera-frame position measurement and covariance metadata.</p></div></li>
+          <li><span>04</span><div><strong>Tracking layer</strong><p>CV, formal IMM, and GHOST-MH consume the same measurement contract and output estimated state, prediction status, and validity through visibility loss.</p></div></li>
+          <li><span>05</span><div><strong>Follow interface</strong><p>The software exposes relative target state and status for downstream navigation logic; physical drone control was not validated.</p></div></li>
+        </ol>
+
+        <div class="architecture-subheading"><strong>Inspect the evidence behind each stage</strong><span>Clickable technical detail</span></div>
         <div class="architecture-layout">
           <div class="stage-rail" id="stage-rail" role="tablist" aria-label="GHOST-X system stages"></div>
           <article class="stage-detail" id="stage-detail" role="tabpanel" tabindex="0" aria-live="polite">
@@ -146,11 +215,69 @@
       </div>
     </section>
 
+    <section class="section results-summary-section" id="results-summary" aria-labelledby="results-summary-title">
+      <div class="shell">
+        <div class="section-heading split-heading">
+          <div>
+            <p class="section-kicker">05 · Results at a glance</p>
+            <h2 id="results-summary-title">What was demonstrated—and what was not</h2>
+          </div>
+          <p>This is the plain-language takeaway before the detailed dashboards. Measured hardware, synthetic software, and requirement failures remain visibly separated.</p>
+        </div>
+
+        <p class="results-abstract">Under 24 controlled software trials, formal IMM produced the lowest overall and hidden-period tracking error, while GHOST-MH produced the highest error in that campaign but beat constant velocity in one specific measured dropout proxy. On Raspberry Pi hardware, the system reacquired the AprilTag after one 2.4510 s occlusion without a reset. All 12 declared software-injected fault cases met their predeclared detection, isolation, and accepted-recovery criteria. Two real-time requirements—RT-001 and RT-002—were not met on the retained hardware run and remain disclosed prominently.</p>
+
+        <div class="results-summary-grid">
+          <article class="summary-result-card">
+            <span class="evidence-badge synthetic">Synthetic software · N=24</span>
+            <h3>Formal IMM had the lowest tracking error</h3>
+            <p>Across 24 deterministic analytic-truth trials with identical inputs, formal IMM had the lowest overall and hidden-period RMSE. GHOST-MH had the highest RMSE in that campaign, although it beat constant velocity in one measured short-dropout proxy and did not beat the last-seen hold.</p>
+            <small>Source: GHOST_X_G10_CI_REPORT.json</small>
+          </article>
+          <article class="summary-result-card">
+            <span class="evidence-badge measured">Measured hardware · N=1</span>
+            <h3>The target was reacquired after a 2.4510 s hide</h3>
+            <p>On the Raspberry Pi hardware setup, the single intended stationary-target occlusion ended with reacquisition and no tracker reset. This one event does not establish a repeated-trial success rate.</p>
+            <small>Source: GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json</small>
+          </article>
+          <article class="summary-result-card">
+            <span class="evidence-badge synthetic">Software fault injection · N=12</span>
+            <h3>All 12 declared fault cases met their acceptance criteria</h3>
+            <p>Each injected case was detected, isolated to the expected path, and returned to nominal or its predefined accepted recovery state. Shared-stream RMSE and recovery values are not independent physical degradation experiments.</p>
+            <small>Source: GHOST_X_G8_FAULT_REPORT.json</small>
+          </article>
+          <article class="summary-result-card summary-failure-card">
+            <span class="evidence-badge failure">Requirements not met</span>
+            <h3>RT-001 and RT-002 failed on the retained Pi run</h3>
+            <p>Nominal latency exceeded the declared p95/p99 limits, and the observed publication rate was 3.4433 Hz versus a 29.7 Hz minimum. Hard-real-time, production-readiness, and flight-worthiness claims are withheld.</p>
+            <small>Source: GHOST_X_G9_RUNTIME_REPORT.json</small>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section detailed-evidence-intro" id="detailed-evidence" aria-labelledby="detailed-evidence-title">
+      <div class="shell detailed-evidence-heading">
+        <p class="section-kicker">06 · Detailed evidence</p>
+        <h2 id="detailed-evidence-title">Replay, estimator comparisons, hardware results, faults, and runtime</h2>
+        <p>The following sections preserve the full evidence presentation: source classifications, sample sizes, equal chart scales, null results, failed requirements, and direct links to retained files.</p>
+        <div class="detail-jump-links" aria-label="Detailed evidence section links">
+          <a href="#replay">Recorded replay</a>
+          <a href="#comparison">Estimator comparison</a>
+          <a href="#occlusion">Occlusion</a>
+          <a href="#response">Directional/range</a>
+          <a href="#hardware">Hardware</a>
+          <a href="#faults">Faults</a>
+          <a href="#runtime">Runtime</a>
+        </div>
+      </div>
+    </section>
+
     <section class="section replay-section" id="replay" aria-labelledby="replay-title">
       <div class="shell">
         <div class="section-heading split-heading">
           <div>
-            <p class="section-kicker">03 · Recorded hardware replay</p>
+            <p class="section-kicker">Detailed evidence 01 · Recorded hardware replay</p>
             <h2 id="replay-title">Scrub through the guided trial exactly as recorded</h2>
           </div>
           <p>This is a data replay, not reconstructed camera footage. Every measurement point, event, and selected tracker point comes from retained JSONL records. No smoothing, interpolation, or synthetic filler is presented as captured data.</p>
@@ -213,7 +340,7 @@
     <section class="section comparison-section" id="comparison" aria-labelledby="comparison-title">
       <div class="shell">
         <div class="section-heading">
-          <p class="section-kicker">04 · Fair estimator comparison</p>
+          <p class="section-kicker">Detailed evidence 02 · Fair estimator comparison</p>
           <h2 id="comparison-title">Same inputs, same scenarios, same chart scales</h2>
           <p>Overall and hidden-period errors come from 24 deterministic analytic-truth trials across eight scenario families. Runtime values use matched Raspberry Pi Python-reference rows with zero stress workers.</p>
         </div>
@@ -247,7 +374,7 @@
     <section class="section occlusion-section" id="occlusion" aria-labelledby="occlusion-title">
       <div class="shell">
         <div class="section-heading">
-          <p class="section-kicker">05 · Occlusion and dropout results</p>
+          <p class="section-kicker">Detailed evidence 03 · Occlusion and dropout results</p>
           <h2 id="occlusion-title">Two distinct evidence sets—no duplicate scenario labels</h2>
           <p>The measured short hide is one stationary-target event (N=1). The long-hide result contains two synthetic obstacle occlusions from one deterministic mission execution.</p>
         </div>
@@ -269,7 +396,7 @@
     <section class="section occlusion-section response-section" id="response" aria-labelledby="response-title">
       <div class="shell">
         <div class="section-heading">
-          <p class="section-kicker">06 · Directional and range response</p>
+          <p class="section-kicker">Detailed evidence 04 · Directional and range response</p>
           <h2 id="response-title">Movement-response tests kept separate from occlusion evidence</h2>
           <p>Lateral and closer/farther trials evaluate relative camera-frame response. They contain no retained occlusion or reacquisition metric and are not counted as dropout tests.</p>
         </div>
@@ -291,7 +418,7 @@
     <section class="section hardware-section" id="hardware" aria-labelledby="hardware-title">
       <div class="shell">
         <div class="section-heading">
-          <p class="section-kicker">07 · Hardware validation</p>
+          <p class="section-kicker">Detailed evidence 05 · Hardware validation</p>
           <h2 id="hardware-title">What the Raspberry Pi campaign actually recorded</h2>
           <p>Component identity, calibration, rate, memory, temperature, and throttling fields below are populated only when a retained source exists.</p>
         </div>
@@ -316,7 +443,7 @@
       <div class="shell">
         <div class="section-heading split-heading">
           <div>
-            <p class="section-kicker">08 · Fault and robustness testing</p>
+            <p class="section-kicker">Detailed evidence 06 · Fault and robustness testing</p>
             <h2 id="faults-title">Twelve software-injected cases, retained individually</h2>
           </div>
           <p>These are deterministic software injections—not claims that every corresponding physical hardware fault was reproduced. Detection, isolation, recovery, and per-tracker error remain visible for every case.</p>
@@ -358,7 +485,7 @@
     <section class="section runtime-section" id="runtime" aria-labelledby="runtime-title">
       <div class="shell">
         <div class="section-heading">
-          <p class="section-kicker">09 · Runtime and deployment readiness</p>
+          <p class="section-kicker">Detailed evidence 07 · Runtime and deployment readiness</p>
           <h2 id="runtime-title">The timing requirements did not all pass</h2>
           <p>RT-001 and RT-002 failures are retained prominently. This campaign does not support hard-real-time, production-readiness, or flight-worthiness wording.</p>
         </div>
@@ -386,7 +513,7 @@
     <section class="section limitations-section" id="limitations" aria-labelledby="limitations-title">
       <div class="shell">
         <div class="section-heading">
-          <p class="section-kicker">10 · Limitations &amp; Claim Boundaries</p>
+          <p class="section-kicker">07 · Limitations &amp; Claim Boundaries</p>
           <h2 id="limitations-title">What this project does not establish</h2>
           <p>This section is intentionally permanent and visible. No independent metrology-grade ground truth was available, and a reviewer should not need to infer where the evidence stops.</p>
         </div>
@@ -400,12 +527,12 @@
       </div>
     </section>
 
-    <section class="section evidence-section" id="evidence" aria-labelledby="evidence-title">
+    <section class="section evidence-section" id="downloads" aria-labelledby="evidence-title">
       <div class="shell">
         <div class="section-heading split-heading">
           <div>
-            <p class="section-kicker">11 · Downloadable evidence</p>
-            <h2 id="evidence-title">Move from each headline to its source file</h2>
+            <p class="section-kicker">08 · Evidence downloads</p>
+            <h2 id="evidence-title">Download the reports, data, and reproducibility evidence</h2>
           </div>
           <p>The interactive page is a navigation layer over retained JSON, CSV, reports, raw-source hashes, tests, and a checksum-published release.</p>
         </div>
