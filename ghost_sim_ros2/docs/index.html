@@ -247,20 +247,42 @@
     <section class="section occlusion-section" id="occlusion" aria-labelledby="occlusion-title">
       <div class="shell">
         <div class="section-heading">
-          <p class="section-kicker">05 · Occlusion and motion scenarios</p>
-          <h2 id="occlusion-title">Change the scenario without mixing evidence classes</h2>
-          <p>Measured hardware scenarios and synthetic software scenarios remain visibly separated. Metrics that were not retained appear as “Not retained,” never as inferred values.</p>
+          <p class="section-kicker">05 · Occlusion and dropout results</p>
+          <h2 id="occlusion-title">Two distinct evidence sets—no duplicate scenario labels</h2>
+          <p>The measured short hide is one stationary-target event (N=1). The long-hide result contains two synthetic obstacle occlusions from one deterministic mission execution.</p>
         </div>
 
-        <div class="scenario-selector" id="scenario-selector" role="tablist" aria-label="Occlusion and motion scenarios"></div>
-        <article class="scenario-panel" id="scenario-panel" role="tabpanel" tabindex="0">
+        <div class="scenario-selector" id="occlusion-selector" role="tablist" aria-label="Occlusion and dropout scenarios"></div>
+        <article class="scenario-panel" id="occlusion-panel" role="tabpanel" tabindex="0">
           <div class="scenario-copy">
-            <div class="scenario-title-row"><div><span id="scenario-badge"></span><h3 id="scenario-title">Loading scenario…</h3></div><small id="scenario-basis"></small></div>
-            <p id="scenario-conclusion"></p>
-            <div class="scenario-metrics" id="scenario-metrics"></div>
+            <div class="scenario-title-row"><div><span id="occlusion-badge"></span><h3 id="occlusion-scenario-title">Loading scenario…</h3></div><small id="occlusion-basis"></small></div>
+            <p id="occlusion-conclusion"></p>
+            <div class="scenario-metrics" id="occlusion-metrics"></div>
           </div>
           <div class="plot-card scenario-plot-card">
-            <div id="scenario-chart" class="plot" role="img" aria-label="Selected scenario result chart"></div>
+            <div id="occlusion-chart" class="plot" role="img" aria-label="Selected occlusion result chart"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section occlusion-section response-section" id="response" aria-labelledby="response-title">
+      <div class="shell">
+        <div class="section-heading">
+          <p class="section-kicker">06 · Directional and range response</p>
+          <h2 id="response-title">Movement-response tests kept separate from occlusion evidence</h2>
+          <p>Lateral and closer/farther trials evaluate relative camera-frame response. They contain no retained occlusion or reacquisition metric and are not counted as dropout tests.</p>
+        </div>
+
+        <div class="scenario-selector" id="response-selector" role="tablist" aria-label="Directional and range response scenarios"></div>
+        <article class="scenario-panel" id="response-panel" role="tabpanel" tabindex="0">
+          <div class="scenario-copy">
+            <div class="scenario-title-row"><div><span id="response-badge"></span><h3 id="response-scenario-title">Loading response…</h3></div><small id="response-basis"></small></div>
+            <p id="response-conclusion"></p>
+            <div class="scenario-metrics" id="response-metrics"></div>
+          </div>
+          <div class="plot-card scenario-plot-card">
+            <div id="response-chart" class="plot" role="img" aria-label="Selected directional or range response chart"></div>
           </div>
         </article>
       </div>
@@ -269,7 +291,7 @@
     <section class="section hardware-section" id="hardware" aria-labelledby="hardware-title">
       <div class="shell">
         <div class="section-heading">
-          <p class="section-kicker">06 · Hardware validation</p>
+          <p class="section-kicker">07 · Hardware validation</p>
           <h2 id="hardware-title">What the Raspberry Pi campaign actually recorded</h2>
           <p>Component identity, calibration, rate, memory, temperature, and throttling fields below are populated only when a retained source exists.</p>
         </div>
@@ -294,7 +316,7 @@
       <div class="shell">
         <div class="section-heading split-heading">
           <div>
-            <p class="section-kicker">07 · Fault and robustness testing</p>
+            <p class="section-kicker">08 · Fault and robustness testing</p>
             <h2 id="faults-title">Twelve software-injected cases, retained individually</h2>
           </div>
           <p>These are deterministic software injections—not claims that every corresponding physical hardware fault was reproduced. Detection, isolation, recovery, and per-tracker error remain visible for every case.</p>
@@ -336,7 +358,7 @@
     <section class="section runtime-section" id="runtime" aria-labelledby="runtime-title">
       <div class="shell">
         <div class="section-heading">
-          <p class="section-kicker">08 · Runtime and deployment readiness</p>
+          <p class="section-kicker">09 · Runtime and deployment readiness</p>
           <h2 id="runtime-title">The timing requirements did not all pass</h2>
           <p>RT-001 and RT-002 failures are retained prominently. This campaign does not support hard-real-time, production-readiness, or flight-worthiness wording.</p>
         </div>
@@ -364,7 +386,7 @@
     <section class="section limitations-section" id="limitations" aria-labelledby="limitations-title">
       <div class="shell">
         <div class="section-heading">
-          <p class="section-kicker">09 · Limitations &amp; Claim Boundaries</p>
+          <p class="section-kicker">10 · Limitations &amp; Claim Boundaries</p>
           <h2 id="limitations-title">What this project does not establish</h2>
           <p>This section is intentionally permanent and visible. No independent metrology-grade ground truth was available, and a reviewer should not need to infer where the evidence stops.</p>
         </div>
@@ -382,7 +404,7 @@
       <div class="shell">
         <div class="section-heading split-heading">
           <div>
-            <p class="section-kicker">10 · Downloadable evidence</p>
+            <p class="section-kicker">11 · Downloadable evidence</p>
             <h2 id="evidence-title">Move from each headline to its source file</h2>
           </div>
           <p>The interactive page is a navigation layer over retained JSON, CSV, reports, raw-source hashes, tests, and a checksum-published release.</p>

@@ -404,7 +404,7 @@ def build_showcase() -> dict[str, Any]:
         {
             "id": "hardware_dropout",
             "value": dropout["measured_occlusion_duration_s"],
-            "display": "2.45097017288208 s",
+            "display": f"{float(dropout["measured_occlusion_duration_s"]):.4f} s",
             "label": "Measured tag occlusion; reacquired without reset",
             "badge": "MEASURED_HARDWARE",
             "sample_basis": "N=1 intended hardware dropout",
@@ -434,7 +434,7 @@ def build_showcase() -> dict[str, Any]:
         {
             "id": "rt002",
             "value": rt2["publication_rate_hz"],
-            "display": "3.4433068896378227 Hz",
+            "display": f"{float(rt2["publication_rate_hz"]):.4f} Hz",
             "label": "Observed publication rate vs 29.7 Hz minimum",
             "badge": "MEASURED_HARDWARE",
             "sample_basis": f"N={rt2['interarrival_ms']['count']} interarrival intervals",
@@ -444,9 +444,9 @@ def build_showcase() -> dict[str, Any]:
         },
     ]
 
-    scenarios = {
+    occlusion_scenarios = {
         "short_hide": {
-            "title": "Short tag hide",
+            "title": "Short stationary-target tag hide",
             "badge": "MEASURED_HARDWARE",
             "sample_basis": "N=1 intended hardware dropout",
             "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
@@ -465,8 +465,9 @@ def build_showcase() -> dict[str, Any]:
                 "reset_during_occlusion": dropout["reset_during_occlusion"],
             },
             "conclusion": (
-                "GHOST-MH beat constant velocity in this stationary-target proxy but did not "
-                "beat the last-seen hold. This single event does not establish universal superiority."
+                "This is the single stationary-target hardware dropout event; it is not counted "
+                "again under a second scenario label. GHOST-MH beat constant velocity in this "
+                "event but did not beat the last-seen hold."
             ),
         },
         "long_hide": {
@@ -491,6 +492,9 @@ def build_showcase() -> dict[str, Any]:
                 "occlusions. It does not represent physical flight or GPS-denied self-localization."
             ),
         },
+    }
+
+    response_scenarios = {
         "lateral_motion": {
             "title": "Guided lateral response",
             "badge": "MEASURED_HARDWARE",
@@ -500,31 +504,10 @@ def build_showcase() -> dict[str, Any]:
                 "baseline_y_m": lateral["baseline_y_m"],
                 "left_hold_y_m": lateral["left_hold_y_m"],
                 "right_hold_y_m": lateral["right_hold_y_m"],
-                "occlusion_duration_s": None,
-                "reacquisition_time_s": None,
-                "first_frame_errors_m": None,
-                "hidden_drift_m": None,
             },
             "conclusion": (
                 "Measured left and right holds moved in opposite camera-frame directions. "
-                "The result supports directional relative response only."
-            ),
-        },
-        "stationary_target": {
-            "title": "Stationary-target short dropout",
-            "badge": "MEASURED_HARDWARE",
-            "sample_basis": "N=1 intended hardware dropout",
-            "source": "GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json",
-            "metrics": {
-                "occlusion_duration_s": dropout["measured_occlusion_duration_s"],
-                "ghost_mh_top1_error_m": dropout["ghost_top1_error_m"],
-                "constant_velocity_error_m": dropout["constant_velocity_error_m"],
-                "last_seen_hold_error_m": dropout["last_seen_hold_error_m"],
-                "hidden_drift_m": None,
-            },
-            "conclusion": (
-                "The stationary last-seen hold had the lowest proxy error in this event. "
-                "GHOST-MH improved on constant velocity, not on every baseline."
+                "The result supports directional relative response only; it is not an occlusion test."
             ),
         },
         "range_change": {
@@ -541,12 +524,10 @@ def build_showcase() -> dict[str, Any]:
                 "closer_reset_count": closer["reset_count"],
                 "farther_delta_x_m": farther["delta_x_m"],
                 "farther_valid_samples": farther["valid_samples"],
-                "occlusion_duration_s": None,
-                "reacquisition_time_s": None,
             },
             "conclusion": (
                 "The focused retests produced the expected camera-frame range direction. "
-                "These are guided relative-response results, not independent absolute-accuracy trials."
+                "These are guided relative-response results, not occlusion or absolute-accuracy trials."
             ),
         },
     }
@@ -783,7 +764,8 @@ def build_showcase() -> dict[str, Any]:
                 "Reset count for CV, formal IMM, and GHOST-MH on one common retained final campaign",
             ],
         },
-        "occlusion_scenarios": scenarios,
+        "occlusion_scenarios": occlusion_scenarios,
+        "response_scenarios": response_scenarios,
         "hardware": {
             "badge": "MEASURED_HARDWARE",
             "compute": baseline["hardware"]["compute"],
@@ -870,7 +852,7 @@ def build_showcase() -> dict[str, Any]:
             ],
             "what_did_not_pass": [
                 "RT-001 nominal source-to-receipt latency exceeded the predeclared p95 and p99 limits.",
-                "RT-002 publication rate was 3.4433068896378227 Hz versus a 29.7 Hz minimum.",
+                "RT-002 publication rate was 3.4433 Hz versus a 29.7 Hz minimum.",
                 "One of twelve rows—C++ CV with zero stress workers—exceeded 33.333 ms; its root cause is not established.",
                 "The aggregate runtime requirements did not support a hard-real-time claim.",
             ],
@@ -897,16 +879,17 @@ This checklist maps the interactive page's headline claims to retained evidence.
 
 | Page claim or section | Evidence source | Data class | Sample basis / boundary |
 |---|---|---|---|
-| 2.45097017288208 s intended hardware occlusion; reacquired without reset | `GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json` | Measured hardware | N=1 intended dropout |
+| 2.4510 s intended hardware occlusion; reacquired without reset | `GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json` | Measured hardware | N=1 intended dropout |
 | 24/24 controlled-truth trials accepted | `GHOST_X_G4_VALIDATION.json`, `GHOST_X_G10_CI_REPORT.json` | Synthetic software | N=24 trials, 8 scenario families |
 | 12/12 software-injected faults passed | `GHOST_X_G8_FAULT_REPORT.json`, `.csv`, `g8_fault_evidence/*.jsonl` | Synthetic software | N=12 cases; pass means correct detection, isolation, and accepted recovery on one shared canonical stream |
-| RT-002 observed 3.4433068896378227 Hz versus 29.7 Hz minimum | `GHOST_X_G9_RUNTIME_REPORT.json` | Measured hardware runtime | Requirement not met |
+| RT-002 observed 3.4433 Hz versus 29.7 Hz minimum | `GHOST_X_G9_RUNTIME_REPORT.json` | Measured hardware runtime | Requirement not met |
 | Follower-drone navigation/reacquisition behavior | `GHOST_DRONE_MISSION_VALIDATION.json` | Synthetic software | One deterministic local-frame mission; no physical flight |
 | Raspberry Pi 4B, eMeet C960, ROS 2 Jazzy, AprilTag identity | `GHOST_X_BASELINE_MANIFEST.json`, `GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json` | Measured hardware | Guided tabletop campaign |
 | Interactive replay measurements, events, and tracker states | `data/GHOST_HARDWARE_REPLAY_20260716.json` plus embedded source hashes | Measured hardware | Browser cue window only; no interpolation or video |
 | CV / formal IMM / GHOST-MH overall and hidden RMSE | `GHOST_X_G10_CI_REPORT.json` | Synthetic software | Identical inputs, N=24 |
 | Matched Python-reference runtime rows | `GHOST_X_G9_RUNTIME_REPORT.json` | Measured hardware runtime | Raspberry Pi, no stress workers |
-| Short-hide, lateral, stationary and range results | `GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json`, `guided_hardware_evidence/*.json` | Measured hardware | Guided sequences; correlated samples are not independent trials |
+| Short-hide occlusion result | `GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json`, `guided_hardware_evidence/*.json` | Measured hardware | N=1 intended hardware dropout; not duplicated under another label |
+| Lateral and range response results | `GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json`, `guided_hardware_evidence/*.json` | Measured hardware | Directional/range response; correlated samples are not independent trials and are not occlusion tests |
 | Long-hide mission occlusions | `GHOST_DRONE_MISSION_VALIDATION.json` | Synthetic software | N=2 occlusions in one mission |
 | Runtime pass/fail and deadline evidence | `GHOST_X_G9_RUNTIME_REPORT.json`, `.csv` | Measured hardware runtime | RT-001 and RT-002 failed; RT-003 passed; 11/12 estimator max-time rows met the deadline |
 | 34/34 requirement traceability | `GHOST_X_FINAL_TRACEABILITY.csv`, `GHOST_X_SOFTWARE_STATUS.json` | Verification | 34 mapped rows |
