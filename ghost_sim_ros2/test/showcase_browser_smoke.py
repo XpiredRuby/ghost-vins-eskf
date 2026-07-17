@@ -24,7 +24,7 @@ PUBLISHED_FILES = (
     "index.html",
     "assets/showcase.css",
     "assets/showcase.js",
-    "data/GHOST_INTERACTIVE_SHOWCASE_DATA.json",
+    "data/GHOST_INTERACTIVE_SHOWCASE_DATA_V2.json",
     "data/GHOST_HARDWARE_REPLAY_20260716.json",
 )
 

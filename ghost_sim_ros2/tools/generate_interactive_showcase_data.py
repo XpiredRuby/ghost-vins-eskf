@@ -17,7 +17,7 @@ DEFAULT_RAW_TRIAL = Path(
     "browser_guided_runs/20260716T014453Z/recorder_trials/20260715_194502"
 )
 
-SHOWCASE_OUT = DATA_DIR / "GHOST_INTERACTIVE_SHOWCASE_DATA.json"
+SHOWCASE_OUT = DATA_DIR / "GHOST_INTERACTIVE_SHOWCASE_DATA_V2.json"
 REPLAY_OUT = DATA_DIR / "GHOST_HARDWARE_REPLAY_20260716.json"
 CHECKLIST_OUT = DOCS / "GHOST_INTERACTIVE_EVIDENCE_CHECKLIST.md"
 
@@ -692,12 +692,12 @@ def build_showcase() -> dict[str, Any]:
         source_link("GHOST_X_FINAL_TRACEABILITY.csv", "Requirements traceability CSV"),
         source_link("GHOST_X_RELEASE_MANIFEST.json", "Release manifest"),
         source_link("GHOST_INTERACTIVE_EVIDENCE_CHECKLIST.md", "Interactive evidence checklist"),
-        source_link("data/GHOST_INTERACTIVE_SHOWCASE_DATA.json", "Interactive page data"),
+        source_link("data/GHOST_INTERACTIVE_SHOWCASE_DATA_V2.json", "Interactive page data"),
         source_link("data/GHOST_HARDWARE_REPLAY_20260716.json", "Compact hardware replay data"),
     ]
 
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "page_title": "GHOST-X — Autonomous Object Tracking for Follower-Drone Applications",
         "framing": {
             "headline": "Autonomous Object Tracking for Follower-Drone Applications",
