@@ -404,7 +404,7 @@ def build_showcase() -> dict[str, Any]:
         {
             "id": "hardware_dropout",
             "value": dropout["measured_occlusion_duration_s"],
-            "display": f"{float(dropout["measured_occlusion_duration_s"]):.4f} s",
+            "display": f"{float(dropout['measured_occlusion_duration_s']):.4f} s",
             "label": "Measured tag occlusion; reacquired without reset",
             "badge": "MEASURED_HARDWARE",
             "sample_basis": "N=1 intended hardware dropout",
@@ -434,7 +434,7 @@ def build_showcase() -> dict[str, Any]:
         {
             "id": "rt002",
             "value": rt2["publication_rate_hz"],
-            "display": f"{float(rt2["publication_rate_hz"]):.4f} Hz",
+            "display": f"{float(rt2['publication_rate_hz']):.4f} Hz",
             "label": "Observed publication rate vs 29.7 Hz minimum",
             "badge": "MEASURED_HARDWARE",
             "sample_basis": f"N={rt2['interarrival_ms']['count']} interarrival intervals",
