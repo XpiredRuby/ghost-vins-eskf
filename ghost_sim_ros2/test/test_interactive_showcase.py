@@ -12,7 +12,7 @@ DOCS = PACKAGE_ROOT / "docs"
 INDEX = DOCS / "index.html"
 CSS = DOCS / "assets" / "showcase.css"
 JS = DOCS / "assets" / "showcase.js"
-SHOWCASE = DOCS / "data" / "GHOST_INTERACTIVE_SHOWCASE_DATA.json"
+SHOWCASE = DOCS / "data" / "GHOST_INTERACTIVE_SHOWCASE_DATA_V2.json"
 REPLAY = DOCS / "data" / "GHOST_HARDWARE_REPLAY_20260716.json"
 CHECKLIST = DOCS / "GHOST_INTERACTIVE_EVIDENCE_CHECKLIST.md"
 GENERATOR = PACKAGE_ROOT / "tools" / "generate_interactive_showcase_data.py"
@@ -61,6 +61,7 @@ def check_map(report: dict) -> dict[str, object]:
 
 def test_generated_showcase_matches_primary_evidence_exactly() -> None:
     showcase = json.loads(SHOWCASE.read_text(encoding="utf-8"))
+    assert showcase["schema_version"] == 2
     hardware = load("GHOST_GUIDED_HARDWARE_VALIDATION_20260716.json")
     g4 = load("GHOST_X_G4_VALIDATION.json")
     g8 = load("GHOST_X_G8_FAULT_REPORT.json")

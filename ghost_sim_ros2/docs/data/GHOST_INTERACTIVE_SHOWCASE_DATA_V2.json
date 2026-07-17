@@ -54,7 +54,7 @@
     },
     {
       "label": "Interactive page data",
-      "path": "data/GHOST_INTERACTIVE_SHOWCASE_DATA.json"
+      "path": "data/GHOST_INTERACTIVE_SHOWCASE_DATA_V2.json"
     },
     {
       "label": "Compact hardware replay data",
@@ -2058,7 +2058,7 @@
       "Eleven of twelve measured estimator maximum-execution rows remained below the 33.333 ms deadline."
     ]
   },
-  "schema_version": 1,
+  "schema_version": 2,
   "system_stages": [
     {
       "badge": "MEASURED_HARDWARE",

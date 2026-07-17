@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const DATA_URL = "data/GHOST_INTERACTIVE_SHOWCASE_DATA.json";
+  const DATA_URL = "data/GHOST_INTERACTIVE_SHOWCASE_DATA_V2.json";
   const REPLAY_URL = "data/GHOST_HARDWARE_REPLAY_20260716.json";
 
   const COLORS = {

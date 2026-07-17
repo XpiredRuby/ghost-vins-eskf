@@ -52,7 +52,7 @@ jobs:
             ghost_sim_ros2/docs/GHOST_PUBLIC_RESULTS_SUMMARY.json \
             ghost_sim_ros2/docs/GHOST_PUBLIC_RESULTS_TABLE.csv \
             ghost_sim_ros2/docs/GHOST_INTERACTIVE_EVIDENCE_CHECKLIST.md \
-            ghost_sim_ros2/docs/data/GHOST_INTERACTIVE_SHOWCASE_DATA.json
+            ghost_sim_ros2/docs/data/GHOST_INTERACTIVE_SHOWCASE_DATA_V2.json
 
       - name: Run interactive showcase browser smoke
         run: python3 ghost_sim_ros2/test/showcase_browser_smoke.py
